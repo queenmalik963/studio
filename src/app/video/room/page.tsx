@@ -5,12 +5,12 @@ import { useState, useRef, useEffect, Fragment } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Settings, Send, Mic, Gift, Gamepad2, X } from "lucide-react";
+import { ArrowLeft, Users, Settings, Send, Mic, Gift, Gamepad2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
-import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Card } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const initialMessages = [
   {
@@ -80,6 +80,7 @@ export default function VideoRoomPage() {
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
+    const [giftRecipient, setGiftRecipient] = useState('Everyone');
 
     useEffect(() => {
         if (chatContainerRef.current) {
@@ -105,13 +106,14 @@ export default function VideoRoomPage() {
     };
     
     const sendGift = (gift: {name: string, icon: string}) => {
+        const recipientText = giftRecipient === 'Everyone' ? '' : ` to ${giftRecipient}`;
          setMessages([
             ...messages,
             {
                 id: messages.length + 1,
                 author: "You",
                 gift: gift.icon,
-                text: `sent a ${gift.name}`,
+                text: `sent a ${gift.name}${recipientText}`,
                 type: 'gift'
             },
         ]);
@@ -183,7 +185,7 @@ export default function VideoRoomPage() {
                     {messages.map((msg) => (
                         <Fragment key={msg.id}>
                             {msg.type === 'chat' && (
-                                <div className={cn("flex items-start gap-3", msg.author === "You" ? "justify-end" : "justify-start")}>
+                                <div className={`flex items-start gap-3 ${msg.author === "You" ? "justify-end" : "justify-start"}`}>
                                     {msg.author !== "You" && (
                                         <Avatar className="h-8 w-8">
                                             <AvatarImage src={msg.avatar} alt={msg.author} />
@@ -192,7 +194,7 @@ export default function VideoRoomPage() {
                                     )}
                                     <div className="flex flex-col items-start">
                                         {msg.author !== "You" && <p className="text-xs text-primary font-semibold mb-1">{msg.author}</p>}
-                                        <div className={cn("rounded-lg px-4 py-2 max-w-xs lg:max-w-md", msg.author === "You" ? "bg-primary text-primary-foreground self-end" : "bg-muted")}>
+                                        <div className={`rounded-lg px-4 py-2 max-w-xs lg:max-w-md ${msg.author === "You" ? "bg-primary text-primary-foreground self-end" : "bg-muted"}`}>
                                             <p className="text-sm">{msg.text}</p>
                                         </div>
                                     </div>
@@ -239,14 +241,32 @@ export default function VideoRoomPage() {
                                 <DialogHeader>
                                     <DialogTitle>Send a Gift</DialogTitle>
                                 </DialogHeader>
-                                <div className="grid grid-cols-3 gap-4 py-4">
-                                {gifts.map(gift => (
-                                    <Card key={gift.name} className="flex flex-col items-center justify-center p-4 text-center cursor-pointer hover:bg-accent" onClick={() => sendGift(gift)}>
-                                        <p className="text-4xl">{gift.icon}</p>
-                                        <p className="font-semibold mt-2">{gift.name}</p>
-                                        <p className="text-xs text-muted-foreground">{gift.price} coins</p>
-                                    </Card>
-                                ))}
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label htmlFor="gift-recipient" className="text-sm font-medium">Send to:</label>
+                                        <Select value={giftRecipient} onValueChange={setGiftRecipient}>
+                                            <SelectTrigger id="gift-recipient">
+                                                <SelectValue placeholder="Select a recipient" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Everyone">Everyone</SelectItem>
+                                                {roomUsers.filter(u => u.name !== 'You').map(user => (
+                                                    <SelectItem key={user.name} value={user.name}>
+                                                        {user.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-4 py-4">
+                                    {gifts.map(gift => (
+                                        <Card key={gift.name} className="flex flex-col items-center justify-center p-4 text-center cursor-pointer hover:bg-accent" onClick={() => sendGift(gift)}>
+                                            <p className="text-4xl">{gift.icon}</p>
+                                            <p className="font-semibold mt-2">{gift.name}</p>
+                                            <p className="text-xs text-muted-foreground">{gift.price} coins</p>
+                                        </Card>
+                                    ))}
+                                    </div>
                                 </div>
                             </DialogContent>
                         </Dialog>
