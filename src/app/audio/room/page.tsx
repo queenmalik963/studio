@@ -300,36 +300,35 @@ export default function AudioRoomPage() {
             </main>
             
             <footer className="flex-shrink-0 bg-[#1F0A2E] border-t border-white/10 relative">
-                {/* Gift Panel */}
                 <div className={cn(
                     "absolute bottom-full left-0 right-0 bg-[#1F0A2E] border-t-2 border-purple-800 transition-transform duration-300 ease-in-out",
                     isGiftPanelOpen ? "translate-y-0" : "translate-y-full"
                 )}>
-                    <div className="p-2 space-y-2">
-                        <div className="flex justify-between items-center px-2">
-                           <h3 className="font-headline text-lg text-yellow-400 flex items-center gap-2"><GiftIcon className="w-5 h-5"/> Send a Gift</h3>
-                            <Button variant="ghost" size="icon" className="w-8 h-8" onClick={() => setIsGiftPanelOpen(false)}>
+                    <div className="p-4 space-y-4">
+                        <div className="flex justify-between items-center">
+                           <h3 className="font-headline text-xl text-yellow-400 flex items-center gap-2"><GiftIcon className="w-6 h-6"/> Send a Gift</h3>
+                           <Button variant="ghost" size="icon" onClick={() => setIsGiftPanelOpen(false)}>
                                <ChevronDown />
                            </Button>
                         </div>
                        {/* Gift Selection */}
                        <ScrollArea className="w-full whitespace-nowrap">
-                           <div className="flex space-x-2 px-2 pb-2">
+                           <div className="flex space-x-3 pb-2">
                            {gifts.map(gift => (
                                <div 
                                    key={gift.id} 
                                    className={cn(
-                                       "flex flex-col items-center gap-1 p-1 rounded-lg cursor-pointer transition-all border-2",
+                                       "flex flex-col items-center gap-1 p-2 rounded-lg cursor-pointer transition-all border-2",
                                        selectedGift.id === gift.id ? "border-yellow-400 bg-white/20" : "border-transparent hover:bg-white/10"
                                    )}
                                    onClick={() => setSelectedGift(gift)}
                                >
-                                   <div className="w-12 h-12 bg-black/20 rounded-lg flex items-center justify-center">
-                                       <Image src={gift.image} alt={gift.name} width={32} height={32} data-ai-hint={gift.hint} />
+                                   <div className="w-16 h-16 bg-black/20 rounded-lg flex items-center justify-center">
+                                       <Image src={gift.image} alt={gift.name} width={40} height={40} data-ai-hint={gift.hint} />
                                    </div>
-                                   <p className="text-[10px]">{gift.name}</p>
-                                   <div className="flex items-center gap-1 text-[10px] text-yellow-400">
-                                       <Coins className="w-2.5 h-2.5"/>
+                                   <p className="text-xs">{gift.name}</p>
+                                   <div className="flex items-center gap-1 text-xs text-yellow-400">
+                                       <Coins className="w-3 h-3"/>
                                        <span>{gift.price}</span>
                                    </div>
                                </div>
@@ -338,17 +337,16 @@ export default function AudioRoomPage() {
                        </ScrollArea>
                        
                        {/* Quantity & Recipient Selection */}
-                       <div className="px-2 space-y-2">
+                       <div className="space-y-4">
                             <div>
-                                <p className="text-xs font-semibold mb-1">Quantity</p>
-                               <div className="flex gap-1">
+                                <Label className="text-sm font-semibold mb-2 block">Quantity</Label>
+                               <div className="grid grid-cols-5 gap-2">
                                    {quantityOptions.map(q => (
                                         <Button 
                                            key={q}
                                            variant={selectedQuantity === q ? "secondary" : "outline"}
-                                           size="sm"
                                            className={cn(
-                                               "flex-1 h-7 text-xs bg-black/20 border-purple-700 hover:bg-purple-900",
+                                               "bg-black/20 border-purple-700 hover:bg-purple-900",
                                                selectedQuantity === q && "bg-primary hover:bg-primary/80"
                                            )}
                                            onClick={() => setSelectedQuantity(q)}
@@ -359,18 +357,18 @@ export default function AudioRoomPage() {
                                </div>
                            </div>
 
-                            <div className="space-y-1">
-                               <p className="text-xs font-semibold">Send To</p>
-                                <div className="flex gap-1">
-                                    <Button size="sm" variant="outline" className="flex-1 h-7 text-xs bg-black/20 border-purple-700 hover:bg-purple-900" onClick={selectAllOnMic}>
-                                       <Mic className="w-3 h-3 mr-1"/> All on Mic
+                            <div className="space-y-2">
+                               <Label className="text-sm font-semibold">Send To</Label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Button variant="outline" className="bg-black/20 border-purple-700 hover:bg-purple-900" onClick={selectAllOnMic}>
+                                       <Mic className="w-4 h-4 mr-2"/> All on Mic
                                    </Button>
-                                   <Button size="sm" variant="outline" className="flex-1 h-7 text-xs bg-black/20 border-purple-700 hover:bg-purple-900" onClick={selectAllInRoom}>
-                                       <Users className="w-3 h-3 mr-1"/> All in Room
+                                   <Button variant="outline" className="bg-black/20 border-purple-700 hover:bg-purple-900" onClick={selectAllInRoom}>
+                                       <Users className="w-4 h-4 mr-2"/> All in Room
                                    </Button>
                                </div>
-                                <ScrollArea className="h-16">
-                                   <div className="grid grid-cols-6 gap-1 mt-1">
+                                <ScrollArea className="h-24">
+                                   <div className="grid grid-cols-6 gap-2 mt-2">
                                    {occupiedSeats.map(seat => (
                                        <div 
                                            key={seat.id} 
@@ -378,11 +376,11 @@ export default function AudioRoomPage() {
                                            onClick={() => handleUserSelection(seat.id)}
                                        >
                                            <Avatar className={cn(
-                                               "w-8 h-8 border-2",
+                                               "w-10 h-10 border-2",
                                                selectedUsers.includes(seat.id) ? "border-yellow-400" : "border-transparent"
                                            )}>
                                                <AvatarImage src={seat.user!.avatar} />
-                                               <AvatarFallback className="text-xs">{seat.user!.name.charAt(0)}</AvatarFallback>
+                                               <AvatarFallback className="text-sm">{seat.user!.name.charAt(0)}</AvatarFallback>
                                            </Avatar>
                                        </div>
                                    ))}
@@ -391,39 +389,33 @@ export default function AudioRoomPage() {
                            </div>
                        </div>
                     </div>
-                    {/* Footer */}
-                   <div className="bg-black/30 p-2 flex justify-between items-center">
+                   <div className="bg-black/30 p-2 flex justify-between items-center mt-2">
                        <div className="flex items-center gap-2 text-yellow-400">
-                           <Coins className="w-4 h-4" />
-                           <span className="font-bold text-sm">{totalCost.toLocaleString()}</span>
+                           <Coins className="w-5 h-5" />
+                           <span className="font-bold">{totalCost.toLocaleString()}</span>
                        </div>
                        <Button 
-                           size="sm"
-                           className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold h-8" 
+                           className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold" 
                            onClick={handleSendGift}
                            disabled={selectedUsers.length === 0}
                        >
-                           <SendIconLucide className="w-3 h-3 mr-1" />
+                           <SendIconLucide className="w-4 h-4 mr-2" />
                            Send ({selectedUsers.length})
                        </Button>
                    </div>
                 </div>
 
-                {/* Main Footer */}
-                <div className={cn(
-                    "p-2 bg-transparent transition-transform duration-300 ease-in-out",
-                     isGiftPanelOpen && "translate-y-full opacity-0"
-                     )}>
+                <div className="p-2">
                     <div className="flex items-center justify-around">
                         <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30">
-                             <span className="font-bold text-md">N</span>
+                             <MessageSquare />
                         </Button>
-                         <div className="flex-grow relative mx-1">
+                         <div className="flex-grow relative mx-2">
                             <Input
                                 autoComplete="off"
                                 name="message"
                                 placeholder="Hi..."
-                                className="bg-black/30 border-0 rounded-full pl-3 pr-8 text-white h-10"
+                                className="bg-black/30 border-0 rounded-full pl-4 pr-10 text-white h-10"
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
                             />
@@ -435,9 +427,6 @@ export default function AudioRoomPage() {
                             <Mic />
                         </Button>
                          <Button type="button" size="icon" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full"><Gamepad2 /></Button>
-                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
-                        </Button>
                          <Button type="button" size="icon" className="w-10 h-10 bg-yellow-500 hover:bg-yellow-600 rounded-full" onClick={() => setIsGiftPanelOpen(true)}>
                             <GiftIcon />
                         </Button>
