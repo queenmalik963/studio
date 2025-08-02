@@ -10,7 +10,7 @@ import { Plus, Search, Settings, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const initialRooms = [
   {
@@ -23,7 +23,7 @@ const initialRooms = [
       { name: "C", src: "https://placehold.co/40x40.png" },
     ],
     isPlaying: true,
-    progress: 0,
+    progress: 65,
   },
   {
     name: "NOVA MALIK",
@@ -34,7 +34,7 @@ const initialRooms = [
       { name: "E", src: "https://placehold.co/40x40.png" },
     ],
     isPlaying: true,
-    progress: 0,
+    progress: 80,
   },
     {
     name: "Lost in Thoughts ~ Lofi hip hop mix",
@@ -56,7 +56,7 @@ const initialRooms = [
         { name: "I", src: "https://placehold.co/40x40.png" },
     ],
     isPlaying: true,
-    progress: 0,
+    progress: 30,
   },
    {
     name: "Qott Ghusian Da",
@@ -67,21 +67,13 @@ const initialRooms = [
         { name: "K", src: "https://placehold.co/40x40.png" },
     ],
     isPlaying: true,
-    progress: 0,
+    progress: 50,
   },
 ];
 
 
 export default function VideoPage() {
     const [rooms, setRooms] = useState(initialRooms);
-
-    useEffect(() => {
-        // Set random progress on client-side to avoid hydration mismatch
-        setRooms(initialRooms.map(room => ({
-            ...room,
-            progress: Math.random() * 80 + 10
-        })));
-    }, []);
 
   return (
     <div className="bg-gradient-to-b from-slate-900 via-purple-900 to-slate-900 min-h-screen">

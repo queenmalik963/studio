@@ -22,7 +22,7 @@ const initialRooms = [
       { name: "C", src: "https://placehold.co/40x40.png" },
     ],
     isPlaying: true,
-    progress: 0,
+    progress: 75,
   },
   {
     name: "Deep House Mix by Nora En Pure",
@@ -33,7 +33,7 @@ const initialRooms = [
       { name: "E", src: "https://placehold.co/40x40.png" },
     ],
     isPlaying: true,
-    progress: 0,
+    progress: 40,
   },
     {
     name: "Techno Bunker Live Set",
@@ -55,21 +55,13 @@ const initialRooms = [
         { name: "H", src: "https://placehold.co/40x40.png" },
     ],
     isPlaying: true,
-    progress: 0,
+    progress: 60,
   },
 ];
 
 
 export default function AudioPage() {
     const [rooms, setRooms] = useState(initialRooms);
-
-    useEffect(() => {
-        // Set random progress on client-side to avoid hydration mismatch
-        setRooms(initialRooms.map(room => ({
-            ...room,
-            progress: Math.random() * 80 + 10
-        })));
-    }, []);
 
   return (
     <div className="bg-gradient-to-b from-slate-900 via-indigo-900 to-slate-900 min-h-screen">
