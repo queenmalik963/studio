@@ -14,7 +14,7 @@ const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
-// Inline SVG for Google icon
+// Inline SVG for Google icon_
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
@@ -49,9 +49,9 @@ export default function SignupPage() {
                             <Label htmlFor="confirm-password">Confirm Password</Label>
                             <Input id="confirm-password" type="password" required />
                         </div>
-                        <Link href="/home">
-                           <Button type="submit" className="w-full font-bold bg-accent text-accent-foreground hover:bg-accent/90">Sign Up</Button>
-                        </Link>
+                        <Button asChild type="submit" className="w-full font-bold bg-accent text-accent-foreground hover:bg-accent/90">
+                           <Link href="/home">Sign Up</Link>
+                        </Button>
                     </form>
 
                     <div className="my-4 flex items-center">

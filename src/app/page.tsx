@@ -46,9 +46,9 @@ export default function LoginPage() {
                             <Label htmlFor="password">Password</Label>
                             <Input id="password" type="password" required />
                         </div>
-                        <Link href="/home">
-                            <Button type="submit" className="w-full font-bold">Sign In</Button>
-                        </Link>
+                        <Button asChild type="submit" className="w-full font-bold">
+                            <Link href="/home">Sign In</Link>
+                        </Button>
                     </form>
 
                     <div className="my-4 flex items-center">
