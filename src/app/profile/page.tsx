@@ -109,188 +109,187 @@ export default function ProfilePage() {
         });
     };
 
-  return (
-    <AppLayout>
-      <div className="space-y-6">
-        <div className="bg-gradient-to-b from-primary/30 to-background rounded-xl p-4 -m-4 md:m-0 relative">
-            <div className="absolute top-4 right-4 flex gap-2">
-                 <Link href="/profile/settings">
-                    <Button variant="ghost" size="icon" className="text-white">
-                        <Settings className="w-5 h-5" />
-                    </Button>
-                </Link>
-            </div>
-            <div className="flex flex-col items-center text-center text-white">
-                <div className="relative">
-                    <Avatar className="w-24 h-24 border-4 border-white">
-                        <AvatarImage src="https://placehold.co/100x100.png" alt="associate Official" data-ai-hint="person alphabet" />
-                        <AvatarFallback>A</AvatarFallback>
-                    </Avatar>
-                     <Button variant="outline" size="icon" className="absolute bottom-0 -right-2 h-8 w-8 rounded-full bg-background text-foreground border-2 border-white" onClick={() => setIsEditOpen(true)}>
-                        <Edit className="w-4 h-4" />
-                    </Button>
-                </div>
-                <h1 className="text-2xl font-bold mt-4">{userName}</h1>
-                <p className="text-sm text-white/70">@user1754000546251</p>
-                <p className="text-sm mt-2 max-w-sm">Welcome to Devika!</p>
-                <div className="flex justify-around text-center mt-4 w-full max-w-xs">
-                    <div>
-                        <p className="font-bold text-lg">0</p>
-                        <p className="text-xs text-white/70">Following</p>
+    return (
+        <AppLayout>
+            <div className="space-y-6">
+                <div className="bg-gradient-to-b from-primary/30 to-background rounded-xl p-4 -m-4 md:m-0 relative">
+                    <div className="absolute top-4 right-4 flex gap-2">
+                        <Link href="/profile/settings">
+                            <Button variant="ghost" size="icon" className="text-white">
+                                <Settings className="w-5 h-5" />
+                            </Button>
+                        </Link>
                     </div>
-                    <div>
-                        <p className="font-bold text-lg">0</p>
-                        <p className="text-xs text-white/70">Followers</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <Card>
-            <CardHeader>
-                <CardTitle>My Wallet & Progress</CardTitle>
-                <CardDescription>Manage your funds and track your level progress.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                <div className="flex items-center justify-between bg-primary/10 p-4 rounded-lg">
-                    <div className="flex items-center">
-                        <Wallet className="mr-3 text-primary" />
-                        <span className="font-semibold">Balance</span>
-                    </div>
-                    <div className="flex items-center text-primary font-bold text-lg">
-                        <Coins className="mr-2" /> 1,250
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <Link href="/profile/recharge" passHref>
-                        <Button variant="secondary" className="w-full">
-                            <Gem className="mr-2" /> Recharge
-                        </Button>
-                    </Link>
-                     <Link href="/profile/withdraw" passHref>
-                        <Button variant="outline" className="w-full">
-                            <Landmark className="mr-2" /> Withdraw
-                        </Button>
-                    </Link>
-                </div>
-
-                <div className="space-y-4">
-                    <div className="space-y-2">
-                        <div className="flex justify-between items-center text-sm font-semibold text-muted-foreground">
-                            <p className="flex items-center"><Star className="w-4 h-4 mr-1 text-yellow-400"/> ID Level</p>
-                            <p>1/100</p>
+                    <div className="flex flex-col items-center text-center text-white">
+                        <div className="relative">
+                            <Avatar className="w-24 h-24 border-4 border-white">
+                                <AvatarImage src="https://placehold.co/100x100.png" alt="associate Official" data-ai-hint="person alphabet" />
+                                <AvatarFallback>A</AvatarFallback>
+                            </Avatar>
+                            <Button variant="outline" size="icon" className="absolute bottom-0 -right-2 h-8 w-8 rounded-full bg-background text-foreground border-2 border-white" onClick={() => setIsEditOpen(true)}>
+                                <Edit className="w-4 h-4" />
+                            </Button>
                         </div>
-                        <Progress value={1} className="h-2 bg-muted [&>div]:bg-gradient-to-r [&>div]:from-yellow-400 [&>div]:to-amber-500" />
-                    </div>
-                    <div className="space-y-2">
-                         <div className="flex justify-between items-center text-sm font-semibold text-muted-foreground">
-                            <p className="flex items-center"><Send className="w-4 h-4 mr-1 text-sky-400"/> Sending Level</p>
-                            <p>1/100</p>
+                        <h1 className="text-2xl font-bold mt-4">{userName}</h1>
+                        <p className="text-sm text-white/70">@user1754000546251</p>
+                        <p className="text-sm mt-2 max-w-sm">Welcome to Devika!</p>
+                        <div className="flex justify-around text-center mt-4 w-full max-w-xs">
+                            <div>
+                                <p className="font-bold text-lg">0</p>
+                                <p className="text-xs text-white/70">Following</p>
+                            </div>
+                            <div>
+                                <p className="font-bold text-lg">0</p>
+                                <p className="text-xs text-white/70">Followers</p>
+                            </div>
                         </div>
-                        <Progress value={1} className="h-2 bg-muted [&>div]:bg-gradient-to-r [&>div]:from-sky-400 [&>div]:to-cyan-500" />
                     </div>
                 </div>
-            </CardContent>
-        </Card>
 
-        <Card>
-            <CardHeader>
-                <CardTitle>My Store</CardTitle>
-                <CardDescription>Customize your profile and get exclusive perks.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4">
-                <Link href="/profile/vip" className="block">
-                    <Card className="h-full bg-card hover:bg-muted transition-colors text-center p-4 flex flex-col items-center justify-center gap-2">
-                        <Crown className="w-8 h-8 text-yellow-400"/>
-                        <p className="font-semibold">VIP Center</p>
-                    </Card>
-                </Link>
-                 <Link href="/profile/frame" className="block">
-                     <Card className="h-full bg-card hover:bg-muted transition-colors text-center p-4 flex flex-col items-center justify-center gap-2">
-                        <Square className="w-8 h-8 text-cyan-400"/>
-                        <p className="font-semibold">Frame Store</p>
-                    </Card>
-                </Link>
-            </CardContent>
-        </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>My Wallet & Progress</CardTitle>
+                        <CardDescription>Manage your funds and track your level progress.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="flex items-center justify-between bg-primary/10 p-4 rounded-lg">
+                            <div className="flex items-center">
+                                <Wallet className="mr-3 text-primary" />
+                                <span className="font-semibold">Balance</span>
+                            </div>
+                            <div className="flex items-center text-primary font-bold text-lg">
+                                <Coins className="mr-2" /> 1,250
+                            </div>
+                        </div>
 
+                        <div className="grid grid-cols-2 gap-4">
+                            <Link href="/profile/recharge" passHref>
+                                <Button variant="secondary" className="w-full">
+                                    <Gem className="mr-2" /> Recharge
+                                </Button>
+                            </Link>
+                            <Link href="/profile/withdraw" passHref>
+                                <Button variant="outline" className="w-full">
+                                    <Landmark className="mr-2" /> Withdraw
+                                </Button>
+                            </Link>
+                        </div>
 
-        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-            <DialogContent className="text-foreground">
-                <DialogHeader>
-                    <DialogTitle>Edit Profile</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                    <div className="relative w-28 h-28 mx-auto">
-                        <Avatar className="w-full h-full border-4 border-primary">
-                            <AvatarImage src="https://placehold.co/100x100.png" alt={userName} data-ai-hint="person alphabet" />
-                            <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <Button variant="outline" size="icon" className="absolute bottom-1 right-1 h-8 w-8 rounded-full bg-background border-2">
-                            <Camera className="w-4 h-4" />
-                        </Button>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="name">Name</Label>
-                        <Input id="name" value={currentName} onChange={(e) => setCurrentName(e.target.value)} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="country">Country</Label>
-                        <Select defaultValue="us">
-                            <SelectTrigger id="country">
-                                <SelectValue placeholder="Select a region" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="global">
-                                    <div className="flex items-center gap-2">
-                                        <Globe className="w-5 h-5" />
-                                        Global
-                                    </div>
-                                </SelectItem>
-                                <SelectItem value="us">
-                                    <div className="flex items-center gap-2">
-                                        <USFlagIcon className="w-5 h-auto rounded-sm" />
-                                        United States
-                                    </div>
-                                </SelectItem>
-                                <SelectItem value="pk">
-                                    <div className="flex items-center gap-2">
-                                        <PKFlagIcon className="w-5 h-auto rounded-sm" />
-                                        Pakistan
-                                    </div>
-                                </SelectItem>
-                                <SelectItem value="in">
-                                    <div className="flex items-center gap-2">
-                                        <INFlagIcon className="w-5 h-auto rounded-sm" />
-                                        India
-                                    </div>
-                                </SelectItem>
-                                <SelectItem value="gb">
-                                    <div className="flex items-center gap-2">
-                                        <GBFlagIcon className="w-5 h-auto rounded-sm" />
-                                        United Kingdom
-                                    </div>
-                                </SelectItem>
-                                <SelectItem value="ca">
-                                    <div className="flex items-center gap-2">
-                                        <CAFlagIcon className="w-5 h-auto rounded-sm" />
-                                        Canada
-                                    </div>
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-                <DialogFooter>
-                    <DialogClose asChild>
-                        <Button variant="ghost">Cancel</Button>
-                    </DialogClose>
-                    <Button onClick={handleSaveChanges}>Save Changes</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-      </div>
-    </AppLayout>
-  )
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-center text-sm font-semibold text-muted-foreground">
+                                    <p className="flex items-center"><Star className="w-4 h-4 mr-1 text-yellow-400"/> ID Level</p>
+                                    <p>1/100</p>
+                                </div>
+                                <Progress value={1} className="h-2 bg-muted [&>div]:bg-gradient-to-r [&>div]:from-yellow-400 [&>div]:to-amber-500" />
+                            </div>
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-center text-sm font-semibold text-muted-foreground">
+                                    <p className="flex items-center"><Send className="w-4 h-4 mr-1 text-sky-400"/> Sending Level</p>
+                                    <p>1/100</p>
+                                </div>
+                                <Progress value={1} className="h-2 bg-muted [&>div]:bg-gradient-to-r [&>div]:from-sky-400 [&>div]:to-cyan-500" />
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>My Store</CardTitle>
+                        <CardDescription>Customize your profile and get exclusive perks.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-2 gap-4">
+                        <Link href="/profile/vip" className="block">
+                            <Card className="h-full bg-card hover:bg-muted transition-colors text-center p-4 flex flex-col items-center justify-center gap-2">
+                                <Crown className="w-8 h-8 text-yellow-400"/>
+                                <p className="font-semibold">VIP Center</p>
+                            </Card>
+                        </Link>
+                        <Link href="/profile/frame" className="block">
+                            <Card className="h-full bg-card hover:bg-muted transition-colors text-center p-4 flex flex-col items-center justify-center gap-2">
+                                <Square className="w-8 h-8 text-cyan-400"/>
+                                <p className="font-semibold">Frame Store</p>
+                            </Card>
+                        </Link>
+                    </CardContent>
+                </Card>
+
+                <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                    <DialogContent className="text-foreground">
+                        <DialogHeader>
+                            <DialogTitle>Edit Profile</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                            <div className="relative w-28 h-28 mx-auto">
+                                <Avatar className="w-full h-full border-4 border-primary">
+                                    <AvatarImage src="https://placehold.co/100x100.png" alt={userName} data-ai-hint="person alphabet" />
+                                    <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <Button variant="outline" size="icon" className="absolute bottom-1 right-1 h-8 w-8 rounded-full bg-background border-2">
+                                    <Camera className="w-4 h-4" />
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Name</Label>
+                                <Input id="name" value={currentName} onChange={(e) => setCurrentName(e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="country">Country</Label>
+                                <Select defaultValue="us">
+                                    <SelectTrigger id="country">
+                                        <SelectValue placeholder="Select a region" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="global">
+                                            <div className="flex items-center gap-2">
+                                                <Globe className="w-5 h-5" />
+                                                Global
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="us">
+                                            <div className="flex items-center gap-2">
+                                                <USFlagIcon className="w-5 h-auto rounded-sm" />
+                                                United States
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="pk">
+                                            <div className="flex items-center gap-2">
+                                                <PKFlagIcon className="w-5 h-auto rounded-sm" />
+                                                Pakistan
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="in">
+                                            <div className="flex items-center gap-2">
+                                                <INFlagIcon className="w-5 h-auto rounded-sm" />
+                                                India
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="gb">
+                                            <div className="flex items-center gap-2">
+                                                <GBFlagIcon className="w-5 h-auto rounded-sm" />
+                                                United Kingdom
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="ca">
+                                            <div className="flex items-center gap-2">
+                                                <CAFlagIcon className="w-5 h-auto rounded-sm" />
+                                                Canada
+                                            </div>
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button variant="ghost">Cancel</Button>
+                            </DialogClose>
+                            <Button onClick={handleSaveChanges}>Save Changes</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </div>
+        </AppLayout>
+    );
 }
