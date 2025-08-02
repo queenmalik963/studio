@@ -6,8 +6,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Users, ArrowLeft, Mic, Send, Gift, Gamepad2, PanelTopClose, Vote, MessageCircle } from "lucide-react";
+import { Users, ArrowLeft, Mic, Send, Gift, Gamepad2, PanelTopClose, Vote, MessageCircle, ShieldCheck, LogOut, User as UserIcon, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+
 
 const LockIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -22,27 +25,70 @@ const NIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 )
 
+const initialSeats = [
+    { id: 1, user: { name: "Jodie", image: "https://placehold.co/80x80.png", isSpeaking: true, isMuted: false, isHost: true } },
+    { id: 2, user: { name: "Koko", image: "https://placehold.co/80x80.png", isSpeaking: true, isMuted: false, isHost: false } },
+    { id: 8, user: null, isLocked: true },
+    { id: 9, user: { name: "Lexa", image: "https://placehold.co/80x80.png", isSpeaking: false, isMuted: true, isHost: false } },
+    { id: 10, user: { name: "mhay", image: "https://placehold.co/80x80.png", isSpeaking: false, isMuted: true, isHost: false } },
+    { id: 6, user: { name: "saba", image: "https://placehold.co/80x80.png", isSpeaking: true, isMuted: false, isHost: false } },
+    { id: 7, user: { name: "MR ISMAIL", image: "https://placehold.co/80x80.png", isSpeaking: true, isMuted: false, isHost: false } },
+];
+const emptySeats = [3, 4, 5];
+
+const initialChatMessages = [
+    { user: "Jodie", text: "Sent a RedRose", isAction: true, gift: "🌹" },
+    { user: "Jodie", text: "started playing Fruit!", isAction: true, game: true },
+    { user: "Jodie", text: "started playing Bingo!", isAction: true, game: true },
+];
+
+const allUsersInRoom = [
+    ...initialSeats.filter(s => s.user).map(s => s.user!),
+    { name: "Viewer1", image: "https://placehold.co/40x40.png", isHost: false },
+    { name: "Viewer2", image: "https://placehold.co/40x40.png", isHost: false },
+]
+
+// Let's assume the current user is the owner
+const isCurrentUserOwner = true;
+
 export default function AudioRoomPage() {
     const router = useRouter();
     const [newMessage, setNewMessage] = useState("");
+    const [seats, setSeats] = useState(initialSeats);
+    const [chatMessages, setChatMessages] = useState(initialChatMessages);
 
-    const seats = [
-        { id: 1, user: { name: "Jodie", image: "https://placehold.co/80x80.png", isSpeaking: true, isMuted: false, isHost: true } },
-        { id: 2, user: { name: "Koko", image: "https://placehold.co/80x80.png", isSpeaking: true, isMuted: false, isHost: false } },
-        { id: 8, user: null, isLocked: true },
-        { id: 9, user: { name: "Lexa", image: "https://placehold.co/80x80.png", isSpeaking: false, isMuted: true, isHost: false } },
-        { id: 10, user: { name: "mhay", image: "https://placehold.co/80x80.png", isSpeaking: false, isMuted: true, isHost: false } },
-        { id: 6, user: { name: "saba", image: "https://placehold.co/80x80.png", isSpeaking: true, isMuted: false, isHost: false } },
-        { id: 7, user: { name: "MR ISMAIL", image: "https://placehold.co/80x80.png", isSpeaking: true, isMuted: false, isHost: false } },
-    ];
-    const emptySeats = [3, 4, 5];
+    const handleSeatAction = (action: string, userName: string | undefined) => {
+        console.log(`${action} on ${userName}`);
+        // Dummy function for now
+    }
 
-    const chatMessages = [
-        { user: "Jodie", text: "Sent a RedRose", isAction: true, gift: "🌹" },
-        { user: "Jodie", text: "started playing Fruit!", isAction: true, game: true },
-        { user: "Jodie", text: "started playing Bingo!", isAction: true, game: true },
-    ];
-
+    const UserContextMenu = ({ targetUser }: { targetUser: { name: string, image: string, isHost: boolean }}) => {
+        if (isCurrentUserOwner) {
+            // Owner's context menu for other users
+            return (
+                <PopoverContent className="w-48 p-2">
+                    <div className="flex flex-col gap-1">
+                        <Button variant="ghost" className="justify-start" onClick={() => handleSeatAction('Mute', targetUser.name)}><Mic className="mr-2 h-4 w-4"/>Mute/Unmute</Button>
+                        <Button variant="ghost" className="justify-start" onClick={() => handleSeatAction('Kick from seat', targetUser.name)}><LogOut className="mr-2 h-4 w-4"/>Kick from Seat</Button>
+                        <Button variant="ghost" className="justify-start" onClick={() => handleSeatAction('Make Co-Host', targetUser.name)}><ShieldCheck className="mr-2 h-4 w-4"/>Make Co-Host</Button>
+                         <Button variant="destructive" className="justify-start" onClick={() => handleSeatAction('Kick from room', targetUser.name)}><X className="mr-2 h-4 w-4"/>Kick from Room</Button>
+                    </div>
+                </PopoverContent>
+            );
+        }
+        
+        // Regular user's context menu
+        return (
+             <PopoverContent className="w-48 p-2">
+                <div className="flex flex-col gap-1">
+                    <Button variant="ghost" className="justify-start"><UserIcon className="mr-2 h-4 w-4"/>View Profile</Button>
+                    <Button variant="ghost" className="justify-start"><Gift className="mr-2 h-4 w-4"/>Send Gift</Button>
+                    <Button variant="ghost" className="justify-start"><UserPlus className="mr-2 h-4 w-4"/>Follow</Button>
+                </div>
+            </PopoverContent>
+        )
+    };
+    
     return (
         <div className="flex flex-col h-screen bg-gradient-to-b from-[#1E0B38] to-[#3C1A5C] text-white p-4">
             {/* Header */}
@@ -61,9 +107,32 @@ export default function AudioRoomPage() {
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" className="bg-black/20 rounded-full h-8 px-4">
-                        <Users className="w-4 h-4 mr-2" /> 6
-                    </Button>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button variant="ghost" className="bg-black/20 rounded-full h-8 px-4">
+                                <Users className="w-4 h-4 mr-2" /> {allUsersInRoom.length}
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Users in Room</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-3 py-4 max-h-80 overflow-y-auto">
+                                {allUsersInRoom.map(user => (
+                                    <div key={user.name} className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <Avatar>
+                                                <AvatarImage src={user.image} alt={user.name} />
+                                                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            <p className="font-semibold">{user.name}</p>
+                                        </div>
+                                        {user.isHost && <ShieldCheck className="text-yellow-400" />}
+                                    </div>
+                                ))}
+                            </div>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </header>
 
@@ -72,29 +141,34 @@ export default function AudioRoomPage() {
                 <div className="grid grid-cols-5 gap-y-4 gap-x-2 place-items-center">
                     {seats.slice(0, 5).map((seat) => (
                         <div key={seat.id} className="flex flex-col items-center gap-1.5 text-center">
-                            <div className={cn(
-                                "w-14 h-14 rounded-full bg-white/10 flex items-center justify-center relative",
-                                seat.user?.isSpeaking && "border-2 border-primary ring-2 ring-primary/50"
-                            )}>
-                                {seat.user ? (
-                                    <Avatar className="w-full h-full">
-                                        <AvatarImage src={seat.user.image} alt={seat.user.name} />
-                                        <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
-                                    </Avatar>
-                                ) : seat.isLocked ? (
-                                    <LockIcon className="w-8 h-8 text-white/50" />
-                                ) : (
-                                    <span className="text-lg font-bold">{seat.id}</span>
-                                )}
-                                {seat.user && (
-                                     <div className={cn(
-                                        "absolute -bottom-2 h-5 w-5 rounded-full flex items-center justify-center border-2",
-                                        seat.user.isSpeaking ? 'bg-primary border-background' : 'bg-gray-600 border-gray-800'
-                                     )}>
-                                        <Mic className="w-3 h-3 text-white" />
+                            <Popover>
+                                <PopoverTrigger asChild disabled={!seat.user}>
+                                    <div className={cn(
+                                        "w-14 h-14 rounded-full bg-white/10 flex items-center justify-center relative cursor-pointer",
+                                        seat.user?.isSpeaking && "border-2 border-primary ring-2 ring-primary/50"
+                                    )}>
+                                        {seat.user ? (
+                                            <Avatar className="w-full h-full">
+                                                <AvatarImage src={seat.user.image} alt={seat.user.name} />
+                                                <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                        ) : seat.isLocked ? (
+                                            <LockIcon className="w-8 h-8 text-white/50" />
+                                        ) : (
+                                            <span className="text-lg font-bold">{seat.id}</span>
+                                        )}
+                                        {seat.user && (
+                                             <div className={cn(
+                                                "absolute -bottom-2 h-5 w-5 rounded-full flex items-center justify-center border-2",
+                                                seat.user.isSpeaking ? 'bg-primary border-background' : 'bg-gray-600 border-gray-800'
+                                             )}>
+                                                <Mic className="w-3 h-3 text-white" />
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                            </div>
+                                </PopoverTrigger>
+                                {seat.user && <UserContextMenu targetUser={seat.user} />}
+                            </Popover>
                             <p className="text-xs font-semibold">{seat.user?.name || ""}</p>
                         </div>
                     ))}
@@ -102,25 +176,30 @@ export default function AudioRoomPage() {
                  <div className="grid grid-cols-4 gap-y-4 gap-x-2 place-items-center mt-4">
                     {seats.slice(5).map((seat) => (
                          <div key={seat.id} className="flex flex-col items-center gap-1.5 text-center col-span-2">
-                            <div className={cn(
-                                "w-14 h-14 rounded-full bg-white/10 flex items-center justify-center relative",
-                                seat.user?.isSpeaking && "border-2 border-primary ring-2 ring-primary/50"
-                            )}>
-                                {seat.user ? (
-                                 <Avatar className="w-full h-full">
-                                    <AvatarImage src={seat.user.image} alt={seat.user.name} />
-                                    <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                                ) : null}
-                                 {seat.user && (
+                             <Popover>
+                                <PopoverTrigger asChild disabled={!seat.user}>
                                     <div className={cn(
-                                        "absolute -bottom-2 h-5 w-5 rounded-full flex items-center justify-center border-2",
-                                        seat.user.isSpeaking ? 'bg-primary border-background' : 'bg-gray-600 border-gray-800'
+                                        "w-14 h-14 rounded-full bg-white/10 flex items-center justify-center relative cursor-pointer",
+                                        seat.user?.isSpeaking && "border-2 border-primary ring-2 ring-primary/50"
                                     )}>
-                                        <Mic className="w-3 h-3 text-white" />
+                                        {seat.user ? (
+                                         <Avatar className="w-full h-full">
+                                            <AvatarImage src={seat.user.image} alt={seat.user.name} />
+                                            <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                        ) : null}
+                                         {seat.user && (
+                                            <div className={cn(
+                                                "absolute -bottom-2 h-5 w-5 rounded-full flex items-center justify-center border-2",
+                                                seat.user.isSpeaking ? 'bg-primary border-background' : 'bg-gray-600 border-gray-800'
+                                            )}>
+                                                <Mic className="w-3 h-3 text-white" />
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                            </div>
+                                </PopoverTrigger>
+                                {seat.user && <UserContextMenu targetUser={seat.user} />}
+                            </Popover>
                             <p className="text-xs font-semibold">{seat.user?.name || ""}</p>
                         </div>
                     ))}
@@ -134,7 +213,7 @@ export default function AudioRoomPage() {
                 </div>
 
                 {/* Chat */}
-                <div className="mt-8 space-y-3 px-2">
+                <div className="mt-8 space-y-3 px-2 h-24 overflow-y-auto">
                     {chatMessages.map((msg, index) => (
                         <div key={index} className="flex items-center gap-3">
                             <Avatar className="w-8 h-8">
@@ -170,16 +249,16 @@ export default function AudioRoomPage() {
                 </div>
 
                 <div className="flex items-center justify-between gap-2">
-                     <Button variant="ghost" size="icon" className="rounded-full bg-black/30 w-10 h-10">
+                     <Button variant="ghost" size="icon" className="rounded-full bg-black/30 w-10 h-10" disabled={!isCurrentUserOwner}>
                         <NIcon className="w-6 h-6"/>
                     </Button>
-                    <Button variant="ghost" size="icon" className="rounded-full bg-blue-500 w-10 h-10">
+                    <Button variant="ghost" size="icon" className="rounded-full bg-blue-500 w-10 h-10" disabled={!isCurrentUserOwner}>
                         <Gamepad2 className="w-5 h-5"/>
                     </Button>
-                    <Button variant="ghost" size="icon" className="rounded-full bg-black/30 w-10 h-10">
+                    <Button variant="ghost" size="icon" className="rounded-full bg-black/30 w-10 h-10" disabled={!isCurrentUserOwner}>
                         <PanelTopClose className="w-5 h-5"/>
                     </Button>
-                    <Button variant="ghost" size="icon" className="rounded-full bg-green-500 w-10 h-10">
+                    <Button variant="ghost" size="icon" className="rounded-full bg-green-500 w-10 h-10" disabled={!isCurrentUserOwner}>
                         <Vote className="w-5 h-5"/>
                     </Button>
                      <Button variant="ghost" size="icon" className="rounded-full bg-yellow-500 text-black w-10 h-10">
@@ -190,5 +269,6 @@ export default function AudioRoomPage() {
         </div>
     );
 }
+
 
     
