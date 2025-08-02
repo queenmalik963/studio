@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Edit, Star, Send, Wallet, Gem, Landmark, Settings, Store, Crown, Square, Coins, Camera, Globe } from "lucide-react";
-import { useRouter } from 'next/navigation';
 import {
   Accordion,
   AccordionContent,
@@ -101,7 +100,6 @@ const CAFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function ProfilePage() {
     const { toast } = useToast();
-    const router = useRouter();
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [userName, setUserName] = useState("associate Official Ds");
     const [currentName, setCurrentName] = useState(userName);
@@ -122,6 +120,10 @@ export default function ProfilePage() {
         });
     }
 
+    const navigateTo = (path: string) => {
+        window.location.href = path;
+    }
+
   return (
     <AppLayout>
         <div className="bg-gradient-to-b from-primary/30 to-background md:rounded-xl md:p-1 -m-4 md:m-0">
@@ -137,7 +139,7 @@ export default function ProfilePage() {
                         </Button>
                     </div>
                     <div className="absolute top-4 right-4">
-                        <Button variant="ghost" size="icon" className="text-white" onClick={() => router.push('/profile/settings')}>
+                        <Button variant="ghost" size="icon" className="text-white" onClick={() => navigateTo('/profile/settings')}>
                             <Settings className="w-5 h-5" />
                         </Button>
                     </div>
@@ -196,10 +198,10 @@ export default function ProfilePage() {
                             <Coins className="mr-2" /> 1,250
                         </div>
                     </Button>
-                     <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white" onClick={() => router.push('/profile/recharge')}>
+                     <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white" onClick={() => navigateTo('/profile/recharge')}>
                         <Gem className="mr-3" /> Recharge
                     </Button>
-                     <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white" onClick={() => router.push('/profile/withdraw')}>
+                     <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white" onClick={() => navigateTo('/profile/withdraw')}>
                         <Landmark className="mr-3" /> Withdraw
                     </Button>
                     
@@ -210,10 +212,10 @@ export default function ProfilePage() {
                             </AccordionTrigger>
                             <AccordionContent className="p-0 pt-1">
                                 <div className="space-y-1 pl-8">
-                                    <Button variant="secondary" className="w-full justify-start h-12 bg-black/10 hover:bg-black/30 text-white" onClick={() => router.push('/profile/vip')}>
+                                    <Button variant="secondary" className="w-full justify-start h-12 bg-black/10 hover:bg-black/30 text-white" onClick={() => navigateTo('/profile/vip')}>
                                         <Crown className="mr-3 text-yellow-400" /> VIP
                                     </Button>
-                                    <Button variant="secondary" className="w-full justify-start h-12 bg-black/10 hover:bg-black/30 text-white" onClick={() => router.push('/profile/frame')}>
+                                    <Button variant="secondary" className="w-full justify-start h-12 bg-black/10 hover:bg-black/30 text-white" onClick={() => navigateTo('/profile/frame')}>
                                         <Square className="mr-3 text-cyan-400" /> Frame
                                     </Button>
                                 </div>
