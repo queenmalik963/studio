@@ -2,16 +2,18 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, PlaySquare, MessageSquare, User, Music, LogOut } from 'lucide-react';
+import { Home, PlaySquare, User, Music, LogOut, Mic, MessageCircle } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from '@/components/ui/badge';
 
 const navItems = [
   { href: '/home', label: 'Home', icon: Home },
+  { href: '/audio', label: 'Audio', icon: Mic },
   { href: '/video', label: 'Video', icon: PlaySquare },
-  { href: '/inbox', label: 'Inbox', icon: MessageSquare },
+  { href: '/chat', label: 'Chat', icon: MessageCircle, badge: 9 },
   { href: '/profile', label: 'Profile', icon: User },
 ];
 
@@ -46,10 +48,11 @@ function SidebarNav() {
                     <Link key={item.href} href={item.href} passHref>
                         <Button
                             variant={pathname === item.href ? 'secondary' : 'ghost'}
-                            className="w-full justify-start text-base py-6 rounded-lg"
+                            className="w-full justify-start text-base py-6 rounded-lg relative"
                         >
                             <item.icon className="mr-4 h-5 w-5" />
                             {item.label}
+                            {item.badge && <Badge className="absolute right-4 bg-red-500 text-white">{item.badge}</Badge>}
                         </Button>
                     </Link>
                 ))}
@@ -74,11 +77,12 @@ function BottomNav() {
                 {navItems.map((item) => (
                     <Link key={item.href} href={item.href} passHref>
                         <div className={cn(
-                            "flex flex-col items-center gap-1 transition-colors w-16 p-2 rounded-lg",
+                            "relative flex flex-col items-center gap-1 transition-colors w-16 p-2 rounded-lg",
                             pathname === item.href ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'
                         )}>
                             <item.icon className="h-6 w-6" />
                             <span className="text-xs font-medium">{item.label}</span>
+                             {item.badge && <Badge className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0 bg-red-500 text-white">{item.badge}</Badge>}
                         </div>
                     </Link>
                 ))}

@@ -1,90 +1,91 @@
+"use client";
+
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { Edit, Shield, Bell, LogOut } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Edit, Star, Send, Wallet, Gem, Landmark } from "lucide-react";
+
+const USFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 3" {...props}>
+        <rect width="5" height="3" fill="#B22234"/>
+        <rect width="5" height="2" fill="#FFFFFF"/>
+        <rect width="5" height="1" fill="#B22234"/>
+        <rect width="2" height="1" fill="#3C3B6E"/>
+    </svg>
+);
+
 
 export default function ProfilePage() {
   return (
     <AppLayout>
-        <div className="max-w-4xl mx-auto space-y-8">
-            <header>
-                <h1 className="text-4xl font-bold font-headline tracking-tight">Your Profile</h1>
-                <p className="text-muted-foreground">Manage your account settings and preferences.</p>
-            </header>
+        <div className="bg-gradient-to-b from-primary/30 to-background min-h-[calc(100vh-12rem)] md:min-h-0 md:rounded-xl md:p-1 -m-4 md:m-0">
+            <div className="p-4 space-y-4 text-white">
+                <div className="flex items-center space-x-4">
+                    <Avatar className="w-16 h-16 border-2 border-white">
+                        <AvatarImage src="https://placehold.co/100x100.png" alt="Qurban Ali" data-ai-hint="person portrait" />
+                        <AvatarFallback>QA</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-grow">
+                        <h1 className="text-xl font-bold flex items-center">
+                            Qurban Ali Ds
+                            <Button variant="ghost" size="icon" className="ml-2 h-6 w-6 text-white">
+                                <Edit className="w-4 h-4" />
+                            </Button>
+                        </h1>
+                        <p className="text-xs text-white/70">@user1753852790273</p>
+                    </div>
+                </div>
+                
+                <p className="text-sm">Welcome to Devika!</p>
 
-            <Card>
-                <CardContent className="p-6 flex flex-col sm:flex-row items-center gap-6">
-                    <div className="relative">
-                        <Avatar className="w-24 h-24 border-4 border-primary/50">
-                            <AvatarImage src="https://placehold.co/100x100.png" alt="User" data-ai-hint="person portrait" />
-                            <AvatarFallback>U</AvatarFallback>
-                        </Avatar>
-                        <Button size="icon" className="absolute bottom-0 right-0 rounded-full h-8 w-8">
-                            <Edit className="w-4 h-4"/>
-                        </Button>
+                <div className="flex justify-around text-center">
+                    <div>
+                        <p className="font-bold text-lg">0</p>
+                        <p className="text-xs text-white/70">Following</p>
                     </div>
-                    <div className="text-center sm:text-left">
-                        <h2 className="text-2xl font-bold font-headline">Username</h2>
-                        <p className="text-muted-foreground">user@ravewave.com</p>
+                    <div>
+                        <p className="font-bold text-lg">0</p>
+                        <p className="text-xs text-white/70">Followers</p>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Account Information</CardTitle>
-                    <CardDescription>Update your personal details here.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="grid sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="username">Username</Label>
-                            <Input id="username" defaultValue="Username" />
+                <div className="text-sm flex items-center bg-black/20 p-2 rounded-md">
+                    <USFlagIcon className="w-5 h-auto mr-2"/>
+                    ID: 6XDqndcaXEU4iXDEDhdiElmrmCq1
+                </div>
+
+                <div className="space-y-3">
+                    <div className="space-y-1">
+                        <div className="flex justify-between items-center text-xs font-semibold">
+                            <p className="flex items-center"><Star className="w-4 h-4 mr-1 text-yellow-400"/> ID Level</p>
+                            <p>1/100</p>
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input id="email" type="email" defaultValue="user@ravewave.com" disabled />
-                        </div>
+                        <Progress value={1} className="h-1.5 bg-white/20 [&>div]:bg-gradient-to-r [&>div]:from-yellow-400 [&>div]:to-amber-500" />
                     </div>
-                    <Button>Save Changes</Button>
-                </CardContent>
-            </Card>
-            
-            <Card>
-                <CardHeader>
-                    <CardTitle>Settings</CardTitle>
-                </CardHeader>
-                 <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between p-2 rounded-lg hover:bg-card/80">
-                        <div className="flex items-center gap-3">
-                            <Bell className="text-primary"/>
-                            <Label htmlFor="notifications" className="text-base">Push Notifications</Label>
+                    <div className="space-y-1">
+                         <div className="flex justify-between items-center text-xs font-semibold">
+                            <p className="flex items-center"><Send className="w-4 h-4 mr-1 text-sky-400"/> Sending Level</p>
+                            <p>1/100</p>
                         </div>
-                        <Switch id="notifications" defaultChecked />
+                        <Progress value={1} className="h-1.5 bg-white/20 [&>div]:bg-gradient-to-r [&>div]:from-sky-400 [&>div]:to-cyan-500" />
                     </div>
-                    <Separator />
-                    <div className="flex items-center justify-between p-2 rounded-lg hover:bg-card/80">
-                         <div className="flex items-center gap-3">
-                            <Shield className="text-primary"/>
-                            <Label htmlFor="privacy" className="text-base">Privacy Settings</Label>
-                        </div>
-                        <Button variant="ghost" size="sm">Manage</Button>
-                    </div>
-                     <Separator />
-                    <div className="flex items-center justify-between p-2 rounded-lg hover:bg-card/80">
-                         <div className="flex items-center gap-3">
-                            <LogOut className="text-destructive"/>
-                            <Label htmlFor="privacy" className="text-base text-destructive">Logout</Label>
-                        </div>
-                        <Button variant="destructive" size="sm">Logout All Devices</Button>
-                    </div>
-                </CardContent>
-            </Card>
+                </div>
+
+                <div className="space-y-2 pt-2">
+                    <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white">
+                        <Wallet className="mr-3" /> Wallet
+                    </Button>
+                     <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white">
+                        <Gem className="mr-3" /> Recharge
+                    </Button>
+                     <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white">
+                        <Landmark className="mr-3" /> Withdraw
+                    </Button>
+                </div>
+
+            </div>
         </div>
     </AppLayout>
   )
