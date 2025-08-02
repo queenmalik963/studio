@@ -35,7 +35,7 @@ export default function AudioRoomPage() {
         { id: 6, user: { name: "saba", image: "https://placehold.co/80x80.png", isSpeaking: true, isMuted: false, isHost: false } },
         { id: 7, user: { name: "MR ISMAIL", image: "https://placehold.co/80x80.png", isSpeaking: true, isMuted: false, isHost: false } },
     ];
-    const emptySeats = [6, 7];
+    const emptySeats = [3, 4, 5];
 
     const chatMessages = [
         { user: "Jodie", text: "Sent a RedRose", isAction: true, gift: "🌹" },
