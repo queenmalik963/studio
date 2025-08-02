@@ -6,13 +6,19 @@ import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { useToast } from "@/hooks/use-toast";
-import { Star, Send, Landmark, Gem, Coins } from "lucide-react";
+import { Star, Send, Landmark, Gem, Coins, Square } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from "next/link";
 
+const Crown = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7z"/>
+        <path d="M12 21V8"/>
+    </svg>
+);
+
+
 export default function ProfilePage() {
-    const { toast } = useToast();
     const [idLevel, setIdLevel] = useState(28);
     const [sendingLevel, setSendingLevel] = useState(29);
 
