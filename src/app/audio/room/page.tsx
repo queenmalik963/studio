@@ -70,11 +70,15 @@ export default function AudioRoomPage() {
     const [seats, setSeats] = useState(initialSeats);
     const [chatMessages, setChatMessages] = useState(initialChatMessages);
     const chatContainerRef = useRef<HTMLDivElement>(null);
+    const inlineChatContainerRef = useRef<HTMLDivElement>(null);
     const [activePanel, setActivePanel] = useState<null | 'chat' | 'gift' | 'game'>(null);
 
     useEffect(() => {
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+        if (inlineChatContainerRef.current) {
+            inlineChatContainerRef.current.scrollTop = inlineChatContainerRef.current.scrollHeight;
         }
     }, [chatMessages, activePanel]);
 
@@ -246,7 +250,7 @@ export default function AudioRoomPage() {
                 </div>
 
                 {/* Live Chat Overlay */}
-                <div className="mt-8 space-y-3 px-2 h-24 overflow-y-auto pointer-events-none">
+                <div ref={inlineChatContainerRef} className="mt-8 space-y-3 px-2 h-24 overflow-y-auto pointer-events-none">
                     {chatMessages.map((msg) => (
                          <div key={msg.id} className={cn("max-w-xs", msg.type === 'notification' && "mx-auto text-center")}>
                              {msg.type === 'chat' && (
@@ -275,7 +279,7 @@ export default function AudioRoomPage() {
             {/* --- Bottom Panels --- */}
             <div className={cn("absolute bottom-0 left-0 right-0 bg-black/50 backdrop-blur-lg rounded-t-2xl p-4 transition-transform duration-300 ease-in-out z-20", 
                 activePanel ? "translate-y-0" : "translate-y-full"
-            )} style={{marginBottom: '5rem'}}>
+            )} style={{marginBottom: '5rem', height: 'calc(40vh)'}}>
                 <Button variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => setActivePanel(null)}><X /></Button>
                 
                 {activePanel === 'chat' && (

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -66,11 +66,17 @@ const PlayIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export default function ChatRoomPage({ params }: { params: { id: string } }) {
     const router = useRouter();
     
-    // In a real app, you'd fetch user data based on params.id
     const contactName = params.id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     
     const [messages, setMessages] = useState(() => createInitialMessages(contactName));
     const [newMessage, setNewMessage] = useState("");
+    const chatContainerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+    }, [messages]);
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
@@ -131,7 +137,7 @@ export default function ChatRoomPage({ params }: { params: { id: string } }) {
                     </DropdownMenu>
                 </header>
 
-                <div className="flex-1 p-4 overflow-y-auto space-y-4">
+                <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto space-y-4">
                     {messages.map((msg) => (
                         <div
                             key={msg.id}
@@ -229,3 +235,5 @@ export default function ChatRoomPage({ params }: { params: { id: string } }) {
         </AppLayout>
     );
 }
+
+    
