@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Users, ArrowLeft, Mic, Send, Gift, Gamepad2, PanelTopClose } from "lucide-react";
+import { Users, ArrowLeft, Mic, Send, Gift, Gamepad2, PanelTopClose, Vote } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const LockIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -140,23 +140,25 @@ export default function AudioRoomPage() {
             </main>
             
             {/* Footer */}
-            <footer className="flex-shrink-0 mt-4 flex items-center justify-between gap-2 z-10">
-                 <div className="flex items-center gap-2 bg-black/30 rounded-full p-1 pr-3 flex-grow">
-                    <Avatar className="h-8 w-8">
-                         <AvatarFallback>N</AvatarFallback>
-                    </Avatar>
-                    <Input 
-                        placeholder="Hi..."
-                        className="bg-transparent border-none text-white placeholder:text-white/70 focus-visible:ring-0 focus-visible:ring-offset-0 h-8 flex-grow"
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                    />
-                     <Button variant="ghost" size="icon" className="rounded-full w-8 h-8">
-                        <Send className="w-4 h-4"/>
+            <footer className="flex-shrink-0 mt-4 flex flex-col gap-2 z-10">
+                 <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 bg-black/30 rounded-full p-1 pr-3 flex-grow">
+                        <Avatar className="h-8 w-8">
+                            <AvatarFallback>N</AvatarFallback>
+                        </Avatar>
+                        <Input 
+                            placeholder="Hi..."
+                            className="bg-transparent border-none text-white placeholder:text-white/70 focus-visible:ring-0 focus-visible:ring-offset-0 h-8 flex-grow"
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                        />
+                    </div>
+                    <Button variant="ghost" size="icon" className="rounded-full bg-black/30 w-10 h-10">
+                        <Send className="w-5 h-5"/>
                     </Button>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between gap-2">
                      <Button variant="ghost" size="icon" className="rounded-full bg-black/30 w-10 h-10">
                         <Mic className="w-5 h-5"/>
                     </Button>
@@ -166,6 +168,9 @@ export default function AudioRoomPage() {
                     <Button variant="ghost" size="icon" className="rounded-full bg-black/30 w-10 h-10">
                         <PanelTopClose className="w-5 h-5"/>
                     </Button>
+                    <Button variant="ghost" size="icon" className="rounded-full bg-black/30 w-10 h-10">
+                        <Vote className="w-5 h-5"/>
+                    </Button>
                      <Button variant="ghost" size="icon" className="rounded-full bg-yellow-500 text-black w-10 h-10">
                         <Gift className="w-5 h-5"/>
                     </Button>
@@ -173,4 +178,3 @@ export default function AudioRoomPage() {
             </footer>
         </div>
     );
-}
