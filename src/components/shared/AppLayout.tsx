@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -19,6 +20,13 @@ const navItems = [
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const isMobile = useIsMobile();
+  const pathname = usePathname();
+
+  // Conditionally render layout based on path
+  if (pathname === '/video') {
+    return <>{children}</>;
+  }
+
 
   return (
     <TooltipProvider>

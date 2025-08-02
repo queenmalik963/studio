@@ -74,7 +74,7 @@ export default function VideoRoomPage() {
                         <ArrowLeft />
                     </Button>
                     <div>
-                        <h1 className="text-lg font-bold font-headline">Gaming Night: Among Us</h1>
+                        <h1 className="text-lg font-bold font-headline">Amrinder Gill - Paigaam</h1>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -88,7 +88,7 @@ export default function VideoRoomPage() {
             </header>
 
             <div className="relative aspect-video bg-muted">
-                 <Image src="https://placehold.co/1920x1080.png" alt="Video stream" fill objectFit="cover" data-ai-hint="video placeholder" />
+                 <Image src="https://placehold.co/1920x1080.png" alt="Video stream" fill objectFit="cover" data-ai-hint="music video" />
             </div>
 
             <div className="flex-1 flex flex-col p-4 overflow-hidden">
