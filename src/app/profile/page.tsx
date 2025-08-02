@@ -6,7 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Star, Send, Wallet, Gem, Landmark, Settings, Store, Crown, SquareFrame } from "lucide-react";
+import { Edit, Star, Send, Wallet, Gem, Landmark, Settings, Store, Crown, Square } from "lucide-react";
+import { useRouter } from 'next/navigation';
 import {
   Accordion,
   AccordionContent,
@@ -26,6 +27,7 @@ const USFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function ProfilePage() {
     const { toast } = useToast();
+    const router = useRouter();
 
     const handleAction = (action: string) => {
         toast({
@@ -124,11 +126,11 @@ export default function ProfilePage() {
                             </AccordionTrigger>
                             <AccordionContent className="p-0 pt-1">
                                 <div className="space-y-1 pl-8">
-                                    <Button variant="secondary" className="w-full justify-start h-12 bg-black/10 hover:bg-black/30 text-white" onClick={() => handleAction('VIP')}>
+                                    <Button variant="secondary" className="w-full justify-start h-12 bg-black/10 hover:bg-black/30 text-white" onClick={() => router.push('/profile/vip')}>
                                         <Crown className="mr-3 text-yellow-400" /> VIP
                                     </Button>
-                                    <Button variant="secondary" className="w-full justify-start h-12 bg-black/10 hover:bg-black/30 text-white" onClick={() => handleAction('Frame')}>
-                                        <SquareFrame className="mr-3 text-cyan-400" /> Frame
+                                    <Button variant="secondary" className="w-full justify-start h-12 bg-black/10 hover:bg-black/30 text-white" onClick={() => router.push('/profile/frame')}>
+                                        <Square className="mr-3 text-cyan-400" /> Frame
                                     </Button>
                                 </div>
                             </AccordionContent>
