@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -102,21 +102,23 @@ export default function ProfilePage() {
     const [idLevel, setIdLevel] = useState(5);
     const [sendingLevel, setSendingLevel] = useState(10);
 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            // Simulate ID level increasing with general activity
+            setIdLevel(prev => Math.min(prev + Math.floor(Math.random() * 3) + 1, 100));
+            // Simulate Sending level increasing with gifting/spending
+            setSendingLevel(prev => Math.min(prev + Math.floor(Math.random() * 2) + 1, 100));
+        }, 3000); // Increase levels every 3 seconds
+
+        return () => clearInterval(interval); // Cleanup interval on component unmount
+    }, []);
+
     const handleSaveChanges = () => {
         setUserName(currentName);
         setIsEditOpen(false);
         toast({
             title: "Profile Updated",
             description: "Your changes have been saved.",
-        });
-    };
-    
-    const simulateActivity = () => {
-        setIdLevel(prev => Math.min(prev + 7, 100));
-        setSendingLevel(prev => Math.min(prev + 4, 100));
-        toast({
-            title: "Activity Simulated!",
-            description: "Your levels have increased.",
         });
     };
 
@@ -202,10 +204,6 @@ export default function ProfilePage() {
                                 <Progress value={sendingLevel} className="h-2 bg-muted [&>div]:bg-gradient-to-r [&>div]:from-sky-400 [&>div]:to-cyan-500" />
                             </div>
                         </div>
-                        <Button variant="outline" onClick={simulateActivity} className="w-full">
-                            <Activity className="mr-2 h-4 w-4" />
-                            Simulate User Activity & Gifting
-                        </Button>
                     </CardContent>
                 </Card>
 
