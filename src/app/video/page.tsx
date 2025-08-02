@@ -1,9 +1,12 @@
+"use client";
+
 import { AppLayout } from "@/components/shared/AppLayout";
 import { MusicSuggestions } from "@/components/video/MusicSuggestions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Link from "next/link";
 import { PlayCircle, Youtube, History } from "lucide-react";
 
 // Inline Netflix Icon
@@ -52,9 +55,13 @@ export default function VideoPage() {
                     <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
                         <PlayCircle className="w-16 h-16 text-muted-foreground/50"/>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                        <Button><Youtube className="mr-2 h-4 w-4"/> Add from YouTube</Button>
-                        <Button variant="outline"><NetflixIcon className="mr-2"/> Add from Netflix</Button>
+                     <div className="flex flex-wrap gap-2">
+                        <Link href="/video/add">
+                           <Button><Youtube className="mr-2 h-4 w-4"/> Add from YouTube</Button>
+                        </Link>
+                         <Link href="/video/add">
+                            <Button variant="outline"><NetflixIcon className="mr-2"/> Add from Netflix</Button>
+                         </Link>
                         <Button variant="ghost"><History className="mr-2 h-4 w-4"/> View History</Button>
                     </div>
                 </CardContent>
