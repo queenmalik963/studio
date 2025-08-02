@@ -116,10 +116,8 @@ const TrendingCard = ({ href, image, hint, title, creator, viewers, icon: Icon }
 export default function HomePage() {
   return (
     <AppLayout>
-      <div className="space-y-12">
-        <header className="space-y-4">
-          <h1 className="text-4xl font-bold font-headline tracking-tight">Welcome to RaveWave</h1>
-          <p className="text-muted-foreground">Select a country to find rooms near you, or browse global events.</p>
+      <div className="space-y-8">
+        <header>
           <div className="max-w-xs">
             <Select defaultValue="global">
               <SelectTrigger className="w-full bg-card/50">
