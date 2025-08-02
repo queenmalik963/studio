@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Users, ArrowLeft, Mic, Send, Gift, Gamepad2, PanelTopClose, Vote, MessageCircle, ShieldCheck, LogOut, User as UserIcon, X, Crown, Coins } from "lucide-react";
+import { Users, ArrowLeft, Mic, Send, Gift, Gamepad2, PanelTopClose, Vote, MessageCircle, ShieldCheck, LogOut, User as UserIcon, X, Coins } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
@@ -375,6 +375,6 @@ export default function AudioRoomPage() {
             </footer>
         </div>
     );
+}
 
-    
     
