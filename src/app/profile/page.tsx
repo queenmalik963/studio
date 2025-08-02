@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Star, Send, Wallet, Gem, Landmark, Settings, Store, Crown, Square, Coins, Camera, Globe } from "lucide-react";
+import { Edit, Star, Send, Wallet, Gem, Landmark, Settings, Store, Crown, Square, Coins, Camera, Globe, Activity } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -99,6 +99,8 @@ export default function ProfilePage() {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [userName, setUserName] = useState("associate Official Ds");
     const [currentName, setCurrentName] = useState(userName);
+    const [idLevel, setIdLevel] = useState(5);
+    const [sendingLevel, setSendingLevel] = useState(10);
 
     const handleSaveChanges = () => {
         setUserName(currentName);
@@ -106,6 +108,15 @@ export default function ProfilePage() {
         toast({
             title: "Profile Updated",
             description: "Your changes have been saved.",
+        });
+    };
+    
+    const simulateActivity = () => {
+        setIdLevel(prev => Math.min(prev + 7, 100));
+        setSendingLevel(prev => Math.min(prev + 4, 100));
+        toast({
+            title: "Activity Simulated!",
+            description: "Your levels have increased.",
         });
     };
 
@@ -179,18 +190,22 @@ export default function ProfilePage() {
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center text-sm font-semibold text-muted-foreground">
                                     <p className="flex items-center"><Star className="w-4 h-4 mr-1 text-yellow-400"/> ID Level</p>
-                                    <p>1/100</p>
+                                    <p>{idLevel}/100</p>
                                 </div>
-                                <Progress value={1} className="h-2 bg-muted [&>div]:bg-gradient-to-r [&>div]:from-yellow-400 [&>div]:to-amber-500" />
+                                <Progress value={idLevel} className="h-2 bg-muted [&>div]:bg-gradient-to-r [&>div]:from-yellow-400 [&>div]:to-amber-500" />
                             </div>
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center text-sm font-semibold text-muted-foreground">
                                     <p className="flex items-center"><Send className="w-4 h-4 mr-1 text-sky-400"/> Sending Level</p>
-                                    <p>1/100</p>
+                                    <p>{sendingLevel}/100</p>
                                 </div>
-                                <Progress value={1} className="h-2 bg-muted [&>div]:bg-gradient-to-r [&>div]:from-sky-400 [&>div]:to-cyan-500" />
+                                <Progress value={sendingLevel} className="h-2 bg-muted [&>div]:bg-gradient-to-r [&>div]:from-sky-400 [&>div]:to-cyan-500" />
                             </div>
                         </div>
+                        <Button variant="outline" onClick={simulateActivity} className="w-full">
+                            <Activity className="mr-2 h-4 w-4" />
+                            Simulate User Activity & Gifting
+                        </Button>
                     </CardContent>
                 </Card>
 
@@ -293,5 +308,3 @@ export default function ProfilePage() {
         </AppLayout>
     );
 }
-
-    
