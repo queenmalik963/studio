@@ -21,6 +21,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+
 
 export default function AddAudioPage() {
     const router = useRouter();
@@ -79,13 +81,19 @@ export default function AddAudioPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Number of Seats</Label>
-                                    <div className="flex gap-2">
+                                    <RadioGroup defaultValue="4" className="flex gap-2">
                                         {[2, 4, 8, 15].map((seats) => (
-                                            <Button key={seats} variant="outline" className="flex-1">
-                                                {seats} Seats
-                                            </Button>
+                                             <div key={seats} className="flex-1">
+                                                <RadioGroupItem value={String(seats)} id={`seats-${seats}`} className="peer sr-only" />
+                                                <Label 
+                                                    htmlFor={`seats-${seats}`}
+                                                    className="flex h-10 w-full items-center justify-center rounded-md border-2 border-muted bg-popover text-center hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                                                >
+                                                    {seats} Seats
+                                                </Label>
+                                            </div>
                                         ))}
-                                    </div>
+                                    </RadioGroup>
                                 </div>
                             </div>
                             <DialogFooter>
@@ -111,3 +119,5 @@ export default function AddAudioPage() {
         </AppLayout>
     );
 }
+
+    
