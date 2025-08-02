@@ -2,8 +2,15 @@
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from 'next/image';
-import { Users, Headphones, PlaySquare, Mic } from "lucide-react";
+import { Users, Headphones, PlaySquare, Mic, Globe } from "lucide-react";
 import Link from "next/link";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const trendingVideos = [
   {
@@ -110,9 +117,27 @@ export default function HomePage() {
   return (
     <AppLayout>
       <div className="space-y-12">
-        <header>
+        <header className="space-y-4">
           <h1 className="text-4xl font-bold font-headline tracking-tight">Welcome to RaveWave</h1>
-          <p className="text-muted-foreground">Join the most popular rooms and events</p>
+          <p className="text-muted-foreground">Select a country to find rooms near you, or browse global events.</p>
+          <div className="max-w-xs">
+            <Select defaultValue="global">
+              <SelectTrigger className="w-full bg-card/50">
+                <div className="flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-muted-foreground" />
+                  <SelectValue placeholder="Select a region" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="global">Global</SelectItem>
+                <SelectItem value="us">United States</SelectItem>
+                <SelectItem value="pk">Pakistan</SelectItem>
+                <SelectItem value="in">India</SelectItem>
+                <SelectItem value="gb">United Kingdom</SelectItem>
+                <SelectItem value="ca">Canada</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </header>
         
         <section className="space-y-4">
