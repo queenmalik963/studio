@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 const initialMessages = [
   { id: 1, type: 'gift', author: 'Jodie', text: 'Sent a RedRose', giftIcon: 'https://placehold.co/100x100.png', avatar: "https://placehold.co/40x40.png" },
   { id: 2, type: 'game', author: 'Jodie', text: 'started playing Fruit!', game: 'Fruit!', avatar: "https://placehold.co/40x40.png" },
-  { id: 3, type: 'game', author: 'Jodie', text: 'started playing Bingo!', game: 'Fruit!', avatar: "https://placehold.co/40x40.png" },
+  { id: 3, type: 'text', author: 'saba', text: 'Hi...', avatar: "https://placehold.co/40x40.png"},
 ];
 
 const roomSeats = [
@@ -101,14 +101,14 @@ export default function AudioRoomPage() {
                 </div>
             </header>
 
-            <main className="flex-1 flex flex-col p-4 overflow-hidden gap-4">
-                <div className="grid grid-cols-5 gap-y-4 gap-x-2 justify-items-center">
+            <main className="flex-1 flex flex-col p-4 overflow-hidden gap-2">
+                <div className="grid grid-cols-5 gap-y-2 gap-x-2 justify-items-center">
                     {roomSeats.slice(0, 5).map((seat) => (
-                        <div key={seat.id} className="flex flex-col items-center gap-1 w-16 text-center">
+                        <div key={seat.id} className="flex flex-col items-center gap-1 w-14 text-center">
                             {seat.isOccupied && seat.user ? (
                                 <>
                                     <div className="relative">
-                                        <Avatar className={cn("w-16 h-16 border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                        <Avatar className={cn("w-14 h-14 border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                         </Avatar>
@@ -122,32 +122,32 @@ export default function AudioRoomPage() {
                                             }
                                         </div>
                                     </div>
-                                    <p className="text-sm truncate w-full">{seat.user.name}</p>
+                                    <p className="text-xs truncate w-full">{seat.user.name}</p>
                                 </>
                             ) : (
-                                <div className="w-16 h-16 rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                    {seat.isLocked ? <Lock className="w-6 h-6 text-white/50"/> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
+                                <div className="w-14 h-14 rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                    {seat.isLocked ? <Lock className="w-5 h-5 text-white/50"/> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
                                 </div>
                             )}
                         </div>
                     ))}
                 </div>
-                 <div className="grid grid-cols-5 gap-y-4 gap-x-2 justify-items-center">
+                 <div className="grid grid-cols-5 gap-y-2 gap-x-2 justify-items-center">
                     {roomSeats.slice(5, 10).map((seat) => (
-                        <div key={seat.id} className="flex flex-col items-center gap-1 w-16 text-center">
-                           <div className="w-16 h-16 rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                        <div key={seat.id} className="flex flex-col items-center gap-1 w-14 text-center">
+                           <div className="w-14 h-14 rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
                                 <span className="text-lg font-bold text-white/50">{seat.id}</span>
                             </div>
                         </div>
                     ))}
                 </div>
-                 <div className="grid grid-cols-5 gap-y-4 gap-x-2 justify-items-center mt-2">
+                 <div className="grid grid-cols-5 gap-y-2 gap-x-2 justify-items-center mt-1">
                      {roomSeats.slice(10, 12).map((seat) => (
-                         <div key={seat.id} className="flex flex-col items-center gap-1 w-16 text-center col-span-2">
+                         <div key={seat.id} className="flex flex-col items-center gap-1 w-14 text-center col-span-2">
                              {seat.isOccupied && seat.user ? (
                                 <>
                                     <div className="relative">
-                                        <Avatar className="w-16 h-16 border-2 border-gray-500">
+                                        <Avatar className="w-14 h-14 border-2 border-gray-500">
                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                         </Avatar>
@@ -155,33 +155,38 @@ export default function AudioRoomPage() {
                                             <Mic className="w-3 h-3 text-green-400" />
                                         </div>
                                     </div>
-                                    <p className="text-sm truncate w-full">{seat.user.name}</p>
+                                    <p className="text-xs truncate w-full">{seat.user.name}</p>
                                 </>
                             ) : null}
                          </div>
                     ))}
                 </div>
 
-                 <div ref={chatContainerRef} className="flex-1 overflow-y-auto space-y-4 pr-2 mt-4">
+                 <div ref={chatContainerRef} className="flex-1 overflow-y-auto space-y-3 pr-2 mt-2">
                     {messages.map((msg) => (
                          <div key={msg.id} className="flex items-start gap-3">
-                             <Avatar className="h-10 w-10 shrink-0">
+                             <Avatar className="h-8 w-8 shrink-0">
                                 <AvatarImage src={msg.avatar}/>
-                                <AvatarFallback className="bg-primary text-primary-foreground">{msg.author?.charAt(0)}</AvatarFallback>
+                                <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
                             </Avatar>
                              <div className="text-sm">
-                                 <p className="text-white/70">{msg.author}</p>
+                                 <p className="text-white/70 text-xs">{msg.author}</p>
                                  {msg.type === 'gift' && (
                                      <div className="flex items-center gap-2 mt-1">
-                                         <p>Sent a RedRose</p>
-                                         <div className="bg-black/20 p-1 rounded-md flex items-center gap-2">
-                                            <img src="https://em-content.zobj.net/source/apple/391/rose_1f339.png" alt="RedRose" className="w-5 h-5"/>
-                                            <span>x1</span>
+                                         <p className="text-xs">Sent a RedRose</p>
+                                         <div className="bg-black/20 p-1 rounded-md flex items-center gap-1">
+                                            <img src="https://em-content.zobj.net/source/apple/391/rose_1f339.png" alt="RedRose" className="w-4 h-4"/>
+                                            <span className="text-xs">x1</span>
                                          </div>
                                      </div>
                                  )}
                                   {msg.type === 'game' && (
-                                     <p className="mt-1">{msg.author} <span className="font-bold text-yellow-400">{msg.text}</span></p>
+                                     <p className="mt-1 text-xs">{msg.author} <span className="font-bold text-yellow-400">{msg.text}</span></p>
+                                 )}
+                                 {msg.type === 'text' && (
+                                     <div className="bg-black/20 rounded-lg p-2 mt-1">
+                                        <p className="text-sm">{msg.text}</p>
+                                     </div>
                                  )}
                              </div>
                          </div>
@@ -221,3 +226,4 @@ export default function AudioRoomPage() {
         </div>
     );
 }
+
