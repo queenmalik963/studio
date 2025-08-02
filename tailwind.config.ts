@@ -153,6 +153,7 @@ export default {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        spin: 'spin 4s linear infinite',
         'glow-gold': 'glow-gold 2s ease-in-out infinite',
         'glow-purple': 'glow-purple 2s ease-in-out infinite',
         'glow-blue': 'glow-blue 2s ease-in-out infinite',
@@ -173,6 +174,8 @@ export default {
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
+
+    
 
     
 

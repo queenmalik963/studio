@@ -123,7 +123,11 @@ export default function AudioRoomPage() {
                             {seat.isOccupied && seat.user ? (
                                 <>
                                     <div className="relative">
-                                        <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                        <Avatar className={cn(
+                                            "w-[50px] h-[50px] border-2", 
+                                            seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent',
+                                            seat.id === 1 && 'animate-spin'
+                                        )}>
                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                         </Avatar>
@@ -258,6 +262,8 @@ export default function AudioRoomPage() {
             </footer>
         </div>
     );
+
+    
 
     
 
