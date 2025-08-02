@@ -74,7 +74,7 @@ export default function VideoRoomPage() {
     return (
         <div className="flex flex-col h-screen bg-[#180828] text-white font-sans">
             {/* Video Player Section */}
-            <div className="relative w-full aspect-video bg-black flex-shrink-0">
+            <div className="relative w-full aspect-video bg-black flex-1">
                  <div className="absolute inset-0 bg-black flex items-center justify-center">
                     <p className="text-white/50">Video Player Placeholder</p>
                 </div>
@@ -113,7 +113,7 @@ export default function VideoRoomPage() {
             </div>
 
             {/* Interactive Panel */}
-            <main className="flex-1 flex flex-col p-4 overflow-hidden gap-2 bg-[#2E103F]">
+            <main className="flex-shrink-0 flex flex-col p-4 overflow-hidden gap-2 bg-[#2E103F]">
                 {/* Seats */}
                 <div className="grid grid-cols-10 gap-x-2 justify-items-center">
                     {roomSeats.map((seat) => (
@@ -147,7 +147,7 @@ export default function VideoRoomPage() {
                 </div>
                 
                 {/* Chat */}
-                 <div ref={chatContainerRef} className="flex-1 overflow-y-auto space-y-3 pr-2 mt-2">
+                 <div ref={chatContainerRef} className="flex-1 h-24 overflow-y-auto space-y-3 pr-2 mt-2">
                     {messages.map((msg) => (
                          <div key={msg.id} className="flex items-start gap-3">
                              <Avatar className="h-8 w-8 shrink-0">
@@ -212,6 +212,8 @@ export default function VideoRoomPage() {
             </footer>
         </div>
     );
+
+    
 
     
 
