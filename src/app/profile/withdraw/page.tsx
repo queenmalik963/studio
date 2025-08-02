@@ -124,7 +124,7 @@ export default function WithdrawPage() {
                  <Card>
                     <CardHeader>
                         <CardTitle>Exchange Diamonds for Coins</CardTitle>
-                        <CardDescription>Use your earned Diamonds to get more Coins to send gifts. 1 Diamond = 1 Coin</CardDescription>
+                        <CardDescription>Get double the value when you exchange! 1 Diamond = 2 Coins.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                          <div className="space-y-2">
@@ -141,7 +141,9 @@ export default function WithdrawPage() {
                                 />
                             </div>
                             <p className="text-xs text-muted-foreground">
-                                {typeof exchangeAmount === 'number' ? `You will receive ${exchangeAmount.toLocaleString()} Coins.` : 'Enter an amount to see how many coins you will get.'}
+                                {typeof exchangeAmount === 'number' && exchangeAmount > 0 
+                                    ? `You will receive ${(exchangeAmount * 2).toLocaleString()} Coins.` 
+                                    : 'Enter an amount to see how many coins you will get.'}
                             </p>
                         </div>
                          <Button className="w-full" size="lg" variant="secondary">
@@ -154,3 +156,4 @@ export default function WithdrawPage() {
         </AppLayout>
     );
 }
+
