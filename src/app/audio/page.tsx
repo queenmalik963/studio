@@ -1,58 +1,130 @@
 
 "use client";
 
-import { AppLayout } from "@/components/shared/AppLayout";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Music, Play, Plus, Upload } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Plus, Search, Settings, Users } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+
+const rooms = [
+  {
+    name: "Lofi Beats to Relax/Study to",
+    thumbnail: "https://placehold.co/150x80.png",
+    thumbnailHint: "lofi hip hop",
+    users: [
+      { name: "A", src: "https://placehold.co/40x40.png" },
+      { name: "B", src: "https://placehold.co/40x40.png" },
+      { name: "C", src: "https://placehold.co/40x40.png" },
+    ],
+    isPlaying: true,
+  },
+  {
+    name: "Deep House Mix by Nora En Pure",
+    thumbnail: "https://placehold.co/150x80.png",
+    thumbnailHint: "dj mixing",
+    users: [
+      { name: "D", src: "https://placehold.co/40x40.png" },
+      { name: "E", src: "https://placehold.co/40x40.png" },
+    ],
+    isPlaying: true,
+  },
+    {
+    name: "Techno Bunker Live Set",
+    thumbnail: "https://placehold.co/150x80.png",
+    thumbnailHint: "dark club",
+    users: [
+      { name: "F", src: "https://placehold.co/40x40.png" },
+    ],
+    isPlaying: false,
+  },
+    {
+    name: "Anjunadeep Selections",
+    thumbnail: "https://placehold.co/150x80.png",
+    thumbnailHint: "ocean sunset",
+    users: [
+        { name: "I", src: "https://placehold.co/40x40.png" },
+        { name: "G", src: "https://placehold.co/40x40.png" },
+        { name: "H", src: "https://placehold.co/40x40.png" },
+    ],
+    isPlaying: true,
+  },
+];
+
 
 export default function AudioPage() {
-    return (
-        <AppLayout>
-            <div className="space-y-8">
-                <header>
-                    <h1 className="text-4xl font-bold font-headline tracking-tight">Audio Rooms</h1>
-                    <p className="text-muted-foreground">Start a live audio room or upload your own tracks.</p>
-                </header>
+  return (
+    <div className="bg-gradient-to-b from-slate-900 via-indigo-900 to-slate-900 min-h-screen">
+        {/* We are not using AppLayout here to have a custom header */}
+        <header className="flex items-center justify-between p-4">
+            <Button variant="ghost" size="icon">
+                <Settings className="text-white"/>
+            </Button>
+            <h1 className="text-3xl font-bold text-white tracking-wider">listen</h1>
+            <Button variant="ghost" size="icon">
+                <Users className="text-white"/>
+            </Button>
+        </header>
 
-                <Card className="bg-card/80 border-primary/20 backdrop-blur-sm">
-                    <CardHeader>
-                        <CardTitle className="font-headline">Create a new Audio Experience</CardTitle>
-                        <CardDescription>Jump in and start a session with friends.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex flex-col sm:flex-row gap-4">
-                        <Link href="/audio/room" passHref>
-                            <Button size="lg" className="w-full sm:w-auto shadow-lg shadow-primary/20">
-                                <Plus className="mr-2" /> Create a Room
-                            </Button>
-                        </Link>
-                        <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                            <Upload className="mr-2" /> Upload a Track
-                        </Button>
-                    </CardContent>
-                </Card>
-
-                <div className="space-y-4">
-                    <h2 className="text-2xl font-bold font-headline">Your Library</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        {Array.from({ length: 4 }).map((_, i) => (
-                            <Card key={i} className="group overflow-hidden border-transparent hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10">
-                                <CardContent className="p-4 flex flex-col items-center justify-center aspect-square text-center bg-card/50">
-                                    <div className="p-6 bg-primary/10 rounded-full group-hover:scale-110 transition-transform">
-                                        <Music className="w-12 h-12 text-primary " />
-                                    </div>
-                                    <h3 className="mt-4 font-semibold font-headline">My Awesome Mix {i + 1}</h3>
-                                    <p className="text-sm text-muted-foreground">3:45</p>
-                                    <Button variant="ghost" size="sm" className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Play className="w-4 h-4 mr-2" /> Play
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
-                </div>
+        <main className="p-4 space-y-4">
+            <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input placeholder="Search" className="bg-white/10 border-0 rounded-full pl-10 text-white placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/50" />
             </div>
-        </AppLayout>
-    );
+
+            <div className="space-y-3">
+                {rooms.map((room, index) => (
+                    <Link href="/audio/room" key={index}>
+                      <Card className="bg-white/5 border-0 rounded-2xl overflow-hidden backdrop-blur-md">
+                          <CardContent className="p-2 flex items-center gap-3">
+                              <div className="relative w-28 h-20 flex-shrink-0">
+                                  <Image
+                                      src={room.thumbnail}
+                                      alt={room.name}
+                                      fill
+                                      className="rounded-lg object-cover"
+                                      data-ai-hint={room.thumbnailHint}
+                                  />
+                                   <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                      {room.isPlaying && (
+                                           <svg className="w-8 h-8 text-white/80" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M10 16.5v-9l6 4.5-6 4.5z" />
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
+                                            </svg>
+                                      )}
+                                  </div>
+                              </div>
+                              <div className="flex-grow overflow-hidden">
+                                  <p className="text-white font-semibold truncate">{room.name}</p>
+                                  <div className="flex items-center gap-2 mt-2">
+                                      <div className="flex -space-x-2">
+                                          {room.users.map((user, i) => (
+                                              <Avatar key={i} className="w-7 h-7 border-2 border-background/50">
+                                                  <AvatarImage src={user.src} alt={user.name} data-ai-hint="person portrait" />
+                                                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                              </Avatar>
+                                          ))}
+                                      </div>
+                                  </div>
+                                   <div className="w-full bg-white/10 h-1 mt-2 rounded-full">
+                                      <div className="bg-white/70 h-1 rounded-full" style={{width: `${Math.random() * 80 + 10}%`}}></div>
+                                  </div>
+                              </div>
+                          </CardContent>
+                      </Card>
+                    </Link>
+                ))}
+            </div>
+        </main>
+        
+        <Link href="/audio/add" passHref>
+             <Button className="fixed bottom-24 right-6 h-16 w-16 rounded-full bg-white text-black shadow-lg hover:bg-gray-200">
+                <Plus className="h-8 w-8" />
+            </Button>
+        </Link>
+    </div>
+  );
 }

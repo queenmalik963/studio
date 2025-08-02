@@ -23,7 +23,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   // Conditionally render layout based on path
-  if (pathname === '/video') {
+  if (pathname === '/video' || pathname === '/audio') {
     return <>{children}</>;
   }
 
