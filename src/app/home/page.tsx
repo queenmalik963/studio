@@ -112,6 +112,87 @@ const TrendingCard = ({ href, image, hint, title, creator, viewers, icon: Icon }
     </Link>
 );
 
+const USFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 3" {...props}>
+        <rect width="5" height="3" fill="#B22234"/>
+        <rect width="5" height="2" fill="#FFFFFF"/>
+        <rect width="5" height="1" fill="#B22234"/>
+        <rect width="2" height="1.8" fill="#3C3B6E"/>
+        <g fill="#FFFFFF">
+            <path d="M.4 1.55h.2L.7.9h.2l.1.65h.2L.95.8h.1L.8 1.55h.2L1.15.9h.2l.1.65H1.7l-.25-.75h.1L1.8.8l-.25.75h.2l.15-.6h.2l-.25.75h.1l.25-.75h-.7L.9.55zM0 .3h.2L.3.9H0zm.45 0h.2L.75.9h-.2zm.45 0h.2l.1.6H.8zm.45 0h.2l.1.6h-.2zm.45 0h.2l.1.6h-.2zM0 .6h.2L.3 1.2H0zm.45 0h.2L.75 1.2h-.2zm.45 0h.2l.1.6h-.2zm.45 0h.2l.1.6h-.2zM0 .9h.2l.1.6H0zm.45 0h.2l.1.6h-.2zm.45 0h.2l.1.6H.8zm.45 0h.2l.1.6h-.2zm.45 0h.2l.1.6h-.2z"/>
+        </g>
+    </svg>
+);
+
+const PKFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" {...props}>
+        <rect width="900" height="600" fill="#006644"/>
+        <rect width="225" height="600" fill="#FFFFFF"/>
+        <circle cx="585" cy="300" r="135" fill="#FFFFFF"/>
+        <circle cx="621" cy="300" r="120" fill="#006644"/>
+        <polygon points="700,165 720,230 785,230 735,270 750,335 700,300 650,335 665,270 615,230 680,230" fill="#FFFFFF"/>
+    </svg>
+);
+
+const INFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" {...props}>
+        <rect width="900" height="600" fill="#f93"/>
+        <rect y="200" width="900" height="200" fill="#fff"/>
+        <rect y="400" width="900" height="200" fill="#128807"/>
+        <circle cx="450" cy="300" r="90" fill="#000080"/>
+        <circle cx="450" cy="300" r="80" fill="#fff"/>
+        <circle cx="450"cy="300" r="16" fill="#000080"/>
+        <g fill="#000080">
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(7.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(22.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(37.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(52.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(67.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(82.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(97.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(112.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(127.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(142.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(157.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(172.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(187.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(202.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(217.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(232.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(247.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(262.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(277.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(292.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(307.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(322.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(337.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(352.5 450 300)"/>
+        </g>
+    </svg>
+);
+
+const GBFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" {...props}>
+        <clipPath id="a"><path d="M0 0v30h60V0z"/></clipPath>
+        <clipPath id="b"><path d="M30 15h30v15zn-30-15h30V0zH0v15z"/></clipPath>
+        <g clipPath="url(#a)">
+            <path d="M0 0v30h60V0z" fill="#00247d"/>
+            <path d="M0 0l60 30m0-30L0 30" stroke="#fff" strokeWidth="6"/>
+            <path d="M0 0l60 30m0-30L0 30" clipPath="url(#b)" stroke="#cf142b" strokeWidth="4"/>
+            <path d="M30 0v30M0 15h60" stroke="#fff" strokeWidth="10"/>
+            <path d="M30 0v30M0 15h60" stroke="#cf142b" strokeWidth="6"/>
+        </g>
+    </svg>
+);
+
+const CAFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" {...props}>
+        <rect width="1200" height="600" fill="#ff0000"/>
+        <rect x="300" width="600" height="600" fill="#ffffff"/>
+        <path d="M450 150l75 75-150 150-75-75zm300 0l-75 75 150 150 75-75zM600 375l-75 75-75-75v150h150z" fill="#ff0000"/>
+    </svg>
+);
+
 
 export default function HomePage() {
   return (
@@ -127,12 +208,42 @@ export default function HomePage() {
                 </div>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="global">Global</SelectItem>
-                <SelectItem value="us">United States</SelectItem>
-                <SelectItem value="pk">Pakistan</SelectItem>
-                <SelectItem value="in">India</SelectItem>
-                <SelectItem value="gb">United Kingdom</SelectItem>
-                <SelectItem value="ca">Canada</SelectItem>
+                <SelectItem value="global">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-5 h-5" />
+                    Global
+                  </div>
+                </SelectItem>
+                <SelectItem value="us">
+                  <div className="flex items-center gap-2">
+                    <USFlagIcon className="w-5 h-auto rounded-sm" />
+                    United States
+                  </div>
+                </SelectItem>
+                <SelectItem value="pk">
+                  <div className="flex items-center gap-2">
+                    <PKFlagIcon className="w-5 h-auto rounded-sm" />
+                    Pakistan
+                  </div>
+                </SelectItem>
+                <SelectItem value="in">
+                  <div className="flex items-center gap-2">
+                    <INFlagIcon className="w-5 h-auto rounded-sm" />
+                    India
+                  </div>
+                </SelectItem>
+                <SelectItem value="gb">
+                  <div className="flex items-center gap-2">
+                    <GBFlagIcon className="w-5 h-auto rounded-sm" />
+                    United Kingdom
+                  </div>
+                </SelectItem>
+                <SelectItem value="ca">
+                  <div className="flex items-center gap-2">
+                    <CAFlagIcon className="w-5 h-auto rounded-sm" />
+                    Canada
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
