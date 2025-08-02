@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Banknote, Landmark, CreditCard } from "lucide-react";
+import { ArrowLeft, Gem, Landmark, Repeat } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   Select,
@@ -54,22 +54,22 @@ export default function WithdrawPage() {
           <Button variant="ghost" size="icon" onClick={() => router.back()}>
             <ArrowLeft />
           </Button>
-          <h1 className="text-2xl font-bold font-headline">Withdraw</h1>
+          <h1 className="text-2xl font-bold font-headline">Withdraw & Exchange</h1>
         </div>
 
         <Card>
             <CardHeader>
-                <CardTitle>Withdraw Funds</CardTitle>
-                <CardDescription>Select a method and enter the amount to withdraw.</CardDescription>
+                <CardTitle>Withdraw Diamonds</CardTitle>
+                <CardDescription>Select a method and enter the amount to withdraw. 100 Diamonds = $1.00</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="space-y-2">
-                    <Label htmlFor="amount">Amount (in Coins)</Label>
+                    <Label htmlFor="amount">Amount (in Diamonds)</Label>
                     <div className="relative">
-                        <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                        <Gem className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
                         <Input id="amount" type="number" placeholder="e.g., 5000" className="pl-10" />
                     </div>
-                    <p className="text-xs text-muted-foreground">Available to withdraw: 1,250 Coins ($12.50)</p>
+                    <p className="text-xs text-muted-foreground">Available to withdraw: 5,800 Diamonds ($58.00)</p>
                 </div>
 
                 <div className="space-y-2">
@@ -103,12 +103,6 @@ export default function WithdrawPage() {
                                     <span>JazzCash</span>
                                 </div>
                             </SelectItem>
-                             <SelectItem value="creditcard">
-                                 <div className="flex items-center gap-2">
-                                    <CreditCard className="w-5 h-5" />
-                                    <span>Credit Card</span>
-                                </div>
-                            </SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -116,6 +110,27 @@ export default function WithdrawPage() {
                 <Button className="w-full" size="lg">
                     <Landmark className="mr-2 h-5 w-5"/>
                     Request Withdraw
+                </Button>
+            </CardContent>
+        </Card>
+
+         <Card>
+            <CardHeader>
+                <CardTitle>Exchange Diamonds for Coins</CardTitle>
+                <CardDescription>Use your earned Diamonds to get more Coins to send gifts. 1 Diamond = 1 Coin</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                 <div className="space-y-2">
+                    <Label htmlFor="exchange-amount">Amount of Diamonds to Exchange</Label>
+                    <div className="relative">
+                        <Gem className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                        <Input id="exchange-amount" type="number" placeholder="e.g., 1000" className="pl-10" />
+                    </div>
+                    <p className="text-xs text-muted-foreground">You will receive 1,000 Coins.</p>
+                </div>
+                 <Button className="w-full" size="lg" variant="secondary">
+                    <Repeat className="mr-2 h-5 w-5"/>
+                    Exchange Now
                 </Button>
             </CardContent>
         </Card>

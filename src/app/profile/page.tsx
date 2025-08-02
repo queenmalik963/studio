@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Star, Send, Wallet, Gem, Landmark, Settings, Store, Crown, Square, Coins, Camera, Globe, Activity } from "lucide-react";
+import { Edit, Star, Send, Wallet, Gem, Landmark, Settings, Store, Crown, Square, Coins, Camera, Globe, Activity, Repeat } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -161,44 +161,51 @@ export default function ProfilePage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>My Wallet & Progress</CardTitle>
+                        <CardTitle>My Wallet</CardTitle>
                         <CardDescription>Manage your funds and track your level progress.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <div className="flex items-center justify-between bg-primary/10 p-4 rounded-lg">
-                            <div className="flex items-center">
-                                <Wallet className="mr-3 text-primary" />
-                                <span className="font-semibold">Balance</span>
+                         <div className="grid grid-cols-2 gap-4">
+                            <div className="flex items-center justify-between bg-primary/10 p-4 rounded-lg">
+                                <div className="flex items-center gap-3">
+                                    <Coins className="text-primary w-6 h-6" />
+                                    <span className="font-semibold">Coins</span>
+                                </div>
+                                <span className="font-bold text-lg text-primary">1,250</span>
                             </div>
-                            <div className="flex items-center text-primary font-bold text-lg">
-                                <Coins className="mr-2" /> 1,250
+                             <div className="flex items-center justify-between bg-teal-500/10 p-4 rounded-lg">
+                                <div className="flex items-center gap-3">
+                                    <Gem className="text-teal-400 w-6 h-6" />
+                                    <span className="font-semibold">Diamonds</span>
+                                </div>
+                                <span className="font-bold text-lg text-teal-400">5,800</span>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <Link href="/profile/recharge" passHref>
                                 <Button variant="secondary" className="w-full">
-                                    <Gem className="mr-2" /> Recharge
+                                    <Coins className="mr-2" /> Recharge Coins
                                 </Button>
                             </Link>
                             <Link href="/profile/withdraw" passHref>
                                 <Button variant="outline" className="w-full">
-                                    <Landmark className="mr-2" /> Withdraw
+                                    <Landmark className="mr-2" /> Withdraw Diamonds
                                 </Button>
                             </Link>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="space-y-4 pt-4 border-t">
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center text-sm font-semibold text-muted-foreground">
-                                    <p className="flex items-center"><Star className="w-4 h-4 mr-1 text-yellow-400"/> ID Level</p>
+                                    <p className="flex items-center"><Star className="w-4 h-4 mr-1 text-yellow-400"/> ID Level (Receiver)</p>
                                     <p>{idLevel}/100</p>
                                 </div>
                                 <Progress value={idLevel} className="h-2 bg-muted [&>div]:bg-gradient-to-r [&>div]:from-yellow-400 [&>div]:to-amber-500" />
                             </div>
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center text-sm font-semibold text-muted-foreground">
-                                    <p className="flex items-center"><Send className="w-4 h-4 mr-1 text-sky-400"/> Sending Level</p>
+                                    <p className="flex items-center"><Send className="w-4 h-4 mr-1 text-sky-400"/> Sending Level (Gifter)</p>
                                     <p>{sendingLevel}/100</p>
                                 </div>
                                 <Progress value={sendingLevel} className="h-2 bg-muted [&>div]:bg-gradient-to-r [&>div]:from-sky-400 [&>div]:to-cyan-500" />
