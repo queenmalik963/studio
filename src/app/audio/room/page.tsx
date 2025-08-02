@@ -177,7 +177,7 @@ export default function AudioRoomPage() {
             </header>
 
             {/* Seats */}
-            <main className="flex-1 mt-6 overflow-hidden flex flex-col justify-between">
+            <main className="flex-1 mt-6 overflow-y-auto flex flex-col justify-between">
                 <div>
                      <div className="grid grid-cols-5 gap-y-4 gap-x-2 place-items-center">
                         {seats.slice(0, 5).map((seat) => (
@@ -373,3 +373,5 @@ export default function AudioRoomPage() {
             </footer>
         </div>
     );
+
+    
