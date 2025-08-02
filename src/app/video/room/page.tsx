@@ -16,8 +16,8 @@ const initialMessages = [
 ];
 
 const roomSeats = [
-    { id: 1, user: { name: "Jodie", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'gold', specialIcon: 'crown' }, isOccupied: true },
-    { id: 2, user: { name: "Koko", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'purple', specialIcon: 'shield' }, isOccupied: true },
+    { id: 1, user: { name: "Jodie", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'gold' }, isOccupied: true },
+    { id: 2, user: { name: "Koko", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'purple' }, isOccupied: true },
     { id: 3, user: { name: "User 3", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'pink' }, isOccupied: true },
     { id: 4, user: { name: "Lexa", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'blue' }, isOccupied: true },
     { id: 5, user: { name: "mhay", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'green' }, isOccupied: true },
@@ -132,9 +132,6 @@ export default function VideoRoomPage() {
                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                         </Avatar>
-                                        {seat.user.specialIcon === 'crown' && <CrownIcon className="absolute -top-2 -left-2 w-4 h-4 text-yellow-400 -rotate-12"/>}
-                                        {seat.user.specialIcon === 'shield' && <ShieldIcon className="absolute -top-1.5 right-[-6px] w-4 h-4 text-sky-300"/>}
-
                                         <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-0.5">
                                             {seat.user.isMuted ? 
                                                 <Mic className="w-2 h-2 text-red-500" /> :
@@ -219,6 +216,8 @@ export default function VideoRoomPage() {
             </footer>
         </div>
     );
+
+    
 
     
 

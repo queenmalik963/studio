@@ -16,8 +16,8 @@ const initialMessages = [
 ];
 
 const roomSeats = [
-    { id: 1, user: { name: "Jodie", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'gold', specialIcon: 'crown' }, isOccupied: true },
-    { id: 2, user: { name: "Koko", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'purple', specialIcon: 'shield' }, isOccupied: true },
+    { id: 1, user: { name: "Jodie", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'gold' }, isOccupied: true },
+    { id: 2, user: { name: "Koko", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'purple' }, isOccupied: true },
     { id: 3, user: { name: "User 3", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'pink' }, isOccupied: true },
     { id: 4, user: { name: "Lexa", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'blue' }, isOccupied: true },
     { id: 5, user: { name: "mhay", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'green' }, isOccupied: true },
@@ -144,8 +144,6 @@ export default function AudioRoomPage() {
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                         )}
-                                        {seat.user.specialIcon === 'crown' && <CrownIcon className="absolute -top-3 -left-3 w-6 h-6 text-yellow-400 -rotate-12"/>}
-                                        {seat.user.specialIcon === 'shield' && <ShieldIcon className="absolute -top-2 right-[-10px] w-6 h-6 text-sky-300"/>}
 
                                         <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
                                             {seat.user.isMuted ? 
@@ -275,6 +273,8 @@ export default function AudioRoomPage() {
             </footer>
         </div>
     );
+
+    
 
     
 
