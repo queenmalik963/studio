@@ -5,12 +5,13 @@ import { useState, useRef, useEffect, Fragment } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Settings, Send, Mic, Gift, Gamepad2 } from "lucide-react";
+import { ArrowLeft, Users, Settings, Send, Mic, Gift, Gamepad2, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 const initialMessages = [
   {
@@ -211,8 +212,45 @@ export default function VideoRoomPage() {
                     ))}
                 </div>
 
-                <footer className="pt-4">
-                    <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+                <footer className="pt-4 relative">
+                    {isGiftPanelOpen && (
+                        <div className="absolute bottom-full left-0 right-0 bg-background border-t p-4 rounded-t-lg shadow-lg animate-in slide-in-from-bottom-full duration-300">
+                           <div className="flex justify-between items-center mb-4">
+                               <h3 className="font-semibold text-lg">Send a Gift</h3>
+                               <Button variant="ghost" size="icon" onClick={() => setIsGiftPanelOpen(false)}>
+                                   <X className="h-5 w-5" />
+                               </Button>
+                           </div>
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <label htmlFor="gift-recipient" className="text-sm font-medium">Send to:</label>
+                                    <Select value={giftRecipient} onValueChange={setGiftRecipient}>
+                                        <SelectTrigger id="gift-recipient">
+                                            <SelectValue placeholder="Select a recipient" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Everyone">Everyone</SelectItem>
+                                            {roomUsers.filter(u => u.name !== 'You').map(user => (
+                                                <SelectItem key={user.name} value={user.name}>
+                                                    {user.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4 py-4 max-h-48 overflow-y-auto">
+                                {gifts.map(gift => (
+                                    <Card key={gift.name} className="flex flex-col items-center justify-center p-2 text-center cursor-pointer hover:bg-accent" onClick={() => sendGift(gift)}>
+                                        <p className="text-2xl sm:text-4xl">{gift.icon}</p>
+                                        <p className="font-semibold mt-2 text-xs sm:text-sm">{gift.name}</p>
+                                        <p className="text-xs text-muted-foreground">{gift.price} coins</p>
+                                    </Card>
+                                ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    <div className="flex items-center gap-2">
                         <Dialog open={isGamePanelOpen} onOpenChange={setIsGamePanelOpen}>
                             <DialogTrigger asChild>
                                 <Button type="button" variant="ghost" size="icon"><Gamepad2 /></Button>
@@ -233,59 +271,27 @@ export default function VideoRoomPage() {
                             </DialogContent>
                         </Dialog>
 
-                         <Dialog open={isGiftPanelOpen} onOpenChange={setIsGiftPanelOpen}>
-                            <DialogTrigger asChild>
-                                <Button type="button" variant="ghost" size="icon"><Gift className="text-yellow-500"/></Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Send a Gift</DialogTitle>
-                                </DialogHeader>
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <label htmlFor="gift-recipient" className="text-sm font-medium">Send to:</label>
-                                        <Select value={giftRecipient} onValueChange={setGiftRecipient}>
-                                            <SelectTrigger id="gift-recipient">
-                                                <SelectValue placeholder="Select a recipient" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Everyone">Everyone</SelectItem>
-                                                {roomUsers.filter(u => u.name !== 'You').map(user => (
-                                                    <SelectItem key={user.name} value={user.name}>
-                                                        {user.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="grid grid-cols-3 gap-4 py-4">
-                                    {gifts.map(gift => (
-                                        <Card key={gift.name} className="flex flex-col items-center justify-center p-4 text-center cursor-pointer hover:bg-accent" onClick={() => sendGift(gift)}>
-                                            <p className="text-4xl">{gift.icon}</p>
-                                            <p className="font-semibold mt-2">{gift.name}</p>
-                                            <p className="text-xs text-muted-foreground">{gift.price} coins</p>
-                                        </Card>
-                                    ))}
-                                    </div>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
+                        <Button type="button" variant="ghost" size="icon" onClick={() => setIsGiftPanelOpen(!isGiftPanelOpen)}>
+                            <Gift className="text-yellow-500"/>
+                        </Button>
                         
                         <Button type="button" variant="ghost" size="icon"><Mic /></Button>
 
-                        <Input
-                            autoComplete="off"
-                            name="message"
-                            placeholder="Send a message..."
-                            className="bg-muted border-transparent focus:border-primary focus:ring-primary"
-                            value={newMessage}
-                            onChange={(e) => setNewMessage(e.target.value)}
-                        />
-                        <Button type="submit" size="icon" disabled={!newMessage.trim()}>
-                            <Send />
-                            <span className="sr-only">Send message</span>
-                        </Button>
-                    </form>
+                        <form onSubmit={handleSendMessage} className="flex-grow flex items-center gap-2">
+                            <Input
+                                autoComplete="off"
+                                name="message"
+                                placeholder="Send a message..."
+                                className="bg-muted border-transparent focus:border-primary focus:ring-primary flex-grow"
+                                value={newMessage}
+                                onChange={(e) => setNewMessage(e.target.value)}
+                            />
+                            <Button type="submit" size="icon" disabled={!newMessage.trim()}>
+                                <Send />
+                                <span className="sr-only">Send message</span>
+                            </Button>
+                        </form>
+                    </div>
                 </footer>
             </div>
         </div>
