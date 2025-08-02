@@ -22,17 +22,29 @@ export function MusicSuggestions() {
             try {
                 setIsLoading(true);
                 setError(null);
+                // In a real app, you'd get this from user data
                 const result = await suggestUpNextMusic({ recentlyWatchedVideos: recentlyWatched });
                 setSuggestions(result);
-            } catch (e) {
-                setError('Failed to get music suggestions. Please try again later.');
+            } catch (e: any) {
+                 if (e.message.includes("API key not valid")) {
+                    setError("Your Gemini API key is not valid. Please check your .env file.");
+                } else if (e.message.includes("API key not found")) {
+                    setError("Gemini API key not found. Please add it to your .env file.");
+                }
+                else {
+                    setError('Failed to get music suggestions. Please try again later.');
+                }
                 console.error(e);
             } finally {
                 setIsLoading(false);
             }
         };
 
+        // This is a client component, but the check for the key should happen
+        // where the environment is loaded. We'll add a more specific error
+        // message here based on the expected error from Genkit/Google AI.
         fetchSuggestions();
+
     }, []);
 
     return (
@@ -53,8 +65,18 @@ export function MusicSuggestions() {
                 {error && (
                      <Alert variant="destructive">
                         <AlertTriangle className="h-4 w-4" />
-                        <AlertTitle>Error</AlertTitle>
-                        <AlertDescription>{error}</AlertDescription>
+                        <AlertTitle>Configuration Error</AlertTitle>
+                        <AlertDescription>
+                            {error}
+                            <a 
+                                href="https://aistudio.google.com/app/apikey" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="underline font-semibold ml-1"
+                            >
+                                Get a key here.
+                            </a>
+                        </AlertDescription>
                     </Alert>
                 )}
                 {suggestions && (
