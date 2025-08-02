@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, use } from "react";
+import { useState } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -67,8 +67,7 @@ export default function ChatRoomPage({ params }: { params: { id: string } }) {
     const router = useRouter();
     
     // In a real app, you'd fetch user data based on params.id
-    const resolvedParams = use(Promise.resolve(params));
-    const contactName = resolvedParams.id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    const contactName = params.id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     
     const [messages, setMessages] = useState(() => createInitialMessages(contactName));
     const [newMessage, setNewMessage] = useState("");
