@@ -20,14 +20,14 @@ const roomSeats = [
     { id: 2, user: { name: "Koko", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'purple', specialIcon: 'shield' }, isOccupied: true },
     { id: 3, isOccupied: false, isLocked: true },
     { id: 4, user: { name: "Lexa", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'blue' }, isOccupied: true },
-    { id: 5, user: { name: "mhay", avatar: "https://placehold.co/80x80.png", isMuted: true }, isOccupied: true },
+    { id: 5, user: { name: "mhay", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'green' }, isOccupied: true },
     { id: 6, isOccupied: false },
     { id: 7, isOccupied: false },
     { id: 8, isOccupied: false },
     { id: 9, isOccupied: false },
     { id: 10, isOccupied: false },
-    { id: 11, user: { name: "saba", avatar: "https://placehold.co/80x80.png", isMuted: false }, isOccupied: true },
-    { id: 12, user: { name: "MR ISMAIL", avatar: "https://placehold.co/80x80.png", isMuted: false }, isOccupied: true },
+    { id: 11, user: { name: "saba", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'red' }, isOccupied: true },
+    { id: 12, user: { name: "MR ISMAIL", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'cyan' }, isOccupied: true },
 ]
 
 const GiftIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -71,6 +71,10 @@ export default function AudioRoomPage() {
         gold: 'shadow-[0_0_20px_5px_rgba(255,185,0,0.5)] border-yellow-400',
         purple: 'shadow-[0_0_20px_5px_rgba(192,38,211,0.5)] border-fuchsia-500',
         blue: 'shadow-[0_0_20px_5px_rgba(59,130,246,0.5)] border-blue-400',
+        green: 'shadow-[0_0_20px_5px_rgba(34,197,94,0.5)] border-green-500',
+        red: 'shadow-[0_0_20px_5px_rgba(239,68,68,0.5)] border-red-500',
+        cyan: 'shadow-[0_0_20px_5px_rgba(6,182,212,0.5)] border-cyan-500',
+        pink: 'shadow-[0_0_20px_5px_rgba(219,39,119,0.5)] border-pink-500',
     }
 
     return (
@@ -147,7 +151,7 @@ export default function AudioRoomPage() {
                              {seat.isOccupied && seat.user ? (
                                 <>
                                     <div className="relative">
-                                        <Avatar className="w-[50px] h-[50px] border-2 border-gray-500">
+                                        <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                         </Avatar>
@@ -225,6 +229,8 @@ export default function AudioRoomPage() {
             </footer>
         </div>
     );
+
+    
 
     
 
