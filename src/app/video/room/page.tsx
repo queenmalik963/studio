@@ -21,6 +21,11 @@ const roomSeats = [
     { id: 3, isOccupied: false, isLocked: true },
     { id: 4, user: { name: "Lexa", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'blue' }, isOccupied: true },
     { id: 5, user: { name: "mhay", avatar: "https://placehold.co/80x80.png", isMuted: true }, isOccupied: true },
+    { id: 6, isOccupied: false },
+    { id: 7, isOccupied: false },
+    { id: 8, isOccupied: false },
+    { id: 9, isOccupied: false },
+    { id: 10, isOccupied: false },
 ]
 
 const GiftIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -110,31 +115,31 @@ export default function VideoRoomPage() {
             {/* Interactive Panel */}
             <main className="flex-1 flex flex-col p-4 overflow-hidden gap-2 bg-[#2E103F]">
                 {/* Seats */}
-                <div className="grid grid-cols-5 gap-y-2 gap-x-3 justify-items-center">
-                    {roomSeats.slice(0, 5).map((seat) => (
-                        <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
+                <div className="grid grid-cols-10 gap-x-2 justify-items-center">
+                    {roomSeats.map((seat) => (
+                        <div key={seat.id} className="flex flex-col items-center gap-1 w-[30px] text-center">
                             {seat.isOccupied && seat.user ? (
                                 <>
                                     <div className="relative">
-                                        <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                        <Avatar className={cn("w-[30px] h-[30px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                         </Avatar>
-                                        {seat.user.specialIcon === 'crown' && <CrownIcon className="absolute -top-3 -left-3 w-6 h-6 text-yellow-400 -rotate-12"/>}
-                                        {seat.user.specialIcon === 'shield' && <ShieldIcon className="absolute -top-2 right-[-10px] w-6 h-6 text-sky-300"/>}
+                                        {seat.user.specialIcon === 'crown' && <CrownIcon className="absolute -top-2 -left-2 w-4 h-4 text-yellow-400 -rotate-12"/>}
+                                        {seat.user.specialIcon === 'shield' && <ShieldIcon className="absolute -top-1.5 right-[-6px] w-4 h-4 text-sky-300"/>}
 
-                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
+                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-0.5">
                                             {seat.user.isMuted ? 
-                                                <Mic className="w-3 h-3 text-red-500" /> :
-                                                <Mic className="w-3 h-3 text-green-400" />
+                                                <Mic className="w-2 h-2 text-red-500" /> :
+                                                <Mic className="w-2 h-2 text-green-400" />
                                             }
                                         </div>
                                     </div>
-                                    <p className="text-xs truncate w-full">{seat.user.name}</p>
+                                    <p className="text-[10px] truncate w-full">{seat.user.name}</p>
                                 </>
                             ) : (
-                                <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                    {seat.isLocked ? <Lock className="w-5 h-5 text-white/50"/> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
+                                <div className="w-[30px] h-[30px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                    {seat.isLocked ? <Lock className="w-4 h-4 text-white/50"/> : <span className="text-sm font-bold text-white/50">{seat.id}</span>}
                                 </div>
                             )}
                         </div>
@@ -207,5 +212,7 @@ export default function VideoRoomPage() {
             </footer>
         </div>
     );
+
+    
 
     
