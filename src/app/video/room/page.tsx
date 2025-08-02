@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
+import { Label } from "@/components/ui/label";
 
 
 const initialMessages = [
@@ -376,3 +377,5 @@ export default function VideoRoomPage() {
         </div>
     );
 }
+
+    
