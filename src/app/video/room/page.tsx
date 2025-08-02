@@ -5,295 +5,224 @@ import { useState, useRef, useEffect, Fragment } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Settings, Send, Mic, Gift, Gamepad2, X } from "lucide-react";
-import Image from "next/image";
+import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 const initialMessages = [
-  {
-    id: 1,
-    author: "David",
-    avatar: "https://placehold.co/40x40.png",
-    text: "Hey",
-    type: "chat"
-  },
-  {
-    id: 2,
-    author: "Cristian",
-    avatar: "https://placehold.co/40x40.png",
-    text: "Her new album is so good",
-    type: "chat"
-  },
-    {
-    id: 5,
-    author: "Cristian",
-    gift: "🌹",
-    text: "sent a Rose",
-    type: "gift"
-  },
-  {
-    id: 3,
-    author: "David",
-    avatar: "https://placehold.co/40x40.png",
-    text: "Idk I like Sweetener better",
-    type: "chat"
-  },
-  {
-    id: 4,
-    author: "You",
-    avatar: "https://placehold.co/40x40.png",
-    text: "For sure! Wouldn't miss it. Who's playing?",
-    type: "chat"
-  },
+  { id: 1, type: 'gift', author: 'Jodie', text: 'Sent a RedRose', giftIcon: 'https://placehold.co/100x100.png', avatar: "https://placehold.co/40x40.png" },
+  { id: 2, type: 'game', author: 'Jodie', text: 'started playing Fruit!', game: 'Fruit!', avatar: "https://placehold.co/40x40.png" },
+  { id: 3, type: 'text', author: 'saba', text: 'Hi...', avatar: "https://placehold.co/40x40.png"},
 ];
 
-const roomUsers = [
-    { name: "David", avatar: "https://placehold.co/40x40.png" },
-    { name: "Cristian", avatar: "https://placehold.co/40x40.png" },
-    { name: "You", avatar: "https://placehold.co/40x40.png" },
-    { name: "Alex", avatar: "https://placehold.co/40x40.png" },
-    { name: "Maria", avatar: "https://placehold.co/40x40.png" },
+const roomSeats = [
+    { id: 1, user: { name: "Jodie", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'gold', specialIcon: 'crown' }, isOccupied: true },
+    { id: 2, user: { name: "Koko", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'purple', specialIcon: 'shield' }, isOccupied: true },
+    { id: 3, isOccupied: false, isLocked: true },
+    { id: 4, user: { name: "Lexa", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'blue' }, isOccupied: true },
+    { id: 5, user: { name: "mhay", avatar: "https://placehold.co/80x80.png", isMuted: true }, isOccupied: true },
+    { id: 6, isOccupied: false },
+    { id: 7, isOccupied: false },
+    { id: 8, isOccupied: false },
+    { id: 9, isOccupied: false },
+    { id: 10, isOccupied: false },
+    { id: 11, user: { name: "saba", avatar: "https://placehold.co/80x80.png", isMuted: false }, isOccupied: true },
+    { id: 12, user: { name: "MR ISMAIL", avatar: "https://placehold.co/80x80.png", isMuted: false }, isOccupied: true },
 ]
 
-const gifts = [
-    { name: "Rose", icon: "🌹", price: 10 },
-    { name: "Diamond", icon: "💎", price: 100 },
-    { name: "Heart", icon: "❤️", price: 50 },
-    { name: "Crown", icon: "👑", price: 500 },
-    { name: "Star", icon: "⭐", price: 20 },
-    { name: "Fire", icon: "🔥", price: 75 },
-]
+const GiftIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-1.87c0-1-1-2.27-2-1.9-1 .36-1 2-2 2s-1.44-.91-1.44-2 1.44-2 1.44-2 .81-1.33 2.56-2.56S13.43 8 15 8s1.86 1.43 2 2-1 2-2 2-2-1-2-2"/><path d="M20 14a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"/></svg>
+);
 
-const games = [
-    { name: "Ludo", description: "Classic board game", icon: "🎲" },
-    { name: "Bingo", description: "Fun number game", icon: "🔢" },
-    { name: "Tic-Tac-Toe", description: "Simple X's and O's", icon: "⭕" }
-]
+const CrownIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M229.2,81.4a15.8,15.8,0,0,0-15.5-1.1L161,96.69l-33-22-33,22-52.7-16.39a15.8,15.8,0,0,0-15.5,1.1,16.2,16.2,0,0,0-7.3,14.2l10.2,60.2a16,16,0,0,0,15.4,13.4H200.7a16,16,0,0,0,15.4-13.4l10.2-60.2A16.2,16.2,0,0,0,229.2,81.4Z"/></svg>
+);
+
+const ShieldIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48V32a16,16,0,0,0-16-16H56A16,16,0,0,0,40,32V48a16,16,0,0,0-16,16v88a16,16,0,0,0,16,16H56v40a16,16,0,0,0,16,16h22.6a8,8,0,0,0,7.3-4.8l20.8-49.8,20.8,49.8a8,8,0,0,0,7.3,4.8H184a16,16,0,0,0,16-16V168h16a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48Z"/></svg>
+);
+
+
+const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+);
+
 
 export default function VideoRoomPage() {
     const router = useRouter();
     const [messages, setMessages] = useState(initialMessages);
     const [newMessage, setNewMessage] = useState("");
     const chatContainerRef = useRef<HTMLDivElement>(null);
-    const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
-    const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
-    const [giftRecipient, setGiftRecipient] = useState('Everyone');
 
+    const owner = { name: "op_2", avatar: "https://placehold.co/40x40.png", isOwner: true };
+    
     useEffect(() => {
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
     }, [messages]);
-
+    
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
-        if (newMessage.trim()) {
-            setMessages([
-                ...messages,
-                {
-                    id: messages.length + 1,
-                    author: "You",
-                    avatar: "https://placehold.co/40x40.png",
-                    text: newMessage,
-                    type: "chat"
-                },
-            ]);
-            setNewMessage("");
-        }
+        // Sending logic would be here
     };
-    
-    const sendGift = (gift: {name: string, icon: string}) => {
-        const recipientText = giftRecipient === 'Everyone' ? '' : ` to ${giftRecipient}`;
-         setMessages([
-            ...messages,
-            {
-                id: messages.length + 1,
-                author: "You",
-                gift: gift.icon,
-                text: `sent a ${gift.name}${recipientText}`,
-                type: 'gift'
-            },
-        ]);
-        setIsGiftPanelOpen(false);
-    }
-    
-    const startGame = (game: {name: string}) => {
-         setMessages([
-            ...messages,
-            {
-                id: messages.length + 1,
-                author: "You",
-                text: `started a game of ${game.name}!`,
-                type: 'game'
-            },
-        ]);
-        setIsGamePanelOpen(false);
-    }
 
+    const frameColors: {[key: string]: string} = {
+        gold: 'shadow-[0_0_20px_5px_rgba(255,185,0,0.5)] border-yellow-400',
+        purple: 'shadow-[0_0_20px_5px_rgba(192,38,211,0.5)] border-fuchsia-500',
+        blue: 'shadow-[0_0_20px_5px_rgba(59,130,246,0.5)] border-blue-400',
+    }
 
     return (
-        <div className="flex flex-col h-screen bg-background text-foreground">
-            <header className="flex-shrink-0 flex items-center justify-between p-4 border-b">
+        <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans">
+            <header className="flex-shrink-0 flex items-center justify-between p-4">
                 <div className="flex items-center gap-4">
                     <Button variant="ghost" size="icon" onClick={() => router.back()}>
                         <ArrowLeft />
                     </Button>
-                    <div>
-                        <h1 className="text-lg font-bold font-headline">Amrinder Gill - Paigaam</h1>
-                    </div>
+                    {owner && (
+                        <div className="flex items-center gap-2">
+                             <Avatar className="h-10 w-10 border-2 border-yellow-400">
+                                <AvatarImage src={owner.avatar} />
+                                <AvatarFallback>{owner.name?.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <p className="font-semibold">{owner.name}</p>
+                                <p className="text-xs text-white/70">ID: 66768</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
                 <div className="flex items-center gap-2">
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                                <Users />
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Users in Room ({roomUsers.length})</DialogTitle>
-                            </DialogHeader>
-                            <div className="space-y-4 max-h-96 overflow-y-auto">
-                                {roomUsers.map(user => (
-                                    <div key={user.name} className="flex items-center gap-4">
-                                        <Avatar>
-                                            <AvatarImage src={user.avatar} />
-                                            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                        <p className="font-semibold">{user.name}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </DialogContent>
-                    </Dialog>
-                    
-                    <Button variant="ghost" size="icon">
-                        <Settings />
+                    <Button variant="ghost" className="h-auto p-1 text-white/80 bg-black/20 rounded-full px-3">
+                        <Users className="w-5 h-5 mr-1" />
+                        <span className="font-bold">{roomSeats.filter(s => s.isOccupied).length}</span>
                     </Button>
                 </div>
             </header>
 
-            <div className="flex-shrink-0 relative aspect-video bg-muted">
-                 <Image src="https://placehold.co/1920x1080.png" alt="Video stream" fill objectFit="cover" data-ai-hint="music video" />
-            </div>
-
-            <div className="flex-1 flex flex-col p-4 overflow-hidden">
-                 <div ref={chatContainerRef} className="flex-1 overflow-y-auto space-y-4 pr-2">
-                    {messages.map((msg) => (
-                        <Fragment key={msg.id}>
-                            {msg.type === 'chat' && (
-                                <div className={`flex items-start gap-3 ${msg.author === "You" ? "justify-end" : "justify-start"}`}>
-                                    {msg.author !== "You" && (
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarImage src={msg.avatar} alt={msg.author} />
-                                            <AvatarFallback>{msg.author.charAt(0)}</AvatarFallback>
+            <main className="flex-1 flex flex-col p-4 overflow-hidden gap-4">
+                <div className="grid grid-cols-5 gap-y-2 gap-x-3 justify-items-center">
+                    {roomSeats.slice(0, 5).map((seat) => (
+                        <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
+                            {seat.isOccupied && seat.user ? (
+                                <>
+                                    <div className="relative">
+                                        <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                            <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                            <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                         </Avatar>
-                                    )}
-                                    <div className="flex flex-col items-start">
-                                        {msg.author !== "You" && <p className="text-xs text-primary font-semibold mb-1">{msg.author}</p>}
-                                        <div className={`rounded-lg px-4 py-2 max-w-xs lg:max-w-md ${msg.author === "You" ? "bg-primary text-primary-foreground self-end" : "bg-muted"}`}>
-                                            <p className="text-sm">{msg.text}</p>
+                                        {seat.user.specialIcon === 'crown' && <CrownIcon className="absolute -top-3 -left-3 w-6 h-6 text-yellow-400 -rotate-12"/>}
+                                        {seat.user.specialIcon === 'shield' && <ShieldIcon className="absolute -top-2 right-[-10px] w-6 h-6 text-sky-300"/>}
+
+                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
+                                            {seat.user.isMuted ? 
+                                                <Mic className="w-3 h-3 text-red-500" /> :
+                                                <Mic className="w-3 h-3 text-green-400" />
+                                            }
                                         </div>
                                     </div>
+                                    <p className="text-xs truncate w-full">{seat.user.name}</p>
+                                </>
+                            ) : (
+                                <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                    {seat.isLocked ? <Lock className="w-5 h-5 text-white/50"/> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
                                 </div>
                             )}
-                            {(msg.type === 'gift' || msg.type === 'game') && (
-                                <div className="text-center py-1">
-                                    <p className="text-xs text-muted-foreground bg-muted/50 rounded-full inline-block px-3 py-1">
-                                        <span className="font-bold text-primary">{msg.author}</span> {msg.text} <span className="text-lg">{msg.gift}</span>
-                                    </p>
-                                </div>
-                            )}
-                        </Fragment>
+                        </div>
+                    ))}
+                </div>
+                 <div className="grid grid-cols-5 gap-y-2 gap-x-3 justify-items-center">
+                    {roomSeats.slice(5, 10).map((seat) => (
+                        <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
+                           <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                <span className="text-lg font-bold text-white/50">{seat.id}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                 <div className="grid grid-cols-5 gap-y-2 gap-x-3 justify-items-center mt-1">
+                     {roomSeats.slice(10, 12).map((seat) => (
+                         <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center col-span-2">
+                             {seat.isOccupied && seat.user ? (
+                                <>
+                                    <div className="relative">
+                                        <Avatar className="w-[50px] h-[50px] border-2 border-gray-500">
+                                            <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                            <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
+                                            <Mic className="w-3 h-3 text-green-400" />
+                                        </div>
+                                    </div>
+                                    <p className="text-xs truncate w-full">{seat.user.name}</p>
+                                </>
+                            ) : null}
+                         </div>
                     ))}
                 </div>
 
-                <footer className="pt-4 relative">
-                    {isGiftPanelOpen && (
-                        <div className="absolute bottom-full left-0 right-0 bg-background border-t p-4 rounded-t-lg shadow-lg animate-in slide-in-from-bottom-full duration-300">
-                           <div className="flex justify-between items-center mb-4">
-                               <h3 className="font-semibold text-lg">Send a Gift</h3>
-                               <Button variant="ghost" size="icon" onClick={() => setIsGiftPanelOpen(false)}>
-                                   <X className="h-5 w-5" />
-                               </Button>
-                           </div>
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <label htmlFor="gift-recipient" className="text-sm font-medium">Send to:</label>
-                                    <Select value={giftRecipient} onValueChange={setGiftRecipient}>
-                                        <SelectTrigger id="gift-recipient">
-                                            <SelectValue placeholder="Select a recipient" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Everyone">Everyone</SelectItem>
-                                            {roomUsers.filter(u => u.name !== 'You').map(user => (
-                                                <SelectItem key={user.name} value={user.name}>
-                                                    {user.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4 py-4 max-h-48 overflow-y-auto">
-                                {gifts.map(gift => (
-                                    <Card key={gift.name} className="flex flex-col items-center justify-center p-2 text-center cursor-pointer hover:bg-accent" onClick={() => sendGift(gift)}>
-                                        <p className="text-2xl sm:text-4xl">{gift.icon}</p>
-                                        <p className="font-semibold mt-2 text-xs sm:text-sm">{gift.name}</p>
-                                        <p className="text-xs text-muted-foreground">{gift.price} coins</p>
-                                    </Card>
-                                ))}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    <div className="flex items-center gap-2">
-                        <Dialog open={isGamePanelOpen} onOpenChange={setIsGamePanelOpen}>
-                            <DialogTrigger asChild>
-                                <Button type="button" variant="ghost" size="icon"><Gamepad2 /></Button>
-                            </DialogTrigger>
-                             <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Start a Game</DialogTitle>
-                                </DialogHeader>
-                                <div className="grid grid-cols-2 gap-4 py-4">
-                                {games.map(game => (
-                                    <Card key={game.name} className="flex flex-col items-center justify-center p-4 text-center cursor-pointer hover:bg-accent" onClick={() => startGame(game)}>
-                                        <p className="text-4xl">{game.icon}</p>
-                                        <p className="font-semibold mt-2">{game.name}</p>
-                                        <p className="text-xs text-muted-foreground">{game.description}</p>
-                                    </Card>
-                                ))}
-                                </div>
-                            </DialogContent>
-                        </Dialog>
-
-                        <Button type="button" variant="ghost" size="icon" onClick={() => setIsGiftPanelOpen(!isGiftPanelOpen)}>
-                            <Gift className="text-yellow-500"/>
+                 <div ref={chatContainerRef} className="flex-1 overflow-y-auto space-y-3 pr-2 mt-2">
+                    {messages.map((msg) => (
+                         <div key={msg.id} className="flex items-start gap-3">
+                             <Avatar className="h-8 w-8 shrink-0">
+                                <AvatarImage src={msg.avatar}/>
+                                <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                             <div className="text-sm">
+                                 <p className="text-white/70 text-xs">{msg.author}</p>
+                                 {msg.type === 'gift' && (
+                                     <div className="flex items-center gap-2 mt-1">
+                                         <p className="text-xs">Sent a RedRose</p>
+                                         <div className="bg-black/20 p-1 rounded-md flex items-center gap-1">
+                                            <img src="https://em-content.zobj.net/source/apple/391/rose_1f339.png" alt="RedRose" className="w-4 h-4"/>
+                                            <span className="text-xs">x1</span>
+                                         </div>
+                                     </div>
+                                 )}
+                                  {msg.type === 'game' && (
+                                     <p className="mt-1 text-xs">{msg.author} <span className="font-bold text-yellow-400">{msg.text}</span></p>
+                                 )}
+                                 {msg.type === 'text' && (
+                                     <div className="bg-black/20 rounded-lg p-2 mt-1">
+                                        <p className="text-sm">{msg.text}</p>
+                                     </div>
+                                 )}
+                             </div>
+                         </div>
+                    ))}
+                </div>
+            </main>
+             <footer className="p-4 bg-transparent">
+                <div className="flex items-center justify-around">
+                    <Button type="button" size="icon" variant="ghost" className="w-12 h-12 rounded-full bg-black/30">
+                         <span className="font-bold text-lg">N</span>
+                    </Button>
+                     <div className="flex-grow relative mx-2">
+                        <Input
+                            autoComplete="off"
+                            name="message"
+                            placeholder="Hi..."
+                            className="bg-black/30 border-0 rounded-full pl-4 pr-10 text-white h-12"
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                        />
+                         <Button type="submit" size="icon" variant="ghost" className="absolute right-2 top-1/2 -translate-y-1/2 text-white/80 hover:text-white" disabled={!newMessage.trim()}>
+                            <SendIcon />
                         </Button>
-                        
-                        <Button type="button" variant="ghost" size="icon"><Mic /></Button>
-
-                        <form onSubmit={handleSendMessage} className="flex-grow flex items-center gap-2">
-                            <Input
-                                autoComplete="off"
-                                name="message"
-                                placeholder="Send a message..."
-                                className="bg-muted border-transparent focus:border-primary focus:ring-primary flex-grow"
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                            />
-                            <Button type="submit" size="icon" disabled={!newMessage.trim()}>
-                                <Send />
-                                <span className="sr-only">Send message</span>
-                            </Button>
-                        </form>
                     </div>
-                </footer>
-            </div>
+                    <Button type="button" size="icon" variant="ghost" className="w-12 h-12 rounded-full bg-black/30">
+                        <Mic />
+                    </Button>
+                     <Button type="button" size="icon" className="w-12 h-12 bg-blue-600 hover:bg-blue-700 rounded-full"><Gamepad2 /></Button>
+                    <Button type="button" size="icon" variant="ghost" className="w-12 h-12 rounded-full bg-black/30">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                    </Button>
+                    <Button type="button" size="icon" className="w-12 h-12 bg-yellow-500 hover:bg-yellow-600 rounded-full">
+                        <GiftIcon />
+                    </Button>
+                </div>
+            </footer>
         </div>
     );
 }
