@@ -5,7 +5,6 @@ import { useState, useRef, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import { ArrowLeft, Users, Settings, Send } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -96,10 +95,10 @@ export default function VideoRoomPage() {
                     {messages.map((msg) => (
                         <div
                             key={msg.id}
-                            className={cn(
-                                "flex items-start gap-3",
-                                msg.author === "You" ? "justify-end" : "justify-start"
-                            )}
+                            className={
+                                "flex items-start gap-3 " +
+                                (msg.author === "You" ? "justify-end" : "justify-start")
+                            }
                         >
                             {msg.author !== "You" && (
                                 <Avatar className="h-8 w-8">
@@ -110,12 +109,12 @@ export default function VideoRoomPage() {
                             <div className="flex flex-col items-start">
                                 {msg.author !== "You" && <p className="text-xs text-primary font-semibold mb-1">{msg.author}</p>}
                                 <div
-                                    className={cn(
-                                        "rounded-lg px-4 py-2 max-w-xs lg:max-w-md",
-                                         msg.author === "You"
+                                    className={
+                                        "rounded-lg px-4 py-2 max-w-xs lg:max-w-md " +
+                                         (msg.author === "You"
                                             ? "bg-primary text-primary-foreground self-end"
-                                            : "bg-muted"
-                                    )}
+                                            : "bg-muted")
+                                    }
                                 >
                                     <p className="text-sm">{msg.text}</p>
                                 </div>
