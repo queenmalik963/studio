@@ -1,3 +1,4 @@
+
 "use client";
 
 import { AppLayout } from "@/components/shared/AppLayout";
@@ -5,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Star, Send, Wallet, Gem, Landmark, Settings } from "lucide-react";
+import { Edit, Star, Send, Wallet, Gem, Landmark, Settings, Store } from "lucide-react";
 
 const USFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 3" {...props}>
@@ -108,6 +109,9 @@ export default function ProfilePage() {
                     </Button>
                      <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white" onClick={() => handleAction('Withdraw')}>
                         <Landmark className="mr-3" /> Withdraw
+                    </Button>
+                    <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white" onClick={() => handleAction('Store')}>
+                        <Store className="mr-3" /> Store
                     </Button>
                 </div>
             </div>
