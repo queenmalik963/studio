@@ -3,7 +3,8 @@
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mic, Music, Square, Upload } from "lucide-react";
+import { Mic, Music, Play, Plus, Upload } from "lucide-react";
+import Link from "next/link";
 
 export default function AudioPage() {
     return (
@@ -19,9 +20,11 @@ export default function AudioPage() {
                         <CardTitle>Create a new Audio Experience</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col sm:flex-row gap-4">
-                        <Button size="lg" className="w-full sm:w-auto">
-                            <Mic className="mr-2" /> Start a Live Room
-                        </Button>
+                        <Link href="/audio/room" passHref>
+                            <Button size="lg" className="w-full sm:w-auto">
+                                <Plus className="mr-2" /> Create a Room
+                            </Button>
+                        </Link>
                         <Button size="lg" variant="outline" className="w-full sm:w-auto">
                             <Upload className="mr-2" /> Upload a Track
                         </Button>
@@ -38,7 +41,7 @@ export default function AudioPage() {
                                     <h3 className="mt-4 font-semibold font-headline">My Awesome Mix {i + 1}</h3>
                                     <p className="text-sm text-muted-foreground">3:45</p>
                                     <Button variant="ghost" size="sm" className="mt-2">
-                                        <Square className="w-4 h-4 mr-2" /> Play
+                                        <Play className="w-4 h-4 mr-2" /> Play
                                     </Button>
                                 </CardContent>
                             </Card>
