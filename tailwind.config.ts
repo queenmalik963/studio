@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -136,6 +137,18 @@ export default {
             '0%, 100%': { boxShadow: '0 0 10px 2px rgba(244,63,94,0.4)' },
             '50%': { boxShadow: '0 0 20px 5px rgba(244,63,94,0.8)' },
         },
+        'glow-emerald': {
+            '0%, 100%': { boxShadow: '0 0 10px 2px rgba(16,185,129,0.4)' },
+            '50%': { boxShadow: '0 0 20px 5px rgba(16,185,129,0.8)' },
+        },
+        'glow-sky': {
+            '0%, 100%': { boxShadow: '0 0 10px 2px rgba(14,165,233,0.4)' },
+            '50%': { boxShadow: '0 0 20px 5px rgba(14,165,233,0.8)' },
+        },
+        'glow-amber': {
+            '0%, 100%': { boxShadow: '0 0 10px 2px rgba(245,158,11,0.4)' },
+            '50%': { boxShadow: '0 0 20px 5px rgba(245,158,11,0.8)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -152,10 +165,15 @@ export default {
         'glow-indigo': 'glow-indigo 2s ease-in-out infinite',
         'glow-lime': 'glow-lime 2s ease-in-out infinite',
         'glow-rose': 'glow-rose 2s ease-in-out infinite',
+        'glow-emerald': 'glow-emerald 2s ease-in-out infinite',
+        'glow-sky': 'glow-sky 2s ease-in-out infinite',
+        'glow-amber': 'glow-amber 2s ease-in-out infinite',
       },
     },
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
+
+    
 
     

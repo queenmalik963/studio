@@ -28,6 +28,9 @@ const roomSeats = [
     { id: 10, user: { name: "User 10", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'rose' }, isOccupied: true },
     { id: 11, user: { name: "saba", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'red' }, isOccupied: true },
     { id: 12, user: { name: "MR ISMAIL", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'cyan' }, isOccupied: true },
+    { id: 13, user: { name: "User 13", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'emerald' }, isOccupied: true },
+    { id: 14, user: { name: "User 14", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'sky' }, isOccupied: true },
+    { id: 15, user: { name: "User 15", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'amber' }, isOccupied: true },
 ]
 
 const GiftIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -80,6 +83,9 @@ export default function AudioRoomPage() {
         indigo: 'border-indigo-500 animate-glow-indigo',
         lime: 'border-lime-500 animate-glow-lime',
         rose: 'border-rose-500 animate-glow-rose',
+        emerald: 'border-emerald-500 animate-glow-emerald',
+        sky: 'border-sky-500 animate-glow-sky',
+        amber: 'border-amber-500 animate-glow-amber',
     }
 
     return (
@@ -169,8 +175,8 @@ export default function AudioRoomPage() {
                     ))}
                 </div>
                  <div className="grid grid-cols-5 gap-y-2 gap-x-3 justify-items-center mt-1">
-                     {roomSeats.slice(10, 12).map((seat) => (
-                         <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center col-span-2">
+                     {roomSeats.slice(10, 15).map((seat) => (
+                         <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
                              {seat.isOccupied && seat.user ? (
                                 <>
                                     <div className="relative">
@@ -252,6 +258,8 @@ export default function AudioRoomPage() {
             </footer>
         </div>
     );
+
+    
 
     
 
