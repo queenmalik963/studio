@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { GiftDialog } from "@/components/shared/GiftDialog";
 
 const initialMessages = [
   { id: 1, type: 'gift', author: 'Jodie', text: 'Sent a RedRose', giftIcon: 'https://placehold.co/100x100.png', avatar: "https://placehold.co/40x40.png" },
@@ -127,7 +128,7 @@ export default function AudioRoomPage() {
                             {seat.isOccupied && seat.user ? (
                                 <>
                                     <div className="relative">
-                                        {seat.id === 1 && seat.user.frame && spinningFrameColors[seat.user.frame] ? (
+                                        {seat.id === 1 ? (
                                             <div className="relative w-[54px] h-[54px]">
                                                 <div className={cn("absolute inset-0 border-2 border-transparent rounded-full animate-spin", spinningFrameColors[seat.user.frame])}></div>
                                                 <Avatar className={cn("w-[50px] h-[50px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2", frameColors[seat.user.frame])}>
@@ -200,7 +201,10 @@ export default function AudioRoomPage() {
                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                         </Avatar>
                                         <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
-                                            <Mic className="w-3 h-3 text-green-400" />
+                                            {seat.user.isMuted ? 
+                                                <Mic className="w-3 h-3 text-red-500" /> :
+                                                <Mic className="w-3 h-3 text-green-400" />
+                                            }
                                         </div>
                                     </div>
                                     <p className="text-xs truncate w-full">{seat.user.name}</p>
@@ -266,34 +270,13 @@ export default function AudioRoomPage() {
                     <Button type="button" size="icon" variant="ghost" className="w-12 h-12 rounded-full bg-black/30">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
                     </Button>
-                    <Button type="button" size="icon" className="w-12 h-12 bg-yellow-500 hover:bg-yellow-600 rounded-full">
-                        <GiftIcon />
-                    </Button>
+                    <GiftDialog roomSeats={roomSeats}>
+                        <Button type="button" size="icon" className="w-12 h-12 bg-yellow-500 hover:bg-yellow-600 rounded-full">
+                            <GiftIcon />
+                        </Button>
+                    </GiftDialog>
                 </div>
             </footer>
         </div>
     );
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
+}
