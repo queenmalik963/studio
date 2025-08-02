@@ -125,8 +125,7 @@ export default function AudioRoomPage() {
                                     <div className="relative">
                                         <Avatar className={cn(
                                             "w-[50px] h-[50px] border-2", 
-                                            seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent',
-                                            seat.id === 1 && 'animate-spin'
+                                            seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent'
                                         )}>
                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
@@ -262,6 +261,8 @@ export default function AudioRoomPage() {
             </footer>
         </div>
     );
+
+    
 
     
 
