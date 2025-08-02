@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Star, Send, Wallet, Gem, Landmark, Settings, Store, Crown, Square } from "lucide-react";
+import { Edit, Star, Send, Wallet, Gem, Landmark, Settings, Store, Crown, Square, Coins } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import {
   Accordion,
@@ -109,13 +109,18 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="space-y-2 pt-2">
-                    <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white" onClick={() => handleAction('Wallet')}>
-                        <Wallet className="mr-3" /> Wallet
+                    <Button variant="secondary" className="w-full justify-between h-12 bg-black/20 hover:bg-black/40 text-white" onClick={() => handleAction('Wallet')}>
+                        <div className="flex items-center">
+                           <Wallet className="mr-3" /> Wallet
+                        </div>
+                        <div className="flex items-center text-yellow-400 font-bold">
+                            <Coins className="mr-2" /> 1,250
+                        </div>
                     </Button>
-                     <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white" onClick={() => handleAction('Recharge')}>
+                     <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white" onClick={() => router.push('/profile/recharge')}>
                         <Gem className="mr-3" /> Recharge
                     </Button>
-                     <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white" onClick={() => handleAction('Withdraw')}>
+                     <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white" onClick={() => router.push('/profile/withdraw')}>
                         <Landmark className="mr-3" /> Withdraw
                     </Button>
                     
