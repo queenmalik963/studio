@@ -9,8 +9,9 @@ import { Plus, Search, Settings, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
-const rooms = [
+const initialRooms = [
   {
     name: "Lofi Beats to Relax/Study to",
     thumbnail: "https://placehold.co/150x80.png",
@@ -21,6 +22,7 @@ const rooms = [
       { name: "C", src: "https://placehold.co/40x40.png" },
     ],
     isPlaying: true,
+    progress: 0,
   },
   {
     name: "Deep House Mix by Nora En Pure",
@@ -31,6 +33,7 @@ const rooms = [
       { name: "E", src: "https://placehold.co/40x40.png" },
     ],
     isPlaying: true,
+    progress: 0,
   },
     {
     name: "Techno Bunker Live Set",
@@ -40,6 +43,7 @@ const rooms = [
       { name: "F", src: "https://placehold.co/40x40.png" },
     ],
     isPlaying: false,
+    progress: 0,
   },
     {
     name: "Anjunadeep Selections",
@@ -51,11 +55,22 @@ const rooms = [
         { name: "H", src: "https://placehold.co/40x40.png" },
     ],
     isPlaying: true,
+    progress: 0,
   },
 ];
 
 
 export default function AudioPage() {
+    const [rooms, setRooms] = useState(initialRooms);
+
+    useEffect(() => {
+        // Set random progress on client-side to avoid hydration mismatch
+        setRooms(initialRooms.map(room => ({
+            ...room,
+            progress: Math.random() * 80 + 10
+        })));
+    }, []);
+
   return (
     <div className="bg-gradient-to-b from-slate-900 via-indigo-900 to-slate-900 min-h-screen">
         {/* We are not using AppLayout here to have a custom header */}
@@ -91,6 +106,7 @@ export default function AudioPage() {
                                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
                                       {room.isPlaying && (
                                            <svg className="w-8 h-8 text-white/80" viewBox="0 0 24 24" fill="currentColor">
+                                                <title>Playing Icon</title>
                                                 <path d="M10 16.5v-9l6 4.5-6 4.5z" />
                                                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
                                             </svg>
@@ -110,7 +126,7 @@ export default function AudioPage() {
                                       </div>
                                   </div>
                                    <div className="w-full bg-white/10 h-1 mt-2 rounded-full">
-                                      <div className="bg-white/70 h-1 rounded-full" style={{width: `${Math.random() * 80 + 10}%`}}></div>
+                                      <div className="bg-white/70 h-1 rounded-full" style={{width: `${room.progress}%`}}></div>
                                   </div>
                               </div>
                           </CardContent>
