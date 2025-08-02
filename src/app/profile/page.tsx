@@ -238,7 +238,7 @@ export default function ProfilePage() {
                                 <Label htmlFor="country">Country</Label>
                                 <Select defaultValue="us">
                                     <SelectTrigger id="country">
-                                        <SelectValue placeholder="Select a region" />
+                                        <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="global">
@@ -293,3 +293,5 @@ export default function ProfilePage() {
         </AppLayout>
     );
 }
+
+    
