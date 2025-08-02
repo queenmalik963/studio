@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, use } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -67,9 +67,11 @@ export default function ChatRoomPage({ params }: { params: { id: string } }) {
     const router = useRouter();
     const [messages, setMessages] = useState(initialMessages);
     const [newMessage, setNewMessage] = useState("");
-
+    
     // In a real app, you'd fetch user data based on params.id
-    const contactName = params.id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    // Using React.use() to handle the promise-like nature of params in newer Next.js versions
+    const resolvedParams = use(Promise.resolve(params));
+    const contactName = resolvedParams.id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
 
     const handleSendMessage = (e: React.FormEvent) => {
