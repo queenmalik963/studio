@@ -58,7 +58,7 @@ export default function ProfilePage() {
                         </Button>
                     </div>
                     <div className="absolute top-4 right-4">
-                        <Button variant="ghost" size="icon" className="text-white" onClick={() => handleAction('Settings')}>
+                        <Button variant="ghost" size="icon" className="text-white" onClick={() => router.push('/profile/settings')}>
                             <Settings className="w-5 h-5" />
                         </Button>
                     </div>
