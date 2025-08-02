@@ -1,6 +1,5 @@
 
 import { AppLayout } from "@/components/shared/AppLayout";
-import { CreateRoomDialog } from "@/components/home/CreateRoomDialog";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from 'next/image';
 import { Users, Headphones } from "lucide-react";
@@ -82,7 +81,6 @@ export default function HomePage() {
           ))}
         </div>
       </div>
-      <CreateRoomDialog />
     </AppLayout>
   );
 }
