@@ -121,7 +121,7 @@ export default function AudioPage() {
         </main>
         
         <Link href="/audio/add" passHref>
-             <Button className="fixed bottom-24 right-6 h-16 w-16 rounded-full bg-white text-black shadow-lg hover:bg-gray-200">
+             <Button className="fixed bottom-20 right-6 h-16 w-16 rounded-full bg-white text-black shadow-lg hover:bg-gray-200">
                 <Plus className="h-8 w-8" />
             </Button>
         </Link>
