@@ -88,12 +88,74 @@ export default {
             height: '0',
           },
         },
+        'glow-gold': {
+          '0%, 100%': { boxShadow: '0 0 10px 2px rgba(255,185,0,0.4)' },
+          '50%': { boxShadow: '0 0 20px 5px rgba(255,185,0,0.8)' },
+        },
+        'glow-purple': {
+            '0%, 100%': { boxShadow: '0 0 10px 2px rgba(192,38,211,0.4)' },
+            '50%': { boxShadow: '0 0 20px 5px rgba(192,38,211,0.8)' },
+        },
+        'glow-blue': {
+            '0%, 100%': { boxShadow: '0 0 10px 2px rgba(59,130,246,0.4)' },
+            '50%': { boxShadow: '0 0 20px 5px rgba(59,130,246,0.8)' },
+        },
+        'glow-green': {
+            '0%, 100%': { boxShadow: '0 0 10px 2px rgba(34,197,94,0.4)' },
+            '50%': { boxShadow: '0 0 20px 5px rgba(34,197,94,0.8)' },
+        },
+        'glow-red': {
+            '0%, 100%': { boxShadow: '0 0 10px 2px rgba(239,68,68,0.4)' },
+            '50%': { boxShadow: '0 0 20px 5px rgba(239,68,68,0.8)' },
+        },
+        'glow-cyan': {
+            '0%, 100%': { boxShadow: '0 0 10px 2px rgba(6,182,212,0.4)' },
+            '50%': { boxShadow: '0 0 20px 5px rgba(6,182,212,0.8)' },
+        },
+        'glow-pink': {
+            '0%, 100%': { boxShadow: '0 0 10px 2px rgba(219,39,119,0.4)' },
+            '50%': { boxShadow: '0 0 20px 5px rgba(219,39,119,0.8)' },
+        },
+        'glow-teal': {
+            '0%, 100%': { boxShadow: '0 0 10px 2px rgba(20,184,166,0.4)' },
+            '50%': { boxShadow: '0 0 20px 5px rgba(20,184,166,0.8)' },
+        },
+        'glow-orange': {
+            '0%, 100%': { boxShadow: '0 0 10px 2px rgba(249,115,22,0.4)' },
+            '50%': { boxShadow: '0 0 20px 5px rgba(249,115,22,0.8)' },
+        },
+        'glow-indigo': {
+            '0%, 100%': { boxShadow: '0 0 10px 2px rgba(99,102,241,0.4)' },
+            '50%': { boxShadow: '0 0 20px 5px rgba(99,102,241,0.8)' },
+        },
+        'glow-lime': {
+            '0%, 100%': { boxShadow: '0 0 10px 2px rgba(132,204,22,0.4)' },
+            '50%': { boxShadow: '0 0 20px 5px rgba(132,204,22,0.8)' },
+        },
+        'glow-rose': {
+            '0%, 100%': { boxShadow: '0 0 10px 2px rgba(244,63,94,0.4)' },
+            '50%': { boxShadow: '0 0 20px 5px rgba(244,63,94,0.8)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'glow-gold': 'glow-gold 2s ease-in-out infinite',
+        'glow-purple': 'glow-purple 2s ease-in-out infinite',
+        'glow-blue': 'glow-blue 2s ease-in-out infinite',
+        'glow-green': 'glow-green 2s ease-in-out infinite',
+        'glow-red': 'glow-red 2s ease-in-out infinite',
+        'glow-cyan': 'glow-cyan 2s ease-in-out infinite',
+        'glow-pink': 'glow-pink 2s ease-in-out infinite',
+        'glow-teal': 'glow-teal 2s ease-in-out infinite',
+        'glow-orange': 'glow-orange 2s ease-in-out infinite',
+        'glow-indigo': 'glow-indigo 2s ease-in-out infinite',
+        'glow-lime': 'glow-lime 2s ease-in-out infinite',
+        'glow-rose': 'glow-rose 2s ease-in-out infinite',
       },
     },
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
+
+    

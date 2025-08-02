@@ -68,18 +68,18 @@ export default function AudioRoomPage() {
     };
 
     const frameColors: {[key: string]: string} = {
-        gold: 'shadow-[0_0_20px_5px_rgba(255,185,0,0.5)] border-yellow-400',
-        purple: 'shadow-[0_0_20px_5px_rgba(192,38,211,0.5)] border-fuchsia-500',
-        blue: 'shadow-[0_0_20px_5px_rgba(59,130,246,0.5)] border-blue-400',
-        green: 'shadow-[0_0_20px_5px_rgba(34,197,94,0.5)] border-green-500',
-        red: 'shadow-[0_0_20px_5px_rgba(239,68,68,0.5)] border-red-500',
-        cyan: 'shadow-[0_0_20px_5px_rgba(6,182,212,0.5)] border-cyan-500',
-        pink: 'shadow-[0_0_20px_5px_rgba(219,39,119,0.5)] border-pink-500',
-        teal: 'shadow-[0_0_20px_5px_rgba(20,184,166,0.5)] border-teal-400',
-        orange: 'shadow-[0_0_20px_5px_rgba(249,115,22,0.5)] border-orange-500',
-        indigo: 'shadow-[0_0_20px_5px_rgba(99,102,241,0.5)] border-indigo-500',
-        lime: 'shadow-[0_0_20px_5px_rgba(132,204,22,0.5)] border-lime-500',
-        rose: 'shadow-[0_0_20px_5px_rgba(244,63,94,0.5)] border-rose-500',
+        gold: 'border-yellow-400 animate-glow-gold',
+        purple: 'border-fuchsia-500 animate-glow-purple',
+        blue: 'border-blue-400 animate-glow-blue',
+        green: 'border-green-500 animate-glow-green',
+        red: 'border-red-500 animate-glow-red',
+        cyan: 'border-cyan-500 animate-glow-cyan',
+        pink: 'border-pink-500 animate-glow-pink',
+        teal: 'border-teal-400 animate-glow-teal',
+        orange: 'border-orange-500 animate-glow-orange',
+        indigo: 'border-indigo-500 animate-glow-indigo',
+        lime: 'border-lime-500 animate-glow-lime',
+        rose: 'border-rose-500 animate-glow-rose',
     }
 
     return (
@@ -252,6 +252,8 @@ export default function AudioRoomPage() {
             </footer>
         </div>
     );
+
+    
 
     
 
