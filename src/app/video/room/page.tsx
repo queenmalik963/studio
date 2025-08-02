@@ -18,14 +18,14 @@ const initialMessages = [
 const roomSeats = [
     { id: 1, user: { name: "Jodie", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'gold', specialIcon: 'crown' }, isOccupied: true },
     { id: 2, user: { name: "Koko", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'purple', specialIcon: 'shield' }, isOccupied: true },
-    { id: 3, isOccupied: false, isLocked: true },
+    { id: 3, user: { name: "User 3", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'pink' }, isOccupied: true },
     { id: 4, user: { name: "Lexa", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'blue' }, isOccupied: true },
     { id: 5, user: { name: "mhay", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'green' }, isOccupied: true },
     { id: 6, user: { name: "saba", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'red' }, isOccupied: true },
     { id: 7, user: { name: "MR ISMAIL", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'cyan' }, isOccupied: true },
-    { id: 8, isOccupied: false },
-    { id: 9, isOccupied: false },
-    { id: 10, user: { name: "Riz", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'pink' }, isOccupied: true },
+    { id: 8, user: { name: "User 8", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'teal' }, isOccupied: true },
+    { id: 9, user: { name: "User 9", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'orange' }, isOccupied: true },
+    { id: 10, user: { name: "Riz", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'indigo' }, isOccupied: true },
 ]
 
 const GiftIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -73,6 +73,9 @@ export default function VideoRoomPage() {
         red: 'shadow-[0_0_20px_5px_rgba(239,68,68,0.5)] border-red-500',
         cyan: 'shadow-[0_0_20px_5px_rgba(6,182,212,0.5)] border-cyan-500',
         pink: 'shadow-[0_0_20px_5px_rgba(219,39,119,0.5)] border-pink-500',
+        teal: 'shadow-[0_0_20px_5px_rgba(20,184,166,0.5)] border-teal-400',
+        orange: 'shadow-[0_0_20px_5px_rgba(249,115,22,0.5)] border-orange-500',
+        indigo: 'shadow-[0_0_20px_5px_rgba(99,102,241,0.5)] border-indigo-500',
     }
 
     return (
@@ -216,6 +219,8 @@ export default function VideoRoomPage() {
             </footer>
         </div>
     );
+
+    
 
     
 

@@ -18,14 +18,14 @@ const initialMessages = [
 const roomSeats = [
     { id: 1, user: { name: "Jodie", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'gold', specialIcon: 'crown' }, isOccupied: true },
     { id: 2, user: { name: "Koko", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'purple', specialIcon: 'shield' }, isOccupied: true },
-    { id: 3, isOccupied: false, isLocked: true },
+    { id: 3, user: { name: "User 3", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'pink' }, isOccupied: true },
     { id: 4, user: { name: "Lexa", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'blue' }, isOccupied: true },
     { id: 5, user: { name: "mhay", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'green' }, isOccupied: true },
-    { id: 6, isOccupied: false },
-    { id: 7, isOccupied: false },
-    { id: 8, isOccupied: false },
-    { id: 9, isOccupied: false },
-    { id: 10, isOccupied: false },
+    { id: 6, user: { name: "User 6", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'teal' }, isOccupied: true },
+    { id: 7, user: { name: "User 7", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'orange' }, isOccupied: true },
+    { id: 8, user: { name: "User 8", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'indigo' }, isOccupied: true },
+    { id: 9, user: { name: "User 9", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'lime' }, isOccupied: true },
+    { id: 10, user: { name: "User 10", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'rose' }, isOccupied: true },
     { id: 11, user: { name: "saba", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'red' }, isOccupied: true },
     { id: 12, user: { name: "MR ISMAIL", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'cyan' }, isOccupied: true },
 ]
@@ -75,6 +75,11 @@ export default function AudioRoomPage() {
         red: 'shadow-[0_0_20px_5px_rgba(239,68,68,0.5)] border-red-500',
         cyan: 'shadow-[0_0_20px_5px_rgba(6,182,212,0.5)] border-cyan-500',
         pink: 'shadow-[0_0_20px_5px_rgba(219,39,119,0.5)] border-pink-500',
+        teal: 'shadow-[0_0_20px_5px_rgba(20,184,166,0.5)] border-teal-400',
+        orange: 'shadow-[0_0_20px_5px_rgba(249,115,22,0.5)] border-orange-500',
+        indigo: 'shadow-[0_0_20px_5px_rgba(99,102,241,0.5)] border-indigo-500',
+        lime: 'shadow-[0_0_20px_5px_rgba(132,204,22,0.5)] border-lime-500',
+        rose: 'shadow-[0_0_20px_5px_rgba(244,63,94,0.5)] border-rose-500',
     }
 
     return (
@@ -138,10 +143,28 @@ export default function AudioRoomPage() {
                 </div>
                  <div className="grid grid-cols-5 gap-y-2 gap-x-3 justify-items-center">
                     {roomSeats.slice(5, 10).map((seat) => (
-                        <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
-                           <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                <span className="text-lg font-bold text-white/50">{seat.id}</span>
-                            </div>
+                         <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
+                            {seat.isOccupied && seat.user ? (
+                                <>
+                                    <div className="relative">
+                                        <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                            <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                            <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
+                                            {seat.user.isMuted ? 
+                                                <Mic className="w-3 h-3 text-red-500" /> :
+                                                <Mic className="w-3 h-3 text-green-400" />
+                                            }
+                                        </div>
+                                    </div>
+                                    <p className="text-xs truncate w-full">{seat.user.name}</p>
+                                </>
+                            ) : (
+                               <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                    <span className="text-lg font-bold text-white/50">{seat.id}</span>
+                                </div>
+                           )}
                         </div>
                     ))}
                 </div>
@@ -229,6 +252,8 @@ export default function AudioRoomPage() {
             </footer>
         </div>
     );
+
+    
 
     
 
