@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -45,96 +46,111 @@ const JazzCashIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 
 export default function WithdrawPage() {
-  const router = useRouter();
+    const router = useRouter();
+    const [exchangeAmount, setExchangeAmount] = useState<number | string>("");
 
-  return (
-    <AppLayout>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft />
-          </Button>
-          <h1 className="text-2xl font-bold font-headline">Withdraw & Exchange</h1>
-        </div>
+    const handleExchangeAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setExchangeAmount(value === "" ? "" : Number(value));
+    };
 
-        <Card>
-            <CardHeader>
-                <CardTitle>Withdraw Diamonds</CardTitle>
-                <CardDescription>Select a method and enter the amount to withdraw. 100 Diamonds = $1.00</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="amount">Amount (in Diamonds)</Label>
-                    <div className="relative">
-                        <Gem className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                        <Input id="amount" type="number" placeholder="e.g., 5000" className="pl-10" />
-                    </div>
-                    <p className="text-xs text-muted-foreground">Available to withdraw: 5,800 Diamonds ($58.00)</p>
+    return (
+        <AppLayout>
+            <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                    <Button variant="ghost" size="icon" onClick={() => router.back()}>
+                        <ArrowLeft />
+                    </Button>
+                    <h1 className="text-2xl font-bold font-headline">Withdraw & Exchange</h1>
                 </div>
 
-                <div className="space-y-2">
-                    <Label htmlFor="method">Withdrawal Method</Label>
-                    <Select>
-                        <SelectTrigger id="method">
-                            <SelectValue placeholder="Select a method" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="bank">
-                                <div className="flex items-center gap-2">
-                                    <BankIcon className="w-5 h-5" />
-                                    <span>Bank Transfer</span>
-                                </div>
-                            </SelectItem>
-                            <SelectItem value="paypal">
-                                 <div className="flex items-center gap-2">
-                                    <PayPalIcon className="w-5 h-5" />
-                                    <span>PayPal</span>
-                                </div>
-                            </SelectItem>
-                            <SelectItem value="google">
-                                 <div className="flex items-center gap-2">
-                                    <GoogleIcon className="w-5 h-5" />
-                                    <span>Google Pay</span>
-                                </div>
-                            </SelectItem>
-                             <SelectItem value="jazzcash">
-                                 <div className="flex items-center gap-2">
-                                    <JazzCashIcon className="w-5 h-5" />
-                                    <span>JazzCash</span>
-                                </div>
-                            </SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Withdraw Diamonds</CardTitle>
+                        <CardDescription>Select a method and enter the amount to withdraw. 100 Diamonds = $1.00</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="amount">Amount (in Diamonds)</Label>
+                            <div className="relative">
+                                <Gem className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                                <Input id="amount" type="number" placeholder="e.g., 5000" className="pl-10" />
+                            </div>
+                            <p className="text-xs text-muted-foreground">Available to withdraw: 5,800 Diamonds ($58.00)</p>
+                        </div>
 
-                <Button className="w-full" size="lg">
-                    <Landmark className="mr-2 h-5 w-5"/>
-                    Request Withdraw
-                </Button>
-            </CardContent>
-        </Card>
+                        <div className="space-y-2">
+                            <Label htmlFor="method">Withdrawal Method</Label>
+                            <Select>
+                                <SelectTrigger id="method">
+                                    <SelectValue placeholder="Select a method" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="bank">
+                                        <div className="flex items-center gap-2">
+                                            <BankIcon className="w-5 h-5" />
+                                            <span>Bank Transfer</span>
+                                        </div>
+                                    </SelectItem>
+                                    <SelectItem value="paypal">
+                                         <div className="flex items-center gap-2">
+                                            <PayPalIcon className="w-5 h-5" />
+                                            <span>PayPal</span>
+                                        </div>
+                                    </SelectItem>
+                                    <SelectItem value="google">
+                                         <div className="flex items-center gap-2">
+                                            <GoogleIcon className="w-5 h-5" />
+                                            <span>Google Pay</span>
+                                        </div>
+                                    </SelectItem>
+                                     <SelectItem value="jazzcash">
+                                         <div className="flex items-center gap-2">
+                                            <JazzCashIcon className="w-5 h-5" />
+                                            <span>JazzCash</span>
+                                        </div>
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
 
-         <Card>
-            <CardHeader>
-                <CardTitle>Exchange Diamonds for Coins</CardTitle>
-                <CardDescription>Use your earned Diamonds to get more Coins to send gifts. 1 Diamond = 1 Coin</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                 <div className="space-y-2">
-                    <Label htmlFor="exchange-amount">Amount of Diamonds to Exchange</Label>
-                    <div className="relative">
-                        <Gem className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                        <Input id="exchange-amount" type="number" placeholder="e.g., 1000" className="pl-10" />
-                    </div>
-                    <p className="text-xs text-muted-foreground">You will receive 1,000 Coins.</p>
-                </div>
-                 <Button className="w-full" size="lg" variant="secondary">
-                    <Repeat className="mr-2 h-5 w-5"/>
-                    Exchange Now
-                </Button>
-            </CardContent>
-        </Card>
-      </div>
-    </AppLayout>
-  );
+                        <Button className="w-full" size="lg">
+                            <Landmark className="mr-2 h-5 w-5"/>
+                            Request Withdraw
+                        </Button>
+                    </CardContent>
+                </Card>
+
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Exchange Diamonds for Coins</CardTitle>
+                        <CardDescription>Use your earned Diamonds to get more Coins to send gifts. 1 Diamond = 1 Coin</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                         <div className="space-y-2">
+                            <Label htmlFor="exchange-amount">Amount of Diamonds to Exchange</Label>
+                            <div className="relative">
+                                <Gem className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                                <Input 
+                                    id="exchange-amount" 
+                                    type="number" 
+                                    placeholder="e.g., 1000" 
+                                    className="pl-10" 
+                                    value={exchangeAmount}
+                                    onChange={handleExchangeAmountChange}
+                                />
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                {typeof exchangeAmount === 'number' ? `You will receive ${exchangeAmount.toLocaleString()} Coins.` : 'Enter an amount to see how many coins you will get.'}
+                            </p>
+                        </div>
+                         <Button className="w-full" size="lg" variant="secondary">
+                            <Repeat className="mr-2 h-5 w-5"/>
+                            Exchange Now
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        </AppLayout>
+    );
 }
