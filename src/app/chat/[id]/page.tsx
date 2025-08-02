@@ -6,7 +6,7 @@ import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Paperclip, Send, ArrowLeft, Mic, MoreVertical, Film, Star, Gift, Video, UserX, Trash2, BellOff } from "lucide-react";
+import { Paperclip, Send, ArrowLeft, Mic, MoreVertical, Film, Gift, Video, UserX, Trash2, BellOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -229,4 +229,3 @@ export default function ChatRoomPage({ params }: { params: { id: string } }) {
         </AppLayout>
     );
 }
-
