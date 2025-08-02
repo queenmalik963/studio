@@ -2,10 +2,10 @@
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from 'next/image';
-import { Users, Headphones } from "lucide-react";
+import { Users, Headphones, PlaySquare, Mic } from "lucide-react";
 import Link from "next/link";
 
-const trendingContent = [
+const trendingVideos = [
   {
     title: "Live from Tomorrowland",
     creator: "Anyma",
@@ -40,46 +40,123 @@ const trendingContent = [
   },
 ];
 
-export default function HomePage() {
-  return (
-    <AppLayout>
-      <div className="space-y-8">
-        <header>
-          <h1 className="text-4xl font-bold font-headline tracking-tight">Trending Now</h1>
-          <p className="text-muted-foreground">Join the most popular rooms and events</p>
-        </header>
+const trendingAudio = [
+    {
+        title: "Lofi Beats to Relax/Study to",
+        creator: "Lofi Girl",
+        listeners: "32.5k",
+        image: "https://placehold.co/600x400.png",
+        hint: "lofi hip hop",
+        href: "/audio/room"
+    },
+    {
+        title: "Deep House Mix by Nora En Pure",
+        creator: "Nora En Pure",
+        listeners: "18.2k",
+        image: "https://placehold.co/600x400.png",
+        hint: "dj mixing",
+        href: "/audio/room"
+    },
+    {
+        title: "Techno Bunker Live Set",
+        creator: "Amelie Lens",
+        listeners: "21.7k",
+        image: "https://placehold.co/600x400.png",
+        hint: "dark club",
+        href: "/audio/room"
+    },
+    {
+        title: "Anjunadeep Selections",
+        creator: "Anjunadeep",
+        listeners: "11.4k",
+        image: "https://placehold.co/600x400.png",
+        hint: "ocean sunset",
+        href: "/audio/room"
+    }
+];
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {trendingContent.map((item, index) => (
-            <Link href={item.href} key={index} className="block">
-                <Card className="overflow-hidden group border-transparent hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10 h-full">
-                <CardContent className="p-0">
-                    <div className="relative">
+const TrendingCard = ({ href, image, hint, title, creator, viewers, icon: Icon }: { href: string, image: string, hint: string, title: string, creator: string, viewers: string, icon: React.ElementType }) => (
+    <Link href={href} className="block">
+        <Card className="overflow-hidden group border-transparent hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10 h-full">
+            <CardContent className="p-0">
+                <div className="relative">
                     <Image
-                        src={item.image}
-                        alt={item.title}
+                        src={image}
+                        alt={title}
                         width={600}
                         height={400}
                         className="aspect-video object-cover group-hover:scale-105 transition-transform duration-300"
-                        data-ai-hint={item.hint}
+                        data-ai-hint={hint}
                     />
                     <div className="absolute top-2 right-2 bg-background/70 backdrop-blur-sm px-2 py-1 rounded-full text-xs flex items-center gap-1">
                         <Users className="w-3 h-3 text-primary" />
-                        <span>{item.viewers}</span>
+                        <span>{viewers}</span>
                     </div>
-                    </div>
-                    <div className="p-4">
-                    <h3 className="font-semibold font-headline truncate">{item.title}</h3>
+                </div>
+                <div className="p-4">
+                    <h3 className="font-semibold font-headline truncate">{title}</h3>
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
-                        <Headphones className="w-4 h-4 text-accent" />
-                        {item.creator}
+                        <Icon className="w-4 h-4 text-accent" />
+                        {creator}
                     </p>
-                    </div>
-                </CardContent>
-                </Card>
-            </Link>
-          ))}
-        </div>
+                </div>
+            </CardContent>
+        </Card>
+    </Link>
+);
+
+
+export default function HomePage() {
+  return (
+    <AppLayout>
+      <div className="space-y-12">
+        <header>
+          <h1 className="text-4xl font-bold font-headline tracking-tight">Welcome to RaveWave</h1>
+          <p className="text-muted-foreground">Join the most popular rooms and events</p>
+        </header>
+        
+        <section className="space-y-4">
+            <div className="flex items-center gap-2">
+                <PlaySquare className="w-6 h-6 text-primary" />
+                <h2 className="text-2xl font-bold font-headline">Trending Videos</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {trendingVideos.map((item, index) => (
+                <TrendingCard 
+                    key={`video-${index}`}
+                    href={item.href}
+                    image={item.image}
+                    hint={item.hint}
+                    title={item.title}
+                    creator={item.creator}
+                    viewers={item.viewers}
+                    icon={Headphones}
+                />
+              ))}
+            </div>
+        </section>
+
+        <section className="space-y-4">
+            <div className="flex items-center gap-2">
+                <Mic className="w-6 h-6 text-primary" />
+                <h2 className="text-2xl font-bold font-headline">Trending Audio</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {trendingAudio.map((item, index) => (
+                <TrendingCard 
+                    key={`audio-${index}`}
+                    href={item.href}
+                    image={item.image}
+                    hint={item.hint}
+                    title={item.title}
+                    creator={item.creator}
+                    viewers={item.listeners}
+                    icon={Headphones}
+                />
+              ))}
+            </div>
+        </section>
+
       </div>
     </AppLayout>
   );
