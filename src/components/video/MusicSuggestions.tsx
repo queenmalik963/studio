@@ -7,23 +7,33 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/com
 import { Music2, Loader2, AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-const recentlyWatched = [
-    "Psytrance festival aftermovie 2023",
-    "Boiler Room: Fred again.. in London",
-    "How to mix techno like a pro DJ"
-];
+const dummySuggestions: SuggestUpNextMusicOutput = {
+    suggestedTracks: [
+        "Lane 8 - Summer 2021 Mixtape",
+        "Ben Böhmer - Breathing (Live from Printworks)",
+        "Tinlicker - Children",
+    ]
+};
 
 export function MusicSuggestions() {
-    const [suggestions, setSuggestions] = useState<SuggestUpNextMusicOutput | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [suggestions, setSuggestions] = useState<SuggestUpNextMusicOutput | null>(dummySuggestions);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    // Note: The API call is commented out for now to prevent loading, as requested.
+    // We can re-enable it later.
+    /*
     useEffect(() => {
         const fetchSuggestions = async () => {
             try {
                 setIsLoading(true);
                 setError(null);
                 // In a real app, you'd get this from user data
+                const recentlyWatched = [
+                    "Psytrance festival aftermovie 2023",
+                    "Boiler Room: Fred again.. in London",
+                    "How to mix techno like a pro DJ"
+                ];
                 const result = await suggestUpNextMusic({ recentlyWatchedVideos: recentlyWatched });
                 setSuggestions(result);
             } catch (e: any) {
@@ -41,12 +51,10 @@ export function MusicSuggestions() {
             }
         };
 
-        // This is a client component, but the check for the key should happen
-        // where the environment is loaded. We'll add a more specific error
-        // message here based on the expected error from Genkit/Google AI.
         fetchSuggestions();
 
     }, []);
+    */
 
     return (
         <Card className="bg-card/50 border-primary/20 backdrop-blur-sm">
@@ -80,7 +88,7 @@ export function MusicSuggestions() {
                         </AlertDescription>
                     </Alert>
                 )}
-                {suggestions && (
+                {suggestions && !isLoading && !error && (
                     <ul className="space-y-3">
                         {suggestions.suggestedTracks.map((track, index) => (
                             <li key={index} className="flex items-center gap-4 p-2 rounded-md transition-colors hover:bg-accent/10">
