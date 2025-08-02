@@ -17,10 +17,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-const initialMessages = [
+const createInitialMessages = (contactName: string) => [
   {
     id: 1,
-    author: "Jane Doe",
+    author: contactName,
     avatar: "https://placehold.co/40x40.png",
     type: "text",
     text: "Hey, are you joining the live set tonight?",
@@ -38,7 +38,7 @@ const initialMessages = [
   },
   {
     id: 3,
-    author: "Jane Doe",
+    author: contactName,
     avatar: "https://placehold.co/40x40.png",
     type: "text",
     text: "It's a surprise guest, but I heard it's going to be epic!",
@@ -65,14 +65,13 @@ const PlayIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function ChatRoomPage({ params }: { params: { id: string } }) {
     const router = useRouter();
-    const [messages, setMessages] = useState(initialMessages);
-    const [newMessage, setNewMessage] = useState("");
     
     // In a real app, you'd fetch user data based on params.id
-    // Using React.use() to handle the promise-like nature of params in newer Next.js versions
     const resolvedParams = use(Promise.resolve(params));
     const contactName = resolvedParams.id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-
+    
+    const [messages, setMessages] = useState(() => createInitialMessages(contactName));
+    const [newMessage, setNewMessage] = useState("");
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
