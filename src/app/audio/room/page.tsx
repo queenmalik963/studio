@@ -104,11 +104,11 @@ export default function AudioRoomPage() {
             <main className="flex-1 flex flex-col p-4 overflow-hidden gap-2">
                 <div className="grid grid-cols-5 gap-y-2 gap-x-2 justify-items-center">
                     {roomSeats.slice(0, 5).map((seat) => (
-                        <div key={seat.id} className="flex flex-col items-center gap-1 w-[70px] text-center">
+                        <div key={seat.id} className="flex flex-col items-center gap-1 w-[60px] text-center">
                             {seat.isOccupied && seat.user ? (
                                 <>
                                     <div className="relative">
-                                        <Avatar className={cn("w-[70px] h-[70px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                        <Avatar className={cn("w-[60px] h-[60px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                         </Avatar>
@@ -125,7 +125,7 @@ export default function AudioRoomPage() {
                                     <p className="text-xs truncate w-full">{seat.user.name}</p>
                                 </>
                             ) : (
-                                <div className="w-[70px] h-[70px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                <div className="w-[60px] h-[60px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
                                     {seat.isLocked ? <Lock className="w-5 h-5 text-white/50"/> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
                                 </div>
                             )}
@@ -134,8 +134,8 @@ export default function AudioRoomPage() {
                 </div>
                  <div className="grid grid-cols-5 gap-y-2 gap-x-2 justify-items-center">
                     {roomSeats.slice(5, 10).map((seat) => (
-                        <div key={seat.id} className="flex flex-col items-center gap-1 w-[70px] text-center">
-                           <div className="w-[70px] h-[70px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                        <div key={seat.id} className="flex flex-col items-center gap-1 w-[60px] text-center">
+                           <div className="w-[60px] h-[60px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
                                 <span className="text-lg font-bold text-white/50">{seat.id}</span>
                             </div>
                         </div>
@@ -143,11 +143,11 @@ export default function AudioRoomPage() {
                 </div>
                  <div className="grid grid-cols-5 gap-y-2 gap-x-2 justify-items-center mt-1">
                      {roomSeats.slice(10, 12).map((seat) => (
-                         <div key={seat.id} className="flex flex-col items-center gap-1 w-[70px] text-center col-span-2">
+                         <div key={seat.id} className="flex flex-col items-center gap-1 w-[60px] text-center col-span-2">
                              {seat.isOccupied && seat.user ? (
                                 <>
                                     <div className="relative">
-                                        <Avatar className="w-[70px] h-[70px] border-2 border-gray-500">
+                                        <Avatar className="w-[60px] h-[60px] border-2 border-gray-500">
                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                         </Avatar>
@@ -225,4 +225,5 @@ export default function AudioRoomPage() {
             </footer>
         </div>
     );
-}
+
+    
