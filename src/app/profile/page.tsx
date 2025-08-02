@@ -8,16 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { Edit, Star, Send, Wallet, Gem, Landmark, Settings, Store, Crown, Square, Coins, Camera, Globe } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Link from "next/link";
 
 
 const USFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -104,13 +100,6 @@ export default function ProfilePage() {
     const [userName, setUserName] = useState("associate Official Ds");
     const [currentName, setCurrentName] = useState(userName);
 
-    const handleAction = (action: string) => {
-        toast({
-            title: `${action} Clicked!`,
-            description: `The ${action.toLowerCase()} functionality is not yet implemented.`,
-        });
-    };
-    
     const handleSaveChanges = () => {
         setUserName(currentName);
         setIsEditOpen(false);
@@ -118,45 +107,33 @@ export default function ProfilePage() {
             title: "Profile Updated",
             description: "Your changes have been saved.",
         });
-    }
-
-    const navigateTo = (path: string) => {
-        window.location.href = path;
-    }
+    };
 
   return (
     <AppLayout>
-        <div className="bg-gradient-to-b from-primary/30 to-background md:rounded-xl md:p-1 -m-4 md:m-0">
-            <div className="p-4 space-y-4 text-white relative">
-                 <div className="flex items-center space-x-4">
-                    <div className="relative">
-                        <Avatar className="w-24 h-24 border-4 border-white mx-auto">
-                            <AvatarImage src="https://placehold.co/100x100.png" alt="associate Official" data-ai-hint="person alphabet" />
-                            <AvatarFallback>A</AvatarFallback>
-                        </Avatar>
-                        <Button variant="outline" size="icon" className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-background text-foreground border-2 border-white" onClick={() => setIsEditOpen(true)}>
-                            <Edit className="w-4 h-4" />
-                        </Button>
-                    </div>
-                    <div className="absolute top-4 right-4">
-                        <Button variant="ghost" size="icon" className="text-white" onClick={() => navigateTo('/profile/settings')}>
-                            <Settings className="w-5 h-5" />
-                        </Button>
-                    </div>
+      <div className="space-y-6">
+        <div className="bg-gradient-to-b from-primary/30 to-background rounded-xl p-4 -m-4 md:m-0 relative">
+            <div className="absolute top-4 right-4 flex gap-2">
+                 <Link href="/profile/settings">
+                    <Button variant="ghost" size="icon" className="text-white">
+                        <Settings className="w-5 h-5" />
+                    </Button>
+                </Link>
+            </div>
+            <div className="flex flex-col items-center text-center text-white">
+                <div className="relative">
+                    <Avatar className="w-24 h-24 border-4 border-white">
+                        <AvatarImage src="https://placehold.co/100x100.png" alt="associate Official" data-ai-hint="person alphabet" />
+                        <AvatarFallback>A</AvatarFallback>
+                    </Avatar>
+                     <Button variant="outline" size="icon" className="absolute bottom-0 -right-2 h-8 w-8 rounded-full bg-background text-foreground border-2 border-white" onClick={() => setIsEditOpen(true)}>
+                        <Edit className="w-4 h-4" />
+                    </Button>
                 </div>
-
-                <div className="text-center">
-                    <h1 className="text-xl font-bold flex items-center justify-center">
-                        {userName}
-                        <Button variant="ghost" size="icon" className="ml-2 h-6 w-6 text-white" onClick={() => setIsEditOpen(true)}>
-                            <Edit className="w-4 h-4" />
-                        </Button>
-                    </h1>
-                    <p className="text-xs text-white/70">@user1754000546251</p>
-                    <p className="text-sm mt-2">Welcome to Devika!</p>
-                </div>
-                
-                <div className="flex justify-around text-center">
+                <h1 className="text-2xl font-bold mt-4">{userName}</h1>
+                <p className="text-sm text-white/70">@user1754000546251</p>
+                <p className="text-sm mt-2 max-w-sm">Welcome to Devika!</p>
+                <div className="flex justify-around text-center mt-4 w-full max-w-xs">
                     <div>
                         <p className="font-bold text-lg">0</p>
                         <p className="text-xs text-white/70">Following</p>
@@ -166,65 +143,78 @@ export default function ProfilePage() {
                         <p className="text-xs text-white/70">Followers</p>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <div className="text-sm flex items-center bg-black/20 p-2 rounded-md">
-                    <USFlagIcon className="w-5 h-auto mr-2"/>
-                    ID: Q93nGWPdNTgfr696ncf2Tly8S4s1
+        <Card>
+            <CardHeader>
+                <CardTitle>My Wallet & Progress</CardTitle>
+                <CardDescription>Manage your funds and track your level progress.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className="flex items-center justify-between bg-primary/10 p-4 rounded-lg">
+                    <div className="flex items-center">
+                        <Wallet className="mr-3 text-primary" />
+                        <span className="font-semibold">Balance</span>
+                    </div>
+                    <div className="flex items-center text-primary font-bold text-lg">
+                        <Coins className="mr-2" /> 1,250
+                    </div>
                 </div>
 
-                <div className="space-y-3">
-                    <div className="space-y-1">
-                        <div className="flex justify-between items-center text-xs font-semibold">
+                <div className="grid grid-cols-2 gap-4">
+                    <Link href="/profile/recharge" passHref>
+                        <Button variant="secondary" className="w-full">
+                            <Gem className="mr-2" /> Recharge
+                        </Button>
+                    </Link>
+                     <Link href="/profile/withdraw" passHref>
+                        <Button variant="outline" className="w-full">
+                            <Landmark className="mr-2" /> Withdraw
+                        </Button>
+                    </Link>
+                </div>
+
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center text-sm font-semibold text-muted-foreground">
                             <p className="flex items-center"><Star className="w-4 h-4 mr-1 text-yellow-400"/> ID Level</p>
                             <p>1/100</p>
                         </div>
-                        <Progress value={1} className="h-1.5 bg-white/20 [&>div]:bg-gradient-to-r [&>div]:from-yellow-400 [&>div]:to-amber-500" />
+                        <Progress value={1} className="h-2 bg-muted [&>div]:bg-gradient-to-r [&>div]:from-yellow-400 [&>div]:to-amber-500" />
                     </div>
-                    <div className="space-y-1">
-                         <div className="flex justify-between items-center text-xs font-semibold">
+                    <div className="space-y-2">
+                         <div className="flex justify-between items-center text-sm font-semibold text-muted-foreground">
                             <p className="flex items-center"><Send className="w-4 h-4 mr-1 text-sky-400"/> Sending Level</p>
                             <p>1/100</p>
                         </div>
-                        <Progress value={1} className="h-1.5 bg-white/20 [&>div]:bg-gradient-to-r [&>div]:from-sky-400 [&>div]:to-cyan-500" />
+                        <Progress value={1} className="h-2 bg-muted [&>div]:bg-gradient-to-r [&>div]:from-sky-400 [&>div]:to-cyan-500" />
                     </div>
                 </div>
+            </CardContent>
+        </Card>
 
-                <div className="space-y-2 pt-2">
-                    <Button variant="secondary" className="w-full justify-between h-12 bg-black/20 hover:bg-black/40 text-white" onClick={() => handleAction('Wallet')}>
-                        <div className="flex items-center">
-                           <Wallet className="mr-3" /> Wallet
-                        </div>
-                        <div className="flex items-center text-yellow-400 font-bold">
-                            <Coins className="mr-2" /> 1,250
-                        </div>
-                    </Button>
-                     <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white" onClick={() => navigateTo('/profile/recharge')}>
-                        <Gem className="mr-3" /> Recharge
-                    </Button>
-                     <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white" onClick={() => navigateTo('/profile/withdraw')}>
-                        <Landmark className="mr-3" /> Withdraw
-                    </Button>
-                    
-                    <Accordion type="single" collapsible className="w-full">
-                        <AccordionItem value="item-1" className="border-none">
-                            <AccordionTrigger className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white px-4 rounded-md hover:no-underline -mb-1">
-                                <Store className="mr-3" /> Store
-                            </AccordionTrigger>
-                            <AccordionContent className="p-0 pt-1">
-                                <div className="space-y-1 pl-8">
-                                    <Button variant="secondary" className="w-full justify-start h-12 bg-black/10 hover:bg-black/30 text-white" onClick={() => navigateTo('/profile/vip')}>
-                                        <Crown className="mr-3 text-yellow-400" /> VIP
-                                    </Button>
-                                    <Button variant="secondary" className="w-full justify-start h-12 bg-black/10 hover:bg-black/30 text-white" onClick={() => navigateTo('/profile/frame')}>
-                                        <Square className="mr-3 text-cyan-400" /> Frame
-                                    </Button>
-                                </div>
-                            </AccordionContent>
-                        </AccordionItem>
-                    </Accordion>
-                </div>
-            </div>
-        </div>
+        <Card>
+            <CardHeader>
+                <CardTitle>My Store</CardTitle>
+                <CardDescription>Customize your profile and get exclusive perks.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-4">
+                <Link href="/profile/vip" className="block">
+                    <Card className="h-full bg-card hover:bg-muted transition-colors text-center p-4 flex flex-col items-center justify-center gap-2">
+                        <Crown className="w-8 h-8 text-yellow-400"/>
+                        <p className="font-semibold">VIP Center</p>
+                    </Card>
+                </Link>
+                 <Link href="/profile/frame" className="block">
+                     <Card className="h-full bg-card hover:bg-muted transition-colors text-center p-4 flex flex-col items-center justify-center gap-2">
+                        <Square className="w-8 h-8 text-cyan-400"/>
+                        <p className="font-semibold">Frame Store</p>
+                    </Card>
+                </Link>
+            </CardContent>
+        </Card>
+
 
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
             <DialogContent className="text-foreground">
@@ -300,8 +290,7 @@ export default function ProfilePage() {
                 </DialogFooter>
             </DialogContent>
         </Dialog>
+      </div>
     </AppLayout>
   )
 }
-
-    
