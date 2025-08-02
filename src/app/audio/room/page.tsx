@@ -66,7 +66,7 @@ export default function AudioRoomPage() {
                     {seats.slice(0, 5).map((seat) => (
                         <div key={seat.id} className="flex flex-col items-center gap-1.5 text-center">
                             <div className={cn(
-                                "w-16 h-16 rounded-full bg-white/10 flex items-center justify-center relative",
+                                "w-14 h-14 rounded-full bg-white/10 flex items-center justify-center relative",
                                 seat.user?.isSpeaking && "border-2 border-primary ring-2 ring-primary/50"
                             )}>
                                 {seat.user ? (
@@ -96,7 +96,7 @@ export default function AudioRoomPage() {
                     {seats.slice(5).map((seat) => (
                          <div key={seat.id} className="flex flex-col items-center gap-1.5 text-center col-span-2">
                             <div className={cn(
-                                "w-16 h-16 rounded-full bg-white/10 flex items-center justify-center relative",
+                                "w-14 h-14 rounded-full bg-white/10 flex items-center justify-center relative",
                                 seat.user?.isSpeaking && "border-2 border-primary ring-2 ring-primary/50"
                             )}>
                                  <Avatar className="w-full h-full">
