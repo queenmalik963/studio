@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -14,6 +15,12 @@ const LockIcon = (props: React.SVGProps<SVGSVGElement>) => (
         <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
     </svg>
 );
+
+const NIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M7 20V4l10 16V4"/>
+    </svg>
+)
 
 export default function AudioRoomPage() {
     const router = useRouter();
@@ -54,7 +61,7 @@ export default function AudioRoomPage() {
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" className="bg-black/20 rounded-full">
+                    <Button variant="ghost" className="bg-black/20 rounded-full h-8 px-4">
                         <Users className="w-4 h-4 mr-2" /> 6
                     </Button>
                 </div>
@@ -142,25 +149,25 @@ export default function AudioRoomPage() {
             {/* Footer */}
             <footer className="flex-shrink-0 mt-4 flex flex-col gap-2 z-10">
                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="rounded-full bg-black/30 w-10 h-10">
+                     <Button variant="ghost" size="icon" className="rounded-full bg-black/30 w-10 h-10">
                         <MessageCircle className="w-5 h-5"/>
                     </Button>
-                    <div className="flex items-center bg-black/30 rounded-full p-1 pr-3 flex-grow">
+                    <div className="flex items-center bg-black/30 rounded-full p-1 pr-2 flex-grow">
                         <Input 
                             placeholder="Hi..."
                             className="bg-transparent border-none text-white placeholder:text-white/70 focus-visible:ring-0 focus-visible:ring-offset-0 h-8 flex-grow"
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
                         />
+                         <Button variant="ghost" size="icon" className="rounded-full w-8 h-8">
+                            <Send className="w-5 h-5"/>
+                        </Button>
                     </div>
-                    <Button variant="ghost" size="icon" className="rounded-full bg-black/30 w-10 h-10">
-                        <Send className="w-5 h-5"/>
-                    </Button>
                 </div>
 
                 <div className="flex items-center justify-between gap-2">
                      <Button variant="ghost" size="icon" className="rounded-full bg-black/30 w-10 h-10">
-                        <Mic className="w-5 h-5"/>
+                        <NIcon className="w-6 h-6"/>
                     </Button>
                     <Button variant="ghost" size="icon" className="rounded-full bg-blue-500 w-10 h-10">
                         <Gamepad2 className="w-5 h-5"/>
@@ -168,7 +175,7 @@ export default function AudioRoomPage() {
                     <Button variant="ghost" size="icon" className="rounded-full bg-black/30 w-10 h-10">
                         <PanelTopClose className="w-5 h-5"/>
                     </Button>
-                    <Button variant="ghost" size="icon" className="rounded-full bg-black/30 w-10 h-10">
+                    <Button variant="ghost" size="icon" className="rounded-full bg-green-500 w-10 h-10">
                         <Vote className="w-5 h-5"/>
                     </Button>
                      <Button variant="ghost" size="icon" className="rounded-full bg-yellow-500 text-black w-10 h-10">
@@ -179,3 +186,5 @@ export default function AudioRoomPage() {
         </div>
     );
 }
+
+    
