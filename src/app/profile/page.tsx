@@ -1,12 +1,13 @@
 
 "use client";
 
+import { useState } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Star, Send, Wallet, Gem, Landmark, Settings, Store, Crown, Square, Coins } from "lucide-react";
+import { Edit, Star, Send, Wallet, Gem, Landmark, Settings, Store, Crown, Square, Coins, Camera, Globe } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import {
   Accordion,
@@ -14,6 +15,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 const USFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 3" {...props}>
@@ -24,10 +30,81 @@ const USFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
+const PKFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" {...props}>
+        <rect width="900" height="600" fill="#006644"/>
+        <rect width="225" height="600" fill="#FFFFFF"/>
+        <circle cx="585" cy="300" r="135" fill="#FFFFFF"/>
+        <circle cx="621" cy="300" r="120" fill="#006644"/>
+        <polygon points="700,165 720,230 785,230 735,270 750,335 700,300 650,335 665,270 615,230 680,230" fill="#FFFFFF"/>
+    </svg>
+);
+
+const INFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" {...props}>
+        <rect width="900" height="600" fill="#f93"/>
+        <rect y="200" width="900" height="200" fill="#fff"/>
+        <rect y="400" width="900" height="200" fill="#128807"/>
+        <circle cx="450" cy="300" r="90" fill="#000080"/>
+        <circle cx="450" cy="300" r="80" fill="#fff"/>
+        <circle cx="450"cy="300" r="16" fill="#000080"/>
+        <g fill="#000080">
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(7.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(22.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(37.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(52.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(67.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(82.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(97.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(112.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(127.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(142.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(157.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(172.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(187.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(202.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(217.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(232.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(247.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(262.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(277.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(292.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(307.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(322.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(337.5 450 300)"/>
+            <path d="M450 210 V190 H450.8 V210z" transform="rotate(352.5 450 300)"/>
+        </g>
+    </svg>
+);
+
+const GBFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" {...props}>
+        <clipPath id="a"><path d="M0 0v30h60V0z"/></clipPath>
+        <clipPath id="b"><path d="M30 15h30v15zn-30-15h30V0zH0v15z"/></clipPath>
+        <g clipPath="url(#a)">
+            <path d="M0 0v30h60V0z" fill="#00247d"/>
+            <path d="M0 0l60 30m0-30L0 30" stroke="#fff" strokeWidth="6"/>
+            <path d="M0 0l60 30m0-30L0 30" clipPath="url(#b)" stroke="#cf142b" strokeWidth="4"/>
+            <path d="M30 0v30M0 15h60" stroke="#fff" strokeWidth="10"/>
+            <path d="M30 0v30M0 15h60" stroke="#cf142b" strokeWidth="6"/>
+        </g>
+    </svg>
+);
+
+const CAFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" {...props}>
+        <rect width="1200" height="600" fill="#ff0000"/>
+        <rect x="300" width="600" height="600" fill="#ffffff"/>
+        <path d="M450 150l75 75-150 150-75-75zm300 0l-75 75 150 150 75-75zM600 375l-75 75-75-75v150h150z" fill="#ff0000"/>
+    </svg>
+);
 
 export default function ProfilePage() {
     const { toast } = useToast();
     const router = useRouter();
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [userName, setUserName] = useState("associate Official Ds");
+    const [currentName, setCurrentName] = useState(userName);
 
     const handleAction = (action: string) => {
         toast({
@@ -35,11 +112,13 @@ export default function ProfilePage() {
             description: `The ${action.toLowerCase()} functionality is not yet implemented.`,
         });
     };
-
-    const handleEdit = () => {
+    
+    const handleSaveChanges = () => {
+        setUserName(currentName);
+        setIsEditOpen(false);
         toast({
-            title: "Edit Profile",
-            description: "Profile editing will be available soon!",
+            title: "Profile Updated",
+            description: "Your changes have been saved.",
         });
     }
 
@@ -53,7 +132,7 @@ export default function ProfilePage() {
                             <AvatarImage src="https://placehold.co/100x100.png" alt="associate Official" data-ai-hint="person alphabet" />
                             <AvatarFallback>A</AvatarFallback>
                         </Avatar>
-                        <Button variant="outline" size="icon" className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-background text-foreground border-2 border-white" onClick={handleEdit}>
+                        <Button variant="outline" size="icon" className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-background text-foreground border-2 border-white" onClick={() => setIsEditOpen(true)}>
                             <Edit className="w-4 h-4" />
                         </Button>
                     </div>
@@ -66,8 +145,8 @@ export default function ProfilePage() {
 
                 <div className="text-center">
                     <h1 className="text-xl font-bold flex items-center justify-center">
-                        associate Official Ds
-                        <Button variant="ghost" size="icon" className="ml-2 h-6 w-6 text-white" onClick={handleEdit}>
+                        {userName}
+                        <Button variant="ghost" size="icon" className="ml-2 h-6 w-6 text-white" onClick={() => setIsEditOpen(true)}>
                             <Edit className="w-4 h-4" />
                         </Button>
                     </h1>
@@ -144,6 +223,83 @@ export default function ProfilePage() {
                 </div>
             </div>
         </div>
+
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+            <DialogContent className="text-foreground">
+                <DialogHeader>
+                    <DialogTitle>Edit Profile</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                    <div className="relative w-28 h-28 mx-auto">
+                        <Avatar className="w-full h-full border-4 border-primary">
+                            <AvatarImage src="https://placehold.co/100x100.png" alt={userName} data-ai-hint="person alphabet" />
+                            <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <Button variant="outline" size="icon" className="absolute bottom-1 right-1 h-8 w-8 rounded-full bg-background border-2">
+                            <Camera className="w-4 h-4" />
+                        </Button>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="name">Name</Label>
+                        <Input id="name" value={currentName} onChange={(e) => setCurrentName(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="country">Country</Label>
+                        <Select defaultValue="us">
+                            <SelectTrigger id="country">
+                                <SelectValue placeholder="Select a region" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="global">
+                                    <div className="flex items-center gap-2">
+                                        <Globe className="w-5 h-5" />
+                                        Global
+                                    </div>
+                                </SelectItem>
+                                <SelectItem value="us">
+                                    <div className="flex items-center gap-2">
+                                        <USFlagIcon className="w-5 h-auto rounded-sm" />
+                                        United States
+                                    </div>
+                                </SelectItem>
+                                <SelectItem value="pk">
+                                    <div className="flex items-center gap-2">
+                                        <PKFlagIcon className="w-5 h-auto rounded-sm" />
+                                        Pakistan
+                                    </div>
+                                </SelectItem>
+                                <SelectItem value="in">
+                                    <div className="flex items-center gap-2">
+                                        <INFlagIcon className="w-5 h-auto rounded-sm" />
+                                        India
+                                    </div>
+                                </SelectItem>
+                                <SelectItem value="gb">
+                                    <div className="flex items-center gap-2">
+                                        <GBFlagIcon className="w-5 h-auto rounded-sm" />
+                                        United Kingdom
+                                    </div>
+                                </SelectItem>
+                                <SelectItem value="ca">
+                                    <div className="flex items-center gap-2">
+                                        <CAFlagIcon className="w-5 h-auto rounded-sm" />
+                                        Canada
+                                    </div>
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button variant="ghost">Cancel</Button>
+                    </DialogClose>
+                    <Button onClick={handleSaveChanges}>Save Changes</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </AppLayout>
   )
 }
+
+    
