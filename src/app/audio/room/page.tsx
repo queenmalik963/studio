@@ -77,10 +77,13 @@ export default function AudioRoomPage() {
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
+    }, [chatMessages, activePanel]);
+
+    useEffect(() => {
         if (inlineChatContainerRef.current) {
             inlineChatContainerRef.current.scrollTop = inlineChatContainerRef.current.scrollHeight;
         }
-    }, [chatMessages, activePanel]);
+    }, [chatMessages]);
 
     const handleSendMessage = () => {
         if (newMessage.trim()) {
@@ -174,83 +177,85 @@ export default function AudioRoomPage() {
             </header>
 
             {/* Seats */}
-            <main className="flex-1 mt-6 overflow-hidden">
-                 <div className="grid grid-cols-5 gap-y-4 gap-x-2 place-items-center">
-                    {seats.slice(0, 5).map((seat) => (
-                        <div key={seat.id} className="flex flex-col items-center gap-1.5 text-center">
-                            <Popover>
-                                <PopoverTrigger asChild disabled={!seat.user}>
-                                    <div className={cn(
-                                        "w-14 h-14 rounded-full bg-white/10 flex items-center justify-center relative cursor-pointer",
-                                        seat.user?.isSpeaking && "border-2 border-primary ring-2 ring-primary/50"
-                                    )}>
-                                        {seat.user ? (
-                                            <Avatar className="w-full h-full">
+            <main className="flex-1 mt-6 overflow-hidden flex flex-col justify-between">
+                <div>
+                     <div className="grid grid-cols-5 gap-y-4 gap-x-2 place-items-center">
+                        {seats.slice(0, 5).map((seat) => (
+                            <div key={seat.id} className="flex flex-col items-center gap-1.5 text-center">
+                                <Popover>
+                                    <PopoverTrigger asChild disabled={!seat.user}>
+                                        <div className={cn(
+                                            "w-14 h-14 rounded-full bg-white/10 flex items-center justify-center relative cursor-pointer",
+                                            seat.user?.isSpeaking && "border-2 border-primary ring-2 ring-primary/50"
+                                        )}>
+                                            {seat.user ? (
+                                                <Avatar className="w-full h-full">
+                                                    <AvatarImage src={seat.user.image} alt={seat.user.name} />
+                                                    <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
+                                                </Avatar>
+                                            ) : seat.isLocked ? (
+                                                <LockIcon className="w-8 h-8 text-white/50" />
+                                            ) : (
+                                                <span className="text-lg font-bold">{seat.id}</span>
+                                            )}
+                                            {seat.user && (
+                                                 <div className={cn(
+                                                    "absolute -bottom-2 h-5 w-5 rounded-full flex items-center justify-center border-2",
+                                                    seat.user.isSpeaking ? 'bg-primary border-background' : 'bg-gray-600 border-gray-800'
+                                                 )}>
+                                                    <Mic className="w-3 h-3 text-white" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </PopoverTrigger>
+                                    {seat.user && <UserContextMenu targetUser={seat.user} />}
+                                </Popover>
+                                <p className="text-xs font-semibold">{seat.user?.name || ""}</p>
+                            </div>
+                        ))}
+                    </div>
+                     <div className="grid grid-cols-4 gap-y-4 gap-x-2 place-items-center mt-4">
+                        {seats.slice(5).map((seat) => (
+                             <div key={seat.id} className="flex flex-col items-center gap-1.5 text-center col-span-2">
+                                 <Popover>
+                                    <PopoverTrigger asChild disabled={!seat.user}>
+                                        <div className={cn(
+                                            "w-14 h-14 rounded-full bg-white/10 flex items-center justify-center relative cursor-pointer",
+                                            seat.user?.isSpeaking && "border-2 border-primary ring-2 ring-primary/50"
+                                        )}>
+                                            {seat.user ? (
+                                             <Avatar className="w-full h-full">
                                                 <AvatarImage src={seat.user.image} alt={seat.user.name} />
                                                 <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
                                             </Avatar>
-                                        ) : seat.isLocked ? (
-                                            <LockIcon className="w-8 h-8 text-white/50" />
-                                        ) : (
-                                            <span className="text-lg font-bold">{seat.id}</span>
-                                        )}
-                                        {seat.user && (
-                                             <div className={cn(
-                                                "absolute -bottom-2 h-5 w-5 rounded-full flex items-center justify-center border-2",
-                                                seat.user.isSpeaking ? 'bg-primary border-background' : 'bg-gray-600 border-gray-800'
-                                             )}>
-                                                <Mic className="w-3 h-3 text-white" />
-                                            </div>
-                                        )}
-                                    </div>
-                                </PopoverTrigger>
-                                {seat.user && <UserContextMenu targetUser={seat.user} />}
-                            </Popover>
-                            <p className="text-xs font-semibold">{seat.user?.name || ""}</p>
-                        </div>
-                    ))}
-                </div>
-                 <div className="grid grid-cols-4 gap-y-4 gap-x-2 place-items-center mt-4">
-                    {seats.slice(5).map((seat) => (
-                         <div key={seat.id} className="flex flex-col items-center gap-1.5 text-center col-span-2">
-                             <Popover>
-                                <PopoverTrigger asChild disabled={!seat.user}>
-                                    <div className={cn(
-                                        "w-14 h-14 rounded-full bg-white/10 flex items-center justify-center relative cursor-pointer",
-                                        seat.user?.isSpeaking && "border-2 border-primary ring-2 ring-primary/50"
-                                    )}>
-                                        {seat.user ? (
-                                         <Avatar className="w-full h-full">
-                                            <AvatarImage src={seat.user.image} alt={seat.user.name} />
-                                            <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                        ) : null}
-                                         {seat.user && (
-                                            <div className={cn(
-                                                "absolute -bottom-2 h-5 w-5 rounded-full flex items-center justify-center border-2",
-                                                seat.user.isSpeaking ? 'bg-primary border-background' : 'bg-gray-600 border-gray-800'
-                                            )}>
-                                                <Mic className="w-3 h-3 text-white" />
-                                            </div>
-                                        )}
-                                    </div>
-                                </PopoverTrigger>
-                                {seat.user && <UserContextMenu targetUser={seat.user} />}
-                            </Popover>
-                            <p className="text-xs font-semibold">{seat.user?.name || ""}</p>
-                        </div>
-                    ))}
-                    {emptySeats.map(id => (
-                         <div key={id} className="flex flex-col items-center gap-1.5 text-center">
-                            <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center relative">
-                               <span className="text-lg font-bold text-white/50">{id}</span>
+                                            ) : null}
+                                             {seat.user && (
+                                                <div className={cn(
+                                                    "absolute -bottom-2 h-5 w-5 rounded-full flex items-center justify-center border-2",
+                                                    seat.user.isSpeaking ? 'bg-primary border-background' : 'bg-gray-600 border-gray-800'
+                                                )}>
+                                                    <Mic className="w-3 h-3 text-white" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </PopoverTrigger>
+                                    {seat.user && <UserContextMenu targetUser={seat.user} />}
+                                </Popover>
+                                <p className="text-xs font-semibold">{seat.user?.name || ""}</p>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                        {emptySeats.map(id => (
+                             <div key={id} className="flex flex-col items-center gap-1.5 text-center">
+                                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center relative">
+                                   <span className="text-lg font-bold text-white/50">{id}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Live Chat Overlay */}
-                <div ref={inlineChatContainerRef} className="mt-8 space-y-3 px-2 h-24 overflow-y-auto pointer-events-none">
+                <div ref={inlineChatContainerRef} className="mt-4 space-y-3 px-2 max-h-40 overflow-y-auto pointer-events-none">
                     {chatMessages.map((msg) => (
                          <div key={msg.id} className={cn("max-w-xs", msg.type === 'notification' && "mx-auto text-center")}>
                              {msg.type === 'chat' && (
@@ -279,7 +284,7 @@ export default function AudioRoomPage() {
             {/* --- Bottom Panels --- */}
             <div className={cn("absolute bottom-0 left-0 right-0 bg-black/50 backdrop-blur-lg rounded-t-2xl p-4 transition-transform duration-300 ease-in-out z-20", 
                 activePanel ? "translate-y-0" : "translate-y-full"
-            )} style={{marginBottom: '5rem', height: 'calc(40vh)'}}>
+            )} style={{bottom: '6.5rem', height: 'calc(40vh)', maxHeight: '250px'}}>
                 <Button variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => setActivePanel(null)}><X /></Button>
                 
                 {activePanel === 'chat' && (
@@ -329,7 +334,7 @@ export default function AudioRoomPage() {
             </div>
 
             {/* Footer */}
-            <footer className="flex-shrink-0 flex flex-col gap-2 z-10">
+            <footer className="flex-shrink-0 flex flex-col gap-2 z-10 mt-auto">
                  <div className="flex items-center gap-2">
                     <div className="flex items-center bg-black/30 rounded-full p-1 pr-2 flex-grow">
                         <Button variant="ghost" size="icon" className="rounded-full w-8 h-8" onClick={() => setActivePanel(activePanel === 'chat' ? null : 'chat')}>
@@ -368,5 +373,3 @@ export default function AudioRoomPage() {
             </footer>
         </div>
     );
-
-    

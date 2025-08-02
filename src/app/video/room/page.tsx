@@ -137,7 +137,7 @@ export default function VideoRoomPage() {
 
     return (
         <div className="flex flex-col h-screen bg-background text-foreground">
-            <header className="flex items-center justify-between p-4 border-b">
+            <header className="flex-shrink-0 flex items-center justify-between p-4 border-b">
                 <div className="flex items-center gap-4">
                     <Button variant="ghost" size="icon" onClick={() => router.back()}>
                         <ArrowLeft />
@@ -177,7 +177,7 @@ export default function VideoRoomPage() {
                 </div>
             </header>
 
-            <div className="relative aspect-video bg-muted">
+            <div className="flex-shrink-0 relative aspect-video bg-muted">
                  <Image src="https://placehold.co/1920x1080.png" alt="Video stream" fill objectFit="cover" data-ai-hint="music video" />
             </div>
 
@@ -297,5 +297,3 @@ export default function VideoRoomPage() {
         </div>
     );
 }
-
-    
