@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ArrowLeft, Gem, CreditCard } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 const rechargePacks = [
   { coins: 100, price: "$0.99", color: "from-gray-500 to-gray-600" },
@@ -37,6 +38,14 @@ const JazzCashIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function RechargePage() {
   const router = useRouter();
+  const { toast } = useToast();
+
+  const handleRecharge = (coins: number) => {
+    toast({
+        title: "Recharge Successful!",
+        description: `${coins.toLocaleString()} coins have been added to your wallet.`,
+    })
+  }
 
   return (
     <AppLayout>
@@ -63,7 +72,7 @@ export default function RechargePage() {
                 {pack.bonus && <CardDescription className="text-yellow-300 font-semibold">{pack.bonus}</CardDescription>}
               </CardHeader>
               <CardContent>
-                <Button className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-lg border border-white/30 text-lg font-bold">
+                <Button className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-lg border border-white/30 text-lg font-bold" onClick={() => handleRecharge(pack.coins)}>
                   {pack.price}
                 </Button>
               </CardContent>
