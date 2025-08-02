@@ -114,7 +114,7 @@ export default function AudioRoomPage() {
                         </div>
                     ))}
                      {roomSeats.filter(s => s.id > 10).map((seat) => (
-                         <div key={seat.id} className="flex flex-col items-center gap-1 w-16 col-start-2 col-span-3 even:ml-20 odd:mr-20">
+                         <div key={seat.id} className="flex flex-col items-center gap-1 w-16 col-start-3">
                              {seat.isOccupied && seat.user ? (
                                 <>
                                     <div className="relative">
@@ -192,6 +192,5 @@ export default function AudioRoomPage() {
             </footer>
         </div>
     );
-}
 
     
