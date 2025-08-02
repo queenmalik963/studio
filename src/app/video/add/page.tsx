@@ -1,8 +1,9 @@
+
 "use client";
 
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { ArrowLeft, History } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -35,18 +36,22 @@ export default function AddVideoPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <Card className="aspect-square flex items-center justify-center p-6 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer">
-                        <div className="flex flex-col items-center gap-4">
-                            <YouTubeIcon className="w-20 h-20" />
-                            <span className="font-semibold text-lg">YouTube</span>
-                        </div>
-                    </Card>
-                    <Card className="aspect-square flex items-center justify-center p-6 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer">
-                         <div className="flex flex-col items-center gap-4">
-                            <NetflixIcon className="w-16 h-16 text-red-600" />
-                             <span className="font-semibold text-lg mt-4">Netflix</span>
-                        </div>
-                    </Card>
+                    <Link href="/video/room">
+                        <Card className="aspect-square flex items-center justify-center p-6 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer">
+                            <div className="flex flex-col items-center gap-4">
+                                <YouTubeIcon className="w-20 h-20" />
+                                <span className="font-semibold text-lg">YouTube</span>
+                            </div>
+                        </Card>
+                    </Link>
+                    <Link href="/video/room">
+                        <Card className="aspect-square flex items-center justify-center p-6 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer">
+                             <div className="flex flex-col items-center gap-4">
+                                <NetflixIcon className="w-16 h-16 text-red-600" />
+                                 <span className="font-semibold text-lg mt-4">Netflix</span>
+                            </div>
+                        </Card>
+                    </Link>
                 </div>
                 
                 <Button variant="outline" size="lg" className="w-full justify-center gap-2">
