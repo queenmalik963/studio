@@ -178,14 +178,15 @@ export default function AudioRoomPage() {
 
             {/* Seats */}
             <main className="flex-1 mt-6 overflow-y-auto flex flex-col justify-between">
-                <div>
+                <div className="flex-shrink-0">
                      <div className="grid grid-cols-5 gap-y-4 gap-x-2 place-items-center">
                         {seats.slice(0, 5).map((seat) => (
                             <div key={seat.id} className="flex flex-col items-center gap-1.5 text-center">
                                 <Popover>
                                     <PopoverTrigger asChild disabled={!seat.user}>
                                         <div className={cn(
-                                            "w-14 h-14 rounded-full bg-white/10 flex items-center justify-center relative cursor-pointer",
+                                            "w-14 h-14 rounded-full bg-white/10 flex items-center justify-center relative",
+                                            seat.user && "cursor-pointer",
                                             seat.user?.isSpeaking && "border-2 border-primary ring-2 ring-primary/50"
                                         )}>
                                             {seat.user ? (
@@ -220,7 +221,8 @@ export default function AudioRoomPage() {
                                  <Popover>
                                     <PopoverTrigger asChild disabled={!seat.user}>
                                         <div className={cn(
-                                            "w-14 h-14 rounded-full bg-white/10 flex items-center justify-center relative cursor-pointer",
+                                            "w-14 h-14 rounded-full bg-white/10 flex items-center justify-center relative",
+                                            seat.user && "cursor-pointer",
                                             seat.user?.isSpeaking && "border-2 border-primary ring-2 ring-primary/50"
                                         )}>
                                             {seat.user ? (
@@ -255,7 +257,7 @@ export default function AudioRoomPage() {
                 </div>
 
                 {/* Live Chat Overlay */}
-                <div ref={inlineChatContainerRef} className="mt-4 space-y-3 px-2 max-h-40 overflow-y-auto pointer-events-none">
+                <div ref={inlineChatContainerRef} className="mt-auto space-y-3 px-2 max-h-40 overflow-y-auto pointer-events-none pb-2">
                     {chatMessages.map((msg) => (
                          <div key={msg.id} className={cn("max-w-xs", msg.type === 'notification' && "mx-auto text-center")}>
                              {msg.type === 'chat' && (
@@ -334,7 +336,7 @@ export default function AudioRoomPage() {
             </div>
 
             {/* Footer */}
-            <footer className="flex-shrink-0 flex flex-col gap-2 z-10 mt-auto">
+            <footer className="flex-shrink-0 flex flex-col gap-2 z-10">
                  <div className="flex items-center gap-2">
                     <div className="flex items-center bg-black/30 rounded-full p-1 pr-2 flex-grow">
                         <Button variant="ghost" size="icon" className="rounded-full w-8 h-8" onClick={() => setActivePanel(activePanel === 'chat' ? null : 'chat')}>
@@ -374,4 +376,5 @@ export default function AudioRoomPage() {
         </div>
     );
 
+    
     
