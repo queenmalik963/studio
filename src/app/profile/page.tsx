@@ -6,7 +6,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Star, Send, Wallet, Gem, Landmark, Settings, Store } from "lucide-react";
+import { Edit, Star, Send, Wallet, Gem, Landmark, Settings, Store, Crown, SquareFrame } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const USFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 3" {...props}>
@@ -110,9 +116,24 @@ export default function ProfilePage() {
                      <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white" onClick={() => handleAction('Withdraw')}>
                         <Landmark className="mr-3" /> Withdraw
                     </Button>
-                    <Button variant="secondary" className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white" onClick={() => handleAction('Store')}>
-                        <Store className="mr-3" /> Store
-                    </Button>
+                    
+                    <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="item-1" className="border-none">
+                            <AccordionTrigger className="w-full justify-start h-12 bg-black/20 hover:bg-black/40 text-white px-4 rounded-md hover:no-underline -mb-1">
+                                <Store className="mr-3" /> Store
+                            </AccordionTrigger>
+                            <AccordionContent className="p-0 pt-1">
+                                <div className="space-y-1 pl-8">
+                                    <Button variant="secondary" className="w-full justify-start h-12 bg-black/10 hover:bg-black/30 text-white" onClick={() => handleAction('VIP')}>
+                                        <Crown className="mr-3 text-yellow-400" /> VIP
+                                    </Button>
+                                    <Button variant="secondary" className="w-full justify-start h-12 bg-black/10 hover:bg-black/30 text-white" onClick={() => handleAction('Frame')}>
+                                        <SquareFrame className="mr-3 text-cyan-400" /> Frame
+                                    </Button>
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
                 </div>
             </div>
         </div>
