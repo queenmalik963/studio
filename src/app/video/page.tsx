@@ -1,3 +1,4 @@
+
 "use client";
 
 import { AppLayout } from "@/components/shared/AppLayout";
@@ -87,7 +88,9 @@ export default function VideoPage() {
                                         ))}
                                     </div>
                                     <span className="text-xs font-mono bg-muted px-2 py-1 rounded-md">{room.users.length}/{room.seatCount}</span>
-                                    <Button size="sm">Join</Button>
+                                    <Link href="/video/room" passHref>
+                                        <Button size="sm">Join</Button>
+                                    </Link>
                                 </div>
                             </CardContent>
                         </Card>
