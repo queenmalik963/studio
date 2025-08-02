@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, Fragment } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare } from "lucide-react";
+import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Maximize, Minimize } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -21,13 +21,6 @@ const roomSeats = [
     { id: 3, isOccupied: false, isLocked: true },
     { id: 4, user: { name: "Lexa", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'blue' }, isOccupied: true },
     { id: 5, user: { name: "mhay", avatar: "https://placehold.co/80x80.png", isMuted: true }, isOccupied: true },
-    { id: 6, isOccupied: false },
-    { id: 7, isOccupied: false },
-    { id: 8, isOccupied: false },
-    { id: 9, isOccupied: false },
-    { id: 10, isOccupied: false },
-    { id: 11, user: { name: "saba", avatar: "https://placehold.co/80x80.png", isMuted: false }, isOccupied: true },
-    { id: 12, user: { name: "MR ISMAIL", avatar: "https://placehold.co/80x80.png", isMuted: false }, isOccupied: true },
 ]
 
 const GiftIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -74,34 +67,49 @@ export default function VideoRoomPage() {
     }
 
     return (
-        <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans">
-            <header className="flex-shrink-0 flex items-center justify-between p-4">
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => router.back()}>
-                        <ArrowLeft />
-                    </Button>
-                    {owner && (
-                        <div className="flex items-center gap-2">
-                             <Avatar className="h-10 w-10 border-2 border-yellow-400">
-                                <AvatarImage src={owner.avatar} />
-                                <AvatarFallback>{owner.name?.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <p className="font-semibold">{owner.name}</p>
-                                <p className="text-xs text-white/70">ID: 66768</p>
-                            </div>
-                        </div>
-                    )}
+        <div className="flex flex-col h-screen bg-[#180828] text-white font-sans">
+            {/* Video Player Section */}
+            <div className="relative w-full aspect-video bg-black flex-shrink-0">
+                 <div className="absolute inset-0 bg-black flex items-center justify-center">
+                    <p className="text-white/50">Video Player Placeholder</p>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="ghost" className="h-auto p-1 text-white/80 bg-black/20 rounded-full px-3">
-                        <Users className="w-5 h-5 mr-1" />
-                        <span className="font-bold">{roomSeats.filter(s => s.isOccupied).length}</span>
-                    </Button>
-                </div>
-            </header>
 
-            <main className="flex-1 flex flex-col p-4 overflow-hidden gap-4">
+                {/* Video Controls Overlay */}
+                <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/50 to-transparent">
+                    <div className="flex items-center justify-between">
+                         <div className="flex items-center gap-4">
+                            <Button variant="ghost" size="icon" onClick={() => router.back()}>
+                                <ArrowLeft />
+                            </Button>
+                            {owner && (
+                                <div className="flex items-center gap-2">
+                                     <Avatar className="h-10 w-10 border-2 border-yellow-400">
+                                        <AvatarImage src={owner.avatar} />
+                                        <AvatarFallback>{owner.name?.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <p className="font-semibold">{owner.name}</p>
+                                        <p className="text-xs text-white/70">ID: 66768</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Button variant="ghost" className="h-auto p-1 text-white/80 bg-black/20 rounded-full px-3">
+                                <Users className="w-5 h-5 mr-1" />
+                                <span className="font-bold">{roomSeats.filter(s => s.isOccupied).length}</span>
+                            </Button>
+                             <Button variant="ghost" size="icon" className="text-white/80 bg-black/20 rounded-full">
+                                <Maximize />
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Interactive Panel */}
+            <main className="flex-1 flex flex-col p-4 overflow-hidden gap-2 bg-[#2E103F]">
+                {/* Seats */}
                 <div className="grid grid-cols-5 gap-y-2 gap-x-3 justify-items-center">
                     {roomSeats.slice(0, 5).map((seat) => (
                         <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
@@ -132,36 +140,8 @@ export default function VideoRoomPage() {
                         </div>
                     ))}
                 </div>
-                 <div className="grid grid-cols-5 gap-y-2 gap-x-3 justify-items-center">
-                    {roomSeats.slice(5, 10).map((seat) => (
-                        <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
-                           <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                <span className="text-lg font-bold text-white/50">{seat.id}</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-                 <div className="grid grid-cols-5 gap-y-2 gap-x-3 justify-items-center mt-1">
-                     {roomSeats.slice(10, 12).map((seat) => (
-                         <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center col-span-2">
-                             {seat.isOccupied && seat.user ? (
-                                <>
-                                    <div className="relative">
-                                        <Avatar className="w-[50px] h-[50px] border-2 border-gray-500">
-                                            <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                            <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
-                                            <Mic className="w-3 h-3 text-green-400" />
-                                        </div>
-                                    </div>
-                                    <p className="text-xs truncate w-full">{seat.user.name}</p>
-                                </>
-                            ) : null}
-                         </div>
-                    ))}
-                </div>
-
+                
+                {/* Chat */}
                  <div ref={chatContainerRef} className="flex-1 overflow-y-auto space-y-3 pr-2 mt-2">
                     {messages.map((msg) => (
                          <div key={msg.id} className="flex items-start gap-3">
@@ -193,7 +173,9 @@ export default function VideoRoomPage() {
                     ))}
                 </div>
             </main>
-             <footer className="p-4 bg-transparent">
+
+            {/* Footer Controls */}
+             <footer className="p-4 bg-[#2E103F] border-t border-white/10">
                 <div className="flex items-center justify-around">
                     <Button type="button" size="icon" variant="ghost" className="w-12 h-12 rounded-full bg-black/30">
                          <span className="font-bold text-lg">N</span>
@@ -225,4 +207,5 @@ export default function VideoRoomPage() {
             </footer>
         </div>
     );
-}
+
+    
