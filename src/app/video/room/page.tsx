@@ -57,6 +57,7 @@ export default function VideoRoomPage() {
                 {
                     id: messages.length + 1,
                     author: "You",
+                    avatar: "https://placehold.co/40x40.png",
                     text: newMessage,
                 },
             ]);
@@ -87,7 +88,7 @@ export default function VideoRoomPage() {
             </header>
 
             <div className="relative aspect-video bg-muted">
-                 <Image src="https://placehold.co/1920x1080.png" alt="Video stream" layout="fill" objectFit="cover" data-ai-hint="video placeholder" />
+                 <Image src="https://placehold.co/1920x1080.png" alt="Video stream" fill objectFit="cover" data-ai-hint="video placeholder" />
             </div>
 
             <div className="flex-1 flex flex-col p-4 overflow-hidden">
