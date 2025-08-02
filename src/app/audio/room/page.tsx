@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Users, ArrowLeft, Mic, Send, Gift, Gamepad2, PanelTopClose, Vote } from "lucide-react";
+import { Users, ArrowLeft, Mic, Send, Gift, Gamepad2, PanelTopClose, Vote, MessageCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const LockIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -142,10 +142,10 @@ export default function AudioRoomPage() {
             {/* Footer */}
             <footer className="flex-shrink-0 mt-4 flex flex-col gap-2 z-10">
                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-2 bg-black/30 rounded-full p-1 pr-3 flex-grow">
-                        <Avatar className="h-8 w-8">
-                            <AvatarFallback>N</AvatarFallback>
-                        </Avatar>
+                    <Button variant="ghost" size="icon" className="rounded-full bg-black/30 w-10 h-10">
+                        <MessageCircle className="w-5 h-5"/>
+                    </Button>
+                    <div className="flex items-center bg-black/30 rounded-full p-1 pr-3 flex-grow">
                         <Input 
                             placeholder="Hi..."
                             className="bg-transparent border-none text-white placeholder:text-white/70 focus-visible:ring-0 focus-visible:ring-offset-0 h-8 flex-grow"
@@ -178,3 +178,4 @@ export default function AudioRoomPage() {
             </footer>
         </div>
     );
+}
