@@ -23,18 +23,17 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
-
-export default function LoginPage() {
+export default function SignupPage() {
     return (
-        <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-background to-primary/10 p-4">
-            <Card className="w-full max-w-md bg-card/80 backdrop-blur-lg border-primary/20 animate-in fade-in-0 zoom-in-95">
+        <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-background to-accent/10 p-4">
+            <Card className="w-full max-w-md bg-card/80 backdrop-blur-lg border-accent/20 animate-in fade-in-0 zoom-in-95">
                 <CardHeader className="text-center">
                     <div className="flex justify-center items-center gap-2 mb-2">
                         <Music className="w-10 h-10 text-primary" />
                         <h1 className="text-4xl font-headline font-bold">RaveWave</h1>
                     </div>
-                    <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
-                    <CardDescription>Sign in to continue the rave.</CardDescription>
+                    <CardTitle className="font-headline text-2xl">Create an Account</CardTitle>
+                    <CardDescription>Join the wave and start sharing.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form className="space-y-4">
@@ -46,14 +45,18 @@ export default function LoginPage() {
                             <Label htmlFor="password">Password</Label>
                             <Input id="password" type="password" required />
                         </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="confirm-password">Confirm Password</Label>
+                            <Input id="confirm-password" type="password" required />
+                        </div>
                         <Link href="/home">
-                            <Button type="submit" className="w-full font-bold">Sign In</Button>
+                           <Button type="submit" className="w-full font-bold bg-accent text-accent-foreground hover:bg-accent/90">Sign Up</Button>
                         </Link>
                     </form>
 
                     <div className="my-4 flex items-center">
                         <div className="flex-grow border-t border-muted-foreground/20"></div>
-                        <span className="mx-4 text-xs text-muted-foreground">OR CONTINUE WITH</span>
+                        <span className="mx-4 text-xs text-muted-foreground">OR SIGN UP WITH</span>
                         <div className="flex-grow border-t border-muted-foreground/20"></div>
                     </div>
 
@@ -69,9 +72,9 @@ export default function LoginPage() {
                     </div>
 
                     <div className="mt-4 text-center text-sm">
-                        Don't have an account?{" "}
-                        <Link href="/signup" className="underline text-primary font-semibold">
-                            Sign up
+                        Already have an account?{" "}
+                        <Link href="/" className="underline text-primary font-semibold">
+                            Sign in
                         </Link>
                     </div>
                 </CardContent>
