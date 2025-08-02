@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { MusicSuggestions } from "@/components/video/MusicSuggestions";
 
 const trendingVideos = [
   {
@@ -249,47 +250,54 @@ export default function HomePage() {
           </div>
         </header>
         
-        <section className="space-y-4">
-            <div className="flex items-center gap-2">
-                <PlaySquare className="w-6 h-6 text-primary" />
-                <h2 className="text-2xl font-bold font-headline">Trending Videos</h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {trendingVideos.map((item, index) => (
-                <TrendingCard 
-                    key={`video-${index}`}
-                    href={item.href}
-                    image={item.image}
-                    hint={item.hint}
-                    title={item.title}
-                    creator={item.creator}
-                    viewers={item.viewers}
-                    icon={Headphones}
-                />
-              ))}
-            </div>
-        </section>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            <section className="space-y-4">
+                <div className="flex items-center gap-2">
+                    <PlaySquare className="w-6 h-6 text-primary" />
+                    <h2 className="text-2xl font-bold font-headline">Trending Videos</h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {trendingVideos.map((item, index) => (
+                    <TrendingCard 
+                        key={`video-${index}`}
+                        href={item.href}
+                        image={item.image}
+                        hint={item.hint}
+                        title={item.title}
+                        creator={item.creator}
+                        viewers={item.viewers}
+                        icon={Headphones}
+                    />
+                  ))}
+                </div>
+            </section>
 
-        <section className="space-y-4">
-            <div className="flex items-center gap-2">
-                <Mic className="w-6 h-6 text-primary" />
-                <h2 className="text-2xl font-bold font-headline">Trending Audio</h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {trendingAudio.map((item, index) => (
-                <TrendingCard 
-                    key={`audio-${index}`}
-                    href={item.href}
-                    image={item.image}
-                    hint={item.hint}
-                    title={item.title}
-                    creator={item.creator}
-                    viewers={item.listeners}
-                    icon={Headphones}
-                />
-              ))}
-            </div>
-        </section>
+            <section className="space-y-4">
+                <div className="flex items-center gap-2">
+                    <Mic className="w-6 h-6 text-primary" />
+                    <h2 className="text-2xl font-bold font-headline">Trending Audio</h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {trendingAudio.map((item, index) => (
+                    <TrendingCard 
+                        key={`audio-${index}`}
+                        href={item.href}
+                        image={item.image}
+                        hint={item.hint}
+                        title={item.title}
+                        creator={item.creator}
+                        viewers={item.listeners}
+                        icon={Headphones}
+                    />
+                  ))}
+                </div>
+            </section>
+          </div>
+          <div className="lg:col-span-1 space-y-8">
+              <MusicSuggestions />
+          </div>
+        </div>
 
       </div>
     </AppLayout>
