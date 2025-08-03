@@ -73,7 +73,7 @@ export default function VideoRoomPage() {
     return (
         <div className="flex flex-col h-screen bg-[#180828] text-white font-sans overflow-hidden">
             {/* Video Player Section */}
-            <div className="relative w-full bg-black aspect-video flex-shrink-0">
+            <div className="relative w-full bg-black h-3/5 flex-shrink-0">
                  <div className="absolute inset-0 bg-black flex items-center justify-center">
                     <p className="text-white/50">Video Player Placeholder</p>
                 </div>
@@ -114,8 +114,8 @@ export default function VideoRoomPage() {
             {/* Interactive Panel */}
             <div className="flex-1 flex flex-col overflow-hidden bg-[#2E103F]">
                  {/* Seats */}
-                <div className="w-full flex-shrink-0 p-2">
-                    <div className="grid grid-cols-8 gap-2 justify-items-center">
+                <div className="w-full flex-shrink-0 py-2">
+                    <div className="grid grid-cols-8 gap-2 justify-items-center px-2">
                         {roomSeats.map((seat) => (
                             <div key={seat.id} className="flex flex-col items-center gap-1 w-full text-center">
                                 {seat.isOccupied && seat.user ? (
