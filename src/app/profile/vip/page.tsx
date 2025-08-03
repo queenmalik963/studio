@@ -56,20 +56,6 @@ export default function VipStorePage() {
                   <Card className={cn("flex flex-col h-full text-white bg-gradient-to-br", tier.color)}>
                     <CardHeader className="items-center text-center">
                       <div className="w-28 h-28 relative mb-4">
-                          {(tier as any).specialFrameUrl ? (
-                                <Image 
-                                    unoptimized
-                                    src={(tier as any).specialFrameUrl}
-                                    alt={`${tier.name} Frame`}
-                                    layout="fill"
-                                    className="absolute -inset-1 pointer-events-none"
-                                />
-                           ) : (
-                             <>
-                                <div className={cn("absolute inset-[-6px] rounded-full", tier.frameClass)}></div>
-                                <tier.frameSvg className="absolute inset-[-12px] w-[calc(100%+24px)] h-[calc(100%+24px)]" />
-                             </>
-                           )}
                            <Image
                             src="https://placehold.co/100x100.png"
                             alt="User Picture"
@@ -78,6 +64,20 @@ export default function VipStorePage() {
                             className="rounded-full object-cover"
                             data-ai-hint="person face"
                           />
+                          {(tier as any).specialFrameUrl ? (
+                                <Image 
+                                    unoptimized
+                                    src={(tier as any).specialFrameUrl}
+                                    alt={`${tier.name} Frame`}
+                                    layout="fill"
+                                    className="absolute -inset-1 pointer-events-none animate-pulse-luxury"
+                                />
+                           ) : (
+                             <>
+                                <div className={cn("absolute inset-[-6px] rounded-full", tier.frameClass)}></div>
+                                <tier.frameSvg className="absolute inset-[-12px] w-[calc(100%+24px)] h-[calc(100%+24px)]" />
+                             </>
+                           )}
                       </div>
                       <CardTitle className="flex items-center gap-2 text-2xl">
                         <Crown /> {tier.name} VIP

@@ -299,7 +299,7 @@ export default function AudioRoomPage() {
                                     <>
                                         <div className="relative w-[54px] h-[54px] flex items-center justify-center">
                                             {seat.user.frame && specialFrames[seat.user.frame] && (
-                                                <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="absolute inset-0 pointer-events-none" />
+                                                <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="absolute inset-0 pointer-events-none animate-pulse-luxury" />
                                             )}
                                             <div className={cn("absolute inset-0 spinning-border animate-spin-colors rounded-full", !specialFrames[seat.user.frame] ? '' : 'hidden' )}></div>
                                             <Avatar className={cn("w-[50px] h-[50px] border-2 bg-[#2E103F]", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
@@ -328,9 +328,9 @@ export default function AudioRoomPage() {
                              <div key={seat.id} ref={seatRefs.current[index + 5]} className="flex flex-col items-center gap-1 w-[50px] text-center">
                                 {seat.isOccupied && seat.user ? (
                                     <>
-                                       <div className="relative w-[54px] h-[54px]">
+                                       <div className="relative w-[54px] h-[54px] flex items-center justify-center">
                                             {seat.user.frame && specialFrames[seat.user.frame] && (
-                                                <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="absolute inset-0 pointer-events-none" />
+                                                <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="absolute inset-0 pointer-events-none animate-pulse-luxury" />
                                             )}
                                             <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                 <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
@@ -358,9 +358,9 @@ export default function AudioRoomPage() {
                              <div key={seat.id} ref={seatRefs.current[index + 10]} className="flex flex-col items-center gap-1 w-[50px] text-center">
                                 {seat.isOccupied && seat.user ? (
                                     <>
-                                       <div className="relative w-[54px] h-[54px]">
+                                       <div className="relative w-[54px] h-[54px] flex items-center justify-center">
                                              {seat.user.frame && specialFrames[seat.user.frame] && (
-                                                <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="absolute inset-0 pointer-events-none" />
+                                                <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="absolute inset-0 pointer-events-none animate-pulse-luxury" />
                                             )}
                                             <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                 <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
