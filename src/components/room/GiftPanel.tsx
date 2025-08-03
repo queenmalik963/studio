@@ -460,19 +460,25 @@ export function GiftPanel({ onSendGift }: { onSendGift: (gift: Gift) => void }) 
         </ScrollArea>
       </Tabs>
       <div className="flex-shrink-0 flex items-center justify-between gap-2">
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="bg-black/20 border-white/20 h-9 text-xs">
-                    To: {recipient} <ChevronDown className="ml-1 w-4 h-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-                <DropdownMenuItem onClick={() => setRecipient("All")}>All in Room</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setRecipient("All on Mic")}>All on Mic</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setRecipient("Jodie")}>Jodie</DropdownMenuItem>
-                 <DropdownMenuItem onClick={() => setRecipient("Koko")}>Koko</DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+         <div className="flex items-center gap-2">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="bg-black/20 border-white/20 h-9 text-xs">
+                        To: {recipient} <ChevronDown className="ml-1 w-4 h-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                    <DropdownMenuItem onClick={() => setRecipient("All")}>All in Room</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setRecipient("All on Mic")}>All on Mic</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setRecipient("Jodie")}>Jodie</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setRecipient("Koko")}>Koko</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <div className="flex items-center gap-1 bg-black/20 rounded-full h-9 px-3 border border-white/20 text-sm">
+                <Coins className="w-4 h-4 text-yellow-300" />
+                <span className="font-bold text-white">1,250</span>
+            </div>
+         </div>
 
         <div className="flex items-center gap-2">
             <div className="flex items-center bg-black/20 rounded-full border border-white/20">
