@@ -379,6 +379,7 @@ export function GiftPanel() {
                                       alt={gift.name}
                                       width={48}
                                       height={48}
+                                      unoptimized={true}
                                       className={cn(getAnimationClass(gift))}
                                     />
                                 </div>
@@ -427,3 +428,5 @@ export function GiftPanel() {
     </div>
   );
 }
+
+    
