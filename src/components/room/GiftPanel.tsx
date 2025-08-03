@@ -17,25 +17,24 @@ import {
 
 const gifts = {
   hot: [
-    // The Lion Cub is now the special trigger for AI video generation
-    { name: "Lion Cub", price: 999, image: "https://em-content.zobj.net/source/apple/391/lion_1f981.png", animation: 'pulse-luxury', isAiGift: true },
-    { name: "Tiger Cub", price: 98, image: "https://em-content.zobj.net/source/apple/391/tiger_1f405.png", animation: 'tada', videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4" },
-    { name: "Bear Cub", price: 97, image: "https://em-content.zobj.net/source/apple/391/bear_1f43b.png", animation: 'bounce', videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4" },
-    { name: "Wolf Pup", price: 96, image: "https://em-content.zobj.net/source/apple/391/wolf_1f43a.png", animation: 'tada', videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" },
-    { name: "Fox Kit", price: 95, image: "https://em-content.zobj.net/source/apple/391/fox_1f98a.png", animation: 'bounce', videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" },
-    { name: "Deer Fawn", price: 94, image: "https://em-content.zobj.net/source/apple/391/deer_1f98c.png", animation: 'tada', videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/SubaruOutback2014.mp4" },
-    { name: "Playful Monkey", price: 89, image: "https://em-content.zobj.net/source/apple/391/monkey_1f412.png", animation: 'bounce', videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" },
-    { name: "Cuddly Panda", price: 110, image: "https://em-content.zobj.net/source/apple/391/panda_1f43c.png", animation: 'pulse-luxury', videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4" },
-    { name: "Sleepy Koala", price: 105, image: "https://em-content.zobj.net/source/apple/391/koala_1f428.png", animation: 'pulse-luxury', videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4" },
-    { name: "Happy Puppy", price: 79, image: "https://em-content.zobj.net/source/apple/391/dog_1f415.png", animation: 'tada', videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" },
-    { name: "Cute Kitten", price: 78, image: "https://em-content.zobj.net/source/apple/391/cat_1f408.png", animation: 'tada', videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" },
-    { name: "Bunny Hop", price: 69, image: "https://em-content.zobj.net/source/apple/391/rabbit_1f407.png", animation: 'bounce', videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" },
-    { name: "Chirpy Chick", price: 49, image: "https://em-content.zobj.net/source/apple/391/front-facing-baby-chick_1f425.png", animation: 'tada', videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" },
-    { name: "Waddling Penguin", price: 85, image: "https://em-content.zobj.net/source/apple/391/penguin_1f427.png", animation: 'bounce', videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" },
-    { name: "Soaring Eagle", price: 120, image: "https://em-content.zobj.net/source/apple/391/eagle_1f985.png", animation: 'fly-across', videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4" },
-    { name: "Hooting Owl", price: 88, image: "https://em-content.zobj.net/source/apple/391/owl_1f989.png", animation: 'pulse-luxury', videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4" },
-    { name: "Mystical Unicorn", price: 150, image: "https://em-content.zobj.net/source/apple/391/unicorn_1f984.png", animation: 'shimmer', videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4" },
-    { name: "Fiery Dragon", price: 180, image: "https://em-content.zobj.net/source/apple/391/dragon_1f409.png", animation: 'fly-across', videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/SubaruOutback2014.mp4" },
+    { name: "Lion Cub", price: 999, image: "https://em-content.zobj.net/source/apple/391/lion_1f981.png", animation: 'pulse-luxury' },
+    { name: "Tiger Cub", price: 98, image: "https://em-content.zobj.net/source/apple/391/tiger_1f405.png", animation: 'tada' },
+    { name: "Bear Cub", price: 97, image: "https://em-content.zobj.net/source/apple/391/bear_1f43b.png", animation: 'bounce' },
+    { name: "Wolf Pup", price: 96, image: "https://em-content.zobj.net/source/apple/391/wolf_1f43a.png", animation: 'tada' },
+    { name: "Fox Kit", price: 95, image: "https://em-content.zobj.net/source/apple/391/fox_1f98a.png", animation: 'bounce' },
+    { name: "Deer Fawn", price: 94, image: "https://em-content.zobj.net/source/apple/391/deer_1f98c.png", animation: 'tada' },
+    { name: "Playful Monkey", price: 89, image: "https://em-content.zobj.net/source/apple/391/monkey_1f412.png", animation: 'bounce' },
+    { name: "Cuddly Panda", price: 110, image: "https://em-content.zobj.net/source/apple/391/panda_1f43c.png", animation: 'pulse-luxury' },
+    { name: "Sleepy Koala", price: 105, image: "https://em-content.zobj.net/source/apple/391/koala_1f428.png", animation: 'pulse-luxury' },
+    { name: "Happy Puppy", price: 79, image: "https://em-content.zobj.net/source/apple/391/dog_1f415.png", animation: 'tada' },
+    { name: "Cute Kitten", price: 78, image: "https://em-content.zobj.net/source/apple/391/cat_1f408.png", animation: 'tada' },
+    { name: "Bunny Hop", price: 69, image: "https://em-content.zobj.net/source/apple/391/rabbit_1f407.png", animation: 'bounce' },
+    { name: "Chirpy Chick", price: 49, image: "https://em-content.zobj.net/source/apple/391/front-facing-baby-chick_1f425.png", animation: 'tada' },
+    { name: "Waddling Penguin", price: 85, image: "https://em-content.zobj.net/source/apple/391/penguin_1f427.png", animation: 'bounce' },
+    { name: "Soaring Eagle", price: 120, image: "https://em-content.zobj.net/source/apple/391/eagle_1f985.png", animation: 'fly-across' },
+    { name: "Hooting Owl", price: 88, image: "https://em-content.zobj.net/source/apple/391/owl_1f989.png", animation: 'pulse-luxury' },
+    { name: "Mystical Unicorn", price: 150, image: "https://em-content.zobj.net/source/apple/391/unicorn_1f984.png", animation: 'shimmer' },
+    { name: "Fiery Dragon", price: 180, image: "https://em-content.zobj.net/source/apple/391/dragon_1f409.png", animation: 'fly-across' },
   ],
   event: [
     { name: "Cake", price: 100, image: "https://em-content.zobj.net/source/apple/391/birthday-cake_1f382.png" },
@@ -60,8 +59,6 @@ export type Gift = {
     price: number;
     image: string;
     animation?: string;
-    videoUrl?: string;
-    isAiGift?: boolean;
 };
 type GiftCategory = keyof typeof gifts;
 
@@ -128,7 +125,6 @@ export function GiftPanel({ onSendGift }: { onSendGift: (gift: Gift) => void }) 
                                       unoptimized={true}
                                       className={cn(getAnimationClass(gift as Gift))}
                                     />
-                                    {gift.isAiGift && <span className="absolute top-0 right-0 text-[8px] bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold px-1 rounded-full">AI</span>}
                                 </div>
                                 <p className="text-xs truncate">{gift.name}</p>
                                 <div className="flex items-center gap-1 text-xs text-yellow-400">

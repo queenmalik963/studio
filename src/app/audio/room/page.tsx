@@ -13,7 +13,6 @@ import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import { GiftPanel, type Gift as GiftType } from "@/components/room/GiftPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { generateGiftVideo, type GenerateGiftVideoOutput } from '@/ai/flows/generate-gift-video';
 
 
 const initialMessages = [
@@ -51,8 +50,6 @@ export default function AudioRoomPage() {
     const [newMessage, setNewMessage] = useState("");
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
     const chatContainerRef = useRef<HTMLDivElement>(null);
-    const [videoGift, setVideoGift] = useState<{url: string, image: string} | null>(null);
-    const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
     const { toast } = useToast();
 
     const owner = { name: "op_2", avatar: "https://placehold.co/40x40.png", isOwner: true };
@@ -70,50 +67,8 @@ export default function AudioRoomPage() {
 
     const handleSendGift = async (gift: GiftType) => {
         setIsGiftPanelOpen(false);
-
-        // This is a special gift that will trigger AI video generation
-        if (gift.isAiGift) {
-            setIsGeneratingVideo(true);
-            try {
-                // Use our API proxy to fetch the image and get a data URI
-                const response = await fetch(`/api/image-proxy?url=${encodeURIComponent(gift.image)}`);
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.details || 'Failed to fetch image via proxy');
-                }
-                const { dataUri } = await response.json();
-                
-                const result = await generateGiftVideo({
-                    giftImage: dataUri,
-                    prompt: `Animate this ${gift.name}. Make it cinematic, emerging from a jungle and roaring powerfully at the screen.`
-                });
-
-                setVideoGift({ url: result.videoUrl, image: gift.image });
-                
-            } catch (error: any) {
-                console.error("Error generating video gift:", error);
-                
-                let description = "Could not generate the video gift. Please try again.";
-                if (error.message && (error.message.includes('API key not valid') || error.message.includes('GEMINI_API_KEY') || error.message.includes('FAILED_PRECONDITION'))) {
-                    description = "Your Gemini API key is not valid or is missing. Please check your .env file and restart the development server.";
-                } else if (error.message && error.message.includes('429')) {
-                    description = "You have exceeded your API quota. Please check your billing account or try again later.";
-                }
-
-                toast({
-                    variant: "destructive",
-                    title: "Video Generation Failed",
-                    description: description,
-                });
-            } finally {
-                setIsGeneratingVideo(false);
-            }
-        } else if ('videoUrl' in gift && gift.videoUrl) {
-            setVideoGift({ url: gift.videoUrl, image: gift.image });
-        } else {
-             // Handle regular gift sending
-            console.log("Sending gift:", gift.name);
-        }
+        // Handle regular gift sending
+        console.log("Sending gift:", gift.name);
     }
 
     const frameColors: {[key: string]: string} = {
@@ -371,28 +326,6 @@ export default function AudioRoomPage() {
                     </div>
                 </div>
             </footer>
-            {isGeneratingVideo && (
-                <div className="absolute inset-0 z-50 bg-black/80 flex flex-col items-center justify-center gap-4">
-                    <Loader2 className="w-16 h-16 text-primary animate-spin" />
-                    <p className="text-white/80 font-semibold text-lg">Generating your gift... Please wait.</p>
-                </div>
-            )}
-            {videoGift && (
-                <div 
-                    className="absolute inset-0 z-50 bg-black/80 flex items-center justify-center"
-                    onClick={() => setVideoGift(null)}
-                >
-                    <video key={videoGift.url} src={videoGift.url} autoPlay controls className="w-full h-full object-contain" />
-                    <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="absolute top-4 right-4 text-white bg-black/50 rounded-full"
-                        onClick={() => setVideoGift(null)}
-                    >
-                        <X />
-                    </Button>
-                </div>
-            )}
         </div>
     );
 }
