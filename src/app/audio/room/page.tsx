@@ -22,12 +22,12 @@ const initialMessages = [
 ];
 
 const roomSeats = [
-    { id: 1, user: { name: "Jodie", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'gold' }, isOccupied: true },
-    { id: 2, user: { name: "Koko", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'purple' }, isOccupied: true },
+    { id: 1, user: { name: "Jodie", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'gold', frameVideoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4" }, isOccupied: true },
+    { id: 2, user: { name: "Koko", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'purple', frameVideoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4" }, isOccupied: true },
     { id: 3, user: { name: "User 3", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'pink' }, isOccupied: true },
     { id: 4, user: { name: "Lexa", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'blue' }, isOccupied: true },
     { id: 5, user: { name: "mhay", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'green' }, isOccupied: true },
-    { id: 6, user: { name: "saba", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'red' }, isOccupied: true },
+    { id: 6, user: { name: "saba", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'red', frameVideoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" }, isOccupied: true },
     { id: 7, user: { name: "MR ISMAIL", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'cyan' }, isOccupied: true },
     { id: 8, user: { name: "Riz", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'teal' }, isOccupied: true },
     { id: 9, user: { name: "User 9", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'orange' }, isOccupied: true },
@@ -134,26 +134,32 @@ export default function AudioRoomPage() {
                             <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
                                 {seat.isOccupied && seat.user ? (
                                     <>
-                                        <div className="relative">
-                                            {seat.id === 1 ? (
-                                                <div className="relative w-[54px] h-[54px]">
-                                                    <div className={cn("absolute inset-0 border-2 border-transparent rounded-full animate-spin", spinningFrameColors[seat.user.frame])}></div>
-                                                    <Avatar className={cn("w-[50px] h-[50px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2", frameColors[seat.user.frame])}>
-                                                        <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                                        <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                                    </Avatar>
+                                        <div className="relative w-[54px] h-[54px]">
+                                            {seat.user.frameVideoUrl ? (
+                                                <div className="absolute inset-[-10px] w-[calc(100%+20px)] h-[calc(100%+20px)]">
+                                                    <video 
+                                                        src={seat.user.frameVideoUrl} 
+                                                        autoPlay 
+                                                        loop 
+                                                        muted 
+                                                        playsInline 
+                                                        className="w-full h-full object-cover"
+                                                    />
                                                 </div>
-                                            ) : (
-                                                <Avatar className={cn(
-                                                    "w-[50px] h-[50px] border-2", 
-                                                    seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent'
-                                                )}>
-                                                    <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                                    <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                                </Avatar>
-                                            )}
-
-                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
+                                            ) : seat.id === 1 ? (
+                                                 <div className="relative w-full h-full">
+                                                    <div className={cn("absolute inset-0 border-2 border-transparent rounded-full animate-spin", spinningFrameColors[seat.user.frame])}></div>
+                                                </div>
+                                            ) : null}
+                                             <Avatar className={cn(
+                                                "w-[50px] h-[50px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2", 
+                                                !seat.user.frameVideoUrl && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-2 border-transparent',
+                                                seat.id === 1 && !seat.user.frameVideoUrl ? '' : 'border-2'
+                                            )}>
+                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
                                                 {seat.user.isMuted ? 
                                                     <Mic className="w-3 h-3 text-red-500" /> :
                                                     <Mic className="w-3 h-3 text-green-400" />
@@ -175,12 +181,24 @@ export default function AudioRoomPage() {
                              <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
                                 {seat.isOccupied && seat.user ? (
                                     <>
-                                        <div className="relative">
-                                            <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                       <div className="relative w-[54px] h-[54px]">
+                                             {seat.user.frameVideoUrl && (
+                                                <div className="absolute inset-[-10px] w-[calc(100%+20px)] h-[calc(100%+20px)]">
+                                                    <video 
+                                                        src={seat.user.frameVideoUrl} 
+                                                        autoPlay 
+                                                        loop 
+                                                        muted 
+                                                        playsInline 
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                </div>
+                                            )}
+                                            <Avatar className={cn("w-[50px] h-[50px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2", !seat.user.frameVideoUrl && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-2 border-transparent' )}>
                                                 <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                             </Avatar>
-                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
+                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
                                                 {seat.user.isMuted ? 
                                                     <Mic className="w-3 h-3 text-red-500" /> :
                                                     <Mic className="w-3 h-3 text-green-400" />
@@ -202,12 +220,24 @@ export default function AudioRoomPage() {
                              <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
                                 {seat.isOccupied && seat.user ? (
                                     <>
-                                        <div className="relative">
-                                            <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                       <div className="relative w-[54px] h-[54px]">
+                                             {seat.user.frameVideoUrl && (
+                                                <div className="absolute inset-[-10px] w-[calc(100%+20px)] h-[calc(100%+20px)]">
+                                                    <video 
+                                                        src={seat.user.frameVideoUrl} 
+                                                        autoPlay 
+                                                        loop 
+                                                        muted 
+                                                        playsInline
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                </div>
+                                            )}
+                                            <Avatar className={cn("w-[50px] h-[50px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2", !seat.user.frameVideoUrl && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-2 border-transparent' )}>
                                                 <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                             </Avatar>
-                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
+                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
                                                 {seat.user.isMuted ? 
                                                     <Mic className="w-3 h-3 text-red-500" /> :
                                                     <Mic className="w-3 h-3 text-green-400" />
