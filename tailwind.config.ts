@@ -150,22 +150,39 @@ export default {
             '50%': { boxShadow: '0 0 20px 5px rgba(245,158,11,0.8)' },
         },
         'fly-across': {
-          '0%': { transform: 'translateX(-100%)' },
-          '100%': { transform: 'translateX(100%)' },
+          '0%': { transform: 'translateX(-100%)', opacity: '0' },
+          '20%, 80%': { opacity: '1' },
+          '100%': { transform: 'translateX(100%)', opacity: '0' },
         },
         'shimmer': {
-          '0%, 100%': { boxShadow: '0 0 6px 2px #fff, 0 0 10px 4px #f0f, 0 0 14px 6px #0ff' },
-          '50%': { boxShadow: '0 0 12px 3px #fff, 0 0 16px 5px #f0f, 0 0 20px 7px #0ff' },
+          '0%, 100%': { boxShadow: '0 0 6px 2px #fff, 0 0 10px 4px #f0f, 0 0 14px 6px #0ff', opacity: '0.8' },
+          '50%': { boxShadow: '0 0 12px 3px #fff, 0 0 16px 5px #f0f, 0 0 20px 7px #0ff', opacity: '1' },
         },
         'pulse-luxury': {
           '0%, 100%': { transform: 'scale(1)', opacity: '1' },
           '50%': { transform: 'scale(1.05)', opacity: '0.9' },
         },
+        'tada': {
+            '0%': { transform: 'scale(1)' },
+            '10%, 20%': { transform: 'scale(0.9) rotate(-3deg)' },
+            '30%, 50%, 70%, 90%': { transform: 'scale(1.1) rotate(3deg)' },
+            '40%, 60%, 80%': { transform: 'scale(1.1) rotate(-3deg)' },
+            '100%': { transform: 'scale(1) rotate(0)' }
+        },
+        'bounce': {
+            '0%, 100%': { transform: 'translateY(-25%)', animationTimingFunction: 'cubic-bezier(0.8,0,1,1)' },
+            '50%': { transform: 'translateY(0)', animationTimingFunction: 'cubic-bezier(0,0,0.2,1)' }
+        },
+        'spin-slow': {
+          'from': { transform: 'rotate(0deg)' },
+          'to': { transform: 'rotate(360deg)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        spin: 'spin 1.5s linear infinite',
+        spin: 'spin 1s linear infinite',
+        'spin-slow': 'spin-slow 5s linear infinite',
         'glow-gold': 'glow-gold 2s ease-in-out infinite',
         'glow-purple': 'glow-purple 2s ease-in-out infinite',
         'glow-blue': 'glow-blue 2s ease-in-out infinite',
@@ -184,6 +201,8 @@ export default {
         'fly-across': 'fly-across 3s ease-in-out infinite',
         'shimmer': 'shimmer 2.5s ease-in-out infinite',
         'pulse-luxury': 'pulse-luxury 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'tada': 'tada 1s ease-in-out infinite',
+        'bounce': 'bounce 1s infinite',
       },
     },
   },
