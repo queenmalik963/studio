@@ -34,7 +34,7 @@ const initialMessages: Message[] = [
 ];
 
 const roomSeats = [
-    { id: 1, user: { name: "Jodie", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'gold' }, isOccupied: true },
+    { id: 1, user: { name: "Jodie", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'crimson-danger' }, isOccupied: true },
     { id: 2, user: { name: "Koko", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'purple' }, isOccupied: true },
     { id: 3, user: { name: "User 3", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'pink' }, isOccupied: true },
     { id: 4, user: { name: "Lexa", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'blue' }, isOccupied: true },
@@ -83,6 +83,10 @@ export default function VideoRoomPage() {
             }
         ]);
     };
+    
+    const specialFrames: {[key: string]: {img: string}} = {
+        'crimson-danger': { img: 'https://i.imgur.com/DADsWdw.gif' },
+    }
 
     const frameColors: {[key: string]: string} = {
         gold: 'border-yellow-400 animate-glow-gold',
@@ -149,12 +153,15 @@ export default function VideoRoomPage() {
                             <div key={seat.id} className="flex flex-col items-center gap-1 w-full text-center">
                                 {seat.isOccupied && seat.user ? (
                                     <>
-                                        <div className="relative">
-                                            <Avatar className={cn("w-9 h-9 border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                        <div className="relative w-9 h-9 flex items-center justify-center">
+                                            {seat.user.frame && specialFrames[seat.user.frame] && (
+                                                <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="absolute -inset-1 pointer-events-none" />
+                                            )}
+                                            <Avatar className={cn("w-9 h-9 border-2", seat.user.frame && !specialFrames[seat.user.frame] && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                 <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                             </Avatar>
-                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-0.5">
+                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-0.5 z-10">
                                                 {seat.user.isMuted ? 
                                                     <Mic className="w-2.5 h-2.5 text-red-500" /> :
                                                     <Mic className="w-2.5 h-2.5 text-green-400" />
