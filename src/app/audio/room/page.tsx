@@ -142,7 +142,7 @@ export default function AudioRoomPage() {
                                 <span className="font-bold">{occupiedSeats.length}</span>
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-64 p-2 bg-black/50 backdrop-blur-md border-white/20 text-white">
+                        <PopoverContent className="w-40 p-2 bg-black/50 backdrop-blur-md border-white/20 text-white">
                             <ScrollArea className="h-48">
                                 <div className="space-y-2">
                                     {occupiedSeats.map((seat) => (
