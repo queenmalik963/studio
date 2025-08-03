@@ -111,41 +111,38 @@ export default function VideoRoomPage() {
                 </div>
             </div>
 
-            {/* Separator / Green Box Area */}
-            <div className="w-full h-8 bg-black flex-shrink-0"></div>
-
             {/* Interactive Panel */}
             <div className="flex-1 flex flex-col overflow-hidden bg-[#2E103F]">
-                {/* Seats */}
-                <ScrollArea className="w-full whitespace-nowrap flex-shrink-0 p-4">
-                    <div className="flex space-x-3 pb-2">
+                 {/* Seats */}
+                <div className="w-full flex-shrink-0 p-2">
+                    <div className="grid grid-cols-8 gap-2 justify-items-center">
                         {roomSeats.map((seat) => (
-                            <div key={seat.id} className="flex flex-col items-center gap-1 w-[40px] text-center flex-shrink-0">
+                            <div key={seat.id} className="flex flex-col items-center gap-1 w-full text-center">
                                 {seat.isOccupied && seat.user ? (
                                     <>
                                         <div className="relative">
-                                            <Avatar className={cn("w-[40px] h-[40px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                            <Avatar className={cn("w-9 h-9 border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                 <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                             </Avatar>
-                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
+                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-0.5">
                                                 {seat.user.isMuted ? 
-                                                    <Mic className="w-3 h-3 text-red-500" /> :
-                                                    <Mic className="w-3 h-3 text-green-400" />
+                                                    <Mic className="w-2.5 h-2.5 text-red-500" /> :
+                                                    <Mic className="w-2.5 h-2.5 text-green-400" />
                                                 }
                                             </div>
                                         </div>
-                                        <p className="text-xs truncate w-full">{seat.user.name}</p>
+                                        <p className="text-[10px] truncate w-full">{seat.user.name}</p>
                                     </>
                                 ) : (
-                                    <div className="w-[40px] h-[40px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                        {seat.isLocked ? <Lock className="w-5 h-5 text-white/50"/> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
+                                    <div className="w-9 h-9 rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                        {seat.isLocked ? <Lock className="w-4 h-4 text-white/50"/> : <span className="text-sm font-bold text-white/50">{seat.id}</span>}
                                     </div>
                                 )}
                             </div>
                         ))}
                     </div>
-                </ScrollArea>
+                </div>
                 
                 {/* Chat Panel */}
                 <div ref={chatContainerRef} className="flex-1 overflow-y-auto space-y-3 px-4 pb-2">
@@ -213,4 +210,5 @@ export default function VideoRoomPage() {
             </footer>
         </div>
     );
-}
+
+    
