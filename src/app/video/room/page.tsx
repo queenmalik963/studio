@@ -28,9 +28,7 @@ const roomSeats = [
     { id: 5, user: { name: "mhay", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'green' }, isOccupied: true },
     { id: 6, user: { name: "saba", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'red' }, isOccupied: true },
     { id: 7, user: { name: "MR ISMAIL", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'cyan' }, isOccupied: true },
-    { id: 8, user: { name: "User 8", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'teal' }, isOccupied: true },
-    { id: 9, user: { name: "User 9", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'orange' }, isOccupied: true },
-    { id: 10, user: { name: "Riz", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'indigo' }, isOccupied: true },
+    { id: 8, user: { name: "Riz", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'teal' }, isOccupied: true },
 ]
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -58,16 +56,16 @@ export default function VideoRoomPage() {
     };
 
     const frameColors: {[key: string]: string} = {
-        gold: 'border-yellow-400',
-        purple: 'border-fuchsia-500',
-        blue: 'border-blue-400',
-        green: 'border-green-500',
-        red: 'border-red-500',
-        cyan: 'border-cyan-500',
-        pink: 'border-pink-500',
-        teal: 'border-teal-400',
-        orange: 'border-orange-500',
-        indigo: 'border-indigo-500',
+        gold: 'border-yellow-400 animate-glow-gold',
+        purple: 'border-fuchsia-500 animate-glow-purple',
+        blue: 'border-blue-400 animate-glow-blue',
+        green: 'border-green-500 animate-glow-green',
+        red: 'border-red-500 animate-glow-red',
+        cyan: 'border-cyan-500 animate-glow-cyan',
+        pink: 'border-pink-500 animate-glow-pink',
+        teal: 'border-teal-400 animate-glow-teal',
+        orange: 'border-orange-500 animate-glow-orange',
+        indigo: 'border-indigo-500 animate-glow-indigo',
     }
 
     const occupiedSeats = roomSeats.filter(seat => seat.isOccupied && seat.user);
@@ -114,30 +112,30 @@ export default function VideoRoomPage() {
             </div>
 
             {/* Interactive Panel */}
-            <div className="flex-1 flex flex-col p-2 overflow-hidden bg-[#2E103F]">
+            <div className="flex-1 flex flex-col overflow-hidden bg-[#2E103F]">
                 {/* Seats */}
-                <ScrollArea className="w-full whitespace-nowrap flex-shrink-0">
-                    <div className="flex space-x-2 pb-2">
+                <ScrollArea className="w-full whitespace-nowrap flex-shrink-0 p-4">
+                    <div className="flex space-x-3 pb-2">
                         {roomSeats.map((seat) => (
-                            <div key={seat.id} className="flex flex-col items-center gap-1 w-[40px] text-center flex-shrink-0">
+                            <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center flex-shrink-0">
                                 {seat.isOccupied && seat.user ? (
                                     <>
                                         <div className="relative">
-                                            <Avatar className={cn("w-[40px] h-[40px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                            <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                 <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                             </Avatar>
-                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-0.5">
+                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
                                                 {seat.user.isMuted ? 
-                                                    <Mic className="w-2 h-2 text-red-500" /> :
-                                                    <Mic className="w-2 h-2 text-green-400" />
+                                                    <Mic className="w-3 h-3 text-red-500" /> :
+                                                    <Mic className="w-3 h-3 text-green-400" />
                                                 }
                                             </div>
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="w-[40px] h-[40px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                        {seat.isLocked ? <Lock className="w-4 h-4 text-white/50"/> : <span className="text-sm font-bold text-white/50">{seat.id}</span>}
+                                    <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                        {seat.isLocked ? <Lock className="w-5 h-5 text-white/50"/> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
                                     </div>
                                 )}
                             </div>
@@ -146,7 +144,7 @@ export default function VideoRoomPage() {
                 </ScrollArea>
                 
                 {/* Chat Panel */}
-                <div ref={chatContainerRef} className="flex-1 overflow-y-auto space-y-3 pr-2">
+                <div ref={chatContainerRef} className="flex-1 overflow-y-auto space-y-3 px-4 pb-2">
                     {messages.map((msg) => (
                         <Fragment key={msg.id}>
                             {msg.type === 'notification' ? (
