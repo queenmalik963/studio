@@ -74,7 +74,7 @@ export default function VideoRoomPage() {
         setMessages(prev => [
             ...prev,
             {
-                id: prev.length + 1,
+                id: Date.now(),
                 type: 'game',
                 author: 'You',
                 text: `started playing ${gameName}!`,
@@ -283,6 +283,3 @@ export default function VideoRoomPage() {
         </div>
     );
 }
-    
-
-    

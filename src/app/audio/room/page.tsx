@@ -109,7 +109,7 @@ export default function AudioRoomPage() {
         setMessages(prev => [
             ...prev,
             {
-                id: prev.length + 1,
+                id: Date.now(),
                 type: 'gift',
                 author: 'You',
                 text: `Sent a ${gift.name}`,
@@ -124,7 +124,7 @@ export default function AudioRoomPage() {
         setMessages(prev => [
             ...prev,
             {
-                id: prev.length + 1,
+                id: Date.now(),
                 type: 'game',
                 author: 'You',
                 text: `started playing ${gameName}!`,
@@ -462,5 +462,3 @@ export default function AudioRoomPage() {
         </div>
     );
 }
-
-    
