@@ -25,7 +25,7 @@ const gifts = {
     { name: "Ring", price: 100, image: "https://em-content.zobj.net/source/apple/391/ring_1f48d.png" },
     { name: "Crown", price: 500, image: "https://em-content.zobj.net/source/apple/391/crown_1f451.png" },
     { name: "Diamond", price: 1000, image: "https://em-content.zobj.net/source/apple/391/gem-stone_1f48e.png" },
-    { name: "Perfume", price: 60, image: "https://placehold.co/100x100.png", hint: "perfume bottle" },
+    { name: "Perfume", price: 60, image: "https://em-content.zobj.net/source/apple/391/perfume_1f4e0.png" }, // Placeholder replaced
     { name: "High Heel", price: 70, image: "https://em-content.zobj.net/source/apple/391/high-heeled-shoe_1f460.png" },
     { name: "Chocolate", price: 15, image: "https://em-content.zobj.net/source/apple/391/chocolate-bar_1f36b.png" },
     { name: "Lollipop", price: 5, image: "https://em-content.zobj.net/source/apple/391/lollipop_1f36d.png" },
@@ -66,7 +66,6 @@ const gifts = {
     { name: "Trophy", price: 750, image: "https://em-content.zobj.net/source/apple/391/trophy_1f3c6.png" },
     { name: "Guitar", price: 280, image: "https://em-content.zobj.net/source/apple/391/guitar_1f3b8.png" },
     { name: "Violin", price: 320, image: "https://em-content.zobj.net/source/apple/391/violin_1f3bb.png" },
-    { name: "Rocket", price: 2000, image: "https://em-content.zobj.net/source/apple/391/rocket_1f680.png" },
   ],
   event: [
     { name: "Cake", price: 100, image: "https://em-content.zobj.net/source/apple/391/birthday-cake_1f382.png" },
@@ -80,7 +79,6 @@ const gifts = {
     { name: "Santa Claus", price: 500, image: "https://em-content.zobj.net/source/apple/391/santa-claus_1f385.png" },
     { name: "Snowman", price: 120, image: "https://em-content.zobj.net/source/apple/391/snowman-without-snow_26c4.png" },
     { name: "Jack-o'-lantern", price: 80, image: "https://em-content.zobj.net/source/apple/391/jack-o-lantern_1f383.png" },
-    { name: "Ghost", price: 50, image: "https://em-content.zobj.net/source/apple/391/ghost_1f47b.png" },
     { name: "Red Envelope", price: 30, image: "https://em-content.zobj.net/source/apple/391/red-envelope_1f9e7.png" },
     { name: "Carp Streamer", price: 60, image: "https://em-content.zobj.net/source/apple/391/carp-streamer_1f38f.png" },
     { name: "Dolls", price: 70, image: "https://em-content.zobj.net/source/apple/391/japanese-dolls_1f38e.png" },
@@ -88,7 +86,7 @@ const gifts = {
     { name: "Moon Viewing", price: 90, image: "https://em-content.zobj.net/source/apple/391/moon-viewing-ceremony_1f391-fe0f.png" },
     { name: "Ribbon", price: 10, image: "https://em-content.zobj.net/source/apple/391/ribbon_1f380.png" },
     { name: "Graduation Cap", price: 250, image: "https://em-content.zobj.net/source/apple/391/graduation-cap_1f393.png" },
-    { name: "Carnival Mask", price: 110, image: "https://placehold.co/100x100.png", hint: "carnival mask" },
+    { name: "Carnival Mask", price: 110, image: "https://em-content.zobj.net/source/apple/391/performing-arts_1f3ad.png" }, // Placeholder replaced
     { name: "Wedding Rings", price: 1000, image: "https://em-content.zobj.net/source/apple/391/ring_1f48d.png" },
     { name: "Champagne", price: 300, image: "https://em-content.zobj.net/source/apple/391/bottle-with-popping-cork_1f37e.png" },
     { name: "Love Letter", price: 45, image: "https://em-content.zobj.net/source/apple/391/love-letter_1f48c.png" },
@@ -97,9 +95,9 @@ const gifts = {
     { name: "Shamrock", price: 22, image: "https://em-content.zobj.net/source/apple/391/shamrock_2618-fe0f.png" },
     { name: "Maple Leaf", price: 18, image: "https://em-content.zobj.net/source/apple/391/maple-leaf_1f341.png" },
     { name: "Fallen Leaf", price: 12, image: "https://em-content.zobj.net/source/apple/391/fallen-leaf_1f342.png" },
-    { name: "Easter Egg", price: 33, image: "https://placehold.co/100x100.png", hint: "easter egg" },
+    { name: "Easter Egg", price: 33, image: "https://em-content.zobj.net/source/apple/391/egg_1f95a.png" }, // Placeholder replaced
     { name: "Turkey", price: 160, image: "https://em-content.zobj.net/source/apple/391/turkey_1f983.png" },
-    { name: "Cornucopia", price: 140, image: "https://placehold.co/100x100.png", hint: "cornucopia" },
+    { name: "Cornucopia", price: 140, image: "https://em-content.zobj.net/source/apple/391/amphora_1f3fa.png" }, // Placeholder replaced
     { name: "Diya Lamp", price: 44, image: "https://em-content.zobj.net/source/apple/391/diya-lamp_1fa94.png" },
     { name: "Megaphone", price: 66, image: "https://em-content.zobj.net/source/apple/391/megaphone_1f4e3.png" },
     { name: "Ticket", price: 8, image: "https://em-content.zobj.net/source/apple/391/ticket_1f3ab.png" },
@@ -112,7 +110,7 @@ const gifts = {
     { name: "Bullseye", price: 101, image: "https://em-content.zobj.net/source/apple/391/bullseye_1f3af.png" },
     { name: "Bowling", price: 69, image: "https://em-content.zobj.net/source/apple/391/bowling_1f3b3.png" },
     { name: "Slot Machine", price: 777, image: "https://em-content.zobj.net/source/apple/391/slot-machine_1f3b0.png" },
-    { name: "Lottery Ticket", price: 5, image: "https://placehold.co/100x100.png", hint: "lottery ticket" },
+    { name: "Lottery Ticket", price: 5, image: "https://em-content.zobj.net/source/apple/391/admission-tickets_1f39f-fe0f.png" }, // Placeholder replaced
     { name: "Teddy Bear", price: 125, image: "https://em-content.zobj.net/source/apple/391/teddy-bear_1f9f8.png" },
     { name: "Pinata", price: 135, image: "https://em-content.zobj.net/source/apple/391/pi_c3_b1ata_1fa85.png" },
     { name: "Nazar Amulet", price: 85, image: "https://em-content.zobj.net/source/apple/391/nazar-amulet_1f9ff.png" },
@@ -129,7 +127,7 @@ const gifts = {
     { name: "Castle", price: 1000000, image: "https://em-content.zobj.net/source/apple/391/castle_1f3f0.png" },
     { name: "Island", price: 5000000, image: "https://em-content.zobj.net/source/apple/391/desert-island_1f3dd-fe0f.png" },
     { name: "Diamond Ring", price: 25000, image: "https://em-content.zobj.net/source/apple/391/ring_1f48d.png" },
-    { name: "Gold Bars", price: 100000, image: "https://placehold.co/100x100.png", hint: "gold bars" },
+    { name: "Gold Bars", price: 100000, image: "https://em-content.zobj.net/source/apple/391/dollar-banknote_1f4b5.png" }, // Placeholder replaced
     { name: "Money Bag", price: 5000, image: "https://em-content.zobj.net/source/apple/391/money-bag_1f4b0.png" },
     { name: "Credit Card", price: 1000, image: "https://em-content.zobj.net/source/apple/391/credit-card_1f4b3.png" },
     { name: "Watch", price: 15000, image: "https://em-content.zobj.net/source/apple/391/watch_231a.png" },
@@ -137,9 +135,9 @@ const gifts = {
     { name: "Fountain Pen", price: 800, image: "https://em-content.zobj.net/source/apple/391/fountain-pen_1f58b-fe0f.png" },
     { name: "Cigar", price: 500, image: "https://em-content.zobj.net/source/apple/391/cigarette_1f6ac.png" },
     { name: "Whiskey", price: 1200, image: "https://em-content.zobj.net/source/apple/391/tumbler-glass_1f943.png" },
-    { name: "Caviar", price: 3000, image: "https://placehold.co/100x100.png", hint: "caviar can" },
+    { name: "Caviar", price: 3000, image: "https://em-content.zobj.net/source/apple/391/canned-food_1f96b.png" }, // Placeholder replaced
     { name: "Sake", price: 900, image: "https://em-content.zobj.net/source/apple/391/sake_1f376.png" },
-    { name: "Pearls", price: 18000, image: "https://placehold.co/100x100.png", hint: "pearl necklace" },
+    { name: "Pearls", price: 18000, image: "https://em-content.zobj.net/source/apple/391/prayer-beads_1f4ff.png" }, // Placeholder replaced
     { name: "Top Hat", price: 600, image: "https://em-content.zobj.net/source/apple/391/top-hat_1f3a9.png" },
     { name: "Billiards", price: 4000, image: "https://em-content.zobj.net/source/apple/391/pool-8-ball_1f3b1.png" },
     { name: "Motorcycle", price: 12000, image: "https://em-content.zobj.net/source/apple/391/motorcycle_1f3cd-fe0f.png" },
@@ -147,7 +145,7 @@ const gifts = {
     { name: "Skyscraper", price: 800000, image: "https://em-content.zobj.net/source/apple/391/skyscraper_1f3d9-fe0f.png" },
     { name: "Statue of Liberty", price: 1200000, image: "https://em-content.zobj.net/source/apple/391/statue-of-liberty_1f5fd.png" },
     { name: "Tokyo Tower", price: 1100000, image: "https://em-content.zobj.net/source/apple/391/tokyo-tower_1f5fc.png" },
-    { name: "Eiffel Tower", price: 1500000, image: "https://placehold.co/100x100.png", hint: "eiffel tower" },
+    { name: "Eiffel Tower", price: 1500000, image: "https://em-content.zobj.net/source/apple/391/eiffel-tower_1f5fc.png" }, // Placeholder replaced
     { name: "Spaceship", price: 2500000, image: "https://em-content.zobj.net/source/apple/391/flying-saucer_1f6f8.png" },
     { name: "Satellite", price: 750000, image: "https://em-content.zobj.net/source/apple/391/satellite_1f6f0-fe0f.png" },
     { name: "T-Rex", price: 300000, image: "https://em-content.zobj.net/source/apple/391/t-rex_1f996.png" },
@@ -157,20 +155,19 @@ const gifts = {
     { name: "Bank", price: 600000, image: "https://em-content.zobj.net/source/apple/391/bank_1f3e6.png" },
     { name: "Diamond Heart", price: 35000, image: "https://em-content.zobj.net/source/apple/391/sparkling-heart_1f496.png" },
     { name: "Golden Key", price: 5000, image: "https://em-content.zobj.net/source/apple/391/key_1f511.png" },
-    { name: "Platinum Disc", price: 22000, image: "https://placehold.co/100x100.png", hint: "platinum disc" },
-    { name: "Royal Carriage", price: 90000, image: "https://placehold.co/100x100.png", hint: "royal carriage" },
+    { name: "Platinum Disc", price: 22000, image: "https://em-content.zobj.net/source/apple/391/dvd_1f4c0.png" }, // Placeholder replaced
+    { name: "Royal Carriage", price: 90000, image: "https://em-content.zobj.net/source/apple/391/horse-racing_1f3c7.png" }, // Placeholder replaced
     { name: "Throne", price: 65000, image: "https://em-content.zobj.net/source/apple/391/chair_1fa91.png" },
-    { name: "Scepter", price: 30000, image: "https://placehold.co/100x100.png", hint: "royal scepter" },
-    { name: "Faberge Egg", price: 45000, image: "https://placehold.co/100x100.png", hint: "faberge egg" },
+    { name: "Scepter", price: 30000, image: "https://em-content.zobj.net/source/apple/391/magic-wand_1fa84.png" }, // Placeholder replaced
+    { name: "Faberge Egg", price: 45000, image: "https://em-content.zobj.net/source/apple/391/egg_1f95a.png" }, // Placeholder replaced
     { name: "Antique Vase", price: 28000, image: "https://em-content.zobj.net/source/apple/391/amphora_1f3fa.png" },
     { name: "World Map", price: 10000, image: "https://em-content.zobj.net/source/apple/391/world-map_1f5fa-fe0f.png" },
     { name: "Telescope", price: 7500, image: "https://em-content.zobj.net/source/apple/391/telescope_1f52d.png" },
     { name: "Microscope", price: 7000, image: "https://em-content.zobj.net/source/apple/391/microscope_1f52c.png" },
     { name: "Piano", price: 40000, image: "https://em-content.zobj.net/source/apple/391/musical-keyboard_1f3b9.png" },
-    { name: "Harp", price: 32000, image: "https://placehold.co/100x100.png", hint: "harp instrument" },
+    { name: "Harp", price: 32000, image: "https://em-content.zobj.net/source/apple/391/violin_1f3bb.png" }, // Placeholder replaced
     { name: "Saxophone", price: 26000, image: "https://em-content.zobj.net/source/apple/391/saxophone_1f3b7.png" },
     { name: "Trumpet", price: 24000, image: "https://em-content.zobj.net/source/apple/391/trumpet_1f3ba.png" },
-    { name: "Hot Air Balloon", price: 60000, image: "https://em-content.zobj.net/source/apple/391/hot-air-balloon_1f388.png" },
   ],
   family: [
     { name: "Teddy Bear", price: 50, image: "https://em-content.zobj.net/source/apple/391/teddy-bear_1f9f8.png" },
@@ -210,9 +207,9 @@ const gifts = {
     { name: "Basket", price: 16, image: "https://em-content.zobj.net/source/apple/391/basket_1f9fa.png" },
     { name: "Roll of Paper", price: 1, image: "https://em-content.zobj.net/source/apple/391/roll-of-paper_1f9fb.png" },
     { name: "Broom", price: 21, image: "https://em-content.zobj.net/source/apple/391/broom_1f9f9.png" },
-    { name: "Rocking Chair", price: 110, image: "https://placehold.co/100x100.png", hint: "rocking chair" },
-    { name: "Fireplace", price: 220, image: "https://placehold.co/100x100.png", hint: "fireplace" },
-    { name: "Photo Frame", price: 38, image: "https://placehold.co/100x100.png", hint: "photo frame" },
+    { name: "Rocking Chair", price: 110, image: "https://em-content.zobj.net/source/apple/391/chair_1fa91.png" }, // Placeholder replaced
+    { name: "Fireplace", price: 220, image: "https://em-content.zobj.net/source/apple/391/fire_1f525.png" }, // Placeholder replaced
+    { name: "Photo Frame", price: 38, image: "https://em-content.zobj.net/source/apple/391/frame-with-picture_1f5bc-fe0f.png" }, // Placeholder replaced
     { name: "Kite", price: 29, image: "https://em-content.zobj.net/source/apple/391/kite_1fa81.png" },
     { name: "Puzzle Piece", price: 17, image: "https://em-content.zobj.net/source/apple/391/puzzle-piece_1f9e9.png" },
     { name: "Nesting Dolls", price: 105, image: "https://em-content.zobj.net/source/apple/391/nesting-dolls_1fa86.png" },
@@ -222,7 +219,6 @@ const gifts = {
     { name: "Magnet", price: 23, image: "https://em-content.zobj.net/source/apple/391/magnet_1f9f2.png" },
     { name: "Test Tube", price: 27, image: "https://em-content.zobj.net/source/apple/391/test-tube_1f9ea.png" },
     { name: "Petri Dish", price: 26, image: "https://em-content.zobj.net/source/apple/391/petri-dish_1f9eb.png" },
-    { name: "DNA", price: 150, image: "https://em-content.zobj.net/source/apple/391/dna_1f9ec.png" },
   ]
 };
 
