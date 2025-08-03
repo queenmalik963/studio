@@ -68,40 +68,40 @@ export default function ProfilePage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Card className="bg-gradient-to-br from-green-800/70 to-teal-900/70 text-white">
-                         <CardHeader className="p-4">
-                            <CardTitle>My Wallet</CardTitle>
+                         <CardHeader className="p-2">
+                            <CardTitle className="text-base">My Wallet</CardTitle>
                         </CardHeader>
-                        <CardContent className="p-4 space-y-2">
+                        <CardContent className="p-2 space-y-2">
                             <div className="grid grid-cols-2 gap-2">
-                                <div className="flex items-center justify-center bg-white/10 p-2 rounded-lg gap-2">
-                                    <Coins className="w-5 h-5 text-yellow-300" />
+                                <div className="flex items-center justify-center bg-white/10 p-1 rounded-lg gap-2 h-12">
+                                    <Coins className="w-4 h-4 text-yellow-300" />
                                     <div>
-                                        <p className="font-semibold text-sm">Coins</p>
-                                        <p className="font-bold text-base">1,250</p>
+                                        <p className="font-semibold text-xs">Coins</p>
+                                        <p className="font-bold text-sm">1,250</p>
                                     </div>
                                 </div>
-                                 <div className="flex items-center justify-center bg-white/10 p-2 rounded-lg gap-2">
-                                    <Gem className="w-5 h-5 text-cyan-300" />
+                                 <div className="flex items-center justify-center bg-white/10 p-1 rounded-lg gap-2 h-12">
+                                    <Gem className="w-4 h-4 text-cyan-300" />
                                     <div>
-                                        <p className="font-semibold text-sm">Diamonds</p>
-                                        <p className="font-bold text-base">5,800</p>
+                                        <p className="font-semibold text-xs">Diamonds</p>
+                                        <p className="font-bold text-sm">5,800</p>
                                     </div>
                                 </div>
                             </div>
                             
                             <Link href="/profile/recharge" passHref>
-                               <Button variant="ghost" className="w-full justify-between h-9 bg-white/10 hover:bg-white/20 text-xs">
+                               <Button variant="ghost" className="w-full justify-between h-8 bg-white/10 hover:bg-white/20 text-xs">
                                     <div className="flex items-center gap-2">
-                                        <Coins className="text-yellow-300" />
+                                        <Coins className="text-yellow-300 w-4 h-4" />
                                         <span>Recharge</span>
                                     </div>
                                     <ChevronRight />
                                </Button>
                             </Link>
                             <Link href="/profile/withdraw" passHref>
-                                <Button variant="ghost" className="w-full justify-between h-9 bg-white/10 hover:bg-white/20 text-xs">
+                                <Button variant="ghost" className="w-full justify-between h-8 bg-white/10 hover:bg-white/20 text-xs">
                                      <div className="flex items-center gap-2">
-                                        <Landmark className="text-cyan-300" />
+                                        <Landmark className="text-cyan-300 w-4 h-4" />
                                         <span>Withdraw</span>
                                     </div>
                                     <ChevronRight />
@@ -111,21 +111,21 @@ export default function ProfilePage() {
                     </Card>
 
                     <Card className="bg-gradient-to-br from-pink-800/70 to-rose-900/70 text-white">
-                        <CardHeader className="p-4">
-                            <CardTitle>My Store</CardTitle>
-                            <CardDescription className="text-white/80">Customize your profile.</CardDescription>
+                        <CardHeader className="p-2">
+                            <CardTitle className="text-base">My Store</CardTitle>
+                            <CardDescription className="text-white/80 text-xs">Customize your profile.</CardDescription>
                         </CardHeader>
-                        <CardContent className="p-4 grid grid-cols-2 gap-2">
+                        <CardContent className="p-2 grid grid-cols-2 gap-2">
                             <Link href="/profile/vip" className="block">
-                                <Card className="h-full bg-white/10 hover:bg-white/20 transition-colors text-center p-2 flex flex-col items-center justify-center gap-2">
-                                    <Star className="w-6 h-6 text-yellow-300"/>
-                                    <p className="font-semibold text-sm">VIP Center</p>
+                                <Card className="h-full bg-white/10 hover:bg-white/20 transition-colors text-center p-2 flex flex-col items-center justify-center gap-1">
+                                    <Star className="w-5 h-5 text-yellow-300"/>
+                                    <p className="font-semibold text-xs">VIP Center</p>
                                 </Card>
                             </Link>
                             <Link href="/profile/frame" className="block">
-                                <Card className="h-full bg-white/10 hover:bg-white/20 transition-colors text-center p-2 flex flex-col items-center justify-center gap-2">
-                                    <Wallet className="w-6 h-6 text-cyan-300"/>
-                                    <p className="font-semibold text-sm">Frame Store</p>
+                                <Card className="h-full bg-white/10 hover:bg-white/20 transition-colors text-center p-2 flex flex-col items-center justify-center gap-1">
+                                    <Wallet className="w-5 h-5 text-cyan-300"/>
+                                    <p className="font-semibold text-xs">Frame Store</p>
                                 </Card>
                             </Link>
                         </CardContent>
