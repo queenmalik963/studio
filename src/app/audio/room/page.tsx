@@ -136,7 +136,7 @@ export default function AudioRoomPage() {
                                     <>
                                         <div className="relative w-[54px] h-[54px] flex items-center justify-center">
                                             <div className="w-[52px] h-[52px] rounded-full spinning-border animate-spin-colors p-px">
-                                                <Avatar className="w-full h-full">
+                                                <Avatar className={cn("w-full h-full", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent')}>
                                                     <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                     <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                                 </Avatar>
@@ -315,3 +315,5 @@ export default function AudioRoomPage() {
 
     
  
+
+    
