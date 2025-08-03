@@ -114,7 +114,7 @@ export default function VideoRoomPage() {
             </div>
 
             {/* Interactive Panel */}
-            <main className="flex-1 flex flex-col p-2 overflow-hidden gap-2 bg-[#2E103F]">
+            <div className="flex-1 flex flex-col p-2 overflow-hidden bg-[#2E103F]">
                 {/* Seats */}
                 <ScrollArea className="w-full whitespace-nowrap flex-shrink-0">
                     <div className="flex space-x-2 pb-2">
@@ -170,7 +170,7 @@ export default function VideoRoomPage() {
                         </Fragment>
                     ))}
                 </div>
-            </main>
+            </div>
             
             <footer className="flex-shrink-0 bg-[#1F0A2E] border-t border-white/10 relative">
                 <div className="p-2">
