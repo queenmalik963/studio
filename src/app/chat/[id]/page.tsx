@@ -99,7 +99,7 @@ export default function ChatRoomPage() {
     };
 
     return (
-        <div className="flex flex-col h-screen bg-background text-foreground">
+        <div className="flex flex-col h-screen bg-gradient-to-br from-background via-primary/10 to-background text-foreground">
             <header className="p-4 border-b flex items-center justify-between gap-4 bg-card">
                  <div className="flex items-center gap-4">
                     <Button variant="ghost" size="icon" onClick={() => router.back()}>
