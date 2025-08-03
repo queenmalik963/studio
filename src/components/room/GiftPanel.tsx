@@ -438,5 +438,3 @@ export function GiftPanel({ onSendGift, sendButtonRef }: { onSendGift: (gift: Gi
     </div>
   );
 }
-
-    
