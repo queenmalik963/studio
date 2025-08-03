@@ -117,96 +117,98 @@ export default function AudioRoomPage() {
             </header>
 
             <main className="flex-1 flex flex-col p-4 overflow-hidden gap-2">
-                <div className="grid grid-cols-5 gap-y-2 gap-x-3 justify-items-center">
-                    {roomSeats.slice(0, 5).map((seat) => (
-                        <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
-                            {seat.isOccupied && seat.user ? (
-                                <>
-                                    <div className="relative">
-                                        {seat.id === 1 ? (
-                                            <div className="relative w-[54px] h-[54px]">
-                                                <div className={cn("absolute inset-0 border-2 border-transparent rounded-full animate-spin", spinningFrameColors[seat.user.frame])}></div>
-                                                <Avatar className={cn("w-[50px] h-[50px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2", frameColors[seat.user.frame])}>
+                 <div className="flex-shrink-0 space-y-2">
+                    <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
+                        {roomSeats.slice(0, 5).map((seat) => (
+                            <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
+                                {seat.isOccupied && seat.user ? (
+                                    <>
+                                        <div className="relative">
+                                            {seat.id === 1 ? (
+                                                <div className="relative w-[54px] h-[54px]">
+                                                    <div className={cn("absolute inset-0 border-2 border-transparent rounded-full animate-spin", spinningFrameColors[seat.user.frame])}></div>
+                                                    <Avatar className={cn("w-[50px] h-[50px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2", frameColors[seat.user.frame])}>
+                                                        <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                        <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                                    </Avatar>
+                                                </div>
+                                            ) : (
+                                                <Avatar className={cn(
+                                                    "w-[50px] h-[50px] border-2", 
+                                                    seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent'
+                                                )}>
                                                     <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                     <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                                 </Avatar>
+                                            )}
+
+                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
+                                                {seat.user.isMuted ? 
+                                                    <Mic className="w-3 h-3 text-red-500" /> :
+                                                    <Mic className="w-3 h-3 text-green-400" />
+                                                }
                                             </div>
-                                        ) : (
-                                            <Avatar className={cn(
-                                                "w-[50px] h-[50px] border-2", 
-                                                seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent'
-                                            )}>
+                                        </div>
+                                        <p className="text-xs truncate w-full">{seat.user.name}</p>
+                                    </>
+                                ) : (
+                                    <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                        {seat.isLocked ? <Lock className="w-5 h-5 text-white/50"/> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
+                        {roomSeats.slice(5, 10).map((seat) => (
+                             <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
+                                {seat.isOccupied && seat.user ? (
+                                    <>
+                                        <div className="relative">
+                                            <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                 <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                             </Avatar>
-                                        )}
-
-                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
-                                            {seat.user.isMuted ? 
-                                                <Mic className="w-3 h-3 text-red-500" /> :
-                                                <Mic className="w-3 h-3 text-green-400" />
-                                            }
+                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
+                                                {seat.user.isMuted ? 
+                                                    <Mic className="w-3 h-3 text-red-500" /> :
+                                                    <Mic className="w-3 h-3 text-green-400" />
+                                                }
+                                            </div>
                                         </div>
+                                        <p className="text-xs truncate w-full">{seat.user.name}</p>
+                                    </>
+                                ) : (
+                                   <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                        <span className="text-lg font-bold text-white/50">{seat.id}</span>
                                     </div>
-                                    <p className="text-xs truncate w-full">{seat.user.name}</p>
-                                </>
-                            ) : (
-                                <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                    {seat.isLocked ? <Lock className="w-5 h-5 text-white/50"/> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-                 <div className="grid grid-cols-5 gap-y-2 gap-x-3 justify-items-center">
-                    {roomSeats.slice(5, 10).map((seat) => (
-                         <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
-                            {seat.isOccupied && seat.user ? (
-                                <>
-                                    <div className="relative">
-                                        <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                            <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                            <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
-                                            {seat.user.isMuted ? 
-                                                <Mic className="w-3 h-3 text-red-500" /> :
-                                                <Mic className="w-3 h-3 text-green-400" />
-                                            }
+                               )}
+                            </div>
+                        ))}
+                    </div>
+                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
+                         {roomSeats.slice(10, 15).map((seat) => (
+                             <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
+                                 {seat.isOccupied && seat.user ? (
+                                    <>
+                                        <div className="relative">
+                                            <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
+                                                {seat.user.isMuted ? 
+                                                    <Mic className="w-3 h-3 text-red-500" /> :
+                                                    <Mic className="w-3 h-3 text-green-400" />
+                                                }
+                                            </div>
                                         </div>
-                                    </div>
-                                    <p className="text-xs truncate w-full">{seat.user.name}</p>
-                                </>
-                            ) : (
-                               <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                    <span className="text-lg font-bold text-white/50">{seat.id}</span>
-                                </div>
-                           )}
-                        </div>
-                    ))}
-                </div>
-                 <div className="grid grid-cols-5 gap-y-2 gap-x-3 justify-items-center mt-1">
-                     {roomSeats.slice(10, 15).map((seat) => (
-                         <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
-                             {seat.isOccupied && seat.user ? (
-                                <>
-                                    <div className="relative">
-                                        <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                            <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                            <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
-                                            {seat.user.isMuted ? 
-                                                <Mic className="w-3 h-3 text-red-500" /> :
-                                                <Mic className="w-3 h-3 text-green-400" />
-                                            }
-                                        </div>
-                                    </div>
-                                    <p className="text-xs truncate w-full">{seat.user.name}</p>
-                                </>
-                            ) : null}
-                         </div>
-                    ))}
+                                        <p className="text-xs truncate w-full">{seat.user.name}</p>
+                                    </>
+                                ) : null}
+                             </div>
+                        ))}
+                    </div>
                 </div>
 
                 <div className="flex-1 mt-2 relative">
