@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, Fragment, createRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, X, Loader2 } from "lucide-react";
+import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, X, Loader2, Crown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import { GiftPanel, type Gift as GiftType } from "@/components/room/GiftPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Card, CardContent } from "@/components/ui/card";
 
 
 const initialMessages = [
@@ -60,6 +62,7 @@ export default function AudioRoomPage() {
     const [messages, setMessages] = useState(initialMessages);
     const [newMessage, setNewMessage] = useState("");
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
+    const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
     const [animatedGift, setAnimatedGift] = useState<GiftType | null>(null);
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
 
@@ -111,6 +114,21 @@ export default function AudioRoomPage() {
                 author: 'You',
                 text: `Sent a ${gift.name}`,
                 giftIcon: gift.image,
+                avatar: "https://placehold.co/40x40.png"
+            }
+        ]);
+    };
+
+    const handleStartGame = (gameName: string) => {
+        setIsGamePanelOpen(false);
+        setMessages(prev => [
+            ...prev,
+            {
+                id: prev.length + 1,
+                type: 'game',
+                author: 'You',
+                text: `started playing ${gameName}!`,
+                game: gameName,
                 avatar: "https://placehold.co/40x40.png"
             }
         ]);
@@ -385,7 +403,7 @@ export default function AudioRoomPage() {
                         <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0">
                             <Mic />
                         </Button>
-                         <Button type="button" size="icon" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0"><Gamepad2 /></Button>
+                         <Button type="button" size="icon" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0" onClick={() => setIsGamePanelOpen(true)}><Gamepad2 /></Button>
                          <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0">
                             <RectangleVertical />
                         </Button>
@@ -403,6 +421,46 @@ export default function AudioRoomPage() {
                     </div>
                 </div>
             </footer>
+             <Sheet open={isGamePanelOpen} onOpenChange={setIsGamePanelOpen}>
+                <SheetContent side="bottom" className="bg-[#1F0A2E] border-t-2 border-primary/50 text-white rounded-t-2xl" style={{ height: '45vh' }}>
+                    <SheetHeader>
+                        <div className="flex justify-between items-center mb-4">
+                            <SheetTitle className="text-2xl font-headline text-white flex items-center gap-2"><Gamepad2 /> Game Center</SheetTitle>
+                            <div className="flex items-center gap-2 bg-black/30 rounded-full px-3 py-1 border border-white/20">
+                                <Coins className="w-5 h-5 text-yellow-400" />
+                                <span className="font-bold text-lg">1,250</span>
+                            </div>
+                        </div>
+                    </SheetHeader>
+                    <ScrollArea className="h-[calc(45vh-80px)]">
+                        <div className="grid grid-cols-2 gap-4">
+                            <Card className="bg-black/30 border-white/20">
+                                <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
+                                    <Image src="https://placehold.co/200x120.png" alt="Spin the Wheel" width={200} height={120} className="rounded-md w-full aspect-video object-cover" data-ai-hint="fortune wheel" />
+                                    <h3 className="font-semibold">Spin the Wheel</h3>
+                                    <div className="flex items-center gap-1 text-sm text-yellow-400">
+                                        <Coins className="w-4 h-4" />
+                                        <span>100</span>
+                                    </div>
+                                    <Button className="w-full bg-primary/80 hover:bg-primary" onClick={() => handleStartGame('Spin the Wheel')}>Play</Button>
+                                </CardContent>
+                            </Card>
+                             <Card className="bg-black/30 border-white/20">
+                                <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
+                                    <Image src="https://placehold.co/200x120.png" alt="Ludo" width={200} height={120} className="rounded-md w-full aspect-video object-cover" data-ai-hint="ludo board" />
+                                    <h3 className="font-semibold">Ludo</h3>
+                                    <div className="flex items-center gap-1 text-sm text-green-400">
+                                        <span>Free</span>
+                                    </div>
+                                    <Button className="w-full bg-primary/80 hover:bg-primary" onClick={() => handleStartGame('Ludo')}>Play</Button>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </ScrollArea>
+                </SheetContent>
+            </Sheet>
         </div>
     );
 }
+
+    

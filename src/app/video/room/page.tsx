@@ -12,6 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Card, CardContent } from "@/components/ui/card";
 
 const initialMessages = [
   { id: 2, type: 'text', author: 'Jodie', text: 'Hey everyone!', avatar: "https://placehold.co/40x40.png"},
@@ -38,6 +40,7 @@ export default function VideoRoomPage() {
     const router = useRouter();
     const [messages, setMessages] = useState(initialMessages);
     const [newMessage, setNewMessage] = useState("");
+    const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
     const owner = { name: "op_2", avatar: "https://placehold.co/40x40.png", isOwner: true };
@@ -51,6 +54,21 @@ export default function VideoRoomPage() {
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
         // Sending logic would be here
+    };
+
+    const handleStartGame = (gameName: string) => {
+        setIsGamePanelOpen(false);
+        setMessages(prev => [
+            ...prev,
+            {
+                id: prev.length + 1,
+                type: 'game',
+                author: 'You',
+                text: `started playing ${gameName}!`,
+                game: gameName,
+                avatar: "https://placehold.co/40x40.png"
+            }
+        ]);
     };
 
     const frameColors: {[key: string]: string} = {
@@ -134,7 +152,7 @@ export default function VideoRoomPage() {
                                     </>
                                 ) : (
                                     <div className="w-9 h-9 rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                        {seat.isLocked ? <Lock className="w-4 h-4 text-white/50"/> : <span className="text-sm font-bold text-white/50">{seat.id}</span>}
+                                        {(seat as any).isLocked ? <Lock className="w-4 h-4 text-white/50"/> : <span className="text-sm font-bold text-white/50">{seat.id}</span>}
                                     </div>
                                 )}
                             </div>
@@ -146,21 +164,25 @@ export default function VideoRoomPage() {
                 <div ref={chatContainerRef} className="flex-1 overflow-y-auto space-y-3 px-4 pb-2">
                     {messages.map((msg) => (
                         <Fragment key={msg.id}>
-                            {msg.type === 'notification' ? (
+                            {(msg as any).type === 'notification' ? (
                                 <div className="text-center text-xs text-white/50 p-1">
                                     {msg.text}
                                 </div>
                             ) : (
                                 <div className="flex items-start gap-3">
                                     <Avatar className="h-8 w-8 shrink-0">
-                                        <AvatarImage src={msg.avatar}/>
-                                        <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
+                                        <AvatarImage src={(msg as any).avatar}/>
+                                        <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{(msg as any).author?.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     <div className="text-sm">
-                                        <p className="text-white/70 text-xs">{msg.author}</p>
-                                        <div className="bg-black/20 rounded-lg p-2 mt-1">
-                                            <p className="text-sm">{msg.text}</p>
-                                        </div>
+                                        <p className="text-white/70 text-xs">{(msg as any).author}</p>
+                                         {(msg as any).type === 'game' ? (
+                                             <p className="mt-1 text-xs">{(msg as any).author} <span className="font-bold text-yellow-400">{(msg as any).text}</span></p>
+                                         ) : (
+                                            <div className="bg-black/20 rounded-lg p-2 mt-1">
+                                                <p className="text-sm">{msg.text}</p>
+                                            </div>
+                                         )}
                                     </div>
                                 </div>
                             )}
@@ -192,7 +214,7 @@ export default function VideoRoomPage() {
                         <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0">
                             <Mic />
                         </Button>
-                         <Button type="button" size="icon" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0"><Gamepad2 /></Button>
+                         <Button type="button" size="icon" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0" onClick={() => setIsGamePanelOpen(true)}><Gamepad2 /></Button>
                          <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0">
                             <RectangleVertical />
                         </Button>
@@ -206,5 +228,46 @@ export default function VideoRoomPage() {
                     </div>
                 </div>
             </footer>
+
+            <Sheet open={isGamePanelOpen} onOpenChange={setIsGamePanelOpen}>
+                <SheetContent side="bottom" className="bg-[#1F0A2E] border-t-2 border-primary/50 text-white rounded-t-2xl" style={{ height: '45vh' }}>
+                    <SheetHeader>
+                        <div className="flex justify-between items-center mb-4">
+                            <SheetTitle className="text-2xl font-headline text-white flex items-center gap-2"><Gamepad2 /> Game Center</SheetTitle>
+                            <div className="flex items-center gap-2 bg-black/30 rounded-full px-3 py-1 border border-white/20">
+                                <Coins className="w-5 h-5 text-yellow-400" />
+                                <span className="font-bold text-lg">1,250</span>
+                            </div>
+                        </div>
+                    </SheetHeader>
+                    <ScrollArea className="h-[calc(45vh-80px)]">
+                        <div className="grid grid-cols-2 gap-4">
+                            <Card className="bg-black/30 border-white/20">
+                                <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
+                                    <Image src="https://placehold.co/200x120.png" alt="Spin the Wheel" width={200} height={120} className="rounded-md w-full aspect-video object-cover" data-ai-hint="fortune wheel" />
+                                    <h3 className="font-semibold">Spin the Wheel</h3>
+                                    <div className="flex items-center gap-1 text-sm text-yellow-400">
+                                        <Coins className="w-4 h-4" />
+                                        <span>100</span>
+                                    </div>
+                                    <Button className="w-full bg-primary/80 hover:bg-primary" onClick={() => handleStartGame('Spin the Wheel')}>Play</Button>
+                                </CardContent>
+                            </Card>
+                             <Card className="bg-black/30 border-white/20">
+                                <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
+                                    <Image src="https://placehold.co/200x120.png" alt="Ludo" width={200} height={120} className="rounded-md w-full aspect-video object-cover" data-ai-hint="ludo board" />
+                                    <h3 className="font-semibold">Ludo</h3>
+                                    <div className="flex items-center gap-1 text-sm text-green-400">
+                                        <span>Free</span>
+                                    </div>
+                                    <Button className="w-full bg-primary/80 hover:bg-primary" onClick={() => handleStartGame('Ludo')}>Play</Button>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </ScrollArea>
+                </SheetContent>
+            </Sheet>
         </div>
     );
+}
+    
