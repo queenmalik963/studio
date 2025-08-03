@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Paperclip, Send, ArrowLeft, Mic, MoreVertical, Film, Gift, Video, UserX, Trash2, BellOff } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   DropdownMenu,
@@ -62,10 +62,12 @@ const PlayIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 
-export default function ChatRoomPage({ params }: { params: { id: string } }) {
+export default function ChatRoomPage() {
     const router = useRouter();
+    const params = useParams();
+    const id = typeof params.id === 'string' ? params.id : '';
     
-    const contactName = params.id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    const contactName = id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     
     const [messages, setMessages] = useState(() => createInitialMessages(contactName));
     const [newMessage, setNewMessage] = useState("");
@@ -232,5 +234,3 @@ export default function ChatRoomPage({ params }: { params: { id: string } }) {
         </div>
     );
 }
-
-    
