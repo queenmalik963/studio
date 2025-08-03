@@ -94,7 +94,7 @@ export function GiftPanel({ onSendGift }: { onSendGift: (gift: Gift) => void }) 
   }
 
   return (
-    <div className="absolute inset-0 bg-[#1F0A2E]/90 backdrop-blur-sm flex flex-col p-2 rounded-t-lg">
+    <div className="absolute inset-0 bg-[#1F0A2E]/90 backdrop-blur-sm flex flex-col p-2 rounded-lg">
       <Tabs defaultValue="hot" className="flex-1 flex flex-col overflow-hidden">
         <TabsList className="bg-transparent p-0 justify-start gap-4 border-b border-white/10">
           <TabsTrigger value="hot" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 text-sm">Hot</TabsTrigger>
@@ -169,7 +169,7 @@ export function GiftPanel({ onSendGift }: { onSendGift: (gift: Gift) => void }) 
                     <Plus className="w-4 h-4" />
                 </Button>
             </div>
-            <Button className="bg-gradient-to-r from-pink-500 to-orange-400 h-9 px-3" onClick={handleSend}>
+            <Button className="bg-gradient-to-r from-pink-500 to-orange-400 h-9 px-2 text-sm" onClick={handleSend}>
                 Send
             </Button>
         </div>

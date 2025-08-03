@@ -66,7 +66,7 @@ export default function AudioRoomPage() {
         // Sending logic would be here
     };
 
-    const handleSendGift = async (gift: GiftType) => {
+    const handleSendGift = (gift: GiftType) => {
         setIsGiftPanelOpen(false);
         // Handle regular gift sending
         console.log("Sending gift:", gift.name);
@@ -174,7 +174,7 @@ export default function AudioRoomPage() {
                 </div>
             </header>
 
-            <main className="flex-1 flex flex-col p-4 overflow-hidden gap-2">
+            <main className="flex-1 flex flex-col p-4 pt-0 overflow-hidden gap-2">
                  <div className="flex-shrink-0 space-y-1">
                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
                         {roomSeats.slice(0, 5).map((seat) => (
@@ -260,7 +260,7 @@ export default function AudioRoomPage() {
                     </div>
                 </div>
 
-                <div className="flex-1 mt-2 relative">
+                <div className="flex-1 mt-2 relative p-0">
                     {isGiftPanelOpen ? (
                         <GiftPanel onSendGift={handleSendGift} />
                     ) : (
