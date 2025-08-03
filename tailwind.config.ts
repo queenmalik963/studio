@@ -153,6 +153,30 @@ export default {
             '0%, 100%': { boxShadow: '0 0 10px 2px rgba(191,191,191,0.4)' },
             '50%': { boxShadow: '0 0 20px 5px rgba(191,191,191,0.8)' },
         },
+        'glow-gold-shadow': {
+            '0%, 100%': { filter: 'drop-shadow(0 0 5px rgba(255,185,0,0.6))' },
+            '50%': { filter: 'drop-shadow(0 0 10px rgba(255,185,0,1))' },
+        },
+        'glow-purple-shadow': {
+            '0%, 100%': { filter: 'drop-shadow(0 0 5px rgba(192,38,211,0.6))' },
+            '50%': { filter: 'drop-shadow(0 0 10px rgba(192,38,211,1))' },
+        },
+        'glow-green-shadow': {
+            '0%, 100%': { filter: 'drop-shadow(0 0 5px rgba(34,197,94,0.6))' },
+            '50%': { filter: 'drop-shadow(0 0 10px rgba(34,197,94,1))' },
+        },
+        'glow-sky-shadow': {
+            '0%, 100%': { filter: 'drop-shadow(0 0 5px rgba(14,165,233,0.6))' },
+            '50%': { filter: 'drop-shadow(0 0 10px rgba(14,165,233,1))' },
+        },
+        'glow-red-shadow': {
+            '0%, 100%': { filter: 'drop-shadow(0 0 5px rgba(239,68,68,0.6))' },
+            '50%': { filter: 'drop-shadow(0 0 10px rgba(239,68,68,1))' },
+        },
+        'glow-emerald-shadow': {
+            '0%, 100%': { filter: 'drop-shadow(0 0 5px rgba(16,185,129,0.6))' },
+            '50%': { filter: 'drop-shadow(0 0 10px rgba(16,185,129,1))' },
+        },
         'fly-across': {
           '0%': { transform: 'translateX(-100%)', opacity: '0' },
           '20%, 80%': { opacity: '1' },
@@ -203,6 +227,12 @@ export default {
         'glow-sky': 'glow-sky 2s ease-in-out infinite',
         'glow-amber': 'glow-amber 2s ease-in-out infinite',
         'glow-silver': 'glow-silver 2s ease-in-out infinite',
+        'glow-gold-shadow': 'glow-gold-shadow 2s ease-in-out infinite',
+        'glow-purple-shadow': 'glow-purple-shadow 2s ease-in-out infinite',
+        'glow-green-shadow': 'glow-green-shadow 2s ease-in-out infinite',
+        'glow-sky-shadow': 'glow-sky-shadow 2s ease-in-out infinite',
+        'glow-red-shadow': 'glow-red-shadow 2s ease-in-out infinite',
+        'glow-emerald-shadow': 'glow-emerald-shadow 2s ease-in-out infinite',
         'fly-across': 'fly-across 3s ease-in-out infinite',
         'shimmer': 'shimmer 2.5s ease-in-out infinite',
         'pulse-luxury': 'pulse-luxury 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
