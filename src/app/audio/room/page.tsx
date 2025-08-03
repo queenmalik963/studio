@@ -36,7 +36,7 @@ const roomSeats = [
     { id: 12, user: { name: "User 12", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'rose' }, isOccupied: true },
     { id: 13, user: { name: "User 13", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'emerald' }, isOccupied: true },
     { id: 14, user: { name: "User 14", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'sky' }, isOccupied: true },
-    { id: 15, isOccupied: false, isLocked: true },
+    { id: 15, user: { name: "User 15", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'amber' }, isOccupied: true },
 ]
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -66,13 +66,13 @@ export default function AudioRoomPage() {
     };
 
     const handleSendGift = (gift: GiftType) => {
+        setIsGiftPanelOpen(false);
         if ('videoUrl' in gift && gift.videoUrl) {
             setVideoGiftUrl(gift.videoUrl);
         } else {
              // Handle regular gift sending
             console.log("Sending gift:", gift.name);
         }
-        setIsGiftPanelOpen(false);
     }
 
     const frameColors: {[key: string]: string} = {
@@ -90,6 +90,7 @@ export default function AudioRoomPage() {
         rose: 'border-rose-400 animate-glow-rose',
         emerald: 'border-emerald-400 animate-glow-emerald',
         sky: 'border-sky-400 animate-glow-sky',
+        amber: 'border-amber-400 animate-glow-amber',
     }
     
     const spinningFrameColors: {[key: string]: string} = {
@@ -323,3 +324,5 @@ export default function AudioRoomPage() {
         </div>
     );
 }
+
+    
