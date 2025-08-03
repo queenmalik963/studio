@@ -460,10 +460,10 @@ export function GiftPanel({ onSendGift }: { onSendGift: (gift: Gift) => void }) 
         </ScrollArea>
       </Tabs>
       <div className="flex-shrink-0 flex items-center justify-between gap-2">
-         <div className="flex items-center gap-2">
+         <div className="flex items-center gap-2 flex-grow">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="bg-black/20 border-white/20 h-9 text-xs">
+                    <Button variant="outline" className="bg-black/20 border-white/20 h-9 text-xs px-2">
                         To: {recipient} <ChevronDown className="ml-1 w-4 h-4" />
                     </Button>
                 </DropdownMenuTrigger>
@@ -474,7 +474,7 @@ export function GiftPanel({ onSendGift }: { onSendGift: (gift: Gift) => void }) 
                     <DropdownMenuItem onClick={() => setRecipient("Koko")}>Koko</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
-            <div className="flex items-center gap-1 bg-black/20 rounded-full h-9 px-3 border border-white/20 text-sm">
+            <div className="flex-shrink-0 flex items-center gap-1 bg-black/20 rounded-full h-9 px-3 border border-white/20 text-sm">
                 <Coins className="w-4 h-4 text-yellow-300" />
                 <span className="font-bold text-white">1,250</span>
             </div>
@@ -490,7 +490,7 @@ export function GiftPanel({ onSendGift }: { onSendGift: (gift: Gift) => void }) 
                     <Plus className="w-4 h-4" />
                 </Button>
             </div>
-            <Button className="bg-gradient-to-r from-pink-500 to-orange-400 h-9" onClick={handleSend}>
+            <Button className="bg-gradient-to-r from-pink-500 to-orange-400 h-9 px-3" onClick={handleSend}>
                 Send
             </Button>
         </div>
