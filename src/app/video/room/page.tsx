@@ -12,8 +12,6 @@ import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
-import { GiftPanel } from "@/components/room/GiftPanel";
-
 
 const initialMessages = [
   { id: 1, type: 'gift', author: 'Jodie', text: 'Sent a RedRose', giftIcon: 'https://placehold.co/100x100.png', avatar: "https://placehold.co/40x40.png" },
@@ -222,5 +220,3 @@ export default function VideoRoomPage() {
         </div>
     );
 }
-
-    
