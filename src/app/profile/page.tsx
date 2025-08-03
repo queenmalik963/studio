@@ -12,8 +12,8 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 export default function ProfilePage() {
-    const idLevel = 1;
-    const sendingLevel = 1;
+    const idLevel = 10;
+    const sendingLevel = 10;
 
     return (
         <AppLayout>
