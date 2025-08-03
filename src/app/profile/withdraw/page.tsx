@@ -67,95 +67,94 @@ export default function WithdrawPage() {
                     <h1 className="text-2xl font-bold font-headline">Withdraw & Exchange</h1>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card className="bg-gradient-to-br from-teal-700 to-cyan-900 text-white border-teal-500/50">
-                        <CardHeader>
-                            <CardTitle>Withdraw Diamonds</CardTitle>
-                            <CardDescription className="text-white/80">Select a method and enter the amount to withdraw. 100 Diamonds = $1.00</CardDescription>
+                <div className="grid grid-cols-2 gap-4">
+                    <Card className="bg-gradient-to-br from-teal-700 to-cyan-900 text-white border-teal-500/50 flex flex-col">
+                        <CardHeader className="p-4">
+                            <CardTitle className="text-base">Withdraw Diamonds</CardTitle>
+                            <CardDescription className="text-white/80 text-xs">100 = $1.00</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent className="space-y-3 p-4 flex-grow flex flex-col justify-between">
                             <div className="space-y-2">
-                                <Label htmlFor="amount">Amount (in Diamonds)</Label>
+                                <Label htmlFor="amount" className="text-xs">Amount</Label>
                                 <div className="relative">
-                                    <Gem className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 w-5 h-5" />
-                                    <Input id="amount" type="number" placeholder="e.g., 5000" className="pl-10 bg-white/10 border-white/20 placeholder:text-white/60 focus:ring-white/80" />
+                                    <Gem className="absolute left-2 top-1/2 -translate-y-1/2 text-white/70 w-4 h-4" />
+                                    <Input id="amount" type="number" placeholder="5000" className="pl-8 text-sm h-9 bg-white/10 border-white/20 placeholder:text-white/60 focus:ring-white/80" />
                                 </div>
-                                <p className="text-xs text-white/70">Available to withdraw: 5,800 Diamonds ($58.00)</p>
+                                <p className="text-xs text-white/70">Available: 5,800</p>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="method">Withdrawal Method</Label>
-                                <Select>
-                                    <SelectTrigger id="method" className="bg-white/10 border-white/20 focus:ring-white/80">
-                                        <SelectValue placeholder="Select a method" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="bank">
-                                            <div className="flex items-center gap-2">
-                                                <BankIcon className="w-5 h-5" />
-                                                <span>Bank Transfer</span>
-                                            </div>
-                                        </SelectItem>
-                                        <SelectItem value="paypal">
-                                            <div className="flex items-center gap-2">
-                                                <PayPalIcon className="w-5 h-5" />
-                                                <span>PayPal</span>
-                                            </div>
-                                        </SelectItem>
-                                        <SelectItem value="google">
-                                            <div className="flex items-center gap-2">
-                                                <GoogleIcon className="w-5 h-5" />
-                                                <span>Google Pay</span>
-                                            </div>
-                                        </SelectItem>
-                                        <SelectItem value="jazzcash">
-                                            <div className="flex items-center gap-2">
-                                                <JazzCashIcon className="w-5 h-5" />
-                                                <span>JazzCash</span>
-                                            </div>
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <Button className="w-full bg-white/20 hover:bg-white/30 border border-white/40" size="lg">
-                                <Landmark className="mr-2 h-5 w-5"/>
-                                Request Withdraw
+                            <Button className="w-full bg-white/20 hover:bg-white/30 border border-white/40 h-9" size="sm">
+                                <Landmark className="mr-2 h-4 w-4"/>
+                                Withdraw
                             </Button>
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-gradient-to-br from-yellow-600 to-amber-800 text-white border-yellow-500/50">
-                        <CardHeader>
-                            <CardTitle>Exchange Diamonds for Coins</CardTitle>
-                            <CardDescription className="text-white/80">Get double the value when you exchange! 1 Diamond = 2 Coins.</CardDescription>
+                    <Card className="bg-gradient-to-br from-yellow-600 to-amber-800 text-white border-yellow-500/50 flex flex-col">
+                        <CardHeader className="p-4">
+                            <CardTitle className="text-base">Exchange</CardTitle>
+                            <CardDescription className="text-white/80 text-xs">1 Diamond = 2 Coins</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent className="space-y-3 p-4 flex-grow flex flex-col justify-between">
                             <div className="space-y-2">
-                                <Label htmlFor="exchange-amount">Amount of Diamonds to Exchange</Label>
+                                <Label htmlFor="exchange-amount" className="text-xs">Diamonds</Label>
                                 <div className="relative">
-                                    <Gem className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 w-5 h-5" />
+                                    <Gem className="absolute left-2 top-1/2 -translate-y-1/2 text-white/70 w-4 h-4" />
                                     <Input 
                                         id="exchange-amount" 
                                         type="number" 
-                                        placeholder="e.g., 1000" 
-                                        className="pl-10 bg-white/10 border-white/20 placeholder:text-white/60 focus:ring-white/80"
+                                        placeholder="1000" 
+                                        className="pl-8 text-sm h-9 bg-white/10 border-white/20 placeholder:text-white/60 focus:ring-white/80"
                                         value={exchangeAmount}
                                         onChange={handleExchangeAmountChange}
                                     />
                                 </div>
-                                <p className="text-xs text-white/70">
+                                 <p className="text-xs text-white/70 h-6">
                                     {typeof exchangeAmount === 'number' && exchangeAmount > 0 
-                                        ? `You will receive ${(exchangeAmount * 2).toLocaleString()} Coins.` 
-                                        : 'Enter an amount to see how many coins you will get.'}
+                                        ? `Get ${(exchangeAmount * 2).toLocaleString()} Coins` 
+                                        : ''}
                                 </p>
                             </div>
-                            <Button className="w-full bg-white/20 hover:bg-white/30 border border-white/40" size="lg">
-                                <Repeat className="mr-2 h-5 w-5"/>
-                                Exchange Now
+                            <Button className="w-full bg-white/20 hover:bg-white/30 border border-white/40 h-9" size="sm">
+                                <Repeat className="mr-2 h-4 w-4"/>
+                                Exchange
                             </Button>
                         </CardContent>
                     </Card>
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="method">Withdrawal Method</Label>
+                    <Select>
+                        <SelectTrigger id="method" className="bg-card/80">
+                            <SelectValue placeholder="Select a method" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="bank">
+                                <div className="flex items-center gap-2">
+                                    <BankIcon className="w-5 h-5" />
+                                    <span>Bank Transfer</span>
+                                </div>
+                            </SelectItem>
+                            <SelectItem value="paypal">
+                                <div className="flex items-center gap-2">
+                                    <PayPalIcon className="w-5 h-5" />
+                                    <span>PayPal</span>
+                                </div>
+                            </SelectItem>
+                            <SelectItem value="google">
+                                <div className="flex items-center gap-2">
+                                    <GoogleIcon className="w-5 h-5" />
+                                    <span>Google Pay</span>
+                                </div>
+                            </SelectItem>
+                            <SelectItem value="jazzcash">
+                                <div className="flex items-center gap-2">
+                                    <JazzCashIcon className="w-5 h-5" />
+                                    <span>JazzCash</span>
+                                </div>
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
             </div>
         </AppLayout>
