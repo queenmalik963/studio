@@ -73,7 +73,7 @@ export default function VideoRoomPage() {
     return (
         <div className="flex flex-col h-screen bg-[#180828] text-white font-sans overflow-hidden">
             {/* Video Player Section */}
-            <div className="relative w-full bg-black h-3/5 flex-shrink-0">
+            <div className="relative w-full bg-black h-[45%] flex-shrink-0">
                  <div className="absolute inset-0 bg-black flex items-center justify-center">
                     <p className="text-white/50">Video Player Placeholder</p>
                 </div>
@@ -210,5 +210,3 @@ export default function VideoRoomPage() {
             </footer>
         </div>
     );
-
-    
