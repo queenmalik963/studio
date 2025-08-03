@@ -111,6 +111,9 @@ export default function VideoRoomPage() {
                 </div>
             </div>
 
+            {/* Separator / Green Box Area */}
+            <div className="w-full h-8 bg-black flex-shrink-0"></div>
+
             {/* Interactive Panel */}
             <div className="flex-1 flex flex-col overflow-hidden bg-[#2E103F]">
                 {/* Seats */}
@@ -132,6 +135,7 @@ export default function VideoRoomPage() {
                                                 }
                                             </div>
                                         </div>
+                                        <p className="text-xs truncate w-full">{seat.user.name}</p>
                                     </>
                                 ) : (
                                     <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
