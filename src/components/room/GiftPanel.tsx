@@ -25,7 +25,7 @@ const gifts = {
     { name: "Ring", price: 100, image: "https://em-content.zobj.net/source/apple/391/ring_1f48d.png" },
     { name: "Crown", price: 500, image: "https://em-content.zobj.net/source/apple/391/crown_1f451.png" },
     { name: "Diamond", price: 1000, image: "https://em-content.zobj.net/source/apple/391/gem-stone_1f48e.png" },
-    { name: "Perfume", price: 60, image: "https://em-content.zobj.net/source/apple/391/perfume_1f4e0.png" },
+    { name: "Perfume", price: 60, image: "https://em-content.zobj.net/source/apple/391/bottle-with-popping-cork_1f37e.png" },
     { name: "High Heel", price: 70, image: "https://em-content.zobj.net/source/apple/391/high-heeled-shoe_1f460.png" },
     { name: "Chocolate", price: 15, image: "https://em-content.zobj.net/source/apple/391/chocolate-bar_1f36b.png" },
     { name: "Lollipop", price: 5, image: "https://em-content.zobj.net/source/apple/391/lollipop_1f36d.png" },
@@ -52,13 +52,13 @@ const gifts = {
     { name: "Dragon", price: 800, image: "https://em-content.zobj.net/source/apple/391/dragon_1f409.png" },
     { name: "Fairy", price: 400, image: "https://em-content.zobj.net/source/apple/391/fairy_1f9da.png" },
     { name: "Genie", price: 450, image: "https://em-content.zobj.net/source/apple/391/genie_1f9de.png" },
-    { name: "Mermaid", price: 420, image: "https://em-content.zobj.net/source/apple/391/mermaid_1f9dc.png" },
+    { name: "Mermaid", price: 420, image: "https://em-content.zobj.net/source/apple/391/mermaid_1f9dc-200d-2640-fe0f.png" },
     { name: "Vampire", price: 380, image: "https://em-content.zobj.net/source/apple/391/vampire_1f9db.png" },
     { name: "Wizard", price: 480, image: "https://em-content.zobj.net/source/apple/391/mage_1f9d9.png" },
     { name: "Elf", price: 350, image: "https://em-content.zobj.net/source/apple/391/elf_1f9dd.png" },
     { name: "Angel", price: 550, image: "https://em-content.zobj.net/source/apple/391/baby-angel_1f47c.png" },
     { name: "King", price: 600, image: "https://em-content.zobj.net/source/apple/391/man-in-tuxedo_1f935.png" },
-    { name: "Queen", price: 600, image: "https://em-content.zobj.net/source/apple/391/woman-with-veil_1f470.png" },
+    { name: "Queen", price: 600, image: "https://em-content.zobj.net/source/apple/391/woman-with-tiara_1f478.png" },
     { name: "Key", price: 75, image: "https://em-content.zobj.net/source/apple/391/key_1f511.png" },
     { name: "Lock", price: 75, image: "https://em-content.zobj.net/source/apple/391/locked_1f512.png" },
     { name: "Treasure Chest", price: 1200, image: "https://em-content.zobj.net/source/apple/391/wrapped-gift_1f381.png" },
@@ -149,25 +149,27 @@ const gifts = {
     { name: "Spaceship", price: 2500000, image: "https://em-content.zobj.net/source/apple/391/flying-saucer_1f6f8.png", animation: 'fly-across' },
     { name: "Satellite", price: 750000, image: "https://em-content.zobj.net/source/apple/391/satellite_1f6f0-fe0f.png", animation: 'fly-across' },
     { name: "T-Rex", price: 300000, image: "https://em-content.zobj.net/source/apple/391/t-rex_1f996.png", animation: 'pulse-luxury' },
-    { name: "Brontosaurus", price: 280000, image: "https://em-content.zobj.net/source/apple/391/sauropod_1f995.png", animation: 'pulse-luxury' },
-    { name: "Meteor", price: 400000, image: "https://em-content.zobj.net/source/apple/391/comet_2604-fe0f.png", animation: 'fly-across' },
-    { name: "Volcano", price: 350000, image: "https://em-content.zobj.net/source/apple/391/volcano_1f30b.png", animation: 'pulse-luxury' },
-    { name: "Bank", price: 600000, image: "https://em-content.zobj.net/source/apple/391/bank_1f3e6.png", animation: 'pulse-luxury' },
-    { name: "Diamond Heart", price: 35000, image: "https://em-content.zobj.net/source/apple/391/sparkling-heart_1f496.png", animation: 'shimmer' },
-    { name: "Golden Key", price: 5000, image: "https://em-content.zobj.net/source/apple/391/key_1f511.png", animation: 'shimmer' },
-    { name: "Platinum Disc", price: 22000, image: "https://em-content.zobj.net/source/apple/391/dvd_1f4c0.png", animation: 'shimmer' },
-    { name: "Royal Carriage", price: 90000, image: "https://em-content.zobj.net/source/apple/391/horse-racing_1f3c7.png", animation: 'pulse-luxury' },
-    { name: "Throne", price: 65000, image: "https://em-content.zobj.net/source/apple/391/chair_1fa91.png", animation: 'pulse-luxury' },
-    { name: "Scepter", price: 30000, image: "https://em-content.zobj.net/source/apple/391/magic-wand_1fa84.png", animation: 'shimmer' },
-    { name: "Faberge Egg", price: 45000, image: "https://em-content.zobj.net/source/apple/391/egg_1f95a.png", animation: 'shimmer' },
-    { name: "Antique Vase", price: 28000, image: "https://em-content.zobj.net/source/apple/391/amphora_1f3fa.png" },
-    { name: "World Map", price: 10000, image: "https://em-content.zobj.net/source/apple/391/world-map_1f5fa-fe0f.png" },
-    { name: "Telescope", price: 7500, image: "https://em-content.zobj.net/source/apple/391/telescope_1f52d.png" },
-    { name: "Microscope", price: 7000, image: "https://em-content.zobj.net/source/apple/391/microscope_1f52c.png" },
-    { name: "Piano", price: 40000, image: "https://em-content.zobj.net/source/apple/391/musical-keyboard_1f3b9.png" },
-    { name: "Harp", price: 32000, image: "https://em-content.zobj.net/source/apple/391/violin_1f3bb.png" },
-    { name: "Saxophone", price: 26000, image: "https://em-content.zobj.net/source/apple/391/saxophone_1f3b7.png" },
-    { name: "Trumpet", price: 24000, image: "https://em-content.zobj.net/source/apple/391/trumpet_1f3ba.png" },
+    // Video Gifts Start Here
+    { name: "Galaxy Cruise", price: 6000000, image: "https://em-content.zobj.net/source/apple/391/milky-way_1f30c.png", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4", animation: 'spin-slow' },
+    { name: "Lion's Roar", price: 6500000, image: "https://em-content.zobj.net/source/apple/391/lion_1f981.png", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4", animation: 'tada' },
+    { name: "Pegasus Flight", price: 7000000, image: "https://em-content.zobj.net/source/apple/391/horse_1f40e.png", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4", animation: 'fly-across' },
+    { name: "Dragon's Fire", price: 7500000, image: "https://em-content.zobj.net/source/apple/391/dragon_1f409.png", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4", animation: 'pulse-luxury' },
+    { name: "Unicorn's Grace", price: 8000000, image: "https://em-content.zobj.net/source/apple/391/unicorn_1f984.png", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4", animation: 'shimmer' },
+    { name: "Phoenix Rising", price: 8500000, image: "https://em-content.zobj.net/source/apple/391/fire_1f525.png", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/SubaruOutback2014.mp4", animation: 'pulse-luxury' },
+    { name: "Royal Carriage", price: 9000000, image: "https://em-content.zobj.net/source/apple/391/horse-racing_1f3c7.png", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4", animation: 'fly-across' },
+    { name: "Loveboat Party", price: 9500000, image: "https://em-content.zobj.net/source/apple/391/speedboat_1f6a4.png", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4", animation: 'fly-across' },
+    { name: "Meteor Shower", price: 10000000, image: "https://em-content.zobj.net/source/apple/391/comet_2604-fe0f.png", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4", animation: 'fly-across' },
+    { name: "Tsunami Wave", price: 11000000, image: "https://em-content.zobj.net/source/apple/391/water-wave_1f30a.png", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", animation: 'bounce' },
+    { name: "Volcano Eruption", price: 12000000, image: "https://em-content.zobj.net/source/apple/391/volcano_1f30b.png", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4", animation: 'pulse-luxury' },
+    { name: "Earthquake", price: 13000000, image: "https://em-content.zobj.net/source/apple/391/desert_1f3dc-fe0f.png", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4", animation: 'bounce' },
+    { name: "Interstellar", price: 14000000, image: "https://em-content.zobj.net/source/apple/391/rocket_1f680.png", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4", animation: 'fly-across' },
+    { name: "World Tour", price: 15000000, image: "https://em-content.zobj.net/source/apple/391/globe-showing-europe-africa_1f30d.png", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4", animation: 'spin-slow' },
+    { name: "Diamond Rain", price: 16000000, image: "https://em-content.zobj.net/source/apple/391/gem-stone_1f48e.png", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4", animation: 'bounce' },
+    { name: "Gold Rush", price: 17000000, image: "https://em-content.zobj.net/source/apple/391/coin_1fa99.png", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4", animation: 'bounce' },
+    { name: "King's Coronation", price: 18000000, image: "https://em-content.zobj.net/source/apple/391/crown_1f451.png", videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4", animation: 'shimmer' },
+    { "name": "God of Fortune", "price": 19000000, "image": "https://em-content.zobj.net/source/apple/391/man-in-tuxedo_1f935.png", "videoUrl": "https://storage.googleapis.com/gtv-videos-bucket/sample/SubaruOutback2014.mp4", "animation": "shimmer" },
+    { "name": "Eternal Love", "price": 20000000, "image": "https://em-content.zobj.net/source/apple/391/couple-with-heart-woman-woman_1f469-200d-2764-fe0f-200d-1f469.png", "videoUrl": "https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4", "animation": "pulse-luxury" },
+    { "name": "Royal Parade", "price": 21000000, "image": "https://em-content.zobj.net/source/apple/391/horse-racing_1f3c7.png", "videoUrl": "https://storage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4", "animation": "fly-across" }
   ],
   family: [
     { name: "Teddy Bear", price: 50, image: "https://em-content.zobj.net/source/apple/391/teddy-bear_1f9f8.png" },
@@ -235,7 +237,7 @@ const gifts = {
     { name: "Love Potion", price: 1999, image: "https://em-content.zobj.net/source/apple/391/test-tube_1f9ea.png", animation: 'tada' },
     { name: "Shooting Star", price: 3000, image: "https://em-content.zobj.net/source/apple/391/star_2b50.png", animation: 'fly-across' },
     { name: "Galaxy", price: 40000, image: "https://em-content.zobj.net/source/apple/391/milky-way_1f30c.png", animation: 'spin-slow' },
-    { name: "Black Hole", price: 100000, image: "https://em-content.zobj.net/source/apple/391/black-hole_26ab.png", animation: 'spin-slow' },
+    { name: "Black Hole", price: 100000, image: "https://em-content.zobj.net/source/apple/391/hole_1f573-fe0f.png", animation: 'spin-slow' },
     { name: "Supernova", price: 75000, image: "https://em-content.zobj.net/source/apple/391/collision_1f4a5.png", animation: 'pulse-luxury' },
     { name: "Nebula", price: 35000, image: "https://em-content.zobj.net/source/apple/391/milky-way_1f30c.png", animation: 'shimmer' },
     { name: "Aurora", price: 22000, image: "https://em-content.zobj.net/source/apple/391/rainbow_1f308.png", animation: 'shimmer' },
@@ -260,7 +262,7 @@ const gifts = {
     { name: "Heart of the Ocean", price: 99999, image: "https://em-content.zobj.net/source/apple/391/blue-heart_1f499.png", animation: 'shimmer' },
     { name: "Kraken", price: 33000, image: "https://em-content.zobj.net/source/apple/391/octopus_1f419.png", animation: 'bounce' },
     { name: "Meteor Shower", price: 55000, image: "https://em-content.zobj.net/source/apple/391/comet_2604-fe0f.png", animation: 'fly-across' },
-    { name: "Pocket Dimension", price: 120000, image: "https://em-content.zobj.net/source/apple/391/black-hole_26ab.png", animation: 'pulse-luxury' },
+    { name: "Pocket Dimension", price: 120000, image: "https://em-content.zobj.net/source/apple/391/hole_1f573-fe0f.png", animation: 'pulse-luxury' },
     { name: "Raining Coins", price: 4999, image: "https://em-content.zobj.net/source/apple/391/coin_1fa99.png", animation: 'bounce' },
     { name: "Spirit Wolf", price: 11000, image: "https://em-content.zobj.net/source/apple/391/wolf_1f43a.png", animation: 'shimmer' },
     { name: "Sun Stone", price: 44000, image: "https://em-content.zobj.net/source/apple/391/sun_2600-fe0f.png", animation: 'shimmer' },
@@ -313,7 +315,7 @@ const gifts = {
     { name: "Genie in a Bottle", price: 17777, image: "https://em-content.zobj.net/source/apple/391/genie_1f9de.png", animation: 'tada' },
     { name: "Unicorn Stampede", price: 33333, image: "https://em-content.zobj.net/source/apple/391/unicorn_1f984.png", animation: 'fly-across' },
     { name: "Dragon's Lair", price: 29000, image: "https://em-content.zobj.net/source/apple/391/dragon_1f409.png", animation: 'pulse-luxury' },
-    { name: "Mermaid's Song", price: 24000, image: "https://em-content.zobj.net/source/apple/391/mermaid_1f9dc.png", animation: 'tada' },
+    { name: "Mermaid's Song", price: 24000, image: "https://em-content.zobj.net/source/apple/391/mermaid_1f9dc-200d-2640-fe0f.png", animation: 'tada' },
     { name: "God of Fortune", price: 88888, image: "https://em-content.zobj.net/source/apple/391/man-in-tuxedo_1f935.png", animation: 'shimmer' },
     { name: "Eternal Love", price: 52013, image: "https://em-content.zobj.net/source/apple/391/couple-with-heart-woman-woman_1f469-200d-2764-fe0f-200d-1f469.png", animation: 'pulse-luxury' },
     { name: "Royal Parade", price: 47000, image: "https://em-content.zobj.net/source/apple/391/horse-racing_1f3c7.png", animation: 'fly-across' },
@@ -323,10 +325,17 @@ const gifts = {
   ],
 };
 
+export type Gift = {
+    name: string;
+    price: number;
+    image: string;
+    animation?: string;
+    videoUrl?: string;
+};
 type GiftCategory = keyof typeof gifts;
-type Gift = (typeof gifts)[GiftCategory][number];
 
-export function GiftPanel() {
+
+export function GiftPanel({ onSendGift }: { onSendGift: (gift: Gift) => void }) {
   const [selectedGift, setSelectedGift] = useState<Gift | null>(gifts.hot[0]);
   const [quantity, setQuantity] = useState(1);
   const [recipient, setRecipient] = useState("All");
@@ -349,16 +358,22 @@ export function GiftPanel() {
     }
     return '';
   }
+  
+  const handleSend = () => {
+    if (selectedGift) {
+        onSendGift(selectedGift);
+    }
+  }
 
   return (
     <div className="absolute inset-0 bg-[#1F0A2E]/90 backdrop-blur-sm flex flex-col p-2 rounded-t-lg">
       <Tabs defaultValue="hot" className="flex-1 flex flex-col overflow-hidden">
         <TabsList className="bg-transparent p-0 justify-start gap-4 border-b border-white/10">
-          <TabsTrigger value="hot" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2">Hot</TabsTrigger>
-          <TabsTrigger value="event" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2">Event</TabsTrigger>
-          <TabsTrigger value="luxury" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2">Luxury</TabsTrigger>
-          <TabsTrigger value="family" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2">Family</TabsTrigger>
-          <TabsTrigger value="exclusive" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2">Exclusive</TabsTrigger>
+          <TabsTrigger value="hot" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 text-sm">Hot</TabsTrigger>
+          <TabsTrigger value="event" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 text-sm">Event</TabsTrigger>
+          <TabsTrigger value="luxury" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 text-sm">Luxury</TabsTrigger>
+          <TabsTrigger value="family" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 text-sm">Family</TabsTrigger>
+          <TabsTrigger value="exclusive" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 text-sm">Exclusive</TabsTrigger>
         </TabsList>
         <ScrollArea className="flex-1 my-2">
             {(Object.keys(gifts) as GiftCategory[]).map(category => (
@@ -380,7 +395,7 @@ export function GiftPanel() {
                                       width={48}
                                       height={48}
                                       unoptimized={true}
-                                      className={cn(getAnimationClass(gift))}
+                                      className={cn(getAnimationClass(gift as Gift))}
                                     />
                                 </div>
                                 <p className="text-xs truncate">{gift.name}</p>
@@ -420,7 +435,7 @@ export function GiftPanel() {
                     <Plus className="w-4 h-4" />
                 </Button>
             </div>
-            <Button className="bg-gradient-to-r from-pink-500 to-orange-400 h-9">
+            <Button className="bg-gradient-to-r from-pink-500 to-orange-400 h-9" onClick={handleSend}>
                 Send
             </Button>
         </div>
@@ -428,5 +443,3 @@ export function GiftPanel() {
     </div>
   );
 }
-
-    
