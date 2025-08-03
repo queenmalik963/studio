@@ -52,13 +52,12 @@ export default function FrameStorePage() {
                 <div className="p-1 h-full">
                   <Card className="bg-card/50 h-full flex flex-col">
                     <CardContent className="flex flex-col items-center justify-center p-4 gap-4 flex-grow">
-                      <div className="w-40 h-40 rounded-full flex items-center justify-center relative">
-                        <div className={cn("absolute inset-0 rounded-full border-4", tier.color)}></div>
+                      <div className={cn("w-40 h-40 rounded-full flex items-center justify-center relative border-4", tier.color)}>
                         <Image 
                             src="https://placehold.co/150x150.png"
                             alt="Your Pic" 
-                            width={150}
-                            height={150}
+                            width={140}
+                            height={140}
                             className="rounded-full"
                             data-ai-hint="person face"
                         />
