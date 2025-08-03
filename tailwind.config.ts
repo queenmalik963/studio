@@ -149,6 +149,18 @@ export default {
             '0%, 100%': { boxShadow: '0 0 10px 2px rgba(245,158,11,0.4)' },
             '50%': { boxShadow: '0 0 20px 5px rgba(245,158,11,0.8)' },
         },
+        'fly-across': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
+        'shimmer': {
+          '0%, 100%': { boxShadow: '0 0 6px 2px #fff, 0 0 10px 4px #f0f, 0 0 14px 6px #0ff' },
+          '50%': { boxShadow: '0 0 12px 3px #fff, 0 0 16px 5px #f0f, 0 0 20px 7px #0ff' },
+        },
+        'pulse-luxury': {
+          '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+          '50%': { transform: 'scale(1.05)', opacity: '0.9' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -169,16 +181,11 @@ export default {
         'glow-emerald': 'glow-emerald 2s ease-in-out infinite',
         'glow-sky': 'glow-sky 2s ease-in-out infinite',
         'glow-amber': 'glow-amber 2s ease-in-out infinite',
+        'fly-across': 'fly-across 3s ease-in-out infinite',
+        'shimmer': 'shimmer 2.5s ease-in-out infinite',
+        'pulse-luxury': 'pulse-luxury 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
-
-    
-
-    
-
-    
-
-    
