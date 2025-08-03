@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, Fragment } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Coins, Send as SendIconLucide, ChevronDown } from "lucide-react";
+import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -407,28 +407,32 @@ export default function AudioRoomPage() {
                 </div>
 
                 <div className="p-2">
-                    <div className="flex items-center justify-around">
-                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30">
-                             <MessageSquare />
-                        </Button>
-                         <div className="flex-grow relative mx-2">
+                     <div className="flex items-center justify-around gap-2">
+                        <div className="flex-grow flex items-center gap-2 bg-black/30 rounded-full h-10 px-2">
+                           <Avatar className="h-7 w-7">
+                               <AvatarImage src="https://placehold.co/40x40.png" />
+                               <AvatarFallback>Y</AvatarFallback>
+                           </Avatar>
                             <Input
                                 autoComplete="off"
                                 name="message"
                                 placeholder="Hi..."
-                                className="bg-black/30 border-0 rounded-full pl-4 pr-10 text-white h-10"
+                                className="bg-transparent border-0 rounded-full text-white h-full p-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
                             />
-                             <Button type="submit" size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 text-white/80 hover:text-white w-8 h-8" disabled={!newMessage.trim()}>
+                             <Button type="submit" size="icon" variant="ghost" className="text-white/80 hover:text-white w-8 h-8 flex-shrink-0" disabled={!newMessage.trim()}>
                                 <SendIcon />
                             </Button>
                         </div>
-                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30">
+                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0">
                             <Mic />
                         </Button>
-                         <Button type="button" size="icon" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full"><Gamepad2 /></Button>
-                         <Button type="button" size="icon" className="w-10 h-10 bg-yellow-500 hover:bg-yellow-600 rounded-full" onClick={() => setIsGiftPanelOpen(true)}>
+                         <Button type="button" size="icon" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0"><Gamepad2 /></Button>
+                         <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0">
+                            <RectangleVertical />
+                        </Button>
+                         <Button type="button" size="icon" className="w-10 h-10 bg-yellow-500 hover:bg-yellow-600 rounded-full flex-shrink-0" onClick={() => setIsGiftPanelOpen(true)}>
                             <GiftIcon />
                         </Button>
                     </div>
