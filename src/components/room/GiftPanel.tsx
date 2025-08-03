@@ -19,7 +19,7 @@ const gifts = {
   hot: [
     { name: "Heart", price: 10, image: "https://em-content.zobj.net/source/apple/391/red-heart_2764-fe0f.png", animation: 'jump-to-seat' },
     { name: "Thumbs Up", price: 5, image: "https://em-content.zobj.net/source/apple/391/thumbs-up_1f44d.png", animation: 'jump-to-seat' },
-    { name: "Kiss", price: 15, image: "https://em-content.zobj.net/source/apple/391/kiss-mark_1f48b.png", soundUrl: '/sounds/kiss.mp3', animation: 'jump-to-seat' },
+    { name: "Kiss", price: 15, image: "https://em-content.zobj.net/source/apple/391/kiss-mark_1f48b.png", animation: 'jump-to-seat' },
     { name: "Rose", price: 25, image: "https://em-content.zobj.net/source/apple/391/rose_1f339.png", animation: 'jump-to-seat' },
     { name: "Clapping", price: 15, image: "https://em-content.zobj.net/source/apple/391/clapping-hands_1f44f.png" },
     { name: "Fire", price: 50, image: "https://em-content.zobj.net/source/apple/391/fire_1f525.png", animation: 'pulse-luxury' },
@@ -297,7 +297,6 @@ export type Gift = {
     price: number;
     image: string;
     animation?: string;
-    soundUrl?: string;
 };
 type GiftCategory = keyof typeof gifts;
 

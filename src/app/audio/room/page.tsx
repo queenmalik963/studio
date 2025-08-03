@@ -103,11 +103,6 @@ export default function AudioRoomPage() {
              handleAnimateGift(gift);
         }
 
-        if (gift.soundUrl) {
-            const audio = new Audio(gift.soundUrl);
-            audio.play().catch(e => console.error("Error playing sound:", e));
-        }
-
         setMessages(prev => [
             ...prev,
             {
