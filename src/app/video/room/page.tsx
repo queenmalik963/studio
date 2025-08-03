@@ -257,7 +257,9 @@ export default function VideoRoomPage() {
                         <div className="grid grid-cols-2 gap-4">
                             <Card className="bg-black/30 border-white/20">
                                 <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
-                                    <Image src="https://placehold.co/200x120.png" alt="Spin the Wheel" width={200} height={120} className="rounded-md w-full aspect-video object-cover" data-ai-hint="fortune wheel" />
+                                     <div className="w-full h-24 bg-black/20 rounded-md flex items-center justify-center">
+                                        <span className="text-6xl">🎯</span>
+                                    </div>
                                     <h3 className="font-semibold">Spin the Wheel</h3>
                                     <div className="flex items-center gap-1 text-sm text-yellow-400">
                                         <Coins className="w-4 h-4" />
@@ -268,7 +270,9 @@ export default function VideoRoomPage() {
                             </Card>
                              <Card className="bg-black/30 border-white/20">
                                 <CardContent className="p-3 flex flex-col items-center justify-center gap-2">
-                                    <Image src="https://placehold.co/200x120.png" alt="Ludo" width={200} height={120} className="rounded-md w-full aspect-video object-cover" data-ai-hint="ludo board" />
+                                    <div className="w-full h-24 bg-black/20 rounded-md flex items-center justify-center">
+                                        <span className="text-6xl">🎲</span>
+                                    </div>
                                     <h3 className="font-semibold">Ludo</h3>
                                     <div className="flex items-center gap-1 text-sm text-green-400">
                                         <span>Free</span>
