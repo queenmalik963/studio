@@ -238,6 +238,9 @@ const gifts = {
     { name: "Snail", price: 20, image: "https://em-content.zobj.net/source/apple/391/snail_1f40c.png" },
   ],
   exclusive: [
+    { name: "Welcome", price: 25000, image: "https://i.imgur.com/OZegNuK.gif", animation: 'fly-across' },
+    { name: "Baby Tiger", price: 35000, image: "https://i.imgur.com/RqnqCso.gif", animation: 'fly-across' },
+    { name: "No No", price: 10000, image: "https://i.imgur.com/g7CCqJE.gif", animation: 'fly-across' },
     { name: "Unicorn", price: 7500, image: "https://em-content.zobj.net/source/apple/391/unicorn_1f984.png", animation: 'shimmer' },
     { name: "Dragon", price: 30000, image: "https://em-content.zobj.net/source/apple/391/dragon_1f409.png", animation: 'fly-across' },
     { name: "Phoenix", price: 50000, image: "https://em-content.zobj.net/source/apple/391/fire_1f525.png", animation: 'shimmer' },
