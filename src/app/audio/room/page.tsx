@@ -96,7 +96,7 @@ export default function AudioRoomPage() {
                 console.error("Error generating video gift:", error);
                 
                 let description = "Could not generate the video gift. Please try again.";
-                if (error.message && error.message.includes('API key not valid')) {
+                if (error.message && (error.message.includes('API key not valid') || error.message.includes('GEMINI_API_KEY'))) {
                     description = "Your Gemini API key is not valid. Please check your .env file and restart the server.";
                 } else if (error.message && error.message.includes('429')) {
                     description = "You have exceeded your API quota. Please check your billing account or try again later.";
@@ -399,5 +399,3 @@ export default function AudioRoomPage() {
         </div>
     );
 }
-
-    
