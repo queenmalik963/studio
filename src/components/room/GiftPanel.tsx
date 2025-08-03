@@ -302,7 +302,7 @@ export type Gift = {
 type GiftCategory = keyof typeof gifts;
 
 
-export function GiftPanel({ onSendGift, onAnimateGift }: { onSendGift: (gift: Gift) => void, onAnimateGift: (gift: Gift) => void; }) {
+export function GiftPanel({ onSendGift, sendButtonRef }: { onSendGift: (gift: Gift) => void, sendButtonRef: React.RefObject<HTMLButtonElement> }) {
   const [selectedGift, setSelectedGift] = useState<Gift | null>(gifts.hot[0]);
   const [quantity, setQuantity] = useState(1);
   const [recipient, setRecipient] = useState("All");
@@ -313,12 +313,6 @@ export function GiftPanel({ onSendGift, onAnimateGift }: { onSendGift: (gift: Gi
   
   const handleSend = () => {
     if (!selectedGift) return;
-
-    if (selectedGift.animation) {
-        onAnimateGift(selectedGift);
-    }
-    
-    // Always send the gift (for chat message and sound)
     onSendGift(selectedGift);
   }
 
@@ -413,7 +407,7 @@ export function GiftPanel({ onSendGift, onAnimateGift }: { onSendGift: (gift: Gi
                     <Plus className="w-4 h-4" />
                 </Button>
             </div>
-            <Button className="bg-gradient-to-r from-pink-500 to-orange-400 h-9 px-2 text-sm" onClick={handleSend}>
+            <Button ref={sendButtonRef} className="bg-gradient-to-r from-pink-500 to-orange-400 h-9 px-4 text-sm" onClick={handleSend}>
                 Send
             </Button>
         </div>
@@ -421,5 +415,3 @@ export function GiftPanel({ onSendGift, onAnimateGift }: { onSendGift: (gift: Gi
     </div>
   );
 }
-
-    

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef, useEffect, Fragment } from "react";
+import { useState, useRef, useEffect, Fragment, createRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import { GiftPanel, type Gift as GiftType } from "@/components/room/GiftPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 
 
 const initialMessages = [
@@ -40,6 +41,15 @@ const roomSeats = [
     { id: 15, user: { name: "User 15", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'amber' }, isOccupied: true },
 ]
 
+export type JumpAnimation = {
+    id: number;
+    gift: GiftType;
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
+};
+
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
 );
@@ -51,8 +61,13 @@ export default function AudioRoomPage() {
     const [newMessage, setNewMessage] = useState("");
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
     const [animatedGift, setAnimatedGift] = useState<GiftType | null>(null);
+    const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
+
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const { toast } = useToast();
+    const seatRefs = useRef(roomSeats.map(() => createRef<HTMLDivElement>()));
+    const sendButtonRef = useRef<HTMLButtonElement>(null);
+
 
     const owner = { name: "op_2", avatar: "https://placehold.co/40x40.png", isOwner: true };
     
@@ -68,21 +83,37 @@ export default function AudioRoomPage() {
     };
 
     const handleSendGift = (gift: GiftType) => {
-        setIsGiftPanelOpen(false);
-        
-        // Play sound if it exists
+        if (gift.animation === 'jump-to-seat') {
+            const startRect = sendButtonRef.current?.getBoundingClientRect();
+            // Just sending to the first seat for demonstration
+            const endRect = seatRefs.current[0].current?.getBoundingClientRect();
+
+            if (startRect && endRect) {
+                const newAnimation: JumpAnimation = {
+                    id: Date.now(),
+                    gift,
+                    startX: startRect.x + startRect.width / 2,
+                    startY: startRect.y + startRect.height / 2,
+                    endX: endRect.x + endRect.width / 2,
+                    endY: endRect.y + endRect.height / 2,
+                };
+                setJumpAnimations(prev => [...prev, newAnimation]);
+            }
+        } else if (gift.animation) {
+             handleAnimateGift(gift);
+        }
+
         if (gift.soundUrl) {
             const audio = new Audio(gift.soundUrl);
             audio.play().catch(e => console.error("Error playing sound:", e));
         }
 
-        // Display text-based gift message in chat
         setMessages(prev => [
             ...prev,
             {
                 id: prev.length + 1,
                 type: 'gift',
-                author: 'You', // Assuming the sender is the current user
+                author: 'You',
                 text: `Sent a ${gift.name}`,
                 giftIcon: gift.image,
                 avatar: "https://placehold.co/40x40.png"
@@ -96,6 +127,11 @@ export default function AudioRoomPage() {
             setAnimatedGift(null);
         }, 3000); // Animation duration
     };
+
+    const handleAnimationComplete = (id: number) => {
+        setJumpAnimations(prev => prev.filter(anim => anim.id !== id));
+    };
+
 
     const frameColors: {[key: string]: string} = {
         gold: 'border-yellow-400 animate-glow-gold',
@@ -149,6 +185,14 @@ export default function AudioRoomPage() {
                     />
                 </div>
             )}
+            {jumpAnimations.map(anim => (
+                <GiftJumpAnimation
+                    key={anim.id}
+                    {...anim}
+                    onComplete={() => handleAnimationComplete(anim.id)}
+                />
+            ))}
+
             <header className="flex-shrink-0 flex items-center justify-between p-4">
                 <div className="flex items-center gap-4">
                     <Button variant="ghost" size="icon" onClick={() => router.back()}>
@@ -202,8 +246,8 @@ export default function AudioRoomPage() {
             <main className="flex-1 flex flex-col pt-0 overflow-hidden gap-2">
                  <div className="flex-shrink-0 space-y-1 px-4">
                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
-                        {roomSeats.slice(0, 5).map((seat) => (
-                            <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
+                        {roomSeats.slice(0, 5).map((seat, index) => (
+                            <div key={seat.id} ref={seatRefs.current[index]} className="flex flex-col items-center gap-1 w-[50px] text-center">
                                 {seat.isOccupied && seat.user ? (
                                     <>
                                         <div className="relative w-[54px] h-[54px] flex items-center justify-center">
@@ -230,8 +274,8 @@ export default function AudioRoomPage() {
                         ))}
                     </div>
                      <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
-                        {roomSeats.slice(5, 10).map((seat) => (
-                             <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
+                        {roomSeats.slice(5, 10).map((seat, index) => (
+                             <div key={seat.id} ref={seatRefs.current[index + 5]} className="flex flex-col items-center gap-1 w-[50px] text-center">
                                 {seat.isOccupied && seat.user ? (
                                     <>
                                        <div className="relative w-[54px] h-[54px]">
@@ -257,8 +301,8 @@ export default function AudioRoomPage() {
                         ))}
                     </div>
                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
-                        {roomSeats.slice(10, 15).map((seat) => (
-                             <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
+                        {roomSeats.slice(10, 15).map((seat, index) => (
+                             <div key={seat.id} ref={seatRefs.current[index + 10]} className="flex flex-col items-center gap-1 w-[50px] text-center">
                                 {seat.isOccupied && seat.user ? (
                                     <>
                                        <div className="relative w-[54px] h-[54px]">
@@ -287,7 +331,7 @@ export default function AudioRoomPage() {
 
                 <div className="flex-1 mt-2 relative p-0">
                     {isGiftPanelOpen ? (
-                        <GiftPanel onSendGift={handleSendGift} onAnimateGift={handleAnimateGift} />
+                        <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} />
                     ) : (
                         <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-3 px-4 pr-2">
                             {messages.map((msg) => (
