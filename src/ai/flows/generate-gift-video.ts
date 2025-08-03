@@ -6,7 +6,7 @@
  * - GenerateGiftVideoInput - The input type for the generateGiftVideo function.
  * - GenerateGiftVideoOutput - The return type for the generateGiftVideo function.
  */
-
+import 'dotenv/config';
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { googleAI } from '@genkit-ai/googleai';
@@ -95,7 +95,7 @@ const generateGiftVideoFlow = ai.defineFlow(
     
     const videoBuffer = await videoResponse.buffer();
     const videoBase64 = videoBuffer.toString('base64');
-    const videoDataUri = `data:${videoPart.media.contentType};base64,${videoBase64}`;
+    const videoDataUri = `data:${videoPart.media.contentType || 'video/mp4'};base64,${videoBase64}`;
 
     return {
       videoUrl: videoDataUri,
