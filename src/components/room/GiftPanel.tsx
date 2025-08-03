@@ -17,15 +17,15 @@ import {
 
 const gifts = {
   hot: [
-    { name: "Heart", price: 10, image: "https://em-content.zobj.net/source/apple/391/red-heart_2764-fe0f.png", animation: 'tada' },
-    { name: "Thumbs Up", price: 5, image: "https://em-content.zobj.net/source/apple/391/thumbs-up_1f44d.png" },
-    { name: "Kiss", price: 15, image: "https://em-content.zobj.net/source/apple/391/kiss-mark_1f48b.png", soundUrl: '/sounds/kiss.mp3' },
-    { name: "Rose", price: 25, image: "https://em-content.zobj.net/source/apple/391/rose_1f339.png", animation: 'bounce' },
+    { name: "Heart", price: 10, image: "https://em-content.zobj.net/source/apple/391/red-heart_2764-fe0f.png", animation: 'jump-to-seat' },
+    { name: "Thumbs Up", price: 5, image: "https://em-content.zobj.net/source/apple/391/thumbs-up_1f44d.png", animation: 'jump-to-seat' },
+    { name: "Kiss", price: 15, image: "https://em-content.zobj.net/source/apple/391/kiss-mark_1f48b.png", soundUrl: '/sounds/kiss.mp3', animation: 'jump-to-seat' },
+    { name: "Rose", price: 25, image: "https://em-content.zobj.net/source/apple/391/rose_1f339.png", animation: 'jump-to-seat' },
     { name: "Clapping", price: 15, image: "https://em-content.zobj.net/source/apple/391/clapping-hands_1f44f.png" },
     { name: "Fire", price: 50, image: "https://em-content.zobj.net/source/apple/391/fire_1f525.png", animation: 'pulse-luxury' },
     { name: "100", price: 100, image: "https://em-content.zobj.net/source/apple/391/100-points_1f4af.png", animation: 'tada' },
     { name: "Sparkles", price: 30, image: "https://em-content.zobj.net/source/apple/391/sparkles_2728.png", animation: 'bounce' },
-    { name: "Star", price: 40, image: "https://em-content.zobj.net/source/apple/391/star_2b50.png", animation: 'pulse-luxury' },
+    { name: "Star", price: 40, image: "https://em-content.zobj.net/source/apple/391/star_2b50.png", animation: 'jump-to-seat' },
     { name: "Wow Face", price: 20, image: "https://em-content.zobj.net/source/apple/391/winking-face-with-tongue_1f61c.png" },
     { name: "Cool", price: 35, image: "https://em-content.zobj.net/source/apple/391/smiling-face-with-sunglasses_1f60e.png" },
     { name: "Mic Drop", price: 75, image: "https://em-content.zobj.net/source/apple/391/microphone_1f3a4.png", animation: 'bounce' },
@@ -36,7 +36,7 @@ const gifts = {
     { name: "Diamond", price: 1000, image: "https://em-content.zobj.net/source/apple/391/gem-stone_1f48e.png", animation: 'shimmer' },
     { name: "Money Bag", price: 750, image: "https://em-content.zobj.net/source/apple/391/money-bag_1f4b0.png" },
     { name: "Trophy", price: 300, image: "https://em-content.zobj.net/source/apple/391/trophy_1f3c6.png", animation: 'pulse-luxury' },
-    { name: "Gift Box", price: 50, image: "https://em-content.zobj.net/source/apple/391/wrapped-gift_1f381.png" },
+    { name: "Gift Box", price: 50, image: "https://em-content.zobj.net/source/apple/391/wrapped-gift_1f381.png", animation: 'jump-to-seat' },
     { name: "Balloons", price: 40, image: "https://em-content.zobj.net/source/apple/391/balloon_1f388.png" },
     { name: "Party Popper", price: 30, image: "https://em-content.zobj.net/source/apple/391/party-popper_1f389.png", animation: 'tada' },
     { name: "Confetti", price: 20, image: "https://em-content.zobj.net/source/apple/391/confetti-ball_1f38a.png", animation: 'bounce' },
@@ -421,3 +421,5 @@ export function GiftPanel({ onSendGift, onAnimateGift }: { onSendGift: (gift: Gi
     </div>
   );
 }
+
+    
