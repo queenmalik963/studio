@@ -92,12 +92,20 @@ export default function AudioRoomPage() {
 
                 setVideoGift({ url: result.videoUrl, image: gift.image });
                 
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Error generating video gift:", error);
+                
+                let description = "Could not generate the video gift. Please try again.";
+                if (error.message && error.message.includes('API key not valid')) {
+                    description = "Your Gemini API key is not valid. Please check your .env file and restart the server.";
+                } else if (error.message && error.message.includes('429')) {
+                    description = "You have exceeded your API quota. Please check your billing account or try again later.";
+                }
+
                 toast({
                     variant: "destructive",
                     title: "Video Generation Failed",
-                    description: "Could not generate the video gift. Please try again.",
+                    description: description,
                 });
             } finally {
                 setIsGeneratingVideo(false);
@@ -391,3 +399,5 @@ export default function AudioRoomPage() {
         </div>
     );
 }
+
+    
