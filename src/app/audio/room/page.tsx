@@ -32,10 +32,10 @@ const roomSeats = [
     { id: 8, user: { name: "Riz", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'teal' }, isOccupied: true },
     { id: 9, user: { name: "User 9", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'orange' }, isOccupied: true },
     { id: 10, user: { name: "User 10", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'indigo' }, isOccupied: true },
-    { id: 11, isOccupied: false },
-    { id: 12, isOccupied: false },
-    { id: 13, isOccupied: false },
-    { id: 14, isOccupied: false },
+    { id: 11, user: { name: "User 11", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'lime' }, isOccupied: true },
+    { id: 12, user: { name: "User 12", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'rose' }, isOccupied: true },
+    { id: 13, user: { name: "User 13", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'emerald' }, isOccupied: true },
+    { id: 14, user: { name: "User 14", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'sky' }, isOccupied: true },
     { id: 15, isOccupied: false, isLocked: true },
 ]
 
@@ -86,6 +86,10 @@ export default function AudioRoomPage() {
         teal: 'border-teal-400 animate-glow-teal',
         orange: 'border-orange-500 animate-glow-orange',
         indigo: 'border-indigo-500 animate-glow-indigo',
+        lime: 'border-lime-400 animate-glow-lime',
+        rose: 'border-rose-400 animate-glow-rose',
+        emerald: 'border-emerald-400 animate-glow-emerald',
+        sky: 'border-sky-400 animate-glow-sky',
     }
     
     const spinningFrameColors: {[key: string]: string} = {
@@ -165,7 +169,7 @@ export default function AudioRoomPage() {
                             </div>
                         ))}
                     </div>
-                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center mt-1">
+                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
                         {roomSeats.slice(5, 10).map((seat) => (
                              <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
                                 {seat.isOccupied && seat.user ? (
@@ -192,7 +196,7 @@ export default function AudioRoomPage() {
                             </div>
                         ))}
                     </div>
-                    <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center mt-1">
+                    <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
                         {roomSeats.slice(10, 15).map((seat) => (
                              <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
                                 {seat.isOccupied && seat.user ? (
