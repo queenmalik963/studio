@@ -177,6 +177,10 @@ export default {
             '0%, 100%': { filter: 'drop-shadow(0 0 5px rgba(16,185,129,0.6))' },
             '50%': { filter: 'drop-shadow(0 0 10px rgba(16,185,129,1))' },
         },
+        'fade-in-out': {
+          '0%, 100%': { opacity: '0', transform: 'scale(0.9)' },
+          '20%, 80%': { opacity: '1', transform: 'scale(1.05)' },
+        },
         'fly-across': {
           '0%': { transform: 'translateX(-100%)', opacity: '0' },
           '20%, 80%': { opacity: '1' },
@@ -213,6 +217,7 @@ export default {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'fade-in-out': 'fade-in-out 3s ease-in-out',
         spin: 'spin 1s linear infinite',
         'spin-slow': 'spin-slow 5s linear infinite',
         'spin-colors': 'spin-colors 3s linear infinite',

@@ -213,7 +213,7 @@ export default function AudioRoomPage() {
                         width={256}
                         height={256}
                         unoptimized
-                        className={cn('animate-fly-across')}
+                        className={cn('animate-fade-in-out')}
                     />
                 </div>
             )}
