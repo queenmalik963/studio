@@ -65,6 +65,7 @@ export default function AudioRoomPage() {
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
     const [isControlsPanelOpen, setIsControlsPanelOpen] = useState(false);
     const [animatedGift, setAnimatedGift] = useState<GiftType | null>(null);
+    const [animatedVideoGift, setAnimatedVideoGift] = useState<string | null>(null);
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -88,7 +89,12 @@ export default function AudioRoomPage() {
     };
 
     const handleSendGift = (gift: GiftType) => {
-        if (gift.animation === 'jump-to-seat') {
+        if (gift.animation === 'fullscreen-video' && gift.videoUrl) {
+            setAnimatedVideoGift(gift.videoUrl);
+            setTimeout(() => {
+                setAnimatedVideoGift(null);
+            }, 5000); // Video duration + buffer
+        } else if (gift.animation === 'jump-to-seat') {
             const startRect = sendButtonRef.current?.getBoundingClientRect();
             // Just sending to the first seat for demonstration
             const endRect = seatRefs.current[0].current?.getBoundingClientRect();
@@ -205,7 +211,7 @@ export default function AudioRoomPage() {
 
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
-             {animatedGift && (
+             {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
                     <Image
                         src={animatedGift.image}
@@ -215,6 +221,11 @@ export default function AudioRoomPage() {
                         unoptimized
                         className={cn('animate-fade-in-out')}
                     />
+                </div>
+            )}
+             {animatedVideoGift && (
+                <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none bg-black/50">
+                    <video src={animatedVideoGift} autoPlay className="max-w-full max-h-full"></video>
                 </div>
             )}
             {jumpAnimations.map(anim => (

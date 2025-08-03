@@ -29,7 +29,7 @@ const gifts = {
     { name: "Wow Face", price: 20, image: "https://em-content.zobj.net/source/apple/391/winking-face-with-tongue_1f61c.png" },
     { name: "Cool", price: 35, image: "https://em-content.zobj.net/source/apple/391/smiling-face-with-sunglasses_1f60e.png" },
     { name: "Mic Drop", price: 75, image: "https://em-content.zobj.net/source/apple/391/microphone_1f3a4.png", animation: 'bounce' },
-    { name: "Rocket", price: 150, image: "https://em-content.zobj.net/source/apple/391/rocket_1f680.png", animation: 'fly-across' },
+    { name: "Rocket", price: 150, image: "https://em-content.zobj.net/source/apple/391/rocket_1f680.png", animation: 'fade-in-out' },
     { name: "Laughing", price: 12, image: "https://em-content.zobj.net/source/apple/391/rolling-on-the-floor-laughing_1f923.png" },
     { name: "Mind Blown", price: 45, image: "https://em-content.zobj.net/source/apple/391/exploding-head_1f92f.png", animation: 'tada' },
     { name: "Crown", price: 5000, image: "https://em-content.zobj.net/source/apple/391/crown_1f451.png", animation: 'pulse-luxury' },
@@ -55,7 +55,7 @@ const gifts = {
     { name: "Lollipop", price: 15, image: "https://em-content.zobj.net/source/apple/391/lollipop_1f36d.png" },
     { name: "Chocolate", price: 30, image: "https://em-content.zobj.net/source/apple/391/chocolate-bar_1f36b.png" },
     { name: "Unicorn", price: 7500, image: "https://em-content.zobj.net/source/apple/391/unicorn_1f984.png", animation: 'shimmer' },
-    { name: "Dragon", price: 30000, image: "https://em-content.zobj.net/source/apple/391/dragon_1f409.png", animation: 'fly-across' },
+    { name: "Dragon", price: 30000, image: "https://em-content.zobj.net/source/apple/391/dragon_1f409.png", animation: 'fade-in-out' },
     { name: "Alien", price: 9000, image: "https://em-content.zobj.net/source/apple/391/alien_1f47d.png" },
     { name: "Ghost", price: 80, image: "https://em-content.zobj.net/source/apple/391/ghost_1f47b.png" },
     { name: "Robot", price: 1200, image: "https://em-content.zobj.net/source/apple/391/robot_1f916.png" },
@@ -136,10 +136,10 @@ const gifts = {
   luxury: [
     { name: "Diamond", price: 1000, image: "https://em-content.zobj.net/source/apple/391/gem-stone_1f48e.png", animation: 'shimmer' },
     { name: "Crown", price: 5000, image: "https://em-content.zobj.net/source/apple/391/crown_1f451.png", animation: 'pulse-luxury' },
-    { name: "Sports Car", price: 20000, image: "https://em-content.zobj.net/source/apple/391/racing-car_1f3ce-fe0f.png", animation: 'fly-across' },
-    { name: "Helicopter", price: 50000, image: "https://em-content.zobj.net/source/apple/391/helicopter_1f681.png", animation: 'fly-across' },
+    { name: "Sports Car", price: 20000, image: "https://em-content.zobj.net/source/apple/391/racing-car_1f3ce-fe0f.png", animation: 'fade-in-out' },
+    { name: "Helicopter", price: 50000, image: "https://em-content.zobj.net/source/apple/391/helicopter_1f681.png", animation: 'fade-in-out' },
     { name: "Yacht", price: 100000, image: "https://em-content.zobj.net/source/apple/391/speedboat_1f6a4.png", animation: 'pulse-luxury' },
-    { name: "Private Jet", price: 250000, image: "https://em-content.zobj.net/source/apple/391/airplane_2708-fe0f.png", animation: 'fly-across' },
+    { name: "Private Jet", price: 250000, image: "https://em-content.zobj.net/source/apple/391/airplane_2708-fe0f.png", animation: 'fade-in-out' },
     { name: "Mansion", price: 500000, image: "https://em-content.zobj.net/source/apple/391/house-with-garden_1f3e1.png", animation: 'pulse-luxury' },
     { name: "Gold Medal", price: 2500, image: "https://em-content.zobj.net/source/apple/391/1st-place-medal_1f947.png", animation: 'shimmer' },
     { name: "Money Bag", price: 750, image: "https://em-content.zobj.net/source/apple/391/money-bag_1f4b0.png" },
@@ -238,11 +238,12 @@ const gifts = {
     { name: "Snail", price: 20, image: "https://em-content.zobj.net/source/apple/391/snail_1f40c.png" },
   ],
   exclusive: [
-    { name: "Welcome", price: 25000, image: "https://i.imgur.com/OZegNuK.gif", animation: 'fly-across' },
-    { name: "Baby Tiger", price: 35000, image: "https://i.imgur.com/RqnqCso.gif", animation: 'fly-across' },
-    { name: "No No", price: 10000, image: "https://i.imgur.com/g7CCqJE.gif", animation: 'fly-across' },
+    { name: "Thank You", price: 20000, image: "https://em-content.zobj.net/source/apple/391/folded-hands_1f64f.png", animation: 'fullscreen-video', videoUrl: 'https://i.imgur.com/lDBMcei.mp4' },
+    { name: "Welcome", price: 25000, image: "https://i.imgur.com/OZegNuK.gif", animation: 'fade-in-out' },
+    { name: "Baby Tiger", price: 35000, image: "https://i.imgur.com/RqnqCso.gif", animation: 'fade-in-out' },
+    { name: "No No", price: 10000, image: "https://i.imgur.com/g7CCqJE.gif", animation: 'fade-in-out' },
     { name: "Unicorn", price: 7500, image: "https://em-content.zobj.net/source/apple/391/unicorn_1f984.png", animation: 'shimmer' },
-    { name: "Dragon", price: 30000, image: "https://em-content.zobj.net/source/apple/391/dragon_1f409.png", animation: 'fly-across' },
+    { name: "Dragon", price: 30000, image: "https://em-content.zobj.net/source/apple/391/dragon_1f409.png", animation: 'fade-in-out' },
     { name: "Phoenix", price: 50000, image: "https://em-content.zobj.net/source/apple/391/fire_1f525.png", animation: 'shimmer' },
     { name: "Galaxy", price: 15000, image: "https://em-content.zobj.net/source/apple/391/milky-way_1f30c.png", animation: 'pulse-luxury' },
     { name: "Castle", price: 150000, image: "https://em-content.zobj.net/source/apple/391/castle_1f3f0.png", animation: 'pulse-luxury' },
@@ -250,7 +251,7 @@ const gifts = {
     { name: "Magic Wand", price: 6000, image: "https://em-content.zobj.net/source/apple/391/magic-wand_1fa84.png", animation: 'shimmer' },
     { name: "Genie", price: 40000, image: "https://em-content.zobj.net/source/apple/391/genie_1f9de.png", animation: 'pulse-luxury' },
     { name: "Alien", price: 9000, image: "https://em-content.zobj.net/source/apple/391/alien_1f47d.png" },
-    { name: "Meteor", price: 25000, image: "https://em-content.zobj.net/source/apple/391/comet_2604-fe0f.png", animation: 'fly-across' },
+    { name: "Meteor", price: 25000, image: "https://em-content.zobj.net/source/apple/391/comet_2604-fe0f.png", animation: 'fade-in-out' },
     { name: "Train", price: 1800, image: "https://em-content.zobj.net/source/apple/391/train_1f686.png" },
     { name: "Bus", price: 1500, image: "https://em-content.zobj.net/source/apple/391/bus_1f68c.png" },
     { name: "Motorcycle", price: 2200, image: "https://em-content.zobj.net/source/apple/391/motorcycle_1f3cd-fe0f.png" },
@@ -271,7 +272,7 @@ const gifts = {
     { name: "Peace Symbol", price: 2200, image: "https://em-content.zobj.net/source/apple/391/peace-symbol_262e-fe0f.png" },
     { name: "Radioactive", price: 9900, image: "https://em-content.zobj.net/source/apple/391/radioactive_2622-fe0f.png" },
     { name: "Biohazard", price: 9800, image: "https://em-content.zobj.net/source/apple/391/biohazard_2623-fe0f.png" },
-    { name: "Flying Saucer", price: 13000, image: "https://em-content.zobj.net/source/apple/391/flying-saucer_1f6f8.png", animation: 'fly-across' },
+    { name: "Flying Saucer", price: 13000, image: "https://em-content.zobj.net/source/apple/391/flying-saucer_1f6f8.png", animation: 'fade-in-out' },
     { name: "Satellite", price: 18000, image: "https://em-content.zobj.net/source/apple/391/satellite_1f6f0-fe0f.png" },
     { name: "DNA", price: 11500, image: "https://em-content.zobj.net/source/apple/391/dna_1f9ec.png" },
     { name: "Abacus", price: 3000, image: "https://em-content.zobj.net/source/apple/391/abacus_1f9ee.png" },
@@ -285,7 +286,7 @@ const gifts = {
     { name: "Mosque", price: 28000, image: "https://em-content.zobj.net/source/apple/391/mosque_1f54c.png" },
     { name: "Synagogue", price: 27000, image: "https://em-content.zobj.net/source/apple/391/synagogue_1f54d.png" },
     { name: "Church", price: 26000, image: "https://em-content.zobj.net/source/apple/391/church_26ea.png" },
-    { name: "Rocket Ship", price: 14000, image: "https://em-content.zobj.net/source/apple/391/rocket_1f680.png", animation: 'fly-across' },
+    { name: "Rocket Ship", price: 14000, image: "https://em-content.zobj.net/source/apple/391/rocket_1f680.png", animation: 'fade-in-out' },
     { name: "Ambulance", price: 8000, image: "https://em-content.zobj.net/source/apple/391/ambulance_1f691.png" },
     { name: "Fire Truck", price: 8500, image: "https://em-content.zobj.net/source/apple/391/fire-engine_1f692.png" },
     { name: "Police Car", price: 9000, image: "https://em-content.zobj.net/source/apple/391/police-car_1f693.png" },
@@ -300,6 +301,7 @@ export type Gift = {
     price: number;
     image: string;
     animation?: string;
+    videoUrl?: string;
 };
 type GiftCategory = keyof typeof gifts;
 
@@ -321,7 +323,7 @@ export function GiftPanel({ onSendGift, sendButtonRef }: { onSendGift: (gift: Gi
   const getAnimationClass = (animation?: string) => {
     if (!animation) return '';
     switch (animation) {
-        case 'fly-across': return 'animate-fly-across';
+        case 'fade-in-out': return 'animate-fade-in-out';
         case 'shimmer': return 'animate-shimmer';
         case 'pulse-luxury': return 'animate-pulse-luxury';
         case 'tada': return 'animate-tada';
