@@ -6,7 +6,6 @@
  * - GenerateGiftVideoInput - The input type for the generateGiftVideo function.
  * - GenerateGiftVideoOutput - The return type for the generateGiftVideo function.
  */
-import 'dotenv/config';
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { googleAI } from '@genkit-ai/googleai';
