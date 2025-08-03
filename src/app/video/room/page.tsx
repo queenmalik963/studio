@@ -120,11 +120,11 @@ export default function VideoRoomPage() {
                 <ScrollArea className="w-full whitespace-nowrap flex-shrink-0 p-4">
                     <div className="flex space-x-3 pb-2">
                         {roomSeats.map((seat) => (
-                            <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center flex-shrink-0">
+                            <div key={seat.id} className="flex flex-col items-center gap-1 w-[40px] text-center flex-shrink-0">
                                 {seat.isOccupied && seat.user ? (
                                     <>
                                         <div className="relative">
-                                            <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                            <Avatar className={cn("w-[40px] h-[40px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                 <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                             </Avatar>
@@ -138,7 +138,7 @@ export default function VideoRoomPage() {
                                         <p className="text-xs truncate w-full">{seat.user.name}</p>
                                     </>
                                 ) : (
-                                    <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                    <div className="w-[40px] h-[40px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
                                         {seat.isLocked ? <Lock className="w-5 h-5 text-white/50"/> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
                                     </div>
                                 )}
