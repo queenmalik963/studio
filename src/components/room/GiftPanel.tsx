@@ -30,6 +30,8 @@ const gifts = {
     { name: "Cool", price: 35, image: "https://em-content.zobj.net/source/apple/391/smiling-face-with-sunglasses_1f60e.png" },
     { name: "Mic Drop", price: 75, image: "https://em-content.zobj.net/source/apple/391/microphone_1f3a4.png", animation: 'bounce' },
     { name: "Rocket", price: 150, image: "https://em-content.zobj.net/source/apple/391/rocket_1f680.png", animation: 'fly-across' },
+    { name: "Laughing", price: 12, image: "https://em-content.zobj.net/source/apple/391/rolling-on-the-floor-laughing_1f923.png" },
+    { name: "Mind Blown", price: 45, image: "https://em-content.zobj.net/source/apple/391/exploding-head_1f92f.png", animation: 'tada' },
   ],
   event: [
     { name: "Birthday Cake", price: 100, image: "https://em-content.zobj.net/source/apple/391/birthday-cake_1f382.png", animation: 'tada' },
@@ -44,6 +46,8 @@ const gifts = {
     { name: "Christmas Tree", price: 120, image: "https://em-content.zobj.net/source/apple/391/christmas-tree_1f384.png" },
     { name: "Santa Claus", price: 150, image: "https://em-content.zobj.net/source/apple/391/santa-claus_1f385.png" },
     { name: "Fireworks", price: 250, image: "https://em-content.zobj.net/source/apple/391/fireworks_1f386.png", animation: 'tada' },
+    { name: "Girl Dancer", price: 55, image: "https://em-content.zobj.net/source/apple/391/woman-dancing_1f483.png" },
+    { name: "Boy Dancer", price: 55, image: "https://em-content.zobj.net/source/apple/391/man-dancing_1f57a.png" },
   ],
   luxury: [
     { name: "Diamond", price: 1000, image: "https://em-content.zobj.net/source/apple/391/gem-stone_1f48e.png", animation: 'shimmer' },
@@ -57,7 +61,10 @@ const gifts = {
     { name: "Money Bag", price: 750, image: "https://em-content.zobj.net/source/apple/391/money-bag_1f4b0.png" },
     { name: "Diamond Ring", price: 15000, image: "https://em-content.zobj.net/source/apple/391/ring_1f48d.png", animation: 'shimmer' },
     { name: "Watch", price: 8000, image: "https://em-content.zobj.net/source/apple/391/watch_231a.png", animation: 'pulse-luxury' },
-    { name: "Necklace", price: 12000, image: "https://em-content.zobj.net/source/apple/391/necklace_1f4ff.png", animation: 'shimmer' },
+    { name: "Gold Chain", price: 3500, image: "https://em-content.zobj.net/source/apple/391/chains_26d3-fe0f.png" },
+    { name: "Gold Button", price: 10000, image: "https://em-content.zobj.net/source/apple/391/radio-button_1f518.png" },
+    { name: "Diamond Button", price: 25000, image: "https://em-content.zobj.net/source/apple/391/diamond-with-a-dot_1f4a0.png" },
+    { name: "Silver Button", price: 5000, image: "https://em-content.zobj.net/source/apple/391/white-circle_26aa.png" },
   ],
   family: [
     { name: "Teddy Bear", price: 50, image: "https://em-content.zobj.net/source/apple/391/teddy-bear_1f9f8.png" },
@@ -72,6 +79,9 @@ const gifts = {
     { name: "Pizza Slice", price: 45, image: "https://em-content.zobj.net/source/apple/391/pizza_1f355.png" },
     { name: "Lollipop", price: 15, image: "https://em-content.zobj.net/source/apple/391/lollipop_1f36d.png" },
     { name: "Cookie", price: 20, image: "https://em-content.zobj.net/source/apple/391/cookie_1f36a.png" },
+    { name: "Eagle", price: 120, image: "https://em-content.zobj.net/source/apple/391/eagle_1f985.png" },
+    { name: "Parrot", price: 90, image: "https://em-content.zobj.net/source/apple/391/parrot_1f99c.png" },
+    { name: "Peacock", price: 110, image: "https://em-content.zobj.net/source/apple/391/peacock_1f99a.png" },
   ],
   exclusive: [
     { name: "Unicorn", price: 7500, image: "https://em-content.zobj.net/source/apple/391/unicorn_1f984.png", animation: 'shimmer' },
@@ -79,13 +89,17 @@ const gifts = {
     { name: "Phoenix", price: 50000, image: "https://em-content.zobj.net/source/apple/391/fire_1f525.png", animation: 'shimmer' },
     { name: "Galaxy", price: 15000, image: "https://em-content.zobj.net/source/apple/391/milky-way_1f30c.png", animation: 'pulse-luxury' },
     { name: "Castle", price: 150000, image: "https://em-content.zobj.net/source/apple/391/castle_1f3f0.png", animation: 'pulse-luxury' },
-    { name: "Treasure Chest", price: 80000, image: "https://em-content.zobj.net/source/apple/391/chestnut_1f330.png" }, // Using chestnut as proxy
+    { name: "Treasure Chest", price: 80000, image: "https://em-content.zobj.net/source/apple/391/chestnut_1f330.png" }, 
     { name: "Magic Wand", price: 6000, image: "https://em-content.zobj.net/source/apple/391/magic-wand_1fa84.png", animation: 'shimmer' },
     { name: "Genie", price: 40000, image: "https://em-content.zobj.net/source/apple/391/genie_1f9de.png", animation: 'pulse-luxury' },
     { name: "Alien", price: 9000, image: "https://em-content.zobj.net/source/apple/391/alien_1f47d.png" },
     { name: "Meteor", price: 25000, image: "https://em-content.zobj.net/source/apple/391/comet_2604-fe0f.png", animation: 'fly-across' },
-    { name: "Black Hole", price: 200000, image: "https://em-content.zobj.net/source/apple/391/hole_1f573-fe0f.png", animation: 'spin-slow' },
-    { name: "Planet Earth", price: 10000, image: "https://em-content.zobj.net/source/apple/391/globe-showing-europe-africa_1f30d.png", animation: 'spin-slow' },
+    { name: "Train", price: 1800, image: "https://em-content.zobj.net/source/apple/391/train_1f686.png" },
+    { name: "Bus", price: 1500, image: "https://em-content.zobj.net/source/apple/391/bus_1f68c.png" },
+    { name: "Motorcycle", price: 2200, image: "https://em-content.zobj.net/source/apple/391/motorcycle_1f3cd-fe0f.png" },
+    { name: "Bicycle", price: 800, image: "https://em-content.zobj.net/source/apple/391/bicycle_1f6b2.png" },
+    { name: "Mobile Phone", price: 1300, image: "https://em-content.zobj.net/source/apple/391/mobile-phone_1f4f1.png" },
+    { name: "Telephone", price: 700, image: "https://em-content.zobj.net/source/apple/391/telephone_260e-fe0f.png" },
   ],
 };
 
