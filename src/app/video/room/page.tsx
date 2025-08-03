@@ -14,9 +14,10 @@ import Image from "next/image";
 import { Label } from "@/components/ui/label";
 
 const initialMessages = [
-  { id: 1, type: 'gift', author: 'Jodie', text: 'Sent a RedRose', giftIcon: 'https://placehold.co/100x100.png', avatar: "https://placehold.co/40x40.png" },
-  { id: 2, type: 'game', author: 'Jodie', text: 'started playing Fruit!', game: 'Fruit!', avatar: "https://placehold.co/40x40.png" },
+  { id: 1, type: 'notification', text: 'saba has joined' },
+  { id: 2, type: 'text', author: 'Jodie', text: 'Hey everyone!', avatar: "https://placehold.co/40x40.png"},
   { id: 3, type: 'text', author: 'saba', text: 'Hi...', avatar: "https://placehold.co/40x40.png"},
+  { id: 4, type: 'notification', text: 'Lexa has left' },
 ];
 
 const roomSeats = [
@@ -57,16 +58,16 @@ export default function VideoRoomPage() {
     };
 
     const frameColors: {[key: string]: string} = {
-        gold: 'border-yellow-400 animate-glow-gold',
-        purple: 'border-fuchsia-500 animate-glow-purple',
-        blue: 'border-blue-400 animate-glow-blue',
-        green: 'border-green-500 animate-glow-green',
-        red: 'border-red-500 animate-glow-red',
-        cyan: 'border-cyan-500 animate-glow-cyan',
-        pink: 'border-pink-500 animate-glow-pink',
-        teal: 'border-teal-400 animate-glow-teal',
-        orange: 'border-orange-500 animate-glow-orange',
-        indigo: 'border-indigo-500 animate-glow-indigo',
+        gold: 'border-yellow-400',
+        purple: 'border-fuchsia-500',
+        blue: 'border-blue-400',
+        green: 'border-green-500',
+        red: 'border-red-500',
+        cyan: 'border-cyan-500',
+        pink: 'border-pink-500',
+        teal: 'border-teal-400',
+        orange: 'border-orange-500',
+        indigo: 'border-indigo-500',
     }
 
     const occupiedSeats = roomSeats.filter(seat => seat.isOccupied && seat.user);
@@ -74,7 +75,7 @@ export default function VideoRoomPage() {
     return (
         <div className="flex flex-col h-screen bg-[#180828] text-white font-sans overflow-hidden">
             {/* Video Player Section */}
-            <div className="relative w-full bg-black flex-1">
+            <div className="relative w-full bg-black aspect-video flex-shrink-0">
                  <div className="absolute inset-0 bg-black flex items-center justify-center">
                     <p className="text-white/50">Video Player Placeholder</p>
                 </div>
@@ -113,9 +114,9 @@ export default function VideoRoomPage() {
             </div>
 
             {/* Interactive Panel */}
-            <main className="flex-shrink-0 flex flex-col p-2 overflow-hidden gap-2 bg-[#2E103F]">
+            <main className="flex-1 flex flex-col p-2 overflow-hidden gap-2 bg-[#2E103F]">
                 {/* Seats */}
-                <ScrollArea className="w-full whitespace-nowrap">
+                <ScrollArea className="w-full whitespace-nowrap flex-shrink-0">
                     <div className="flex space-x-2 pb-2">
                         {roomSeats.map((seat) => (
                             <div key={seat.id} className="flex flex-col items-center gap-1 w-[40px] text-center flex-shrink-0">
@@ -133,7 +134,6 @@ export default function VideoRoomPage() {
                                                 }
                                             </div>
                                         </div>
-                                        <p className="text-[10px] truncate w-full">{seat.user.name}</p>
                                     </>
                                 ) : (
                                     <div className="w-[40px] h-[40px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
@@ -145,38 +145,30 @@ export default function VideoRoomPage() {
                     </div>
                 </ScrollArea>
                 
-                {/* Chat / Gift Panel */}
-                 <div className="flex-1 h-24 mt-2 relative">
-                    <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-3 pr-2">
-                        {messages.map((msg) => (
-                            <div key={msg.id} className="flex items-start gap-3">
-                                <Avatar className="h-8 w-8 shrink-0">
-                                    <AvatarImage src={msg.avatar}/>
-                                    <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                                <div className="text-sm">
-                                    <p className="text-white/70 text-xs">{msg.author}</p>
-                                    {msg.type === 'gift' && (
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <p className="text-xs">Sent a RedRose</p>
-                                            <div className="bg-black/20 p-1 rounded-md flex items-center gap-1">
-                                                <Image src="https://em-content.zobj.net/source/apple/391/rose_1f339.png" alt="RedRose" width={16} height={16}/>
-                                                <span className="text-xs">x1</span>
-                                            </div>
-                                        </div>
-                                    )}
-                                    {msg.type === 'game' && (
-                                        <p className="mt-1 text-xs">{msg.author} <span className="font-bold text-yellow-400">{msg.text}</span></p>
-                                    )}
-                                    {msg.type === 'text' && (
+                {/* Chat Panel */}
+                <div ref={chatContainerRef} className="flex-1 overflow-y-auto space-y-3 pr-2">
+                    {messages.map((msg) => (
+                        <Fragment key={msg.id}>
+                            {msg.type === 'notification' ? (
+                                <div className="text-center text-xs text-white/50 p-1">
+                                    {msg.text}
+                                </div>
+                            ) : (
+                                <div className="flex items-start gap-3">
+                                    <Avatar className="h-8 w-8 shrink-0">
+                                        <AvatarImage src={msg.avatar}/>
+                                        <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="text-sm">
+                                        <p className="text-white/70 text-xs">{msg.author}</p>
                                         <div className="bg-black/20 rounded-lg p-2 mt-1">
                                             <p className="text-sm">{msg.text}</p>
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            )}
+                        </Fragment>
+                    ))}
                 </div>
             </main>
             
