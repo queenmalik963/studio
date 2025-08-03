@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect, Fragment } from "react";
@@ -69,6 +70,18 @@ export default function AudioRoomPage() {
         setIsGiftPanelOpen(false);
         // Handle regular gift sending
         console.log("Sending gift:", gift.name);
+
+        setMessages(prev => [
+            ...prev,
+            {
+                id: prev.length + 1,
+                type: 'gift',
+                author: 'You', // Assuming the sender is the current user
+                text: `Sent a ${gift.name}`,
+                giftIcon: gift.image,
+                avatar: "https://placehold.co/40x40.png"
+            }
+        ]);
     }
 
     const frameColors: {[key: string]: string} = {
