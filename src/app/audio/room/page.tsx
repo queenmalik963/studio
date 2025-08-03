@@ -13,6 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import { GiftPanel, type Gift as GiftType } from "@/components/room/GiftPanel";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 
 const initialMessages = [
@@ -93,8 +94,22 @@ export default function AudioRoomPage() {
         amber: 'border-amber-400 animate-glow-amber',
     }
     
-    const spinningFrameColors: {[key: string]: string} = {
-        gold: 'border-t-yellow-400',
+    const frameBorderColors: {[key: string]: string} = {
+        gold: 'border-yellow-400',
+        purple: 'border-fuchsia-500',
+        blue: 'border-blue-400',
+        green: 'border-green-500',
+        red: 'border-red-500',
+        cyan: 'border-cyan-500',
+        pink: 'border-pink-500',
+        teal: 'border-teal-400',
+        orange: 'border-orange-500',
+        indigo: 'border-indigo-500',
+        lime: 'border-lime-400',
+        rose: 'border-rose-400',
+        emerald: 'border-emerald-400',
+        sky: 'border-sky-400',
+        amber: 'border-amber-400',
     }
 
     const occupiedSeats = roomSeats.filter(seat => seat.isOccupied && seat.user);
@@ -120,10 +135,34 @@ export default function AudioRoomPage() {
                     )}
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" className="h-auto p-1 text-white/80 bg-black/20 rounded-full px-3">
-                        <Users className="w-5 h-5 mr-1" />
-                        <span className="font-bold">{occupiedSeats.length}</span>
-                    </Button>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="ghost" className="h-auto p-1 text-white/80 bg-black/20 rounded-full px-3">
+                                <Users className="w-5 h-5 mr-1" />
+                                <span className="font-bold">{occupiedSeats.length}</span>
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 p-2 bg-black/50 backdrop-blur-md border-white/20 text-white">
+                            <ScrollArea className="h-48">
+                                <div className="space-y-2">
+                                    {occupiedSeats.map((seat) => (
+                                        <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
+                                            <Avatar className="h-9 w-9">
+                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            <div>
+                                                <p className="text-sm font-semibold">{seat.user.name}</p>
+                                                {seat.user.frame && (
+                                                    <div className={cn("h-0.5 w-8 rounded-full", frameBorderColors[seat.user.frame])}></div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollArea>
+                        </PopoverContent>
+                    </Popover>
                 </div>
             </header>
 
@@ -312,8 +351,5 @@ export default function AudioRoomPage() {
         </div>
     );
 }
-
-    
- 
 
     
