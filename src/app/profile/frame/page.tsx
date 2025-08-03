@@ -52,7 +52,7 @@ export default function FrameStorePage() {
                 <div className="p-1 h-full">
                   <Card className="bg-card/50 h-full flex flex-col">
                     <CardContent className="flex flex-col items-center justify-center p-4 gap-4 flex-grow">
-                      <div className={cn("w-40 h-40 flex items-center justify-center relative", tier.color)}>
+                      <div className={cn("w-40 h-40 flex items-center justify-center relative border-2 rounded-full", tier.color)}>
                         <Image 
                             src="https://placehold.co/150x150.png"
                             alt="Your Pic" 
