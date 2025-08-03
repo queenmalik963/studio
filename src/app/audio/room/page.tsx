@@ -50,6 +50,7 @@ export default function AudioRoomPage() {
     const [messages, setMessages] = useState(initialMessages);
     const [newMessage, setNewMessage] = useState("");
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
+    const [animatedGift, setAnimatedGift] = useState<GiftType | null>(null);
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const { toast } = useToast();
 
@@ -68,9 +69,14 @@ export default function AudioRoomPage() {
 
     const handleSendGift = (gift: GiftType) => {
         setIsGiftPanelOpen(false);
-        // Handle regular gift sending
-        console.log("Sending gift:", gift.name);
+        
+        // Play sound if it exists
+        if (gift.soundUrl) {
+            const audio = new Audio(gift.soundUrl);
+            audio.play().catch(e => console.error("Error playing sound:", e));
+        }
 
+        // Display text-based gift message in chat
         setMessages(prev => [
             ...prev,
             {
@@ -82,7 +88,14 @@ export default function AudioRoomPage() {
                 avatar: "https://placehold.co/40x40.png"
             }
         ]);
-    }
+    };
+    
+    const handleAnimateGift = (gift: GiftType) => {
+        setAnimatedGift(gift);
+        setTimeout(() => {
+            setAnimatedGift(null);
+        }, 3000); // Animation duration
+    };
 
     const frameColors: {[key: string]: string} = {
         gold: 'border-yellow-400 animate-glow-gold',
@@ -124,6 +137,18 @@ export default function AudioRoomPage() {
 
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
+             {animatedGift && (
+                <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
+                    <Image
+                        src={animatedGift.image}
+                        alt={animatedGift.name}
+                        width={256}
+                        height={256}
+                        unoptimized
+                        className={cn('animate-fly-across')}
+                    />
+                </div>
+            )}
             <header className="flex-shrink-0 flex items-center justify-between p-4">
                 <div className="flex items-center gap-4">
                     <Button variant="ghost" size="icon" onClick={() => router.back()}>
@@ -262,7 +287,7 @@ export default function AudioRoomPage() {
 
                 <div className="flex-1 mt-2 relative p-0">
                     {isGiftPanelOpen ? (
-                        <GiftPanel onSendGift={handleSendGift} />
+                        <GiftPanel onSendGift={handleSendGift} onAnimateGift={handleAnimateGift} />
                     ) : (
                         <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-3 px-4 pr-2">
                             {messages.map((msg) => (

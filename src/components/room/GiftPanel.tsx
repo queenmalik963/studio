@@ -19,6 +19,7 @@ const gifts = {
   hot: [
     { name: "Heart", price: 10, image: "https://em-content.zobj.net/source/apple/391/red-heart_2764-fe0f.png", animation: 'tada' },
     { name: "Thumbs Up", price: 5, image: "https://em-content.zobj.net/source/apple/391/thumbs-up_1f44d.png" },
+    { name: "Kiss", price: 15, image: "https://em-content.zobj.net/source/apple/391/kiss-mark_1f48b.png", soundUrl: '/sounds/kiss.mp3' },
     { name: "Rose", price: 25, image: "https://em-content.zobj.net/source/apple/391/rose_1f339.png", animation: 'bounce' },
     { name: "Clapping", price: 15, image: "https://em-content.zobj.net/source/apple/391/clapping-hands_1f44f.png" },
     { name: "Fire", price: 50, image: "https://em-content.zobj.net/source/apple/391/fire_1f525.png", animation: 'pulse-luxury' },
@@ -94,6 +95,7 @@ export type Gift = {
     price: number;
     image: string;
     animation?: string;
+    soundUrl?: string;
 };
 type GiftCategory = keyof typeof gifts;
 
@@ -109,14 +111,13 @@ export function GiftPanel({ onSendGift, onAnimateGift }: { onSendGift: (gift: Gi
   
   const handleSend = () => {
     if (!selectedGift) return;
-    
-    // Check if the gift is an animation-only gift
-    if (selectedGift.animation && !['Lion Cub', 'Dragon'].includes(selectedGift.name)) {
+
+    if (selectedGift.animation) {
         onAnimateGift(selectedGift);
-    } else {
-        // Handle regular text-based gift sending
-        onSendGift(selectedGift);
     }
+    
+    // Always send the gift (for chat message and sound)
+    onSendGift(selectedGift);
   }
 
   const getAnimationClass = (animation?: string) => {
@@ -210,7 +211,7 @@ export function GiftPanel({ onSendGift, onAnimateGift }: { onSendGift: (gift: Gi
                     <Plus className="w-4 h-4" />
                 </Button>
             </div>
-            <Button className="bg-gradient-to-r from-pink-500 to-orange-400 h-9 px-4 text-sm" onClick={handleSend}>
+            <Button className="bg-gradient-to-r from-pink-500 to-orange-400 h-9 px-2 text-sm" onClick={handleSend}>
                 Send
             </Button>
         </div>
