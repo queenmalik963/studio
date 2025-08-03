@@ -53,20 +53,20 @@ export default function ProfilePage() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div className="space-y-4">
-                        <div className="flex justify-between items-center text-sm font-semibold">
-                            <p className="flex items-center"><Star className="w-4 h-4 mr-1 text-yellow-300"/> ID Level (Receiver)</p>
-                            <p>{idLevel}/100</p>
-                        </div>
-                        <Progress value={idLevel} className="h-2 bg-muted [&>div]:bg-yellow-400" />
-                        <div className="flex justify-between items-center text-sm font-semibold">
-                            <p className="flex items-center"><Send className="w-4 h-4 mr-1 text-sky-300"/> Sending Level (Gifter)</p>
-                            <p>{sendingLevel}/100</p>
-                        </div>
-                        <Progress value={sendingLevel} className="h-2 bg-muted [&>div]:bg-sky-400" />
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center text-sm font-semibold">
+                        <p className="flex items-center"><Star className="w-4 h-4 mr-1 text-yellow-300"/> ID Level (Receiver)</p>
+                        <p>{idLevel}/100</p>
                     </div>
+                    <Progress value={idLevel} className="h-2 bg-muted [&>div]:bg-yellow-400" />
+                    <div className="flex justify-between items-center text-sm font-semibold">
+                        <p className="flex items-center"><Send className="w-4 h-4 mr-1 text-sky-300"/> Sending Level (Gifter)</p>
+                        <p>{sendingLevel}/100</p>
+                    </div>
+                    <Progress value={sendingLevel} className="h-2 bg-muted [&>div]:bg-sky-400" />
+                </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Card className="bg-gradient-to-br from-green-800/70 to-teal-900/70 text-white">
                          <CardHeader>
                             <CardTitle>My Wallet</CardTitle>
