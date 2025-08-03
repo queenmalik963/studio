@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { Coins, ChevronDown, Minus, Plus } from "lucide-react";
+import { Coins, ChevronDown, Minus, Plus, Volume2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -238,10 +238,10 @@ const gifts = {
     { name: "Snail", price: 20, image: "https://em-content.zobj.net/source/apple/391/snail_1f40c.png" },
   ],
   exclusive: [
-    { name: "Thank You", price: 20000, image: "https://em-content.zobj.net/source/apple/391/folded-hands_1f64f.png", animation: 'fullscreen-video', videoUrl: 'https://i.imgur.com/lDBMcei.mp4' },
     { name: "Welcome", price: 25000, image: "https://i.imgur.com/OZegNuK.gif", animation: 'fly-across' },
     { name: "Baby Tiger", price: 35000, image: "https://i.imgur.com/RqnqCso.gif", animation: 'fly-across' },
     { name: "No No", price: 10000, image: "https://i.imgur.com/g7CCqJE.gif", animation: 'fly-across' },
+    { name: "Thank You", price: 20000, image: "https://em-content.zobj.net/source/apple/391/folded-hands_1f64f.png", animation: 'fullscreen-video', videoUrl: 'https://i.imgur.com/lDBMcei.mp4' },
     { name: "Happy", price: 22000, image: "https://em-content.zobj.net/source/apple/391/smiling-face-with-smiling-eyes_1f60a.png", animation: 'fullscreen-video', videoUrl: 'https://i.imgur.com/5tm8G6E.mp4' },
     { name: "I'm King", price: 50000, image: "https://em-content.zobj.net/source/apple/391/crown_1f451.png", animation: 'fullscreen-video', videoUrl: 'https://i.imgur.com/gUFx8XH.mp4' },
     { name: "Long Life", price: 45000, image: "https://em-content.zobj.net/source/apple/391/old-man_1f474.png", animation: 'fullscreen-video', videoUrl: 'https://i.imgur.com/5bsNyMA.mp4' },
@@ -380,6 +380,11 @@ export function GiftPanel({ onSendGift, sendButtonRef }: { onSendGift: (gift: Gi
                                         unoptimized={true}
                                         className={cn(getAnimationClass(gift.animation))}
                                       />
+                                       {gift.animation === 'fullscreen-video' && (
+                                            <div className="absolute bottom-0 right-0 bg-black/50 p-0.5 rounded-sm">
+                                                <Volume2 className="w-2.5 h-2.5 text-white" />
+                                            </div>
+                                        )}
                                   </div>
                                   <p className="text-xs truncate">{gift.name}</p>
                                   <div className="flex items-center gap-1 text-xs text-yellow-400">
@@ -433,3 +438,5 @@ export function GiftPanel({ onSendGift, sendButtonRef }: { onSendGift: (gift: Gi
     </div>
   );
 }
+
+    
