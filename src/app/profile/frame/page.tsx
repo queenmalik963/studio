@@ -12,12 +12,12 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 const frameTiers = [
-  { name: "Neon Glow", price: "500 Coins", color: "border-green-400 animate-glow-green" },
-  { name: "Golden Ornate", price: "1500 Coins", color: "border-yellow-400 animate-glow-gold" },
-  { name: "Cosmic Swirl", price: "3000 Coins", color: "border-purple-500 animate-glow-purple" },
-  { name: "Glacial Ice", price: "5000 Coins", color: "border-sky-400 animate-glow-sky" },
-  { name: "Ruby Red", price: "7500 Coins", color: "border-red-500 animate-glow-red" },
-  { name: "Emerald Shine", price: "10000 Coins", color: "border-emerald-500 animate-glow-emerald" },
+  { name: "Neon Glow", price: "500 Coins", color: "border-green-400 animate-glow-green", image: "https://i.imgur.com/QJOss4l.png" },
+  { name: "Golden Ornate", price: "1500 Coins", color: "border-yellow-400 animate-glow-gold", image: "https://i.imgur.com/KHhzNAV.png" },
+  { name: "Cosmic Swirl", price: "3000 Coins", color: "border-purple-500 animate-glow-purple", image: "https://i.imgur.com/xm6TS00.png" },
+  { name: "Glacial Ice", price: "5000 Coins", color: "border-sky-400 animate-glow-sky", image: "https://i.imgur.com/3fZOzLh.png" },
+  { name: "Ruby Red", price: "7500 Coins", color: "border-red-500 animate-glow-red", image: "https://i.imgur.com/2wGrqno.png" },
+  { name: "Emerald Shine", price: "10000 Coins", color: "border-emerald-500 animate-glow-emerald", image: "https://i.imgur.com/jj5kzAj.png" },
 ];
 
 export default function FrameStorePage() {
@@ -52,7 +52,7 @@ export default function FrameStorePage() {
                 <div className="p-1 h-full">
                   <Card className="bg-card/50 h-full flex flex-col">
                     <CardContent className="flex flex-col items-center justify-center p-4 gap-4 flex-grow">
-                      <div className={cn("w-40 h-40 rounded-full flex items-center justify-center relative border-4", tier.color)}>
+                      <div className={cn("w-40 h-40 flex items-center justify-center relative", tier.color)}>
                         <Image 
                             src="https://placehold.co/150x150.png"
                             alt="Your Pic" 
@@ -60,6 +60,13 @@ export default function FrameStorePage() {
                             height={140}
                             className="rounded-full"
                             data-ai-hint="person face"
+                        />
+                        <Image
+                            src={tier.image}
+                            alt={tier.name}
+                            layout="fill"
+                            className="absolute inset-0 object-contain"
+                            data-ai-hint="frame"
                         />
                       </div>
                       <div className="text-center">
