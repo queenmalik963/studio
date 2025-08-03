@@ -43,27 +43,11 @@ const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 
-const gifts = [
-  { id: 'rose', name: "Rose", price: 10, image: "https://em-content.zobj.net/source/apple/391/rose_1f339.png", hint: "red rose" },
-  { id: 'perfume', name: "Perfume", price: 50, image: "https://em-content.zobj.net/source/apple/391/perfume_1f485.png", hint: "perfume bottle" },
-  { id: 'ring', name: "Diamond Ring", price: 100, image: "https://em-content.zobj.net/source/apple/391/ring_1f48d.png", hint: "diamond ring" },
-  { id: 'car', name: "Sports Car", price: 500, image: "https://em-content.zobj.net/source/apple/391/racing-car_1f3ce-fe0f.png", hint: "sports car" },
-  { id: 'castle', name: "Castle", price: 1000, image: "https://em-content.zobj.net/source/apple/391/castle_1f3f0.png", hint: "fairy tale castle" },
-];
-
-const quantityOptions = [1, 5, 10, 50, 99];
-
 export default function VideoRoomPage() {
     const router = useRouter();
     const [messages, setMessages] = useState(initialMessages);
     const [newMessage, setNewMessage] = useState("");
     const chatContainerRef = useRef<HTMLDivElement>(null);
-    const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
-
-    const [selectedGift, setSelectedGift] = useState(gifts[0]);
-    const [selectedQuantity, setSelectedQuantity] = useState(1);
-    const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
-    const { toast } = useToast();
 
     const owner = { name: "op_2", avatar: "https://placehold.co/40x40.png", isOwner: true };
     
@@ -92,46 +76,6 @@ export default function VideoRoomPage() {
     }
 
     const occupiedSeats = roomSeats.filter(seat => seat.isOccupied && seat.user);
-    const totalCost = selectedGift.price * selectedQuantity;
-
-    const handleUserSelection = (userId: number) => {
-        setSelectedUsers(prev => 
-            prev.includes(userId) 
-                ? prev.filter(id => id !== userId) 
-                : [...prev, userId]
-        );
-    };
-
-    const selectAllOnMic = () => {
-        const usersOnMic = occupiedSeats
-            .filter(seat => seat.user && !seat.user.isMuted)
-            .map(seat => seat.id);
-        setSelectedUsers(usersOnMic);
-    };
-
-    const selectAllInRoom = () => {
-        const allUsers = occupiedSeats.map(seat => seat.id);
-        setSelectedUsers(allUsers);
-    };
-
-    const handleSendGift = () => {
-        if (selectedUsers.length === 0) {
-            toast({
-                variant: "destructive",
-                title: "No Recipient Selected",
-                description: "Please select at least one user to send the gift to.",
-            });
-            return;
-        }
-
-        toast({
-            title: "Gift Sent!",
-            description: `You sent ${selectedQuantity} x ${selectedGift.name}(s) to ${selectedUsers.length} user(s).`,
-        });
-        setIsGiftPanelOpen(false);
-        setSelectedUsers([]);
-        setSelectedQuantity(1);
-    };
 
     return (
         <div className="flex flex-col h-screen bg-[#180828] text-white font-sans overflow-hidden">
@@ -241,111 +185,6 @@ export default function VideoRoomPage() {
             </main>
             
             <footer className="flex-shrink-0 bg-[#1F0A2E] border-t border-white/10 relative">
-                <div className={cn(
-                    "absolute bottom-full left-0 right-0 bg-[#1F0A2E] border-t-2 border-purple-800 transition-transform duration-300 ease-in-out",
-                    isGiftPanelOpen ? "translate-y-0" : "translate-y-full"
-                )}>
-                    <div className="p-4 space-y-4">
-                        <div className="flex justify-between items-center">
-                           <h3 className="font-headline text-xl text-yellow-400 flex items-center gap-2"><GiftIcon className="w-6 h-6"/> Send a Gift</h3>
-                           <Button variant="ghost" size="icon" onClick={() => setIsGiftPanelOpen(false)}>
-                               <ChevronDown />
-                           </Button>
-                        </div>
-                       {/* Gift Selection */}
-                       <ScrollArea className="w-full whitespace-nowrap">
-                           <div className="flex space-x-3 pb-2">
-                           {gifts.map(gift => (
-                               <div 
-                                   key={gift.id} 
-                                   className={cn(
-                                       "flex flex-col items-center gap-1 p-2 rounded-lg cursor-pointer transition-all border-2",
-                                       selectedGift.id === gift.id ? "border-yellow-400 bg-white/20" : "border-transparent hover:bg-white/10"
-                                   )}
-                                   onClick={() => setSelectedGift(gift)}
-                               >
-                                   <div className="w-16 h-16 bg-black/20 rounded-lg flex items-center justify-center">
-                                       <Image src={gift.image} alt={gift.name} width={40} height={40} data-ai-hint={gift.hint} />
-                                   </div>
-                                   <p className="text-xs">{gift.name}</p>
-                                   <div className="flex items-center gap-1 text-xs text-yellow-400">
-                                       <Coins className="w-3 h-3"/>
-                                       <span>{gift.price}</span>
-                                   </div>
-                               </div>
-                           ))}
-                           </div>
-                       </ScrollArea>
-                       
-                       {/* Quantity & Recipient Selection */}
-                       <div className="space-y-4">
-                            <div>
-                                <Label className="text-sm font-semibold mb-2 block">Quantity</Label>
-                               <div className="grid grid-cols-5 gap-2">
-                                   {quantityOptions.map(q => (
-                                        <Button 
-                                           key={q}
-                                           variant={selectedQuantity === q ? "secondary" : "outline"}
-                                           className={cn(
-                                               "bg-black/20 border-purple-700 hover:bg-purple-900",
-                                               selectedQuantity === q && "bg-primary hover:bg-primary/80"
-                                           )}
-                                           onClick={() => setSelectedQuantity(q)}
-                                       >
-                                           x{q}
-                                       </Button>
-                                   ))}
-                               </div>
-                           </div>
-
-                            <div className="space-y-2">
-                               <Label className="text-sm font-semibold">Send To</Label>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <Button variant="outline" className="bg-black/20 border-purple-700 hover:bg-purple-900" onClick={selectAllOnMic}>
-                                       <Mic className="w-4 h-4 mr-2"/> All on Mic
-                                   </Button>
-                                   <Button variant="outline" className="bg-black/20 border-purple-700 hover:bg-purple-900" onClick={selectAllInRoom}>
-                                       <Users className="w-4 h-4 mr-2"/> All in Room
-                                   </Button>
-                               </div>
-                                <ScrollArea className="h-24">
-                                   <div className="grid grid-cols-8 gap-2 mt-2">
-                                   {occupiedSeats.map(seat => (
-                                       <div 
-                                           key={seat.id} 
-                                           className="flex flex-col items-center gap-1 cursor-pointer"
-                                           onClick={() => handleUserSelection(seat.id)}
-                                       >
-                                           <Avatar className={cn(
-                                               "w-10 h-10 border-2",
-                                               selectedUsers.includes(seat.id) ? "border-yellow-400" : "border-transparent"
-                                           )}>
-                                               <AvatarImage src={seat.user!.avatar} />
-                                               <AvatarFallback className="text-sm">{seat.user!.name.charAt(0)}</AvatarFallback>
-                                           </Avatar>
-                                       </div>
-                                   ))}
-                                   </div>
-                               </ScrollArea>
-                           </div>
-                       </div>
-                    </div>
-                   <div className="bg-black/30 p-2 flex justify-between items-center mt-2">
-                       <div className="flex items-center gap-2 text-yellow-400">
-                           <Coins className="w-5 h-5" />
-                           <span className="font-bold">{totalCost.toLocaleString()}</span>
-                       </div>
-                       <Button 
-                           className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold" 
-                           onClick={handleSendGift}
-                           disabled={selectedUsers.length === 0}
-                       >
-                           <SendIconLucide className="w-4 h-4 mr-2" />
-                           Send ({selectedUsers.length})
-                       </Button>
-                   </div>
-                </div>
-
                 <div className="p-2">
                     <div className="flex items-center justify-around gap-2">
                         <div className="flex-grow flex items-center gap-2 bg-black/30 rounded-full h-10 px-2">
@@ -372,7 +211,7 @@ export default function VideoRoomPage() {
                          <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0">
                             <RectangleVertical />
                         </Button>
-                         <Button type="button" size="icon" className="w-10 h-10 bg-yellow-500 hover:bg-yellow-600 rounded-full flex-shrink-0" onClick={() => setIsGiftPanelOpen(true)}>
+                         <Button type="button" size="icon" className="w-10 h-10 bg-yellow-500 hover:bg-yellow-600 rounded-full flex-shrink-0">
                             <GiftIcon />
                         </Button>
                     </div>
@@ -381,5 +220,3 @@ export default function VideoRoomPage() {
         </div>
     );
 }
-
-    
