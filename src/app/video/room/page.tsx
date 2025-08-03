@@ -43,7 +43,6 @@ export default function VideoRoomPage() {
     const router = useRouter();
     const [messages, setMessages] = useState(initialMessages);
     const [newMessage, setNewMessage] = useState("");
-    const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
     const owner = { name: "op_2", avatar: "https://placehold.co/40x40.png", isOwner: true };
@@ -150,40 +149,36 @@ export default function VideoRoomPage() {
                 
                 {/* Chat / Gift Panel */}
                  <div className="flex-1 h-24 mt-2 relative">
-                    {isGiftPanelOpen ? (
-                        <GiftPanel />
-                    ) : (
-                         <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-3 pr-2">
-                            {messages.map((msg) => (
-                                <div key={msg.id} className="flex items-start gap-3">
-                                    <Avatar className="h-8 w-8 shrink-0">
-                                        <AvatarImage src={msg.avatar}/>
-                                        <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
-                                    </Avatar>
-                                    <div className="text-sm">
-                                        <p className="text-white/70 text-xs">{msg.author}</p>
-                                        {msg.type === 'gift' && (
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <p className="text-xs">Sent a RedRose</p>
-                                                <div className="bg-black/20 p-1 rounded-md flex items-center gap-1">
-                                                    <Image src="https://em-content.zobj.net/source/apple/391/rose_1f339.png" alt="RedRose" width={16} height={16}/>
-                                                    <span className="text-xs">x1</span>
-                                                </div>
+                    <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-3 pr-2">
+                        {messages.map((msg) => (
+                            <div key={msg.id} className="flex items-start gap-3">
+                                <Avatar className="h-8 w-8 shrink-0">
+                                    <AvatarImage src={msg.avatar}/>
+                                    <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <div className="text-sm">
+                                    <p className="text-white/70 text-xs">{msg.author}</p>
+                                    {msg.type === 'gift' && (
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <p className="text-xs">Sent a RedRose</p>
+                                            <div className="bg-black/20 p-1 rounded-md flex items-center gap-1">
+                                                <Image src="https://em-content.zobj.net/source/apple/391/rose_1f339.png" alt="RedRose" width={16} height={16}/>
+                                                <span className="text-xs">x1</span>
                                             </div>
-                                        )}
-                                        {msg.type === 'game' && (
-                                            <p className="mt-1 text-xs">{msg.author} <span className="font-bold text-yellow-400">{msg.text}</span></p>
-                                        )}
-                                        {msg.type === 'text' && (
-                                            <div className="bg-black/20 rounded-lg p-2 mt-1">
-                                                <p className="text-sm">{msg.text}</p>
-                                            </div>
-                                        )}
-                                    </div>
+                                        </div>
+                                    )}
+                                    {msg.type === 'game' && (
+                                        <p className="mt-1 text-xs">{msg.author} <span className="font-bold text-yellow-400">{msg.text}</span></p>
+                                    )}
+                                    {msg.type === 'text' && (
+                                        <div className="bg-black/20 rounded-lg p-2 mt-1">
+                                            <p className="text-sm">{msg.text}</p>
+                                        </div>
+                                    )}
                                 </div>
-                            ))}
-                        </div>
-                    )}
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </main>
             
@@ -217,11 +212,7 @@ export default function VideoRoomPage() {
                          <Button 
                             type="button" 
                             size="icon" 
-                            className={cn(
-                                "w-10 h-10 rounded-full flex-shrink-0",
-                                isGiftPanelOpen ? "bg-primary" : "bg-yellow-500 hover:bg-yellow-600"
-                            )}
-                            onClick={() => setIsGiftPanelOpen(!isGiftPanelOpen)}
+                            className="w-10 h-10 rounded-full flex-shrink-0 bg-yellow-500 hover:bg-yellow-600"
                         >
                             <Gift />
                         </Button>
@@ -231,3 +222,5 @@ export default function VideoRoomPage() {
         </div>
     );
 }
+
+    
