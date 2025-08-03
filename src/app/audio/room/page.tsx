@@ -74,31 +74,33 @@ export default function AudioRoomPage() {
         setIsGiftPanelOpen(false);
 
         // This is a special gift that will trigger AI video generation
-        if (gift.name === 'Lion Cub') {
+        if (gift.isAiGift) {
             setIsGeneratingVideo(true);
             try {
-                // Fetch the image and convert to base64 data URI
-                const response = await fetch(gift.image);
-                const blob = await response.blob();
-                const reader = new FileReader();
-                reader.readAsDataURL(blob);
-                reader.onloadend = async () => {
-                    const base64data = reader.result as string;
-                    const result = await generateGiftVideo({
-                        giftImage: base64data,
-                        prompt: `Animate this ${gift.name}. Make it cinematic, emerging from a jungle and roaring powerfully at the screen.`
-                    });
-                    setVideoGift({ url: result.videoUrl, image: gift.image });
-                    setIsGeneratingVideo(false);
-                };
+                // Use our API proxy to fetch the image and get a data URI
+                const response = await fetch(`/api/image-proxy?url=${encodeURIComponent(gift.image)}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.details || 'Failed to fetch image via proxy');
+                }
+                const { dataUri } = await response.json();
+                
+                const result = await generateGiftVideo({
+                    giftImage: dataUri,
+                    prompt: `Animate this ${gift.name}. Make it cinematic, emerging from a jungle and roaring powerfully at the screen.`
+                });
+
+                setVideoGift({ url: result.videoUrl, image: gift.image });
+                
             } catch (error) {
                 console.error("Error generating video gift:", error);
-                setIsGeneratingVideo(false);
                 toast({
                     variant: "destructive",
                     title: "Video Generation Failed",
                     description: "Could not generate the video gift. Please try again.",
                 });
+            } finally {
+                setIsGeneratingVideo(false);
             }
         } else if ('videoUrl' in gift && gift.videoUrl) {
             setVideoGift({ url: gift.videoUrl, image: gift.image });
