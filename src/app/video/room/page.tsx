@@ -14,8 +14,21 @@ import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Card, CardContent } from "@/components/ui/card";
+import type { Gift as GiftType } from "@/components/room/GiftPanel";
 
-const initialMessages = [
+
+type Message = {
+    id: number;
+    type: 'text' | 'game' | 'gift' | 'notification';
+    author?: string;
+    text: string;
+    avatar?: string;
+    game?: string;
+    gift?: GiftType;
+};
+
+
+const initialMessages: Message[] = [
   { id: 2, type: 'text', author: 'Jodie', text: 'Hey everyone!', avatar: "https://placehold.co/40x40.png"},
   { id: 3, type: 'text', author: 'saba', text: 'Hi...', avatar: "https://placehold.co/40x40.png"},
 ];
@@ -164,20 +177,20 @@ export default function VideoRoomPage() {
                 <div ref={chatContainerRef} className="flex-1 overflow-y-auto space-y-3 px-4 pb-2">
                     {messages.map((msg) => (
                         <Fragment key={msg.id}>
-                            {(msg as any).type === 'notification' ? (
+                            {msg.type === 'notification' ? (
                                 <div className="text-center text-xs text-white/50 p-1">
                                     {msg.text}
                                 </div>
                             ) : (
                                 <div className="flex items-start gap-3">
                                     <Avatar className="h-8 w-8 shrink-0">
-                                        <AvatarImage src={(msg as any).avatar}/>
-                                        <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{(msg as any).author?.charAt(0)}</AvatarFallback>
+                                        <AvatarImage src={msg.avatar}/>
+                                        <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     <div className="text-sm">
-                                        <p className="text-white/70 text-xs">{(msg as any).author}</p>
-                                         {(msg as any).type === 'game' ? (
-                                             <p className="mt-1 text-xs">{(msg as any).author} <span className="font-bold text-yellow-400">{(msg as any).text}</span></p>
+                                        <p className="text-white/70 text-xs">{msg.author}</p>
+                                         {msg.type === 'game' ? (
+                                             <p className="mt-1 text-xs">{msg.author} <span className="font-bold text-yellow-400">{msg.text}</span></p>
                                          ) : (
                                             <div className="bg-black/20 rounded-lg p-2 mt-1">
                                                 <p className="text-sm">{msg.text}</p>
@@ -270,4 +283,6 @@ export default function VideoRoomPage() {
         </div>
     );
 }
+    
+
     
