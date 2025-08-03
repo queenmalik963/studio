@@ -271,7 +271,6 @@ const gifts = {
     { name: "Blizzard", price: 21000, image: "https://em-content.zobj.net/source/apple/391/snowflake_2744-fe0f.png", animation: 'bounce' },
     { name: "Sandstorm", price: 20000, image: "https://em-content.zobj.net/source/apple/391/desert_1f3dc-fe0f.png", animation: 'spin-slow' },
     { name: "Solar Flare", price: 65000, image: "https://em-content.zobj.net/source/apple/391/sun-with-face_1f31e.png", animation: 'pulse-luxury' },
-    // 50 done, 50 to go
     { name: "Mystical Orb", price: 12345, image: "https://em-content.zobj.net/source/apple/391/crystal-ball_1f52e.png", animation: 'spin-slow' },
     { name: "Clover Field", price: 777, image: "https://em-content.zobj.net/source/apple/391/four-leaf-clover_1f340.png", animation: 'bounce' },
     { name: "Golden Harp", price: 8500, image: "https://em-content.zobj.net/source/apple/391/violin_1f3bb.png", animation: 'shimmer' },
