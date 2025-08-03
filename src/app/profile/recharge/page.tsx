@@ -12,12 +12,12 @@ import { cn } from "@/lib/utils";
 const rechargePacks = [
   { coins: 100, price: "$0.99", color: "from-gray-500 to-gray-600" },
   { coins: 500, price: "$4.99", color: "from-green-500 to-emerald-600" },
-  { coins: 1200, price: "$9.99", bonus: "+100 Bonus", color: "from-sky-500 to-cyan-600" },
-  { coins: 2500, price: "$19.99", bonus: "+300 Bonus", color: "from-blue-500 to-indigo-600" },
-  { coins: 6500, price: "$49.99", bonus: "+1000 Bonus", popular: true, color: "from-purple-500 to-fuchsia-600" },
-  { coins: 14000, price: "$99.99", bonus: "+2500 Bonus", color: "from-rose-500 to-pink-600" },
-  { coins: 30000, price: "$199.99", bonus: "+6000 Bonus", color: "from-orange-500 to-amber-600" },
-  { coins: 50000, price: "$299.99", bonus: "+12000 Bonus", color: "from-red-500 to-red-700" },
+  { coins: 1200, price: "$9.99", bonus: "+100", color: "from-sky-500 to-cyan-600" },
+  { coins: 2500, price: "$19.99", bonus: "+300", color: "from-blue-500 to-indigo-600" },
+  { coins: 6500, price: "$49.99", bonus: "+1k", popular: true, color: "from-purple-500 to-fuchsia-600" },
+  { coins: 14000, price: "$99.99", bonus: "+2.5k", color: "from-rose-500 to-pink-600" },
+  { coins: 30000, price: "$199.99", bonus: "+6k", color: "from-orange-500 to-amber-600" },
+  { coins: 50000, price: "$299.99", bonus: "+12k", color: "from-red-500 to-red-700" },
 ];
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -59,25 +59,24 @@ export default function RechargePage() {
           <h1 className="text-2xl font-bold font-headline">Recharge Coins</h1>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-3">
           {rechargePacks.map((pack, index) => (
-            <Card key={index} className={`text-white bg-gradient-to-br ${pack.color} relative overflow-hidden`}>
+            <Card 
+              key={index} 
+              onClick={() => handleRecharge(pack.coins)}
+              className={cn(`text-white bg-gradient-to-br cursor-pointer relative overflow-hidden aspect-square flex flex-col justify-center items-center p-2 text-center`, pack.color)}
+            >
               {pack.popular && (
-                <div className="absolute top-2 right-[-25px] bg-yellow-400 text-black text-xs font-bold px-8 py-1 transform rotate-45">
-                  Popular
+                <div className="absolute top-0 right-[-18px] bg-yellow-400 text-black text-[8px] font-bold px-4 py-0.5 transform rotate-45">
+                  Pop
                 </div>
               )}
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-2xl">
-                  <Gem /> {pack.coins.toLocaleString()}
-                </CardTitle>
-                {pack.bonus && <CardDescription className="text-yellow-300 font-semibold">{pack.bonus}</CardDescription>}
-              </CardHeader>
-              <CardContent>
-                <Button className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-lg border border-white/30 text-lg font-bold" onClick={() => handleRecharge(pack.coins)}>
-                  {pack.price}
-                </Button>
-              </CardContent>
+               <div className="flex items-center gap-1">
+                  <Gem className="w-3 h-3" />
+                  <span className="font-bold text-sm">{pack.coins.toLocaleString()}</span>
+                </div>
+                {pack.bonus && <p className="text-yellow-300 font-semibold text-[10px]">{pack.bonus}</p>}
+                <p className="text-xs font-bold mt-1 bg-black/20 px-2 py-0.5 rounded-full">{pack.price}</p>
             </Card>
           ))}
         </div>
