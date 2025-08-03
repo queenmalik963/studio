@@ -14,10 +14,8 @@ import Image from "next/image";
 import { Label } from "@/components/ui/label";
 
 const initialMessages = [
-  { id: 1, type: 'notification', text: 'saba has joined' },
   { id: 2, type: 'text', author: 'Jodie', text: 'Hey everyone!', avatar: "https://placehold.co/40x40.png"},
   { id: 3, type: 'text', author: 'saba', text: 'Hi...', avatar: "https://placehold.co/40x40.png"},
-  { id: 4, type: 'notification', text: 'Lexa has left' },
 ];
 
 const roomSeats = [
