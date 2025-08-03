@@ -5,13 +5,14 @@ import { useState, useRef, useEffect, Fragment } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical } from "lucide-react";
+import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
+import { GiftPanel } from "@/components/room/GiftPanel";
 
 
 const initialMessages = [
@@ -38,10 +39,6 @@ const roomSeats = [
     { id: 15, user: { name: "User 15", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'amber' }, isOccupied: true },
 ]
 
-const GiftIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-1.87c0-1-1-2.27-2-1.9-1 .36-1 2-2 2s-1.44-.91-1.44-2 1.44-2 1.44-2 .81-1.33 2.56-2.56S13.43 8 15 8s1.86 1.43 2 2-1 2-2 2-2-1-2-2"/><path d="M20 14a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"/></svg>
-);
-
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
 );
@@ -51,6 +48,7 @@ export default function AudioRoomPage() {
     const router = useRouter();
     const [messages, setMessages] = useState(initialMessages);
     const [newMessage, setNewMessage] = useState("");
+    const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
     const owner = { name: "op_2", avatar: "https://placehold.co/40x40.png", isOwner: true };
@@ -211,36 +209,42 @@ export default function AudioRoomPage() {
                     ))}
                 </div>
 
-                 <div ref={chatContainerRef} className="flex-1 overflow-y-auto space-y-3 pr-2 mt-2">
-                    {messages.map((msg) => (
-                         <div key={msg.id} className="flex items-start gap-3">
-                             <Avatar className="h-8 w-8 shrink-0">
-                                <AvatarImage src={msg.avatar}/>
-                                <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                             <div className="text-sm">
-                                 <p className="text-white/70 text-xs">{msg.author}</p>
-                                 {msg.type === 'gift' && (
-                                     <div className="flex items-center gap-2 mt-1">
-                                         <p className="text-xs">Sent a RedRose</p>
-                                         <div className="bg-black/20 p-1 rounded-md flex items-center gap-1">
-                                            <Image src="https://em-content.zobj.net/source/apple/391/rose_1f339.png" alt="RedRose" width={16} height={16}/>
-                                            <span className="text-xs">x1</span>
-                                         </div>
-                                     </div>
-                                 )}
-                                  {msg.type === 'game' && (
-                                     <p className="mt-1 text-xs">{msg.author} <span className="font-bold text-yellow-400">{msg.text}</span></p>
-                                 )}
-                                 {msg.type === 'text' && (
-                                     <div className="bg-black/20 rounded-lg p-2 mt-1">
-                                        <p className="text-sm">{msg.text}</p>
-                                     </div>
-                                 )}
-                             </div>
-                         </div>
-                    ))}
-                </div>
+                <div className="flex-1 mt-2 relative">
+                    {isGiftPanelOpen ? (
+                        <GiftPanel />
+                    ) : (
+                        <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-3 pr-2">
+                            {messages.map((msg) => (
+                                <div key={msg.id} className="flex items-start gap-3">
+                                    <Avatar className="h-8 w-8 shrink-0">
+                                        <AvatarImage src={msg.avatar}/>
+                                        <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="text-sm">
+                                        <p className="text-white/70 text-xs">{msg.author}</p>
+                                        {msg.type === 'gift' && (
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <p className="text-xs">Sent a RedRose</p>
+                                                <div className="bg-black/20 p-1 rounded-md flex items-center gap-1">
+                                                    <Image src="https://em-content.zobj.net/source/apple/391/rose_1f339.png" alt="RedRose" width={16} height={16}/>
+                                                    <span className="text-xs">x1</span>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {msg.type === 'game' && (
+                                            <p className="mt-1 text-xs">{msg.author} <span className="font-bold text-yellow-400">{msg.text}</span></p>
+                                        )}
+                                        {msg.type === 'text' && (
+                                            <div className="bg-black/20 rounded-lg p-2 mt-1">
+                                                <p className="text-sm">{msg.text}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                 </div>
             </main>
             
             <footer className="flex-shrink-0 bg-[#1F0A2E] border-t border-white/10 relative">
@@ -270,8 +274,16 @@ export default function AudioRoomPage() {
                          <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0">
                             <RectangleVertical />
                         </Button>
-                         <Button type="button" size="icon" className="w-10 h-10 bg-yellow-500 hover:bg-yellow-600 rounded-full flex-shrink-0">
-                            <GiftIcon />
+                         <Button 
+                            type="button" 
+                            size="icon"
+                            className={cn(
+                                "w-10 h-10 rounded-full flex-shrink-0",
+                                isGiftPanelOpen ? "bg-primary" : "bg-yellow-500 hover:bg-yellow-600"
+                            )}
+                            onClick={() => setIsGiftPanelOpen(!isGiftPanelOpen)}
+                         >
+                            <Gift />
                         </Button>
                     </div>
                 </div>
