@@ -14,7 +14,7 @@ const navItems = [
   { href: '/home', label: 'Home', icon: Home },
   { href: '/audio', label: 'Audio', icon: Mic },
   { href: '/video', label: 'Video', icon: PlaySquare },
-  { href: '/chat', label: 'Chat', icon: MessageCircle, badge: 9 },
+  { href: '/chat', label: 'Chat', icon: MessageCircle, badge: 0 },
   { href: '/profile', label: 'Profile', icon: User },
 ];
 
@@ -60,7 +60,7 @@ function SidebarNav() {
                         >
                             <item.icon className="mr-4 h-5 w-5" />
                             {item.label}
-                            {item.badge && <Badge className="absolute right-4 bg-red-500 text-white">{item.badge}</Badge>}
+                            {item.badge > 0 && <Badge className="absolute right-4 bg-red-500 text-white">{item.badge}</Badge>}
                         </Button>
                     </Link>
                 ))}
@@ -90,7 +90,7 @@ function BottomNav() {
                         )}>
                             <item.icon className="h-6 w-6" />
                             <span className="text-xs font-medium">{item.label}</span>
-                             {item.badge && <Badge className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0 bg-red-500 text-white">{item.badge}</Badge>}
+                             {item.badge > 0 && <Badge className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0 bg-red-500 text-white">{item.badge}</Badge>}
                         </div>
                     </Link>
                 ))}

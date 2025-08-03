@@ -9,39 +9,7 @@ import { Search } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-const conversations = [
-  {
-    id: 'jane-doe',
-    author: "Jane Doe",
-    avatar: "https://placehold.co/40x40.png",
-    text: "It's a surprise guest, but I heard it's going to be epic!",
-    timestamp: "5:02 PM",
-    unread: 2,
-  },
-  {
-    id: 'john-smith',
-    author: "John Smith",
-    avatar: "https://placehold.co/40x40.png",
-    text: "See you at the main stage!",
-    timestamp: "4:30 PM",
-    unread: 0,
-  },
-  {
-    id: 'rave-squad',
-    author: "Rave Squad",
-    avatar: "https://placehold.co/40x40.png",
-    text: "Who's ready for tonight?! 🔥",
-    timestamp: "1:15 PM",
-    unread: 5,
-  },
-    {
-    id: 'dj-charlotte',
-    author: "DJ Charlotte",
-    avatar: "https://placehold.co/40x40.png",
-    text: "Sound check is done. It's going to be loud.",
-    timestamp: "Yesterday",
-    unread: 0,
-  },
+const conversations: any[] = [
 ];
 
 export default function ChatListPage() {
@@ -57,34 +25,42 @@ export default function ChatListPage() {
                 </header>
 
                 <div className="flex-1 overflow-y-auto -mx-4 px-4">
-                    <div className="space-y-1">
-                        {conversations.map((chat) => (
-                           <Link href={`/chat/${chat.id}`} key={chat.id} className="block">
-                             <Card className="bg-card/50 hover:bg-card/80 transition-colors border-transparent hover:border-primary/20">
-                                 <CardContent className="p-3 flex items-center gap-4">
-                                     <Avatar className="h-12 w-12 border-2 border-primary/50">
-                                        <AvatarImage src={chat.avatar} alt={chat.author} />
-                                        <AvatarFallback>{chat.author.charAt(0)}</AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex-1 overflow-hidden">
-                                        <div className="flex justify-between items-center">
-                                            <p className="font-semibold truncate">{chat.author}</p>
-                                            <p className="text-xs text-muted-foreground">{chat.timestamp}</p>
+                    {conversations.length > 0 ? (
+                        <div className="space-y-1">
+                            {conversations.map((chat) => (
+                               <Link href={`/chat/${chat.id}`} key={chat.id} className="block">
+                                 <Card className="bg-card/50 hover:bg-card/80 transition-colors border-transparent hover:border-primary/20">
+                                     <CardContent className="p-3 flex items-center gap-4">
+                                         <Avatar className="h-12 w-12 border-2 border-primary/50">
+                                            <AvatarImage src={chat.avatar} alt={chat.author} />
+                                            <AvatarFallback>{chat.author.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1 overflow-hidden">
+                                            <div className="flex justify-between items-center">
+                                                <p className="font-semibold truncate">{chat.author}</p>
+                                                <p className="text-xs text-muted-foreground">{chat.timestamp}</p>
+                                            </div>
+                                            <div className="flex justify-between items-start mt-1">
+                                                <p className="text-sm text-muted-foreground truncate">{chat.text}</p>
+                                                 {chat.unread > 0 && (
+                                                    <span className="flex items-center justify-center bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 ml-2">
+                                                        {chat.unread}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div className="flex justify-between items-start mt-1">
-                                            <p className="text-sm text-muted-foreground truncate">{chat.text}</p>
-                                             {chat.unread > 0 && (
-                                                <span className="flex items-center justify-center bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 ml-2">
-                                                    {chat.unread}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                 </CardContent>
-                             </Card>
-                           </Link>
-                        ))}
-                    </div>
+                                     </CardContent>
+                                 </Card>
+                               </Link>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+                            <MessageCircle className="w-16 h-16 mb-4" />
+                            <h2 className="text-xl font-semibold">No Messages Yet</h2>
+                            <p className="text-sm">Start a conversation to see it here.</p>
+                        </div>
+                    )}
                 </div>
 
             </div>
