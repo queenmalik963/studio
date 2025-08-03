@@ -54,27 +54,22 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card className="bg-gradient-to-br from-purple-600 to-indigo-800 text-white">
-                        <CardHeader>
-                            <CardTitle>My Levels</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                                <div className="flex justify-between items-center text-sm font-semibold text-white/80">
-                                    <p className="flex items-center"><Star className="w-4 h-4 mr-1 text-yellow-300"/> ID Level (Receiver)</p>
-                                    <p>{idLevel}/100</p>
-                                </div>
-                                <Progress value={idLevel} className="h-2 bg-white/20 [&>div]:bg-yellow-400" />
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center text-sm font-semibold">
+                                <p className="flex items-center"><Star className="w-4 h-4 mr-1 text-yellow-300"/> ID Level (Receiver)</p>
+                                <p>{idLevel}/100</p>
                             </div>
-                            <div className="space-y-2">
-                                <div className="flex justify-between items-center text-sm font-semibold text-white/80">
-                                    <p className="flex items-center"><Send className="w-4 h-4 mr-1 text-sky-300"/> Sending Level (Gifter)</p>
-                                    <p>{sendingLevel}/100</p>
-                                </div>
-                                <Progress value={sendingLevel} className="h-2 bg-white/20 [&>div]:bg-sky-400" />
+                            <Progress value={idLevel} className="h-2 bg-muted [&>div]:bg-yellow-400" />
+                        </div>
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center text-sm font-semibold">
+                                <p className="flex items-center"><Send className="w-4 h-4 mr-1 text-sky-300"/> Sending Level (Gifter)</p>
+                                <p>{sendingLevel}/100</p>
                             </div>
-                        </CardContent>
-                    </Card>
+                            <Progress value={sendingLevel} className="h-2 bg-muted [&>div]:bg-sky-400" />
+                        </div>
+                    </div>
 
                     <Card className="bg-gradient-to-br from-green-600 to-teal-800 text-white">
                          <CardHeader>
