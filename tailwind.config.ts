@@ -149,6 +149,10 @@ export default {
             '0%, 100%': { boxShadow: '0 0 10px 2px rgba(245,158,11,0.4)' },
             '50%': { boxShadow: '0 0 20px 5px rgba(245,158,11,0.8)' },
         },
+         'glow-silver': {
+            '0%, 100%': { boxShadow: '0 0 10px 2px rgba(191,191,191,0.4)' },
+            '50%': { boxShadow: '0 0 20px 5px rgba(191,191,191,0.8)' },
+        },
         'fly-across': {
           '0%': { transform: 'translateX(-100%)', opacity: '0' },
           '20%, 80%': { opacity: '1' },
@@ -198,6 +202,7 @@ export default {
         'glow-emerald': 'glow-emerald 2s ease-in-out infinite',
         'glow-sky': 'glow-sky 2s ease-in-out infinite',
         'glow-amber': 'glow-amber 2s ease-in-out infinite',
+        'glow-silver': 'glow-silver 2s ease-in-out infinite',
         'fly-across': 'fly-across 3s ease-in-out infinite',
         'shimmer': 'shimmer 2.5s ease-in-out infinite',
         'pulse-luxury': 'pulse-luxury 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
