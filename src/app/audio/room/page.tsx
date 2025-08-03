@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, Fragment } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, X } from "lucide-react";
+import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, X, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +14,8 @@ import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import { GiftPanel, type Gift as GiftType } from "@/components/room/GiftPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { generateGiftVideo, type GenerateGiftVideoOutput } from '@/ai/flows/generate-gift-video';
+import * as fs from 'fs';
 
 
 const initialMessages = [
@@ -51,7 +53,9 @@ export default function AudioRoomPage() {
     const [newMessage, setNewMessage] = useState("");
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
     const chatContainerRef = useRef<HTMLDivElement>(null);
-    const [videoGiftUrl, setVideoGiftUrl] = useState<string | null>(null);
+    const [videoGift, setVideoGift] = useState<{url: string, image: string} | null>(null);
+    const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
+    const { toast } = useToast();
 
     const owner = { name: "op_2", avatar: "https://placehold.co/40x40.png", isOwner: true };
     
@@ -66,10 +70,38 @@ export default function AudioRoomPage() {
         // Sending logic would be here
     };
 
-    const handleSendGift = (gift: GiftType) => {
+    const handleSendGift = async (gift: GiftType) => {
         setIsGiftPanelOpen(false);
-        if ('videoUrl' in gift && gift.videoUrl) {
-            setVideoGiftUrl(gift.videoUrl);
+
+        // This is a special gift that will trigger AI video generation
+        if (gift.name === 'Lion Cub') {
+            setIsGeneratingVideo(true);
+            try {
+                // Fetch the image and convert to base64 data URI
+                const response = await fetch(gift.image);
+                const blob = await response.blob();
+                const reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onloadend = async () => {
+                    const base64data = reader.result as string;
+                    const result = await generateGiftVideo({
+                        giftImage: base64data,
+                        prompt: `Animate this ${gift.name}. Make it cinematic, emerging from a jungle and roaring powerfully at the screen.`
+                    });
+                    setVideoGift({ url: result.videoUrl, image: gift.image });
+                    setIsGeneratingVideo(false);
+                };
+            } catch (error) {
+                console.error("Error generating video gift:", error);
+                setIsGeneratingVideo(false);
+                toast({
+                    variant: "destructive",
+                    title: "Video Generation Failed",
+                    description: "Could not generate the video gift. Please try again.",
+                });
+            }
+        } else if ('videoUrl' in gift && gift.videoUrl) {
+            setVideoGift({ url: gift.videoUrl, image: gift.image });
         } else {
              // Handle regular gift sending
             console.log("Sending gift:", gift.name);
@@ -191,7 +223,7 @@ export default function AudioRoomPage() {
                                     </>
                                 ) : (
                                     <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                        {seat.isLocked ? <Lock className="w-5 h-5 text-white/50"/> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
+                                        <Lock className="w-5 h-5 text-white/50"/>
                                     </div>
                                 )}
                             </div>
@@ -218,7 +250,7 @@ export default function AudioRoomPage() {
                                     </>
                                 ) : (
                                    <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                        {seat.isLocked ? <Lock className="w-5 h-5 text-white/50"/> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
+                                        <span className="text-lg font-bold text-white/50">{seat.id}</span>
                                     </div>
                                )}
                             </div>
@@ -245,7 +277,7 @@ export default function AudioRoomPage() {
                                     </>
                                 ) : (
                                    <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                        {seat.isLocked ? <Lock className="w-5 h-5 text-white/50"/> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
+                                        <span className="text-lg font-bold text-white/50">{seat.id}</span>
                                     </div>
                                )}
                             </div>
@@ -332,17 +364,23 @@ export default function AudioRoomPage() {
                     </div>
                 </div>
             </footer>
-            {videoGiftUrl && (
+            {isGeneratingVideo && (
+                <div className="absolute inset-0 z-50 bg-black/80 flex flex-col items-center justify-center gap-4">
+                    <Loader2 className="w-16 h-16 text-primary animate-spin" />
+                    <p className="text-white/80 font-semibold text-lg">Generating your gift... Please wait.</p>
+                </div>
+            )}
+            {videoGift && (
                 <div 
                     className="absolute inset-0 z-50 bg-black/80 flex items-center justify-center"
-                    onClick={() => setVideoGiftUrl(null)}
+                    onClick={() => setVideoGift(null)}
                 >
-                    <video src={videoGiftUrl} autoPlay loop muted className="w-full h-full object-contain" />
+                    <video key={videoGift.url} src={videoGift.url} autoPlay controls className="w-full h-full object-contain" />
                     <Button 
                         variant="ghost" 
                         size="icon" 
                         className="absolute top-4 right-4 text-white bg-black/50 rounded-full"
-                        onClick={() => setVideoGiftUrl(null)}
+                        onClick={() => setVideoGift(null)}
                     >
                         <X />
                     </Button>
@@ -351,5 +389,3 @@ export default function AudioRoomPage() {
         </div>
     );
 }
-
-    
