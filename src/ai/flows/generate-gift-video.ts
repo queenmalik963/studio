@@ -93,8 +93,8 @@ const generateGiftVideoFlow = ai.defineFlow(
         throw new Error(`Failed to download generated video. Status: ${videoResponse.status}`);
     }
     
-    const videoBuffer = await videoResponse.buffer();
-    const videoBase64 = videoBuffer.toString('base64');
+    const videoBuffer = await videoResponse.arrayBuffer();
+    const videoBase64 = Buffer.from(videoBuffer).toString('base64');
     const videoDataUri = `data:${videoPart.media.contentType || 'video/mp4'};base64,${videoBase64}`;
 
     return {

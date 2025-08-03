@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useEffect, Fragment } from "react";
@@ -15,7 +14,6 @@ import { Label } from "@/components/ui/label";
 import { GiftPanel, type Gift as GiftType } from "@/components/room/GiftPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { generateGiftVideo, type GenerateGiftVideoOutput } from '@/ai/flows/generate-gift-video';
-import * as fs from 'fs';
 
 
 const initialMessages = [
@@ -96,8 +94,8 @@ export default function AudioRoomPage() {
                 console.error("Error generating video gift:", error);
                 
                 let description = "Could not generate the video gift. Please try again.";
-                if (error.message && (error.message.includes('API key not valid') || error.message.includes('GEMINI_API_KEY'))) {
-                    description = "Your Gemini API key is not valid. Please check your .env file and restart the server.";
+                if (error.message && (error.message.includes('API key not valid') || error.message.includes('GEMINI_API_KEY') || error.message.includes('FAILED_PRECONDITION'))) {
+                    description = "Your Gemini API key is not valid or is missing. Please check your .env file and restart the development server.";
                 } else if (error.message && error.message.includes('429')) {
                     description = "You have exceeded your API quota. Please check your billing account or try again later.";
                 }
@@ -216,12 +214,11 @@ export default function AudioRoomPage() {
                                 {seat.isOccupied && seat.user ? (
                                     <>
                                         <div className="relative w-[54px] h-[54px] flex items-center justify-center">
-                                            <div className="w-[52px] h-[52px] rounded-full spinning-border animate-spin-colors p-px">
-                                                <Avatar className={cn("w-full h-full", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent')}>
-                                                    <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                                    <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                                </Avatar>
-                                            </div>
+                                            <div className="absolute inset-0 spinning-border animate-spin-colors rounded-full"></div>
+                                            <Avatar className={cn("w-[50px] h-[50px] border-2 bg-[#2E103F]", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                            </Avatar>
                                             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
                                                 {seat.user.isMuted ? 
                                                     <Mic className="w-3 h-3 text-red-500" /> :
