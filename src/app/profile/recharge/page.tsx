@@ -18,6 +18,7 @@ const rechargePacks = [
   { coins: 14000, price: "$99.99", bonus: "+2.5k", color: "from-rose-500 to-pink-600" },
   { coins: 30000, price: "$199.99", bonus: "+6k", color: "from-orange-500 to-amber-600" },
   { coins: 50000, price: "$299.99", bonus: "+12k", color: "from-red-500 to-red-700" },
+  { coins: 70000, price: "$499.99", bonus: "+15k", color: "from-red-600 to-orange-700" },
 ];
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
