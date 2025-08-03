@@ -66,12 +66,12 @@ export default function ProfilePage() {
                     <Progress value={sendingLevel} className="h-2 bg-muted [&>div]:bg-sky-400" />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Card className="bg-gradient-to-br from-green-800/70 to-teal-900/70 text-white">
-                         <CardHeader>
+                         <CardHeader className="p-4">
                             <CardTitle>My Wallet</CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-2">
+                        <CardContent className="p-4 space-y-2">
                             <div className="grid grid-cols-2 gap-2">
                                 <div className="flex items-center justify-center bg-white/10 p-2 rounded-lg gap-2">
                                     <Coins className="w-5 h-5 text-yellow-300" />
@@ -90,7 +90,7 @@ export default function ProfilePage() {
                             </div>
                             
                             <Link href="/profile/recharge" passHref>
-                               <Button variant="ghost" className="w-full justify-between h-10 bg-white/10 hover:bg-white/20 text-xs">
+                               <Button variant="ghost" className="w-full justify-between h-9 bg-white/10 hover:bg-white/20 text-xs">
                                     <div className="flex items-center gap-2">
                                         <Coins className="text-yellow-300" />
                                         <span>Recharge</span>
@@ -99,7 +99,7 @@ export default function ProfilePage() {
                                </Button>
                             </Link>
                             <Link href="/profile/withdraw" passHref>
-                                <Button variant="ghost" className="w-full justify-between h-10 bg-white/10 hover:bg-white/20 text-xs">
+                                <Button variant="ghost" className="w-full justify-between h-9 bg-white/10 hover:bg-white/20 text-xs">
                                      <div className="flex items-center gap-2">
                                         <Landmark className="text-cyan-300" />
                                         <span>Withdraw</span>
@@ -111,11 +111,11 @@ export default function ProfilePage() {
                     </Card>
 
                     <Card className="bg-gradient-to-br from-pink-800/70 to-rose-900/70 text-white">
-                        <CardHeader>
+                        <CardHeader className="p-4">
                             <CardTitle>My Store</CardTitle>
                             <CardDescription className="text-white/80">Customize your profile.</CardDescription>
                         </CardHeader>
-                        <CardContent className="grid grid-cols-2 gap-4">
+                        <CardContent className="p-4 grid grid-cols-2 gap-2">
                             <Link href="/profile/vip" className="block">
                                 <Card className="h-full bg-white/10 hover:bg-white/20 transition-colors text-center p-2 flex flex-col items-center justify-center gap-2">
                                     <Star className="w-6 h-6 text-yellow-300"/>
