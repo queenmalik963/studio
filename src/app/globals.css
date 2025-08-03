@@ -86,3 +86,11 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .spinning-border {
+    position: relative;
+    border-radius: 9999px;
+    background: conic-gradient(from 180deg at 50% 50%, #fde047, #f97316, #ec4899, #8b5cf6, #3b82f6, #14b8a6, #a3e635, #fde047);
+  }
+}

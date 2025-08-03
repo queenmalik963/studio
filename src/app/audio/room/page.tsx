@@ -134,14 +134,13 @@ export default function AudioRoomPage() {
                             <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
                                 {seat.isOccupied && seat.user ? (
                                     <>
-                                        <div className="relative w-[54px] h-[54px]">
-                                             <Avatar className={cn(
-                                                "w-[50px] h-[50px] border-2", 
-                                                seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent'
-                                            )}>
-                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                                <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                            </Avatar>
+                                        <div className="relative w-[54px] h-[54px] flex items-center justify-center">
+                                            <div className="w-[52px] h-[52px] rounded-full spinning-border animate-spin-colors p-px">
+                                                <Avatar className="w-full h-full">
+                                                    <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                    <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                                </Avatar>
+                                            </div>
                                             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
                                                 {seat.user.isMuted ? 
                                                     <Mic className="w-3 h-3 text-red-500" /> :
