@@ -174,8 +174,8 @@ export default function AudioRoomPage() {
                 </div>
             </header>
 
-            <main className="flex-1 flex flex-col p-4 pt-0 overflow-hidden gap-2">
-                 <div className="flex-shrink-0 space-y-1">
+            <main className="flex-1 flex flex-col pt-0 overflow-hidden gap-2">
+                 <div className="flex-shrink-0 space-y-1 px-4">
                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
                         {roomSeats.slice(0, 5).map((seat) => (
                             <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
@@ -264,7 +264,7 @@ export default function AudioRoomPage() {
                     {isGiftPanelOpen ? (
                         <GiftPanel onSendGift={handleSendGift} />
                     ) : (
-                        <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-3 pr-2">
+                        <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-3 px-4 pr-2">
                             {messages.map((msg) => (
                                 <div key={msg.id} className="flex items-start gap-3">
                                     <Avatar className="h-8 w-8 shrink-0">
