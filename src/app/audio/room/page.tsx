@@ -30,6 +30,13 @@ const roomSeats = [
     { id: 6, user: { name: "saba", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'red' }, isOccupied: true },
     { id: 7, user: { name: "MR ISMAIL", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'cyan' }, isOccupied: true },
     { id: 8, user: { name: "Riz", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'teal' }, isOccupied: true },
+    { id: 9, user: { name: "User 9", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'orange' }, isOccupied: true },
+    { id: 10, user: { name: "User 10", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'indigo' }, isOccupied: true },
+    { id: 11, isOccupied: false },
+    { id: 12, isOccupied: false },
+    { id: 13, isOccupied: false },
+    { id: 14, isOccupied: false },
+    { id: 15, isOccupied: false, isLocked: true },
 ]
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -65,6 +72,7 @@ export default function AudioRoomPage() {
              // Handle regular gift sending
             console.log("Sending gift:", gift.name);
         }
+        setIsGiftPanelOpen(false);
     }
 
     const frameColors: {[key: string]: string} = {
@@ -157,8 +165,8 @@ export default function AudioRoomPage() {
                             </div>
                         ))}
                     </div>
-                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
-                        {roomSeats.slice(5, 8).map((seat) => (
+                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center mt-1">
+                        {roomSeats.slice(5, 10).map((seat) => (
                              <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
                                 {seat.isOccupied && seat.user ? (
                                     <>
@@ -178,7 +186,34 @@ export default function AudioRoomPage() {
                                     </>
                                 ) : (
                                    <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                        <span className="text-lg font-bold text-white/50">{seat.id}</span>
+                                        {seat.isLocked ? <Lock className="w-5 h-5 text-white/50"/> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
+                                    </div>
+                               )}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center mt-1">
+                        {roomSeats.slice(10, 15).map((seat) => (
+                             <div key={seat.id} className="flex flex-col items-center gap-1 w-[50px] text-center">
+                                {seat.isOccupied && seat.user ? (
+                                    <>
+                                        <div className="relative">
+                                            <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1">
+                                                {seat.user.isMuted ? 
+                                                    <Mic className="w-3 h-3 text-red-500" /> :
+                                                    <Mic className="w-3 h-3 text-green-400" />
+                                                }
+                                            </div>
+                                        </div>
+                                        <p className="text-xs truncate w-full">{seat.user.name}</p>
+                                    </>
+                                ) : (
+                                   <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                        {seat.isLocked ? <Lock className="w-5 h-5 text-white/50"/> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
                                     </div>
                                )}
                             </div>
