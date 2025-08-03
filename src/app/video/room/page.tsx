@@ -228,7 +228,7 @@ export default function VideoRoomPage() {
                             <Mic />
                         </Button>
                          <Button type="button" size="icon" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0" onClick={() => setIsGamePanelOpen(true)}><Gamepad2 /></Button>
-                         <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0">
+                         <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={() => setIsGamePanelOpen(true)}>
                             <RectangleVertical />
                         </Button>
                          <Button 

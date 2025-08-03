@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, Fragment, createRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, X, Loader2, Crown } from "lucide-react";
+import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, X, Loader2, Crown, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -63,10 +63,12 @@ export default function AudioRoomPage() {
     const [newMessage, setNewMessage] = useState("");
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
+    const [isControlsPanelOpen, setIsControlsPanelOpen] = useState(false);
     const [animatedGift, setAnimatedGift] = useState<GiftType | null>(null);
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
     const seatRefs = useRef(roomSeats.map(() => createRef<HTMLDivElement>()));
     const sendButtonRef = useRef<HTMLButtonElement>(null);
@@ -143,6 +145,23 @@ export default function AudioRoomPage() {
 
     const handleAnimationComplete = (id: number) => {
         setJumpAnimations(prev => prev.filter(anim => anim.id !== id));
+    };
+
+    const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            setMessages(prev => [
+                ...prev,
+                {
+                    id: Date.now(),
+                    type: 'text',
+                    author: 'System',
+                    text: `You selected "${file.name}" to play.`,
+                    avatar: "https://placehold.co/40x40.png" 
+                }
+            ]);
+            setIsControlsPanelOpen(false);
+        }
     };
 
 
@@ -404,7 +423,7 @@ export default function AudioRoomPage() {
                             <Mic />
                         </Button>
                          <Button type="button" size="icon" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0" onClick={() => setIsGamePanelOpen(true)}><Gamepad2 /></Button>
-                         <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0">
+                         <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={() => setIsControlsPanelOpen(true)}>
                             <RectangleVertical />
                         </Button>
                          <Button 
@@ -421,7 +440,8 @@ export default function AudioRoomPage() {
                     </div>
                 </div>
             </footer>
-             <Sheet open={isGamePanelOpen} onOpenChange={setIsGamePanelOpen}>
+
+            <Sheet open={isGamePanelOpen} onOpenChange={setIsGamePanelOpen}>
                 <SheetContent side="bottom" className="bg-[#1F0A2E] border-t-2 border-primary/50 text-white rounded-t-2xl" style={{ height: '45vh' }}>
                     <SheetHeader>
                         <div className="flex justify-between items-center mb-4">
@@ -461,6 +481,33 @@ export default function AudioRoomPage() {
                             </Card>
                         </div>
                     </ScrollArea>
+                </SheetContent>
+            </Sheet>
+
+            <Sheet open={isControlsPanelOpen} onOpenChange={setIsControlsPanelOpen}>
+                <SheetContent side="bottom" className="bg-[#1F0A2E] border-t-2 border-primary/50 text-white rounded-t-2xl" style={{ height: '45vh' }}>
+                    <SheetHeader>
+                        <SheetTitle className="text-2xl font-headline text-white">Room Controls</SheetTitle>
+                    </SheetHeader>
+                    <div className="py-4">
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileSelect}
+                            accept="audio/mp3"
+                            className="hidden"
+                        />
+                        <Card 
+                            className="bg-black/30 border-white/20 cursor-pointer hover:bg-black/40"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            <CardContent className="p-4 flex flex-col items-center justify-center gap-2 text-center">
+                                <Upload className="w-12 h-12 text-primary" />
+                                <h3 className="font-semibold text-lg">Upload Track</h3>
+                                <p className="text-xs text-muted-foreground">Select an MP3 file from your device</p>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </SheetContent>
             </Sheet>
         </div>
