@@ -26,9 +26,9 @@ const initialMessages = [
 ];
 
 const roomSeats = [
-    { id: 1, user: { name: "Jodie", avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png", isMuted: false, frame: 'dragon-fury' }, isOccupied: true },
+    { id: 1, user: { name: "Jodie", avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png", isMuted: false, frame: 'master' }, isOccupied: true },
     { id: 2, user: { name: "Koko", avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png", isMuted: false, frame: 'gold' }, isOccupied: true },
-    { id: 3, user: { name: "User 3", avatar: "https://em-content.zobj.net/source/apple/391/woman-wearing-turban_1f473-200d-2640-fe0f.png", isMuted: true, frame: 'purple' }, isOccupied: true },
+    { id: 3, user: { name: "User 3", avatar: "https://em-content.zobj.net/source/apple/391/woman-wearing-turban_1f473-200d-2640-fe0f.png", isMuted: true, frame: 'platinum' }, isOccupied: true },
     { id: 4, user: { name: "Lexa", avatar: "https://em-content.zobj.net/source/apple/391/man-in-tuxedo_1f935.png", isMuted: true, frame: 'blue' }, isOccupied: true },
     { id: 5, user: { name: "mhay", avatar: "https://em-content.zobj.net/source/apple/391/woman-with-headscarf_1f9d5.png", isMuted: true, frame: 'green' }, isOccupied: true },
     { id: 6, user: { name: "saba", avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png", isMuted: false, frame: 'red' }, isOccupied: true },
@@ -172,7 +172,15 @@ export default function AudioRoomPage() {
 
 
     const specialFrames: {[key: string]: {img: string}} = {
+        'master': { img: 'https://i.imgur.com/DADsWdw.gif' },
         'dragon-fury': { img: 'https://i.imgur.com/DADsWdw.gif' },
+    }
+    
+    const frameSvgs: {[key: string]: React.ElementType} = {
+      'bronze': (props: any) => (<svg {...props} viewBox="0 0 100 100"><path d="M50,2.5A47.5,47.5,0,1,1,2.5,50,47.5,47.5,0,0,1,50,2.5" fill="none" stroke="#cd7f32" strokeWidth="5"/><path d="M50,2.5L55,10L50,17.5L45,10Z" fill="#cd7f32"/><path d="M50,97.5L55,90L50,82.5L45,90Z" fill="#cd7f32"/><path d="M2.5,50L10,55L17.5,50L10,45Z" fill="#cd7f32"/><path d="M97.5,50L90,55L82.5,50L90,45Z" fill="#cd7f32"/></svg>),
+      'silver': (props: any) => (<svg {...props} viewBox="0 0 100 100"><path d="M50,2.5A47.5,47.5,0,1,1,2.5,50,47.5,47.5,0,0,1,50,2.5" fill="none" stroke="#c0c0c0" strokeWidth="5" strokeDasharray="10 5"/><circle cx="20" cy="20" r="5" fill="#c0c0c0"/><circle cx="80" cy="20" r="5" fill="#c0c0c0"/><circle cx="20" cy="80" r="5" fill="#c0c0c0"/><circle cx="80" cy="80" r="5" fill="#c0c0c0"/></svg>),
+      'gold': (props: any) => (<svg {...props} viewBox="0 0 100 100"><path d="M50,2.5A47.5,47.5,0,1,1,2.5,50,47.5,47.5,0,0,1,50,2.5" fill="none" stroke="gold" strokeWidth="5"/><path d="M50,15 L55,25 L65,25 L57.5,32.5 L60,42.5 L50,37.5 L40,42.5 L42.5,32.5 L35,25 L45,25 Z" fill="gold"/></svg>),
+      'platinum': (props: any) => (<svg {...props} viewBox="0 0 100 100"><rect x="2.5" y="2.5" width="95" height="95" rx="50" fill="none" stroke="#e5e4e2" strokeWidth="5"/><path d="M10,30 L90,30 M10,50 L90,50 M10,70 L90,70" stroke="#e5e4e2" strokeWidth="3"/></svg>)
     }
 
     const frameColors: {[key: string]: string} = {
@@ -191,6 +199,8 @@ export default function AudioRoomPage() {
         emerald: 'border-emerald-400 animate-glow-emerald',
         sky: 'border-sky-400 animate-glow-sky',
         amber: 'border-amber-400 animate-glow-amber',
+        master: 'border-purple-400 animate-glow-purple',
+        platinum: 'border-cyan-300 animate-glow-cyan',
     }
     
     const frameBorderColors: {[key: string]: string} = {
@@ -300,104 +310,122 @@ export default function AudioRoomPage() {
             <main className="flex-1 flex flex-col pt-0 overflow-hidden gap-2">
                  <div className="flex-shrink-0 space-y-1 px-4">
                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
-                        {roomSeats.slice(0, 5).map((seat, index) => (
-                            <div key={seat.id} ref={seatRefs.current[index]} className="flex flex-col items-center gap-1 w-[50px] text-center">
-                                {seat.isOccupied && seat.user ? (
-                                    <>
-                                        <div className="relative w-[50px] h-[50px] flex items-center justify-center">
-                                            {specialFrames[seat.user.frame] && (
-                                                <div className="absolute inset-[-4px] pointer-events-none">
-                                                    <Image src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
-                                                </div>
-                                            )}
-                                            <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
+                        {roomSeats.slice(0, 5).map((seat, index) => {
+                            const FrameSvg = frameSvgs[seat.user.frame];
+                            return (
+                                <div key={seat.id} ref={seatRefs.current[index]} className="flex flex-col items-center gap-1 w-[50px] text-center">
+                                    {seat.isOccupied && seat.user ? (
+                                        <>
+                                            <div className="relative w-[50px] h-[50px] flex items-center justify-center">
+                                                {specialFrames[seat.user.frame] && (
+                                                    <div className="absolute inset-[-4px] pointer-events-none">
+                                                        <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                                                    </div>
+                                                )}
+                                                {FrameSvg && (
+                                                    <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
+                                                )}
+                                                <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
 
-                                            <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                                <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                            </Avatar>
-                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
-                                                {seat.user.isMuted ? 
-                                                    <Mic className="w-3 h-3 text-red-500" /> :
-                                                    <Mic className="w-3 h-3 text-green-400" />
-                                                }
+                                                <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                    <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                    <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                                </Avatar>
+                                                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
+                                                    {seat.user.isMuted ? 
+                                                        <Mic className="w-3 h-3 text-red-500" /> :
+                                                        <Mic className="w-3 h-3 text-green-400" />
+                                                    }
+                                                </div>
                                             </div>
+                                            <p className="text-xs truncate w-full">{seat.user.name}</p>
+                                        </>
+                                    ) : (
+                                        <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                            <Lock className="w-5 h-5 text-white/50"/>
                                         </div>
-                                        <p className="text-xs truncate w-full">{seat.user.name}</p>
-                                    </>
-                                ) : (
-                                    <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                        <Lock className="w-5 h-5 text-white/50"/>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                                    )}
+                                </div>
+                            )
+                        })}
                     </div>
                      <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
-                        {roomSeats.slice(5, 10).map((seat, index) => (
-                             <div key={seat.id} ref={seatRefs.current[index + 5]} className="flex flex-col items-center gap-1 w-[50px] text-center">
-                                {seat.isOccupied && seat.user ? (
-                                    <>
-                                       <div className="relative w-[50px] h-[50px] flex items-center justify-center">
-                                            {specialFrames[seat.user.frame] && (
-                                                <div className="absolute inset-[-4px] pointer-events-none">
-                                                    <Image src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                        {roomSeats.slice(5, 10).map((seat, index) => {
+                            const FrameSvg = frameSvgs[seat.user.frame];
+                            return (
+                                <div key={seat.id} ref={seatRefs.current[index + 5]} className="flex flex-col items-center gap-1 w-[50px] text-center">
+                                    {seat.isOccupied && seat.user ? (
+                                        <>
+                                        <div className="relative w-[50px] h-[50px] flex items-center justify-center">
+                                                {specialFrames[seat.user.frame] && (
+                                                    <div className="absolute inset-[-4px] pointer-events-none">
+                                                        <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                                                    </div>
+                                                )}
+                                                {FrameSvg && (
+                                                    <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
+                                                )}
+                                                {frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
+                                                <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                    <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                    <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                                </Avatar>
+                                                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
+                                                    {seat.user.isMuted ? 
+                                                        <Mic className="w-3 h-3 text-red-500" /> :
+                                                        <Mic className="w-3 h-3 text-green-400" />
+                                                    }
                                                 </div>
-                                            )}
-                                            {frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
-                                            <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                                <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                            </Avatar>
-                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
-                                                {seat.user.isMuted ? 
-                                                    <Mic className="w-3 h-3 text-red-500" /> :
-                                                    <Mic className="w-3 h-3 text-green-400" />
-                                                }
                                             </div>
+                                            <p className="text-xs truncate w-full">{seat.user.name}</p>
+                                        </>
+                                    ) : (
+                                    <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                            <span className="text-lg font-bold text-white/50">{seat.id}</span>
                                         </div>
-                                        <p className="text-xs truncate w-full">{seat.user.name}</p>
-                                    </>
-                                ) : (
-                                   <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                        <span className="text-lg font-bold text-white/50">{seat.id}</span>
-                                    </div>
-                               )}
-                            </div>
-                        ))}
+                                ) }
+                                </div>
+                            )
+                        })}
                     </div>
                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
-                        {roomSeats.slice(10, 15).map((seat, index) => (
-                             <div key={seat.id} ref={seatRefs.current[index + 10]} className="flex flex-col items-center gap-1 w-[50px] text-center">
-                                {seat.isOccupied && seat.user ? (
-                                    <>
-                                       <div className="relative w-[50px] h-[50px] flex items-center justify-center">
-                                            {specialFrames[seat.user.frame] && (
-                                                <div className="absolute inset-[-4px] pointer-events-none">
-                                                    <Image src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                        {roomSeats.slice(10, 15).map((seat, index) => {
+                             const FrameSvg = frameSvgs[seat.user.frame];
+                             return (
+                                <div key={seat.id} ref={seatRefs.current[index + 10]} className="flex flex-col items-center gap-1 w-[50px] text-center">
+                                    {seat.isOccupied && seat.user ? (
+                                        <>
+                                        <div className="relative w-[50px] h-[50px] flex items-center justify-center">
+                                                {specialFrames[seat.user.frame] && (
+                                                    <div className="absolute inset-[-4px] pointer-events-none">
+                                                        <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                                                    </div>
+                                                )}
+                                                {FrameSvg && (
+                                                    <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
+                                                )}
+                                                {frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
+                                                <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                    <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                    <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                                </Avatar>
+                                                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
+                                                    {seat.user.isMuted ? 
+                                                        <Mic className="w-3 h-3 text-red-500" /> :
+                                                        <Mic className="w-3 h-3 text-green-400" />
+                                                    }
                                                 </div>
-                                            )}
-                                            {frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
-                                            <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                                <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                            </Avatar>
-                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
-                                                {seat.user.isMuted ? 
-                                                    <Mic className="w-3 h-3 text-red-500" /> :
-                                                    <Mic className="w-3 h-3 text-green-400" />
-                                                }
                                             </div>
+                                            <p className="text-xs truncate w-full">{seat.user.name}</p>
+                                        </>
+                                    ) : (
+                                    <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                            <span className="text-lg font-bold text-white/50">{seat.id}</span>
                                         </div>
-                                        <p className="text-xs truncate w-full">{seat.user.name}</p>
-                                    </>
-                                ) : (
-                                   <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                        <span className="text-lg font-bold text-white/50">{seat.id}</span>
-                                    </div>
-                               )}
-                            </div>
-                        ))}
+                                )}
+                                </div>
+                            )
+                        })}
                     </div>
                 </div>
 
@@ -559,6 +587,8 @@ export default function AudioRoomPage() {
     
 
 
+
+    
 
     
 
