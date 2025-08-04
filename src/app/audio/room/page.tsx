@@ -53,7 +53,7 @@ export type JumpAnimation = {
 };
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
 );
 
 
@@ -310,7 +310,7 @@ export default function AudioRoomPage() {
                                                     <Image src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                 </div>
                                             )}
-                                            <div className={cn("absolute inset-[-2px] spinning-border animate-spin-colors rounded-full", !specialFrames[seat.user.frame] && seat.user.frame ? '' : 'hidden' )}></div>
+                                            <div className={cn("absolute inset-[-2px] spinning-border animate-spin-colors rounded-full", seat.user.frame && !specialFrames[seat.user.frame] ? '' : 'hidden' )}></div>
                                             <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                 <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
@@ -343,7 +343,7 @@ export default function AudioRoomPage() {
                                                     <Image src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                 </div>
                                             )}
-                                            <div className={cn("absolute inset-[-2px] spinning-border animate-spin-colors rounded-full", !specialFrames[seat.user.frame] && seat.user.frame ? '' : 'hidden' )}></div>
+                                            <div className={cn("absolute inset-[-2px] spinning-border animate-spin-colors rounded-full", seat.user.frame && !specialFrames[seat.user.frame] ? '' : 'hidden' )}></div>
                                             <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                 <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
@@ -376,7 +376,7 @@ export default function AudioRoomPage() {
                                                     <Image  src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                 </div>
                                             )}
-                                            <div className={cn("absolute inset-[-2px] spinning-border animate-spin-colors rounded-full", !specialFrames[seat.user.frame] && seat.user.frame ? '' : 'hidden' )}></div>
+                                            <div className={cn("absolute inset-[-2px] spinning-border animate-spin-colors rounded-full", seat.user.frame && !specialFrames[seat.user.frame] ? '' : 'hidden' )}></div>
                                             <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                 <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
