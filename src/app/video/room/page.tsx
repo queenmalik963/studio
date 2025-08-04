@@ -35,7 +35,7 @@ const initialMessages: Message[] = [
   { id: 3, type: 'text', author: 'saba', text: 'Hi...', avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png"},
 ];
 
-const roomSeats = [
+const initialSeats = [
     { id: 1, user: { name: "Jodie", avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png", isMuted: false, frame: 'crimson-danger' }, isOccupied: true },
     { id: 2, user: { name: "Koko", avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png", isMuted: false, frame: 'gold' }, isOccupied: true },
     { id: 3, user: { name: "User 3", avatar: "https://em-content.zobj.net/source/apple/391/woman-wearing-turban_1f473-200d-2640-fe0f.png", isMuted: true, frame: 'purple' }, isOccupied: true },
@@ -46,16 +46,6 @@ const roomSeats = [
     { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false, frame: 'pink' }, isOccupied: true },
 ]
 
-const videoRoomControls = [
-    { name: "Gathering", icon: Flag, action: () => {} },
-    { name: "Broadcast", icon: Megaphone, action: () => {} },
-    { name: "Music", icon: Music, action: () => {} },
-    { name: "Invite", icon: UserPlus, action: () => {} },
-    { name: "Effect", icon: Wand2, action: () => {} },
-    { name: "Clean", icon: Trash2, action: () => {} },
-    { name: "Mute All", icon: MicOff, action: () => {}, ownerOnly: true },
-    { name: "Change Video", icon: Youtube, action: (router: any) => router.push('/video/add') },
-]
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
@@ -64,13 +54,59 @@ const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function VideoRoomPage() {
     const router = useRouter();
+    const { toast } = useToast();
     const [messages, setMessages] = useState(initialMessages);
     const [newMessage, setNewMessage] = useState("");
+    const [seats, setSeats] = useState(initialSeats);
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
     const [isControlsPanelOpen, setIsControlsPanelOpen] = useState(false);
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
     const owner = { name: "op_2", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true };
+    const allMicsMuted = seats.every(seat => !seat.isOccupied || seat.user.isMuted);
+
+     const videoRoomControls = [
+        { name: "Gathering", icon: Flag, action: () => {
+            toast({ title: "Gathering Started!", description: "Special room effects are now active." });
+            setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'A gathering has been started by the owner!' }]);
+            setIsControlsPanelOpen(false);
+        }},
+        { name: "Broadcast", icon: Megaphone, action: () => {
+            toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
+            setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'Broadcast: Welcome to the video room! Enjoy your stay.' }]);
+            setIsControlsPanelOpen(false);
+        }},
+        { name: "Music", icon: Music, action: () => {
+             toast({ title: "Music Playing", description: "Background music has started for the video room." });
+             setIsControlsPanelOpen(false);
+        }},
+        { name: "Invite", icon: UserPlus, action: () => {
+             toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." });
+             navigator.clipboard.writeText(window.location.href);
+             setIsControlsPanelOpen(false);
+        }},
+        { name: "Effect", icon: Wand2, action: () => {
+            toast({ title: "Effects On!", description: "Room entry effects are now active." });
+            setIsControlsPanelOpen(false);
+        }},
+        { name: "Clean", icon: Trash2, action: () => {
+            setMessages(prev => prev.filter(m => m.type !== 'text'));
+            toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
+            setIsControlsPanelOpen(false);
+        }},
+        { name: "Mute All", icon: MicOff, ownerOnly: true, action: () => {
+            const areAllMuted = seats.every(seat => !seat.isOccupied || seat.user.isMuted);
+            setSeats(prevSeats => prevSeats.map(seat => {
+                if (seat.isOccupied && seat.user) {
+                    return {...seat, user: {...seat.user, isMuted: !areAllMuted }};
+                }
+                return seat;
+            }));
+            toast({ title: areAllMuted ? "All Unmuted" : "All Muted", description: `All users have been ${areAllMuted ? 'unmuted' : 'muted'}.`});
+            setIsControlsPanelOpen(false);
+        }},
+        { name: "Change Video", icon: Youtube, action: (router: any) => router.push('/video/add') },
+    ];
     
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
@@ -133,7 +169,7 @@ export default function VideoRoomPage() {
         indigo: 'border-indigo-500',
     }
 
-    const occupiedSeats = roomSeats.filter(seat => seat.isOccupied && seat.user);
+    const occupiedSeats = seats.filter(seat => seat.isOccupied && seat.user);
 
     return (
         <div className="flex flex-col h-screen bg-[#180828] text-white font-sans overflow-hidden">
@@ -213,7 +249,7 @@ export default function VideoRoomPage() {
                  {/* Seats */}
                 <div className="w-full flex-shrink-0 py-2">
                     <div className="grid grid-cols-8 gap-2 justify-items-center px-2">
-                        {roomSeats.map((seat) => (
+                        {seats.map((seat) => (
                             <div key={seat.id} className="flex flex-col items-center gap-1 w-full text-center">
                                 {seat.isOccupied && seat.user ? (
                                     <>
@@ -374,7 +410,7 @@ export default function VideoRoomPage() {
                                             size="icon"
                                             variant="ghost"
                                             className="w-14 h-14 bg-black/30 rounded-2xl"
-                                            onClick={() => control.action(router)}
+                                            onClick={() => (control.action as any)(router)}
                                         >
                                             <control.icon className="w-7 h-7 text-white/80" />
                                         </Button>
@@ -389,3 +425,5 @@ export default function VideoRoomPage() {
         </div>
     );
 }
+
+    
