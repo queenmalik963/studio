@@ -14,7 +14,7 @@ const navItems = [
   { href: '/home', label: 'Home', icon: Home },
   { href: '/audio', label: 'Audio', icon: Mic },
   { href: '/video', label: 'Video', icon: PlaySquare },
-  { href: '/chat', label: 'Chat', icon: MessageCircle, badge: 0 },
+  { href: '/chat', label: 'Chat', icon: MessageCircle },
   { href: '/profile', label: 'Profile', icon: User },
 ];
 
@@ -52,7 +52,7 @@ function SidebarNav() {
                 </div>
             </Link>
             <nav className="flex flex-col gap-2 flex-grow">
-                {navItems.map((item) => (
+                {navItems.map((item: any) => (
                     <Link key={item.href} href={item.href} passHref>
                         <Button
                             variant={pathname === item.href ? 'secondary' : 'ghost'}
@@ -82,7 +82,7 @@ function BottomNav() {
     return (
         <nav className="fixed bottom-0 left-0 right-0 h-20 bg-card/80 backdrop-blur-lg border-t border-border z-50">
             <div className="flex justify-around items-center h-full max-w-lg mx-auto">
-                {navItems.map((item) => (
+                {navItems.map((item: any) => (
                     <Link key={item.href} href={item.href} passHref>
                         <div className={cn(
                             "relative flex flex-col items-center gap-1 transition-colors w-16 p-2 rounded-lg",
