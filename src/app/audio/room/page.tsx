@@ -246,24 +246,32 @@ export default function AudioRoomPage() {
     ]
 
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
+        const targetSeat = seats.find(seat => seat.id === seatId);
+        if (!targetSeat) return;
+
+        if (action === 'mute' && targetSeat.user) {
+            toast({ title: `User ${targetSeat.user.name} ${targetSeat.user.isMuted ? 'unmuted' : 'muted'}.`});
+        } else if (action === 'kick' && targetSeat.user) {
+            toast({ title: `User ${targetSeat.user.name} has been kicked from the seat.`});
+        } else if (action === 'lock') {
+            toast({ title: `Seat ${targetSeat.id} has been ${targetSeat.isLocked ? 'unlocked' : 'locked'}.`});
+        }
+        
         setSeats(prevSeats => prevSeats.map(seat => {
             if (seat.id === seatId) {
                 switch(action) {
                     case 'mute':
                         if (seat.user) {
-                            toast({ title: `User ${seat.user.name} ${seat.user.isMuted ? 'unmuted' : 'muted'}.`});
                             return {...seat, user: {...seat.user, isMuted: !seat.user.isMuted}};
                         }
                         break;
                     case 'kick':
                         if (seat.user) {
-                            toast({ title: `User ${seat.user.name} has been kicked from the seat.`});
                             return {...seat, user: null, isOccupied: false};
                         }
                         break;
                     case 'lock':
-                         toast({ title: `Seat ${seat.id} has been ${seat.isLocked ? 'unlocked' : 'locked'}.`});
-                        return {...seat, user: null, isOccupied: false, isLocked: !seat.isLocked };
+                        return {...seat, isLocked: !seat.isLocked };
                 }
             }
             return seat;
@@ -413,7 +421,7 @@ export default function AudioRoomPage() {
                             const FrameSvg = seat.user?.frame ? frameSvgs[seat.user.frame] : null;
                             return (
                                 <Popover key={seat.id}>
-                                    <PopoverTrigger asChild disabled={!seat.user && !seat.isLocked || !currentUserIsOwner}>
+                                    <PopoverTrigger asChild disabled={!currentUserIsOwner && !seat.user}>
                                         <div ref={seatRefs.current[index]} className="flex flex-col items-center gap-1 w-[50px] text-center cursor-pointer">
                                             {seat.isOccupied && seat.user ? (
                                                 <>
@@ -474,7 +482,7 @@ export default function AudioRoomPage() {
                              const FrameSvg = seat.user?.frame ? frameSvgs[seat.user.frame] : null;
                              return (
                                 <Popover key={seat.id}>
-                                    <PopoverTrigger asChild disabled={!seat.user && !seat.isLocked || !currentUserIsOwner}>
+                                    <PopoverTrigger asChild disabled={!currentUserIsOwner && !seat.user}>
                                         <div ref={seatRefs.current[index+5]} className="flex flex-col items-center gap-1 w-[50px] text-center cursor-pointer">
                                             {seat.isOccupied && seat.user ? (
                                                 <>
@@ -534,7 +542,7 @@ export default function AudioRoomPage() {
                              const FrameSvg = seat.user?.frame ? frameSvgs[seat.user.frame] : null;
                              return (
                                 <Popover key={seat.id}>
-                                    <PopoverTrigger asChild disabled={!seat.user && !seat.isLocked || !currentUserIsOwner}>
+                                    <PopoverTrigger asChild disabled={!currentUserIsOwner && !seat.user}>
                                         <div ref={seatRefs.current[index+10]} className="flex flex-col items-center gap-1 w-[50px] text-center cursor-pointer">
                                             {seat.isOccupied && seat.user ? (
                                                 <>
@@ -754,3 +762,5 @@ export default function AudioRoomPage() {
         </div>
     );
 }
+
+    
