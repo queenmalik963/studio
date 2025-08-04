@@ -1,11 +1,11 @@
 
 "use client";
 
-import { useState, useRef, useEffect, Fragment } from "react";
+import { useState, useRef, useEffect, Fragment, createRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Maximize, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, Flag, Megaphone, Music, UserPlus, Wand2, Trash2, MicOff, Youtube } from "lucide-react";
+import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Maximize, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, Flag, Megaphone, Music, UserPlus, Wand2, Trash2, MicOff, Youtube, UserX, Axe } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -14,8 +14,10 @@ import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Card, CardContent } from "@/components/ui/card";
-import type { Gift as GiftType } from "@/components/room/GiftPanel";
+import { GiftPanel, type Gift as GiftType } from "@/components/room/GiftPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { JumpAnimation } from "@/app/audio/room/page";
+import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 
 
 type Message = {
@@ -25,7 +27,7 @@ type Message = {
     text: string;
     avatar?: string;
     game?: string;
-    gift?: GiftType;
+    giftIcon?: string;
 };
 
 
@@ -35,7 +37,7 @@ const initialMessages: Message[] = [
   { id: 3, type: 'text', author: 'saba', text: 'Hi...', avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png"},
 ];
 
-const initialSeats = [
+export const videoRoomSeats = [
     { id: 1, user: { name: "Jodie", avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png", isMuted: false, frame: 'crimson-danger' }, isOccupied: true },
     { id: 2, user: { name: "Koko", avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png", isMuted: false, frame: 'gold' }, isOccupied: true },
     { id: 3, user: { name: "User 3", avatar: "https://em-content.zobj.net/source/apple/391/woman-wearing-turban_1f473-200d-2640-fe0f.png", isMuted: true, frame: 'purple' }, isOccupied: true },
@@ -57,22 +59,29 @@ export default function VideoRoomPage() {
     const { toast } = useToast();
     const [messages, setMessages] = useState(initialMessages);
     const [newMessage, setNewMessage] = useState("");
-    const [seats, setSeats] = useState(initialSeats);
+    const [seats, setSeats] = useState(videoRoomSeats);
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
     const [isControlsPanelOpen, setIsControlsPanelOpen] = useState(false);
+    const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
+    const [animatedGift, setAnimatedGift] = useState<GiftType | null>(null);
+    const [animatedVideoGift, setAnimatedVideoGift] = useState<string | null>(null);
+    const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
+
     const chatContainerRef = useRef<HTMLDivElement>(null);
+    const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
+    const sendButtonRef = useRef<HTMLButtonElement>(null);
 
     const owner = { name: "op_2", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true };
-    const allMicsMuted = seats.every(seat => !seat.isOccupied || seat.user.isMuted);
+    const currentUserIsOwner = true; // For simulation
 
      const videoRoomControls = [
         { name: "Gathering", icon: Flag, action: () => {
-            toast({ title: "Gathering Started!", description: "Special room effects are now active." });
+            toast({ title: "Gathering Started in Video Room!", description: "Special room effects are now active." });
             setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'A gathering has been started by the owner!' }]);
             setIsControlsPanelOpen(false);
         }},
         { name: "Broadcast", icon: Megaphone, action: () => {
-            toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
+            toast({ title: "Video Room Broadcast Sent!", description: "Your message has been sent to all users." });
             setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'Broadcast: Welcome to the video room! Enjoy your stay.' }]);
             setIsControlsPanelOpen(false);
         }},
@@ -112,8 +121,9 @@ export default function VideoRoomPage() {
         const chatContainer = chatContainerRef.current;
         if (!chatContainer) return;
 
+        // Only scroll if the user is near the bottom
         const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 100;
-
+        
         if (isScrolledToBottom) {
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
@@ -122,6 +132,67 @@ export default function VideoRoomPage() {
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
         // Sending logic would be here
+    };
+
+    const handleSendGift = (gift: GiftType, quantity: number, recipient: string) => {
+        if (gift.animation === 'fullscreen-video' && gift.videoUrl) {
+            setAnimatedVideoGift(gift.videoUrl);
+            setTimeout(() => {
+                setAnimatedVideoGift(null);
+            }, 5000); // Video duration + buffer
+        } else if (gift.animation === 'jump-to-seat') {
+            const startRect = sendButtonRef.current?.getBoundingClientRect();
+            if (!startRect) return;
+
+            let targetSeats: (typeof seats[0])[] = [];
+
+            if (recipient === 'All in Room') {
+                targetSeats = seats.filter(s => s.isOccupied);
+            } else if (recipient === 'All on Mic') {
+                targetSeats = seats.filter(s => s.isOccupied && !s.user.isMuted);
+            } else {
+                const targetSeat = seats.find(s => s.isOccupied && s.user?.name === recipient);
+                if (targetSeat) {
+                    targetSeats.push(targetSeat);
+                }
+            }
+            
+            const newAnimations: JumpAnimation[] = [];
+            targetSeats.forEach(seat => {
+                const seatIndex = seats.findIndex(s => s.id === seat.id);
+                if (seatIndex === -1) return;
+
+                const endRect = seatRefs.current[seatIndex].current?.getBoundingClientRect();
+                if (endRect) {
+                    for (let i = 0; i < quantity; i++) {
+                         newAnimations.push({
+                            id: Date.now() + Math.random(),
+                            gift,
+                            startX: startRect.x + startRect.width / 2,
+                            startY: startRect.y + startRect.height / 2,
+                            endX: endRect.x + endRect.width / 2,
+                            endY: endRect.y + endRect.height / 2,
+                        });
+                    }
+                }
+            });
+            setJumpAnimations(prev => [...prev, ...newAnimations]);
+
+        } else if (gift.animation) {
+             handleAnimateGift(gift);
+        }
+
+        setMessages(prev => [
+            ...prev,
+            {
+                id: Date.now(),
+                type: 'gift',
+                author: 'You',
+                text: `Sent ${quantity}x ${gift.name} to ${recipient}`,
+                giftIcon: gift.image,
+                avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png"
+            }
+        ]);
     };
 
     const handleStartGame = (gameName: string) => {
@@ -137,6 +208,36 @@ export default function VideoRoomPage() {
                 avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png"
             }
         ]);
+    };
+
+     const handleAnimateGift = (gift: GiftType) => {
+        setAnimatedGift(gift);
+        setTimeout(() => {
+            setAnimatedGift(null);
+        }, 3000); // Animation duration
+    };
+
+    const handleAnimationComplete = (id: number) => {
+        setJumpAnimations(prev => prev.filter(anim => anim.id !== id));
+    };
+
+    const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
+        setSeats(prevSeats => prevSeats.map(seat => {
+            if (seat.id === seatId && seat.user) {
+                switch(action) {
+                    case 'mute':
+                        toast({ title: `User ${seat.user.name} ${seat.user.isMuted ? 'unmuted' : 'muted'}.`});
+                        return {...seat, user: {...seat.user, isMuted: !seat.user.isMuted}};
+                    case 'kick':
+                        toast({ title: `User ${seat.user.name} has been kicked from the seat.`});
+                        return {...seat, user: null, isOccupied: false};
+                    case 'lock':
+                         toast({ title: `Seat ${seat.id} has been locked.`});
+                        return {...seat, user: null, isOccupied: false }; // Simplified logic
+                }
+            }
+            return seat;
+        }));
     };
     
     const specialFrames: {[key: string]: {img: string}} = {
@@ -173,6 +274,29 @@ export default function VideoRoomPage() {
 
     return (
         <div className="flex flex-col h-screen bg-[#180828] text-white font-sans overflow-hidden">
+             {animatedGift && !animatedVideoGift && (
+                <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
+                    <Image
+                        src={animatedGift.image}
+                        alt={animatedGift.name}
+                        width={256}
+                        height={256}
+                    />
+                </div>
+            )}
+             {animatedVideoGift && (
+                <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none bg-black/50">
+                    <video src={animatedVideoGift} autoPlay className="max-w-full max-h-full"></video>
+                </div>
+            )}
+            {jumpAnimations.map(anim => (
+                <GiftJumpAnimation
+                    key={anim.id}
+                    {...anim}
+                    onComplete={() => handleAnimationComplete(anim.id)}
+                />
+            ))}
+
             {/* Video Player Section */}
             <div className="relative w-full bg-black h-[45%] flex-shrink-0">
                  <div className="absolute inset-0 bg-black flex items-center justify-center">
@@ -249,69 +373,96 @@ export default function VideoRoomPage() {
                  {/* Seats */}
                 <div className="w-full flex-shrink-0 py-2">
                     <div className="grid grid-cols-8 gap-2 justify-items-center px-2">
-                        {seats.map((seat) => (
-                            <div key={seat.id} className="flex flex-col items-center gap-1 w-full text-center">
-                                {seat.isOccupied && seat.user ? (
-                                    <>
-                                        <div className="relative w-9 h-9 flex items-center justify-center">
-                                            {seat.user.frame && specialFrames[seat.user.frame] && (
-                                                <div className="absolute inset-[-3px] pointer-events-none">
-                                                    <Image  src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                        {seats.map((seat, index) => (
+                            <Popover key={seat.id}>
+                                <PopoverTrigger asChild disabled={!seat.user || !currentUserIsOwner}>
+                                    <div ref={seatRefs.current[index]} className="flex flex-col items-center gap-1 w-full text-center cursor-pointer">
+                                        {seat.isOccupied && seat.user ? (
+                                            <>
+                                                <div className="relative w-9 h-9 flex items-center justify-center">
+                                                    {seat.user.frame && specialFrames[seat.user.frame] && (
+                                                        <div className="absolute inset-[-3px] pointer-events-none">
+                                                            <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                                                        </div>
+                                                    )}
+                                                    <div className={cn("absolute inset-[-1px] spinning-border animate-spin-colors rounded-full", !specialFrames[seat.user.frame] && seat.user.frame ? '' : 'hidden' )}></div>
+                                                    <Avatar className={cn("w-full h-full border-2", seat.user.frame && !specialFrames[seat.user.frame] && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                        <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                        <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-0.5 z-10">
+                                                        {seat.user.isMuted ? 
+                                                            <MicOff className="w-2.5 h-2.5 text-red-500" /> :
+                                                            <Mic className="w-2.5 h-2.5 text-green-400" />
+                                                        }
+                                                    </div>
                                                 </div>
-                                            )}
-                                            <div className={cn("absolute inset-[-1px] spinning-border animate-spin-colors rounded-full", !specialFrames[seat.user.frame] && seat.user.frame ? '' : 'hidden' )}></div>
-                                            <Avatar className={cn("w-full h-full border-2", seat.user.frame && !specialFrames[seat.user.frame] && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                                <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                            </Avatar>
-                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-0.5 z-10">
-                                                {seat.user.isMuted ? 
-                                                    <MicOff className="w-2.5 h-2.5 text-red-500" /> :
-                                                    <Mic className="w-2.5 h-2.5 text-green-400" />
-                                                }
+                                                <p className="text-[10px] truncate w-full">{seat.user.name}</p>
+                                            </>
+                                        ) : (
+                                            <div className="w-9 h-9 rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                                {(seat as any).isLocked ? <Lock className="w-4 h-4 text-white/50"/> : <span className="text-sm font-bold text-white/50">{seat.id}</span>}
                                             </div>
-                                        </div>
-                                        <p className="text-[10px] truncate w-full">{seat.user.name}</p>
-                                    </>
-                                ) : (
-                                    <div className="w-9 h-9 rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                        {(seat as any).isLocked ? <Lock className="w-4 h-4 text-white/50"/> : <span className="text-sm font-bold text-white/50">{seat.id}</span>}
+                                        )}
                                     </div>
-                                )}
-                            </div>
+                                </PopoverTrigger>
+                                 <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
+                                    <div className="flex flex-col gap-1">
+                                        <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
+                                            {seat.user?.isMuted ? <Mic /> : <MicOff />} {seat.user?.isMuted ? 'Unmute' : 'Mute Mic'}
+                                        </Button>
+                                        <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}><Lock /> Lock Seat</Button>
+                                        <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
+                                        <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
                         ))}
                     </div>
                 </div>
                 
                 {/* Chat Panel */}
-                <div ref={chatContainerRef} className="flex-1 overflow-y-auto space-y-3 px-4 pb-2">
-                    {messages.map((msg) => (
-                        <Fragment key={msg.id}>
-                            {msg.type === 'system' ? (
-                                <div className="text-center text-xs text-primary font-semibold p-1 bg-primary/10 rounded-full">
-                                    {msg.text}
-                                </div>
-                            ) : (
-                                <div className="flex items-start gap-3">
-                                    <Avatar className="h-8 w-8 shrink-0">
-                                        <AvatarImage src={msg.avatar} />
-                                        <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
-                                    </Avatar>
-                                    <div className="text-sm">
-                                        <p className="text-white/70 text-xs">{msg.author}</p>
-                                         {msg.type === 'game' ? (
-                                             <p className="mt-1 text-xs">{msg.author} <span className="font-bold text-yellow-400">{msg.text}</span></p>
-                                         ) : (
-                                            <div className="bg-black/20 rounded-lg p-2 mt-1">
-                                                <p className="text-sm">{msg.text}</p>
+                 <div className="flex-1 mt-2 relative p-0">
+                    {isGiftPanelOpen ? (
+                        <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} roomSeats={seats} giftContext="video" />
+                    ) : (
+                        <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-3 px-4 pr-2">
+                            {messages.map((msg) => (
+                                <Fragment key={msg.id}>
+                                    {msg.type === 'system' ? (
+                                        <div className="text-center text-xs text-primary font-semibold p-1 bg-primary/10 rounded-full">
+                                            {msg.text}
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-start gap-3">
+                                            <Avatar className="h-8 w-8 shrink-0">
+                                                <AvatarImage src={msg.avatar} />
+                                                <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            <div className="text-sm">
+                                                <p className="text-white/70 text-xs">{msg.author}</p>
+                                                {msg.type === 'gift' && (
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <p className="text-xs">{msg.text}</p>
+                                                        {msg.giftIcon && <Image src={msg.giftIcon} alt="gift" width={16} height={16}/>}
+                                                    </div>
+                                                )}
+                                                {msg.type === 'game' && (
+                                                    <p className="mt-1 text-xs">{msg.author} <span className="font-bold text-yellow-400">{msg.text}</span></p>
+                                                )}
+                                                {msg.type === 'text' && (
+                                                    <div className="bg-black/20 rounded-lg p-2 mt-1">
+                                                        <p className="text-sm">{msg.text}</p>
+                                                    </div>
+                                                )}
                                             </div>
-                                         )}
-                                    </div>
-                                </div>
-                            )}
-                        </Fragment>
-                    ))}
-                </div>
+                                        </div>
+                                    )}
+                                </Fragment>
+                            ))}
+                        </div>
+                    )}
+                 </div>
             </div>
             
             <footer className="flex-shrink-0 bg-[#1F0A2E] border-t border-white/10 relative">
@@ -344,7 +495,11 @@ export default function VideoRoomPage() {
                          <Button 
                             type="button" 
                             size="icon" 
-                            className="w-10 h-10 rounded-full flex-shrink-0 bg-yellow-500 hover:bg-yellow-600"
+                            className={cn(
+                                "w-10 h-10 rounded-full flex-shrink-0",
+                                isGiftPanelOpen ? "bg-primary" : "bg-yellow-500 hover:bg-yellow-600"
+                            )}
+                            onClick={() => setIsGiftPanelOpen(!isGiftPanelOpen)}
                         >
                             <Gift />
                         </Button>
@@ -425,5 +580,3 @@ export default function VideoRoomPage() {
         </div>
     );
 }
-
-    

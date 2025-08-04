@@ -325,10 +325,11 @@ type GiftCategory = keyof typeof gifts;
 type GiftPanelProps = {
     onSendGift: (gift: Gift, quantity: number, recipient: string) => void;
     sendButtonRef: React.RefObject<HTMLButtonElement>;
-    roomSeats: typeof roomSeats;
+    roomSeats: typeof roomSeats | any[];
+    giftContext?: 'audio' | 'video';
 }
 
-export function GiftPanel({ onSendGift, sendButtonRef, roomSeats }: GiftPanelProps) {
+export function GiftPanel({ onSendGift, sendButtonRef, roomSeats, giftContext = 'audio' }: GiftPanelProps) {
   const [selectedGift, setSelectedGift] = useState<Gift | null>(gifts.hot[0]);
   const [quantity, setQuantity] = useState(1);
   const [recipient, setRecipient] = useState("All in Room");
@@ -357,22 +358,37 @@ export function GiftPanel({ onSendGift, sendButtonRef, roomSeats }: GiftPanelPro
 
   const occupiedSeats = roomSeats.filter(seat => seat.isOccupied && seat.user);
 
+  const videoGiftSet = {
+      exclusive: gifts.exclusive,
+      luxury: gifts.luxury,
+  }
+
+  const audioGiftSet = {
+      hot: gifts.hot,
+      event: gifts.event,
+      luxury: gifts.luxury,
+      family: gifts.family,
+      exclusive: gifts.exclusive
+  }
+
+  const currentGiftSet = giftContext === 'video' ? videoGiftSet : audioGiftSet;
+  const defaultTab = Object.keys(currentGiftSet)[0];
+
+
   return (
     <div className="absolute inset-0 bg-[#1F0A2E]/90 backdrop-blur-sm flex flex-col rounded-lg">
       <div className="flex-1 flex flex-col overflow-hidden p-2">
-        <Tabs defaultValue="hot" className="flex-1 flex flex-col overflow-hidden">
+        <Tabs defaultValue={defaultTab} className="flex-1 flex flex-col overflow-hidden">
           <TabsList className="bg-transparent p-0 justify-start gap-4 border-b border-white/10">
-            <TabsTrigger value="hot" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 text-sm">Hot</TabsTrigger>
-            <TabsTrigger value="event" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 text-sm">Event</TabsTrigger>
-            <TabsTrigger value="luxury" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 text-sm">Luxury</TabsTrigger>
-            <TabsTrigger value="family" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 text-sm">Family</TabsTrigger>
-            <TabsTrigger value="exclusive" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 text-sm">Exclusive</TabsTrigger>
+            {Object.keys(currentGiftSet).map(category => (
+                <TabsTrigger key={category} value={category} className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 text-sm capitalize">{category}</TabsTrigger>
+            ))}
           </TabsList>
           <ScrollArea className="flex-1 my-2">
-              {(Object.keys(gifts) as GiftCategory[]).map(category => (
+              {(Object.keys(currentGiftSet) as (keyof typeof currentGiftSet)[]).map(category => (
                    <TabsContent key={category} value={category} className="mt-0">
                       <div className="grid grid-cols-4 gap-3">
-                          {gifts[category].map(gift => (
+                          {currentGiftSet[category].map(gift => (
                               <div
                                   key={gift.name}
                                   className={cn(
