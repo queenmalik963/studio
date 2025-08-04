@@ -19,6 +19,22 @@ type Conversation = {
 };
 
 const conversations: Conversation[] = [
+    {
+        id: "jodie-kay",
+        avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png",
+        author: "Jodie Kay",
+        timestamp: "5:02 PM",
+        text: "It's a surprise guest, but I heard it's going to be epic!",
+        unread: 2,
+    },
+    {
+        id: "koko-loco",
+        avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png",
+        author: "Koko Loco",
+        timestamp: "Yesterday",
+        text: "Yeah, let's link up there.",
+        unread: 0,
+    },
 ];
 
 export default function ChatListPage() {
@@ -41,7 +57,7 @@ export default function ChatListPage() {
                                  <Card className="bg-card/50 hover:bg-card/80 transition-colors border-transparent hover:border-primary/20">
                                      <CardContent className="p-3 flex items-center gap-4">
                                          <Avatar className="h-12 w-12 border-2 border-primary/50">
-                                            <AvatarImage src={chat.avatar} alt={chat.author} />
+                                            <AvatarImage src={chat.avatar} alt={chat.author} data-ai-hint="person face" />
                                             <AvatarFallback>{chat.author.charAt(0)}</AvatarFallback>
                                         </Avatar>
                                         <div className="flex-1 overflow-hidden">

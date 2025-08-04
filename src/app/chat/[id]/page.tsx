@@ -15,8 +15,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useToast } from "@/hooks/use-toast";
 
-const createInitialMessages = (contactName: string) => [
+type Message = {
+    id: number;
+    author: string;
+    avatar: string;
+    type: "text" | "voice";
+    text?: string;
+    duration?: string;
+    isSender: boolean;
+    timestamp: string;
+};
+
+const createInitialMessages = (contactName: string): Message[] => [
   {
     id: 1,
     author: contactName,
@@ -65,6 +77,7 @@ const PlayIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export default function ChatRoomPage() {
     const router = useRouter();
     const params = useParams();
+    const { toast } = useToast();
     const id = typeof params.id === 'string' ? params.id : '';
     
     const contactName = id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -78,32 +91,34 @@ export default function ChatRoomPage() {
         const chatContainer = chatContainerRef.current;
         if (!chatContainer) return;
 
-        const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 100;
-
-        if (isScrolledToBottom) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
+        chatContainer.scrollTop = chatContainer.scrollHeight;
     }, [messages]);
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
         if (newMessage.trim()) {
-            setMessages([
-                ...messages,
-                {
-                    id: messages.length + 1,
-                    author: "You",
-                    type: "text",
-                    text: newMessage,
-                    isSender: true,
-                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
-                    avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png",
-                },
-            ]);
+            const newMsg: Message = {
+                id: messages.length + 1,
+                author: "You",
+                type: "text",
+                text: newMessage,
+                isSender: true,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
+                avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png",
+            };
+            setMessages(prev => [...prev, newMsg]);
             setNewMessage("");
             inputRef.current?.blur();
         }
     };
+    
+    const handleClearChat = () => {
+        setMessages([]);
+        toast({
+            title: "Chat Cleared",
+            description: "All messages have been removed from this conversation.",
+        });
+    }
 
     return (
         <div className="flex flex-col h-screen bg-gradient-to-br from-background via-primary/10 to-background text-foreground">
@@ -136,7 +151,7 @@ export default function ChatRoomPage() {
                             <BellOff className="mr-2 h-4 w-4" />
                             <span>Mute Notifications</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuItem className="text-destructive" onClick={handleClearChat}>
                             <Trash2 className="mr-2 h-4 w-4" />
                             <span>Clear Chat</span>
                         </DropdownMenuItem>
@@ -145,7 +160,7 @@ export default function ChatRoomPage() {
             </header>
 
             <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto space-y-4">
-                {messages.map((msg) => (
+                {messages.length > 0 ? messages.map((msg) => (
                     <div
                         key={msg.id}
                         className={cn(
@@ -185,7 +200,13 @@ export default function ChatRoomPage() {
                             </p>
                         </div>
                     </div>
-                ))}
+                )) : (
+                    <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+                        <MessageCircle className="w-16 h-16 mb-4" />
+                        <h2 className="text-xl font-semibold">No Messages</h2>
+                        <p className="text-sm">Send a message to start the conversation.</p>
+                    </div>
+                )}
             </div>
 
             <footer className="p-4 border-t bg-background/50">
