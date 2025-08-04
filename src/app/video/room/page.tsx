@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Gift as GiftType } from "@/components/room/GiftPanel";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 
 type Message = {
@@ -35,13 +36,13 @@ const initialMessages: Message[] = [
 
 const roomSeats = [
     { id: 1, user: { name: "Jodie", avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png", isMuted: false, frame: 'crimson-danger' }, isOccupied: true },
-    { id: 2, user: { name: "Koko", avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png", isMuted: false, frame: 'purple' }, isOccupied: true },
-    { id: 3, user: { name: "User 3", avatar: "https://em-content.zobj.net/source/apple/391/woman-wearing-turban_1f473-200d-2640-fe0f.png", isMuted: true, frame: 'pink' }, isOccupied: true },
-    { id: 4, user: { name: "Lexa", avatar: "https://em-content.zobj.net/source/apple/391/man-in-tuxedo_1f935.png", isMuted: true, frame: 'blue' }, isOccupied: true },
-    { id: 5, user: { name: "mhay", avatar: "https://em-content.zobj.net/source/apple/391/woman-with-headscarf_1f9d5.png", isMuted: true, frame: 'green' }, isOccupied: true },
-    { id: 6, user: { name: "saba", avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png", isMuted: false, frame: 'red' }, isOccupied: true },
-    { id: 7, user: { name: "MR ISMAIL", avatar: "https://em-content.zobj.net/source/apple/391/man-supervillain_1f9b9-200d-2642-fe0f.png", isMuted: false, frame: 'cyan' }, isOccupied: true },
-    { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false, frame: 'teal' }, isOccupied: true },
+    { id: 2, user: { name: "Koko", avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png", isMuted: false }, isOccupied: true },
+    { id: 3, user: { name: "User 3", avatar: "https://em-content.zobj.net/source/apple/391/woman-wearing-turban_1f473-200d-2640-fe0f.png", isMuted: true }, isOccupied: true },
+    { id: 4, user: { name: "Lexa", avatar: "https://em-content.zobj.net/source/apple/391/man-in-tuxedo_1f935.png", isMuted: true }, isOccupied: true },
+    { id: 5, user: { name: "mhay", avatar: "https://em-content.zobj.net/source/apple/391/woman-with-headscarf_1f9d5.png", isMuted: true }, isOccupied: true },
+    { id: 6, user: { name: "saba", avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png", isMuted: false }, isOccupied: true },
+    { id: 7, user: { name: "MR ISMAIL", avatar: "https://em-content.zobj.net/source/apple/391/man-supervillain_1f9b9-200d-2642-fe0f.png", isMuted: false }, isOccupied: true },
+    { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false }, isOccupied: true },
 ]
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -100,6 +101,19 @@ export default function VideoRoomPage() {
         orange: 'border-orange-500 animate-glow-orange',
         indigo: 'border-indigo-500 animate-glow-indigo',
     }
+    
+    const frameBorderColors: {[key: string]: string} = {
+        gold: 'border-yellow-400',
+        purple: 'border-fuchsia-500',
+        blue: 'border-blue-400',
+        green: 'border-green-500',
+        red: 'border-red-500',
+        cyan: 'border-cyan-500',
+        pink: 'border-pink-500',
+        teal: 'border-teal-400',
+        orange: 'border-orange-500',
+        indigo: 'border-indigo-500',
+    }
 
     const occupiedSeats = roomSeats.filter(seat => seat.isOccupied && seat.user);
 
@@ -132,10 +146,39 @@ export default function VideoRoomPage() {
                             )}
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button variant="ghost" className="h-auto p-1 text-white/80 bg-black/20 rounded-full px-3">
-                                <Users className="w-5 h-5 mr-1" />
-                                <span className="font-bold">{occupiedSeats.length}</span>
-                            </Button>
+                             <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button variant="ghost" className="h-auto p-1 text-white/80 bg-black/20 rounded-full px-3">
+                                        <Users className="w-5 h-5 mr-1" />
+                                        <span className="font-bold">{occupiedSeats.length}</span>
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-48 p-2 bg-black/50 backdrop-blur-md border-white/20 text-white">
+                                    <ScrollArea className="h-48">
+                                        <div className="space-y-2">
+                                            {occupiedSeats.map((seat) => (
+                                                <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
+                                                    <div className="relative w-9 h-9 flex items-center justify-center">
+                                                         {seat.user.frame && specialFrames[seat.user.frame] && (
+                                                            <Image src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="absolute -inset-1 pointer-events-none animate-pulse-luxury" />
+                                                        )}
+                                                        <Avatar className={cn("h-9 w-9 border-2", seat.user.frame && !specialFrames[seat.user.frame] && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                            <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                            <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
+                                                        </Avatar>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-semibold">{seat.user.name}</p>
+                                                        {seat.user.frame && frameBorderColors[seat.user.frame] && (
+                                                            <div className={cn("h-0.5 w-8 rounded-full", frameBorderColors[seat.user.frame])}></div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </ScrollArea>
+                                </PopoverContent>
+                            </Popover>
                              <Button variant="ghost" size="icon" className="text-white/80 bg-black/20 rounded-full">
                                 <Maximize />
                             </Button>
@@ -294,3 +337,5 @@ export default function VideoRoomPage() {
         </div>
     );
 }
+
+    
