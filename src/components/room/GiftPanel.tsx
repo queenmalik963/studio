@@ -188,6 +188,7 @@ const gifts = {
     { name: "Money-Mouth Face", price: 1500, image: "https://em-content.zobj.net/source/apple/391/money-mouth-face_1f911.png" },
   ],
   family: [
+    { name: "Walking Cat", price: 60, image: "https://i.imgur.com/Qy3C2a7.gif", animation: 'walking' },
     { name: "Teddy Bear", price: 50, image: "https://em-content.zobj.net/source/apple/391/teddy-bear_1f9f8.png" },
     { name: "Baby Bottle", price: 10, image: "https://em-content.zobj.net/source/apple/391/baby-bottle_1f37c.png" },
     { name: "Family", price: 100, image: "https://em-content.zobj.net/source/apple/391/family-man-woman-girl-boy_1f468-200d-1f469-200d-1f467-200d-1f466.png" },

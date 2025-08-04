@@ -18,6 +18,7 @@ import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 
 
 const initialMessages = [
@@ -88,6 +89,7 @@ export default function AudioRoomPage() {
     const [isControlsPanelOpen, setIsControlsPanelOpen] = useState(false);
     const [animatedGift, setAnimatedGift] = useState<GiftType | null>(null);
     const [animatedVideoGift, setAnimatedVideoGift] = useState<string | null>(null);
+    const [animatedWalkingGift, setAnimatedWalkingGift] = useState<string | null>(null);
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
     const [isPersonalMicMuted, setIsPersonalMicMuted] = useState(true);
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
@@ -134,7 +136,10 @@ export default function AudioRoomPage() {
     };
 
     const handleSendGift = (gift: GiftType, quantity: number, recipient: string) => {
-        if (gift.animation === 'fullscreen-video' && gift.videoUrl) {
+        if (gift.animation === 'walking') {
+            setAnimatedWalkingGift(gift.image);
+            setTimeout(() => setAnimatedWalkingGift(null), 5000); // 5s animation duration
+        } else if (gift.animation === 'fullscreen-video' && gift.videoUrl) {
             setAnimatedVideoGift(gift.videoUrl);
             setTimeout(() => {
                 setAnimatedVideoGift(null);
@@ -359,6 +364,7 @@ export default function AudioRoomPage() {
 
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
+             {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
              {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
                     <Image
@@ -778,5 +784,3 @@ export default function AudioRoomPage() {
         </div>
     );
 }
-
-    

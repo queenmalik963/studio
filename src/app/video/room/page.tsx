@@ -18,6 +18,7 @@ import { GiftPanel, type Gift as GiftType } from "@/components/room/GiftPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { JumpAnimation } from "@/app/audio/room/page";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
+import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 
 
 type Message = {
@@ -67,6 +68,7 @@ export default function VideoRoomPage() {
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
     const [animatedGift, setAnimatedGift] = useState<GiftType | null>(null);
     const [animatedVideoGift, setAnimatedVideoGift] = useState<string | null>(null);
+    const [animatedWalkingGift, setAnimatedWalkingGift] = useState<string | null>(null);
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -151,7 +153,10 @@ export default function VideoRoomPage() {
     };
 
     const handleSendGift = (gift: GiftType, quantity: number, recipient: string) => {
-        if (gift.animation === 'fullscreen-video' && gift.videoUrl) {
+        if (gift.animation === 'walking') {
+            setAnimatedWalkingGift(gift.image);
+            setTimeout(() => setAnimatedWalkingGift(null), 5000); // 5s animation duration
+        } else if (gift.animation === 'fullscreen-video' && gift.videoUrl) {
             setAnimatedVideoGift(gift.videoUrl);
             setTimeout(() => {
                 setAnimatedVideoGift(null);
@@ -305,6 +310,7 @@ export default function VideoRoomPage() {
 
     return (
         <div className="flex flex-col h-screen bg-[#180828] text-white font-sans overflow-hidden">
+             {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
              {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
                     <Image
