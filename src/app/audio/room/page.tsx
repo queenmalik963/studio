@@ -283,13 +283,6 @@ export default function AudioRoomPage() {
         'master': { img: 'https://i.imgur.com/DADsWdw.gif' },
         'dragon-fury': { img: 'https://i.imgur.com/DADsWdw.gif' },
     }
-    
-    const frameSvgs: {[key: string]: React.ElementType} = {
-      'bronze': (props: any) => (<svg {...props} viewBox="0 0 100 100"><path d="M50,2.5A47.5,47.5,0,1,1,2.5,50,47.5,47.5,0,0,1,50,2.5" fill="none" stroke="#cd7f32" strokeWidth="5"/><path d="M50,2.5L55,10L50,17.5L45,10Z" fill="#cd7f32"/><path d="M50,97.5L55,90L50,82.5L45,90Z" fill="#cd7f32"/><path d="M2.5,50L10,55L17.5,50L10,45Z" fill="#cd7f32"/><path d="M97.5,50L90,55L82.5,50L90,45Z" fill="#cd7f32"/></svg>),
-      'silver': (props: any) => (<svg {...props} viewBox="0 0 100 100"><path d="M50,2.5A47.5,47.5,0,1,1,2.5,50,47.5,47.5,0,0,1,50,2.5" fill="none" stroke="#c0c0c0" strokeWidth="5" strokeDasharray="10 5"/><circle cx="20" cy="20" r="5" fill="#c0c0c0"/><circle cx="80" cy="20" r="5" fill="#c0c0c0"/><circle cx="20" cy="80" r="5" fill="#c0c0c0"/><circle cx="80" cy="80" r="5" fill="#c0c0c0"/></svg>),
-      'gold': (props: any) => (<svg {...props} viewBox="0 0 100 100"><path d="M50,2.5A47.5,47.5,0,1,1,2.5,50,47.5,47.5,0,0,1,50,2.5" fill="none" stroke="gold" strokeWidth="5"/><path d="M50,15 L55,25 L65,25 L57.5,32.5 L60,42.5 L50,37.5 L40,42.5 L42.5,32.5 L35,25 L45,25 Z" fill="gold"/></svg>),
-      'platinum': (props: any) => (<svg {...props} viewBox="0 0 100 100"><rect x="2.5" y="2.5" width="95" height="95" rx="50" fill="none" stroke="#e5e4e2" strokeWidth="5"/><path d="M10,30 L90,30 M10,50 L90,50 M10,70 L90,70" stroke="#e5e4e2" strokeWidth="3"/></svg>)
-    }
 
     const frameColors: {[key: string]: string} = {
         gold: 'border-yellow-400 animate-glow-gold',
@@ -420,7 +413,6 @@ export default function AudioRoomPage() {
                  <div className="flex-shrink-0 space-y-1 px-4">
                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
                         {seats.slice(0, 5).map((seat, index) => {
-                            const FrameSvg = seat.user?.frame ? frameSvgs[seat.user.frame] : null;
                             return (
                                 <Popover key={seat.id}>
                                     <PopoverTrigger asChild disabled={!currentUserIsOwner && !seat.user}>
@@ -433,10 +425,7 @@ export default function AudioRoomPage() {
                                                                 <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                             </div>
                                                         )}
-                                                        {seat.user.frame && FrameSvg && (
-                                                            <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
-                                                        )}
-                                                        {seat.user.frame && frameColors[seat.user.frame] && <div className={cn("absolute inset-[-2px] spinning-border animate-spin-colors rounded-full", specialFrames[seat.user.frame] && 'hidden' )}></div>}
+                                                        {seat.user.frame && !specialFrames[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
                                                         
                                                         <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
@@ -481,7 +470,6 @@ export default function AudioRoomPage() {
                     </div>
                      <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
                         {seats.slice(5, 10).map((seat, index) => {
-                             const FrameSvg = seat.user?.frame ? frameSvgs[seat.user.frame] : null;
                              return (
                                 <Popover key={seat.id}>
                                     <PopoverTrigger asChild disabled={!currentUserIsOwner && !seat.user}>
@@ -494,10 +482,7 @@ export default function AudioRoomPage() {
                                                                 <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                             </div>
                                                         )}
-                                                        {seat.user.frame && FrameSvg && (
-                                                            <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
-                                                        )}
-                                                        {seat.user.frame && frameColors[seat.user.frame] && <div className={cn("absolute inset-[-2px] spinning-border animate-spin-colors rounded-full", specialFrames[seat.user.frame] && 'hidden' )}></div>}
+                                                        {seat.user.frame && !specialFrames[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
                                                         <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
@@ -541,7 +526,6 @@ export default function AudioRoomPage() {
                     </div>
                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
                         {seats.slice(10, 15).map((seat, index) => {
-                             const FrameSvg = seat.user?.frame ? frameSvgs[seat.user.frame] : null;
                              return (
                                 <Popover key={seat.id}>
                                     <PopoverTrigger asChild disabled={!currentUserIsOwner && !seat.user}>
@@ -554,10 +538,7 @@ export default function AudioRoomPage() {
                                                                 <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                             </div>
                                                         )}
-                                                        {seat.user.frame && FrameSvg && (
-                                                            <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
-                                                        )}
-                                                        {seat.user.frame && frameColors[seat.user.frame] && <div className={cn("absolute inset-[-2px] spinning-border animate-spin-colors rounded-full", specialFrames[seat.user.frame] && 'hidden' )}></div>}
+                                                        {seat.user.frame && !specialFrames[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
                                                         <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
