@@ -26,14 +26,14 @@ const initialMessages = [
 ];
 
 const roomSeats = [
-    { id: 1, user: { name: "Jodie", avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png", isMuted: false, frame: 'crimson-danger' }, isOccupied: true },
+    { id: 1, user: { name: "Jodie", avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png", isMuted: false, frame: 'dragon-fury' }, isOccupied: true },
     { id: 2, user: { name: "Koko", avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png", isMuted: false, frame: 'gold' }, isOccupied: true },
     { id: 3, user: { name: "User 3", avatar: "https://em-content.zobj.net/source/apple/391/woman-wearing-turban_1f473-200d-2640-fe0f.png", isMuted: true, frame: 'purple' }, isOccupied: true },
     { id: 4, user: { name: "Lexa", avatar: "https://em-content.zobj.net/source/apple/391/man-in-tuxedo_1f935.png", isMuted: true, frame: 'blue' }, isOccupied: true },
     { id: 5, user: { name: "mhay", avatar: "https://em-content.zobj.net/source/apple/391/woman-with-headscarf_1f9d5.png", isMuted: true, frame: 'green' }, isOccupied: true },
     { id: 6, user: { name: "saba", avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png", isMuted: false, frame: 'red' }, isOccupied: true },
-    { id: 7, user: { name: "MR ISMAIL", avatar: "https://em-content.zobj.net/source/apple/391/man-supervillain_1f9b9-200d-2642-fe0f.png", isMuted: false, frame: 'crimson-danger' }, isOccupied: true },
-    { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false, frame: 'crimson-danger' }, isOccupied: true },
+    { id: 7, user: { name: "MR ISMAIL", avatar: "https://em-content.zobj.net/source/apple/391/man-supervillain_1f9b9-200d-2642-fe0f.png", isMuted: false, frame: 'dragon-fury' }, isOccupied: true },
+    { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false, frame: 'dragon-fury' }, isOccupied: true },
     { id: 9, user: { name: "User 9", avatar: "https://em-content.zobj.net/source/apple/391/ghost_1f47b.png", isMuted: true, frame: 'teal' }, isOccupied: true },
     { id: 10, user: { name: "User 10", avatar: "https://em-content.zobj.net/source/apple/391/robot_1f916.png", isMuted: false, frame: 'orange' }, isOccupied: true },
     { id: 11, user: { name: "User 11", avatar: "https://em-content.zobj.net/source/apple/391/alien_1f47d.png", isMuted: false, frame: 'indigo' }, isOccupied: true },
@@ -172,7 +172,7 @@ export default function AudioRoomPage() {
 
 
     const specialFrames: {[key: string]: {img: string}} = {
-        'crimson-danger': { img: 'https://i.imgur.com/DADsWdw.gif' },
+        'dragon-fury': { img: 'https://i.imgur.com/DADsWdw.gif' },
     }
 
     const frameColors: {[key: string]: string} = {
@@ -271,12 +271,12 @@ export default function AudioRoomPage() {
                                         <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
                                             <div className="relative w-9 h-9 flex items-center justify-center">
                                                 <div className="relative w-full h-full">
-                                                    {seat.user.frame && specialFrames[seat.user.frame] && (
+                                                    {specialFrames[seat.user.frame] && (
                                                          <div className="absolute inset-[-3px] pointer-events-none">
                                                             <Image src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                         </div>
                                                     )}
-                                                    <Avatar className={cn("h-full w-full border-2", seat.user.frame && !specialFrames[seat.user.frame] && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                    <Avatar className={cn("h-full w-full border-2", frameColors[seat.user.frame] && !specialFrames[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                         <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                         <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
                                                     </Avatar>
@@ -284,7 +284,7 @@ export default function AudioRoomPage() {
                                             </div>
                                             <div>
                                                 <p className="text-sm font-semibold">{seat.user.name}</p>
-                                                {seat.user.frame && frameBorderColors[seat.user.frame] && (
+                                                {frameBorderColors[seat.user.frame] && (
                                                     <div className={cn("h-0.5 w-8 rounded-full", frameBorderColors[seat.user.frame])}></div>
                                                 )}
                                             </div>
@@ -559,5 +559,7 @@ export default function AudioRoomPage() {
     
 
 
+
+    
 
     
