@@ -4,10 +4,11 @@
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ArrowLeft, Gem, CreditCard } from "lucide-react";
+import { ArrowLeft, Gem } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const rechargePacks = [
   { coins: 100, price: "$0.99", color: "from-gray-500 to-gray-600" },
@@ -21,20 +22,9 @@ const rechargePacks = [
   { coins: 70000, price: "$499.99", bonus: "+15k", color: "from-red-600 to-orange-700" },
 ];
 
-const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 48 48">
-        <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
-        <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"/>
-        <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-6.627 0-12-5.373-12-12h-8c0 11.045 8.955 20 20 20z"/>
-        <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.447-2.275 4.485-4.17 6.083l6.19 5.238C42.012 35.853 44 30.222 44 24c0-1.341-.138-2.65-.389-3.917z"/>
-    </svg>
-);
-
-const JazzCashIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-8 3.58-8 8s3.58 8 8 8c4.42 0 8-3.58 8-8 0-1.09-.22-2.14-.63-3.11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M15.41 12.41L12 15.82l-3.41-3.41" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M12 5V15.82" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19.043 4.957a9.992 9.992 0 00-14.088 14.088A9.992 9.992 0 0019.043 4.957zM6.48 18.03l.69-.35a6.012 6.012 0 01-3.26-5.83 6.02 6.02 0 0110.82-3.69A6.02 6.02 0 018.85 16.3l-.38.74-1.12 2.18.13-1.19z" fillOpacity="0.09"/><path d="M12 2a10 10 0 100 20 10 10 0 000-20zM17.44 14.23c-.2-.1-.58-.28-1.04-.53s-.36-.08-.51.15c-.15.23-.59.75-.72.9s-.27.15-.5.08c-.23-.08-1.08-.4-2.05-1.26a8.47 8.47 0 01-1.44-1.72c-.15-.27-.04-.42.06-.55.09-.12.2-.28.3-.42.1-.15.15-.23.23-.38.08-.15.04-.28 0-.42s-1.1-2.62-1.5-3.58c-.4-.96-.8-1.04-.8-.96s-.68.08-.68.08a2.53 2.53 0 00-.73 1.67c0 1 .58 2.3 1.33 3.58s1.6 2.3 3.96 4.45c2.36 2.15 3.1 2.45 3.1 2.45s.68.08.68.08c.96 0 1.67-.73 1.67-.73s.08-.68.08-.68l-.08-2.15z"/>
     </svg>
 );
 
@@ -45,8 +35,8 @@ export default function RechargePage() {
 
   const handleRecharge = (coins: number) => {
     toast({
-        title: "Recharge Successful!",
-        description: `${coins.toLocaleString()} coins have been added to your wallet.`,
+        title: "Recharge Pack Selected!",
+        description: `Contact us on WhatsApp to purchase ${coins.toLocaleString()} coins.`,
     })
   }
 
@@ -84,19 +74,15 @@ export default function RechargePage() {
 
         <Card>
             <CardHeader>
-                <CardTitle>Select Payment Method</CardTitle>
-                <CardDescription>Choose how you'd like to pay.</CardDescription>
+                <CardTitle>Payment Method</CardTitle>
+                <CardDescription>Click the button below to contact us for recharge.</CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button variant="outline" size="lg" className="h-16 text-lg justify-start gap-3">
-                    <GoogleIcon className="w-6 h-6" /> Google Pay
-                </Button>
-                 <Button variant="destructive" size="lg" className="h-16 text-lg bg-[#E21221] hover:bg-[#E21221]/90 text-white justify-start gap-3">
-                    <JazzCashIcon className="w-6 h-6" /> JazzCash
-                </Button>
-                 <Button variant="default" size="lg" className="h-16 text-lg bg-[#0070BA] hover:bg-[#0070BA]/90 justify-start gap-3">
-                    <CreditCard className="w-6 h-6" /> Credit Card
-                </Button>
+            <CardContent>
+                <Link href={`https://wa.me/971564423341?text=I'd%20like%20to%20recharge%20my%20account.`} target="_blank" rel="noopener noreferrer" passHref>
+                    <Button variant="outline" size="lg" className="h-16 w-full text-lg justify-center gap-3 bg-green-500/10 border-green-500/30 hover:bg-green-500/20 text-foreground">
+                        <WhatsAppIcon className="w-8 h-8 text-green-500" /> Contact on WhatsApp
+                    </Button>
+                </Link>
             </CardContent>
         </Card>
       </div>
