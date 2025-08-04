@@ -24,13 +24,23 @@ import { Label } from "@/components/ui/label";
 
 
 export default function ProfilePage() {
-    const idLevel = 10;
-    const sendingLevel = 10;
+    const [idLevel, setIdLevel] = useState(10);
+    const [sendingLevel, setSendingLevel] = useState(10);
     const [name, setName] = useState("associate Official Ds");
     const [tempName, setTempName] = useState(name);
+    const [avatar, setAvatar] = useState("https://em-content.zobj.net/source/apple/391/letter-a_1f170-fe0f.png");
+    const [coins, setCoins] = useState(0);
+    const [diamonds, setDiamonds] = useState(0);
 
     const handleNameChange = () => {
         setName(tempName);
+    }
+
+    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const newAvatarUrl = URL.createObjectURL(e.target.files[0]);
+            setAvatar(newAvatarUrl);
+        }
     }
 
     return (
@@ -47,8 +57,8 @@ export default function ProfilePage() {
                             <DialogTrigger asChild>
                                 <div className="relative cursor-pointer">
                                     <Avatar className="w-24 h-24 border-4 border-white">
-                                        <AvatarImage src="https://em-content.zobj.net/source/apple/391/letter-a_1f170-fe0f.png" alt="associate Official" data-ai-hint="person alphabet" />
-                                        <AvatarFallback>A</AvatarFallback>
+                                        <AvatarImage src={avatar} alt={name} data-ai-hint="person alphabet" />
+                                        <AvatarFallback>{name.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     <div className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-card text-card-foreground hover:bg-card/80 flex items-center justify-center">
                                         <Camera className="h-4 w-4" />
@@ -61,16 +71,16 @@ export default function ProfilePage() {
                                 </DialogHeader>
                                 <div className="py-4">
                                     <p className="text-muted-foreground mb-4">Choose a new avatar for your profile.</p>
-                                    <Input type="file" accept="image/*" />
+                                    <Input type="file" accept="image/*" onChange={handleAvatarChange} />
                                 </div>
                                 <DialogFooter>
                                     <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
-                                    <DialogClose asChild><Button>Upload</Button></DialogClose>
+                                    <DialogClose asChild><Button>Done</Button></DialogClose>
                                 </DialogFooter>
                             </DialogContent>
                         </Dialog>
                         
-                         <Dialog>
+                         <Dialog onOpenChange={(open) => !open && setTempName(name)}>
                             <DialogTrigger asChild>
                                 <div className="flex items-center gap-2 mt-4 cursor-pointer">
                                     <h1 className="text-2xl font-bold">{name}</h1>
@@ -131,14 +141,14 @@ export default function ProfilePage() {
                                     <Coins className="w-4 h-4 text-yellow-300" />
                                     <div>
                                         <p className="font-semibold text-xs">Coins</p>
-                                        <p className="font-bold text-sm">1,250</p>
+                                        <p className="font-bold text-sm">{coins.toLocaleString()}</p>
                                     </div>
                                 </div>
                                  <div className="flex items-center justify-center bg-white/10 p-1 rounded-lg gap-2 h-12">
                                     <Gem className="w-4 h-4 text-cyan-300" />
                                     <div>
                                         <p className="font-semibold text-xs">Diamonds</p>
-                                        <p className="font-bold text-sm">5,800</p>
+                                        <p className="font-bold text-sm">{diamonds.toLocaleString()}</p>
                                     </div>
                                 </div>
                             </div>
