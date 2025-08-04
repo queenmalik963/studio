@@ -13,7 +13,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import type { roomSeats } from "@/app/audio/room/page";
 
 const gifts = {
   hot: [
@@ -320,10 +322,16 @@ export type Gift = {
 type GiftCategory = keyof typeof gifts;
 
 
-export function GiftPanel({ onSendGift, sendButtonRef }: { onSendGift: (gift: Gift) => void, sendButtonRef: React.RefObject<HTMLButtonElement> }) {
+type GiftPanelProps = {
+    onSendGift: (gift: Gift, quantity: number, recipient: string) => void;
+    sendButtonRef: React.RefObject<HTMLButtonElement>;
+    roomSeats: typeof roomSeats;
+}
+
+export function GiftPanel({ onSendGift, sendButtonRef, roomSeats }: GiftPanelProps) {
   const [selectedGift, setSelectedGift] = useState<Gift | null>(gifts.hot[0]);
   const [quantity, setQuantity] = useState(1);
-  const [recipient, setRecipient] = useState("All");
+  const [recipient, setRecipient] = useState("All in Room");
 
   const handleQuantityChange = (amount: number) => {
     setQuantity(prev => Math.max(1, prev + amount));
@@ -331,7 +339,7 @@ export function GiftPanel({ onSendGift, sendButtonRef }: { onSendGift: (gift: Gi
   
   const handleSend = () => {
     if (!selectedGift) return;
-    onSendGift(selectedGift);
+    onSendGift(selectedGift, quantity, recipient);
   }
 
   const getAnimationClass = (animation?: string) => {
@@ -346,6 +354,8 @@ export function GiftPanel({ onSendGift, sendButtonRef }: { onSendGift: (gift: Gi
         default: return '';
     }
   }
+
+  const occupiedSeats = roomSeats.filter(seat => seat.isOccupied && seat.user);
 
   return (
     <div className="absolute inset-0 bg-[#1F0A2E]/90 backdrop-blur-sm flex flex-col rounded-lg">
@@ -377,7 +387,7 @@ export function GiftPanel({ onSendGift, sendButtonRef }: { onSendGift: (gift: Gi
                                         alt={gift.name}
                                         width={48}
                                         height={48}
-                                        
+                                        unoptimized={gift.image.endsWith('.gif')}
                                         className={cn(getAnimationClass(gift.animation))}
                                       />
                                        {gift.animation === 'fullscreen-video' && (
@@ -407,11 +417,15 @@ export function GiftPanel({ onSendGift, sendButtonRef }: { onSendGift: (gift: Gi
                         To: {recipient} <ChevronDown className="ml-1 w-4 h-4" />
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                    <DropdownMenuItem onClick={() => setRecipient("All")}>All in Room</DropdownMenuItem>
+                <DropdownMenuContent align="start" className="bg-popover text-popover-foreground">
+                    <DropdownMenuItem onClick={() => setRecipient("All in Room")}>All in Room</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setRecipient("All on Mic")}>All on Mic</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setRecipient("Jodie")}>Jodie</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setRecipient("Koko")}>Koko</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    {occupiedSeats.map(seat => (
+                        <DropdownMenuItem key={seat.id} onClick={() => setRecipient(seat.user.name)}>
+                           {seat.user.name}
+                        </DropdownMenuItem>
+                    ))}
                 </DropdownMenuContent>
             </DropdownMenu>
             <div className="flex-shrink-0 flex items-center gap-1 bg-black/20 rounded-full h-9 px-3 border border-white/20 text-sm">

@@ -25,7 +25,7 @@ const initialMessages = [
   { id: 3, type: 'text', author: 'saba', text: 'Hi...', avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png"},
 ];
 
-const roomSeats = [
+export const roomSeats = [
     { id: 1, user: { name: "Jodie", avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png", isMuted: false, frame: 'master' }, isOccupied: true },
     { id: 2, user: { name: "Koko", avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png", isMuted: false, frame: 'gold' }, isOccupied: true },
     { id: 3, user: { name: "User 3", avatar: "https://em-content.zobj.net/source/apple/391/woman-wearing-turban_1f473-200d-2640-fe0f.png", isMuted: true, frame: 'platinum' }, isOccupied: true },
@@ -88,7 +88,7 @@ export default function AudioRoomPage() {
         // Sending logic would be here
     };
 
-    const handleSendGift = (gift: GiftType) => {
+    const handleSendGift = (gift: GiftType, quantity: number, recipient: string) => {
         if (gift.animation === 'fullscreen-video' && gift.videoUrl) {
             setAnimatedVideoGift(gift.videoUrl);
             setTimeout(() => {
@@ -96,20 +96,42 @@ export default function AudioRoomPage() {
             }, 5000); // Video duration + buffer
         } else if (gift.animation === 'jump-to-seat') {
             const startRect = sendButtonRef.current?.getBoundingClientRect();
-            // Just sending to the first seat for demonstration
-            const endRect = seatRefs.current[0].current?.getBoundingClientRect();
+            if (!startRect) return;
 
-            if (startRect && endRect) {
-                const newAnimation: JumpAnimation = {
-                    id: Date.now(),
-                    gift,
-                    startX: startRect.x + startRect.width / 2,
-                    startY: startRect.y + startRect.height / 2,
-                    endX: endRect.x + endRect.width / 2,
-                    endY: endRect.y + endRect.height / 2,
-                };
-                setJumpAnimations(prev => [...prev, newAnimation]);
+            let targetSeats: (typeof roomSeats[0])[] = [];
+
+            if (recipient === 'All in Room') {
+                targetSeats = roomSeats.filter(s => s.isOccupied);
+            } else if (recipient === 'All on Mic') {
+                targetSeats = roomSeats.filter(s => s.isOccupied && !s.user.isMuted);
+            } else {
+                const targetSeat = roomSeats.find(s => s.isOccupied && s.user.name === recipient);
+                if (targetSeat) {
+                    targetSeats.push(targetSeat);
+                }
             }
+            
+            const newAnimations: JumpAnimation[] = [];
+            targetSeats.forEach(seat => {
+                const seatIndex = roomSeats.findIndex(s => s.id === seat.id);
+                if (seatIndex === -1) return;
+
+                const endRect = seatRefs.current[seatIndex].current?.getBoundingClientRect();
+                if (endRect) {
+                    for (let i = 0; i < quantity; i++) {
+                         newAnimations.push({
+                            id: Date.now() + Math.random(),
+                            gift,
+                            startX: startRect.x + startRect.width / 2,
+                            startY: startRect.y + startRect.height / 2,
+                            endX: endRect.x + endRect.width / 2,
+                            endY: endRect.y + endRect.height / 2,
+                        });
+                    }
+                }
+            });
+            setJumpAnimations(prev => [...prev, ...newAnimations]);
+
         } else if (gift.animation) {
              handleAnimateGift(gift);
         }
@@ -120,7 +142,7 @@ export default function AudioRoomPage() {
                 id: Date.now(),
                 type: 'gift',
                 author: 'You',
-                text: `Sent a ${gift.name}`,
+                text: `Sent ${quantity}x ${gift.name} to ${recipient}`,
                 giftIcon: gift.image,
                 avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png"
             }
@@ -431,7 +453,7 @@ export default function AudioRoomPage() {
 
                 <div className="flex-1 mt-2 relative p-0">
                     {isGiftPanelOpen ? (
-                        <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} />
+                        <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} roomSeats={roomSeats} />
                     ) : (
                         <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-3 px-4 pr-2">
                             {messages.map((msg) => (
@@ -444,11 +466,8 @@ export default function AudioRoomPage() {
                                         <p className="text-white/70 text-xs">{msg.author}</p>
                                         {msg.type === 'gift' && (
                                             <div className="flex items-center gap-2 mt-1">
-                                                <p className="text-xs">Sent a RedRose</p>
-                                                <div className="bg-black/20 p-1 rounded-md flex items-center gap-1">
-                                                    <Image src="https://em-content.zobj.net/source/apple/391/rose_1f339.png" alt="RedRose" width={16} height={16}/>
-                                                    <span className="text-xs">x1</span>
-                                                </div>
+                                                <p className="text-xs">{msg.text}</p>
+                                                {msg.giftIcon && <Image src={msg.giftIcon} alt="gift" width={16} height={16}/>}
                                             </div>
                                         )}
                                         {msg.type === 'game' && (
