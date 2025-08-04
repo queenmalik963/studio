@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, Fragment, createRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, X, Loader2, Crown, Upload, Flag, Megaphone, Music, UserPlus, Wand2, Trash2 } from "lucide-react";
+import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, X, Loader2, Crown, Upload, Flag, Megaphone, Music, UserPlus, Wand2, Trash2, MicOff, Shield, UserX, Axe } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -20,9 +20,11 @@ import { Card, CardContent } from "@/components/ui/card";
 
 
 const initialMessages = [
-  { id: 1, type: 'gift', author: 'Jodie', text: 'Sent a RedRose', giftIcon: 'https://em-content.zobj.net/source/apple/391/rose_1f339.png', avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png" },
-  { id: 2, type: 'game', author: 'Jodie', text: 'started playing Fruit!', game: 'Fruit!', avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png" },
-  { id: 3, type: 'text', author: 'saba', text: 'Hi...', avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png"},
+  { id: 1, type: 'system', text: 'Welcome Jodie, saba, and Koko to the room!' },
+  { id: 2, type: 'gift', author: 'Jodie', text: 'Sent a RedRose', giftIcon: 'https://em-content.zobj.net/source/apple/391/rose_1f339.png', avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png" },
+  { id: 3, type: 'game', author: 'Jodie', text: 'started playing Fruit!', game: 'Fruit!', avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png" },
+  { id: 4, type: 'text', author: 'saba', text: 'Hi...', avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png"},
+  { id: 5, type: 'system', text: 'Riz has left the room.' },
 ];
 
 export const roomSeats = [
@@ -37,10 +39,10 @@ export const roomSeats = [
     { id: 9, user: { name: "User 9", avatar: "https://em-content.zobj.net/source/apple/391/ghost_1f47b.png", isMuted: true, frame: 'teal' }, isOccupied: true },
     { id: 10, user: { name: "User 10", avatar: "https://em-content.zobj.net/source/apple/391/robot_1f916.png", isMuted: false, frame: 'orange' }, isOccupied: true },
     { id: 11, user: { name: "User 11", avatar: "https://em-content.zobj.net/source/apple/391/alien_1f47d.png", isMuted: false, frame: 'indigo' }, isOccupied: true },
-    { id: 12, user: { name: "User 12", avatar: "https://em-content.zobj.net/source/apple/391/red-heart_2764-fe0f.png", isMuted: true, frame: 'lime' }, isOccupied: true },
-    { id: 13, user: { name: "User 13", avatar: "https://em-content.zobj.net/source/apple/391/fire_1f525.png", isMuted: false, frame: 'rose' }, isOccupied: true },
-    { id: 14, user: { name: "User 14", avatar: "https://em-content.zobj.net/source/apple/391/gem-stone_1f48e.png", isMuted: true, frame: 'emerald' }, isOccupied: true },
-    { id: 15, user: { name: "User 15", avatar: "https://em-content.zobj.net/source/apple/391/crown_1f451.png", isMuted: false, frame: 'sky' }, isOccupied: true },
+    { id: 12, user: null, isOccupied: false },
+    { id: 13, user: null, isOccupied: false },
+    { id: 14, user: null, isOccupied: false },
+    { id: 15, user: null, isOccupied: false },
 ]
 
 export type JumpAnimation = {
@@ -60,6 +62,7 @@ const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export default function AudioRoomPage() {
     const router = useRouter();
     const [messages, setMessages] = useState(initialMessages);
+    const [seats, setSeats] = useState(roomSeats);
     const [newMessage, setNewMessage] = useState("");
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
@@ -71,10 +74,11 @@ export default function AudioRoomPage() {
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
-    const seatRefs = useRef(roomSeats.map(() => createRef<HTMLDivElement>()));
+    const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
     const sendButtonRef = useRef<HTMLButtonElement>(null);
 
     const owner = { name: "op_2", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true };
+    const currentUserIsOwner = true; // For simulation
     
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
@@ -102,14 +106,14 @@ export default function AudioRoomPage() {
             const startRect = sendButtonRef.current?.getBoundingClientRect();
             if (!startRect) return;
 
-            let targetSeats: (typeof roomSeats[0])[] = [];
+            let targetSeats: (typeof seats[0])[] = [];
 
             if (recipient === 'All in Room') {
-                targetSeats = roomSeats.filter(s => s.isOccupied);
+                targetSeats = seats.filter(s => s.isOccupied);
             } else if (recipient === 'All on Mic') {
-                targetSeats = roomSeats.filter(s => s.isOccupied && !s.user.isMuted);
+                targetSeats = seats.filter(s => s.isOccupied && !s.user.isMuted);
             } else {
-                const targetSeat = roomSeats.find(s => s.isOccupied && s.user.name === recipient);
+                const targetSeat = seats.find(s => s.isOccupied && s.user?.name === recipient);
                 if (targetSeat) {
                     targetSeats.push(targetSeat);
                 }
@@ -117,7 +121,7 @@ export default function AudioRoomPage() {
             
             const newAnimations: JumpAnimation[] = [];
             targetSeats.forEach(seat => {
-                const seatIndex = roomSeats.findIndex(s => s.id === seat.id);
+                const seatIndex = seats.findIndex(s => s.id === seat.id);
                 if (seatIndex === -1) return;
 
                 const endRect = seatRefs.current[seatIndex].current?.getBoundingClientRect();
@@ -186,10 +190,8 @@ export default function AudioRoomPage() {
                 ...prev,
                 {
                     id: Date.now(),
-                    type: 'text',
-                    author: 'System',
+                    type: 'system',
                     text: `You selected "${file.name}" to play.`,
-                    avatar: "https://em-content.zobj.net/source/apple/391/robot_1f916.png" 
                 }
             ]);
             setIsControlsPanelOpen(false);
@@ -199,12 +201,12 @@ export default function AudioRoomPage() {
     const roomControls = [
         { name: "Gathering", icon: Flag, action: () => {
             toast({ title: "Gathering Started!", description: "Special room effects are now active." });
-            setMessages(prev => [...prev, { id: Date.now(), type: 'text', author: 'System', text: 'A gathering has been started by the owner!', avatar: "https://em-content.zobj.net/source/apple/391/robot_1f916.png" }]);
+            setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'A gathering has been started by the owner!' }]);
             setIsControlsPanelOpen(false);
         }},
         { name: "Broadcast", icon: Megaphone, action: () => {
             toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
-            setMessages(prev => [...prev, { id: Date.now(), type: 'text', author: 'Broadcast', text: 'Welcome to the room everyone! Enjoy your stay.', avatar: "https://em-content.zobj.net/source/apple/391/megaphone_1f4e3.png" }]);
+            setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'Broadcast: Welcome to the room everyone! Enjoy your stay.' }]);
             setIsControlsPanelOpen(false);
         }},
         { name: "Music", icon: Music, action: () => fileInputRef.current?.click() },
@@ -225,6 +227,24 @@ export default function AudioRoomPage() {
         { name: "Upload", icon: Upload, action: () => fileInputRef.current?.click() },
     ]
 
+    const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
+        setSeats(prevSeats => prevSeats.map(seat => {
+            if (seat.id === seatId && seat.user) {
+                switch(action) {
+                    case 'mute':
+                        toast({ title: `User ${seat.user.name} ${seat.user.isMuted ? 'unmuted' : 'muted'}.`});
+                        return {...seat, user: {...seat.user, isMuted: !seat.user.isMuted}};
+                    case 'kick':
+                        toast({ title: `User ${seat.user.name} has been kicked from the seat.`});
+                        return {...seat, user: null, isOccupied: false};
+                    case 'lock':
+                         toast({ title: `Seat ${seat.id} has been locked.`});
+                        return {...seat, user: null, isOccupied: false }; // Simplified logic
+                }
+            }
+            return seat;
+        }));
+    };
 
     const specialFrames: {[key: string]: {img: string}} = {
         'master': { img: 'https://i.imgur.com/DADsWdw.gif' },
@@ -276,7 +296,7 @@ export default function AudioRoomPage() {
         amber: 'border-amber-400',
     }
 
-    const occupiedSeats = roomSeats.filter(seat => seat.isOccupied && seat.user);
+    const occupiedSeats = seats.filter(seat => seat.isOccupied && seat.user);
 
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
@@ -365,120 +385,162 @@ export default function AudioRoomPage() {
             <main className="flex-1 flex flex-col pt-0 overflow-hidden gap-2">
                  <div className="flex-shrink-0 space-y-1 px-4">
                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
-                        {roomSeats.slice(0, 5).map((seat, index) => {
-                            const FrameSvg = frameSvgs[seat.user.frame];
+                        {seats.slice(0, 5).map((seat, index) => {
+                            const FrameSvg = frameSvgs[seat.user?.frame || ''];
                             return (
-                                <div key={seat.id} ref={seatRefs.current[index]} className="flex flex-col items-center gap-1 w-[50px] text-center">
-                                    {seat.isOccupied && seat.user ? (
-                                        <>
-                                            <div className="relative w-[50px] h-[50px] flex items-center justify-center">
-                                                {specialFrames[seat.user.frame] && (
-                                                    <div className="absolute inset-[-4px] pointer-events-none">
-                                                        <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
-                                                    </div>
-                                                )}
-                                                {FrameSvg && (
-                                                    <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
-                                                )}
-                                                <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
+                                <Popover key={seat.id}>
+                                    <PopoverTrigger asChild disabled={!seat.user || !currentUserIsOwner}>
+                                        <div ref={seatRefs.current[index]} className="flex flex-col items-center gap-1 w-[50px] text-center cursor-pointer">
+                                            {seat.isOccupied && seat.user ? (
+                                                <>
+                                                    <div className="relative w-[50px] h-[50px] flex items-center justify-center">
+                                                        {specialFrames[seat.user.frame] && (
+                                                            <div className="absolute inset-[-4px] pointer-events-none">
+                                                                <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                                                            </div>
+                                                        )}
+                                                        {FrameSvg && (
+                                                            <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
+                                                        )}
+                                                        <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
 
-                                                <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                    <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                                    <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                                </Avatar>
-                                                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
-                                                    {seat.user.isMuted ? 
-                                                        <Mic className="w-3 h-3 text-red-500" /> :
-                                                        <Mic className="w-3 h-3 text-green-400" />
-                                                    }
+                                                        <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                            <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                            <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                                        </Avatar>
+                                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
+                                                            {seat.user.isMuted ? 
+                                                                <MicOff className="w-3 h-3 text-red-500" /> :
+                                                                <Mic className="w-3 h-3 text-green-400" />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-xs truncate w-full">{seat.user.name}</p>
+                                                </>
+                                            ) : (
+                                                <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                                    <Lock className="w-5 h-5 text-white/50"/>
                                                 </div>
-                                            </div>
-                                            <p className="text-xs truncate w-full">{seat.user.name}</p>
-                                        </>
-                                    ) : (
-                                        <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                            <Lock className="w-5 h-5 text-white/50"/>
+                                            )}
                                         </div>
-                                    )}
-                                </div>
+                                    </PopoverTrigger>
+                                     <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
+                                        <div className="flex flex-col gap-1">
+                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
+                                                {seat.user?.isMuted ? <Mic /> : <MicOff />} {seat.user?.isMuted ? 'Unmute' : 'Mute Mic'}
+                                            </Button>
+                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}><Lock /> Lock Seat</Button>
+                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
+                                            <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
                             )
                         })}
                     </div>
                      <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
-                        {roomSeats.slice(5, 10).map((seat, index) => {
-                            const FrameSvg = frameSvgs[seat.user.frame];
-                            return (
-                                <div key={seat.id} ref={seatRefs.current[index + 5]} className="flex flex-col items-center gap-1 w-[50px] text-center">
-                                    {seat.isOccupied && seat.user ? (
-                                        <>
-                                        <div className="relative w-[50px] h-[50px] flex items-center justify-center">
-                                                {specialFrames[seat.user.frame] && (
-                                                    <div className="absolute inset-[-4px] pointer-events-none">
-                                                        <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                        {seats.slice(5, 10).map((seat, index) => {
+                             const FrameSvg = frameSvgs[seat.user?.frame || ''];
+                             return (
+                                <Popover key={seat.id}>
+                                    <PopoverTrigger asChild disabled={!seat.user || !currentUserIsOwner}>
+                                        <div ref={seatRefs.current[index+5]} className="flex flex-col items-center gap-1 w-[50px] text-center cursor-pointer">
+                                            {seat.isOccupied && seat.user ? (
+                                                <>
+                                                <div className="relative w-[50px] h-[50px] flex items-center justify-center">
+                                                        {specialFrames[seat.user.frame] && (
+                                                            <div className="absolute inset-[-4px] pointer-events-none">
+                                                                <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                                                            </div>
+                                                        )}
+                                                        {FrameSvg && (
+                                                            <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
+                                                        )}
+                                                        {frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
+                                                        <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                            <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                            <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                                        </Avatar>
+                                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
+                                                            {seat.user.isMuted ? 
+                                                                <MicOff className="w-3 h-3 text-red-500" /> :
+                                                                <Mic className="w-3 h-3 text-green-400" />
+                                                            }
+                                                        </div>
                                                     </div>
-                                                )}
-                                                {FrameSvg && (
-                                                    <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
-                                                )}
-                                                {frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
-                                                <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                    <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                                    <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                                </Avatar>
-                                                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
-                                                    {seat.user.isMuted ? 
-                                                        <Mic className="w-3 h-3 text-red-500" /> :
-                                                        <Mic className="w-3 h-3 text-green-400" />
-                                                    }
+                                                    <p className="text-xs truncate w-full">{seat.user.name}</p>
+                                                </>
+                                            ) : (
+                                            <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                                    <span className="text-lg font-bold text-white/50">{seat.id}</span>
                                                 </div>
-                                            </div>
-                                            <p className="text-xs truncate w-full">{seat.user.name}</p>
-                                        </>
-                                    ) : (
-                                    <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                            <span className="text-lg font-bold text-white/50">{seat.id}</span>
+                                        ) }
                                         </div>
-                                ) }
-                                </div>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
+                                        <div className="flex flex-col gap-1">
+                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
+                                                {seat.user?.isMuted ? <Mic /> : <MicOff />} {seat.user?.isMuted ? 'Unmute' : 'Mute Mic'}
+                                            </Button>
+                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}><Lock /> Lock Seat</Button>
+                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
+                                            <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
                             )
                         })}
                     </div>
                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
-                        {roomSeats.slice(10, 15).map((seat, index) => {
-                             const FrameSvg = frameSvgs[seat.user.frame];
+                        {seats.slice(10, 15).map((seat, index) => {
+                             const FrameSvg = frameSvgs[seat.user?.frame || ''];
                              return (
-                                <div key={seat.id} ref={seatRefs.current[index + 10]} className="flex flex-col items-center gap-1 w-[50px] text-center">
-                                    {seat.isOccupied && seat.user ? (
-                                        <>
-                                        <div className="relative w-[50px] h-[50px] flex items-center justify-center">
-                                                {specialFrames[seat.user.frame] && (
-                                                    <div className="absolute inset-[-4px] pointer-events-none">
-                                                        <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                                <Popover key={seat.id}>
+                                    <PopoverTrigger asChild disabled={!seat.user || !currentUserIsOwner}>
+                                        <div ref={seatRefs.current[index+10]} className="flex flex-col items-center gap-1 w-[50px] text-center cursor-pointer">
+                                            {seat.isOccupied && seat.user ? (
+                                                <>
+                                                <div className="relative w-[50px] h-[50px] flex items-center justify-center">
+                                                        {specialFrames[seat.user.frame] && (
+                                                            <div className="absolute inset-[-4px] pointer-events-none">
+                                                                <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                                                            </div>
+                                                        )}
+                                                        {FrameSvg && (
+                                                            <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
+                                                        )}
+                                                        {frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
+                                                        <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                            <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                            <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                                        </Avatar>
+                                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
+                                                            {seat.user.isMuted ? 
+                                                                <MicOff className="w-3 h-3 text-red-500" /> :
+                                                                <Mic className="w-3 h-3 text-green-400" />
+                                                            }
+                                                        </div>
                                                     </div>
-                                                )}
-                                                {FrameSvg && (
-                                                    <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
-                                                )}
-                                                {frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
-                                                <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                    <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                                    <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                                </Avatar>
-                                                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
-                                                    {seat.user.isMuted ? 
-                                                        <Mic className="w-3 h-3 text-red-500" /> :
-                                                        <Mic className="w-3 h-3 text-green-400" />
-                                                    }
+                                                    <p className="text-xs truncate w-full">{seat.user.name}</p>
+                                                </>
+                                            ) : (
+                                            <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                                    <span className="text-lg font-bold text-white/50">{seat.id}</span>
                                                 </div>
-                                            </div>
-                                            <p className="text-xs truncate w-full">{seat.user.name}</p>
-                                        </>
-                                    ) : (
-                                    <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                            <span className="text-lg font-bold text-white/50">{seat.id}</span>
+                                        )}
                                         </div>
-                                )}
-                                </div>
+                                    </PopoverTrigger>
+                                     <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
+                                        <div className="flex flex-col gap-1">
+                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
+                                                {seat.user?.isMuted ? <Mic /> : <MicOff />} {seat.user?.isMuted ? 'Unmute' : 'Mute Mic'}
+                                            </Button>
+                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}><Lock /> Lock Seat</Button>
+                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
+                                            <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
                             )
                         })}
                     </div>
@@ -486,33 +548,41 @@ export default function AudioRoomPage() {
 
                 <div className="flex-1 mt-2 relative p-0">
                     {isGiftPanelOpen ? (
-                        <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} roomSeats={roomSeats} />
+                        <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} roomSeats={seats} />
                     ) : (
                         <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-3 px-4 pr-2">
                             {messages.map((msg) => (
-                                <div key={msg.id} className="flex items-start gap-3">
-                                    <Avatar className="h-8 w-8 shrink-0">
-                                        <AvatarImage src={msg.avatar} />
-                                        <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
-                                    </Avatar>
-                                    <div className="text-sm">
-                                        <p className="text-white/70 text-xs">{msg.author}</p>
-                                        {msg.type === 'gift' && (
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <p className="text-xs">{msg.text}</p>
-                                                {msg.giftIcon && <Image src={msg.giftIcon} alt="gift" width={16} height={16}/>}
+                                <Fragment key={msg.id}>
+                                    {msg.type === 'system' ? (
+                                        <div className="text-center text-xs text-primary font-semibold p-1 bg-primary/10 rounded-full">
+                                            {msg.text}
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-start gap-3">
+                                            <Avatar className="h-8 w-8 shrink-0">
+                                                <AvatarImage src={msg.avatar} />
+                                                <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            <div className="text-sm">
+                                                <p className="text-white/70 text-xs">{msg.author}</p>
+                                                {msg.type === 'gift' && (
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <p className="text-xs">{msg.text}</p>
+                                                        {msg.giftIcon && <Image src={msg.giftIcon} alt="gift" width={16} height={16}/>}
+                                                    </div>
+                                                )}
+                                                {msg.type === 'game' && (
+                                                    <p className="mt-1 text-xs">{msg.author} <span className="font-bold text-yellow-400">{msg.text}</span></p>
+                                                )}
+                                                {msg.type === 'text' && (
+                                                    <div className="bg-black/20 rounded-lg p-2 mt-1">
+                                                        <p className="text-sm">{msg.text}</p>
+                                                    </div>
+                                                )}
                                             </div>
-                                        )}
-                                        {msg.type === 'game' && (
-                                            <p className="mt-1 text-xs">{msg.author} <span className="font-bold text-yellow-400">{msg.text}</span></p>
-                                        )}
-                                        {msg.type === 'text' && (
-                                            <div className="bg-black/20 rounded-lg p-2 mt-1">
-                                                <p className="text-sm">{msg.text}</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
+                                        </div>
+                                    )}
+                                </Fragment>
                             ))}
                         </div>
                     )}
@@ -638,5 +708,3 @@ export default function AudioRoomPage() {
         </div>
     );
 }
-
-    

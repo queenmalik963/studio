@@ -77,7 +77,7 @@ export default function ChatRoomPage() {
         const chatContainer = chatContainerRef.current;
         if (!chatContainer) return;
 
-        const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 100; // 100px buffer
+        const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 100;
 
         if (isScrolledToBottom) {
             chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -239,5 +239,3 @@ export default function ChatRoomPage() {
         </div>
     );
 }
-
-    

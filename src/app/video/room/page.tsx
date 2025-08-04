@@ -20,7 +20,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 
 type Message = {
     id: number;
-    type: 'text' | 'game' | 'gift' | 'notification';
+    type: 'text' | 'game' | 'gift' | 'notification' | 'system';
     author?: string;
     text: string;
     avatar?: string;
@@ -30,6 +30,7 @@ type Message = {
 
 
 const initialMessages: Message[] = [
+  { id: 1, type: 'system', text: 'Welcome to the video room!' },
   { id: 2, type: 'text', author: 'Jodie', text: 'Hey everyone!', avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png"},
   { id: 3, type: 'text', author: 'saba', text: 'Hi...', avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png"},
 ];
@@ -75,7 +76,7 @@ export default function VideoRoomPage() {
         const chatContainer = chatContainerRef.current;
         if (!chatContainer) return;
 
-        const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 100; // 100px buffer
+        const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 100;
 
         if (isScrolledToBottom) {
             chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -229,7 +230,7 @@ export default function VideoRoomPage() {
                                             </Avatar>
                                             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-0.5 z-10">
                                                 {seat.user.isMuted ? 
-                                                    <Mic className="w-2.5 h-2.5 text-red-500" /> :
+                                                    <MicOff className="w-2.5 h-2.5 text-red-500" /> :
                                                     <Mic className="w-2.5 h-2.5 text-green-400" />
                                                 }
                                             </div>
@@ -250,8 +251,8 @@ export default function VideoRoomPage() {
                 <div ref={chatContainerRef} className="flex-1 overflow-y-auto space-y-3 px-4 pb-2">
                     {messages.map((msg) => (
                         <Fragment key={msg.id}>
-                            {msg.type === 'notification' ? (
-                                <div className="text-center text-xs text-white/50 p-1">
+                            {msg.type === 'system' ? (
+                                <div className="text-center text-xs text-primary font-semibold p-1 bg-primary/10 rounded-full">
                                     {msg.text}
                                 </div>
                             ) : (
