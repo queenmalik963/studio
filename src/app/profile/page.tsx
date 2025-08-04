@@ -6,7 +6,7 @@ import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Star, Send, Landmark, Gem, Coins, Settings, Edit, Wallet, Edit2, ChevronRight, Camera } from "lucide-react";
+import { Star, Send, Landmark, Gem, Coins, Settings, Edit, Wallet, Edit2, ChevronRight, Camera, UserPlus, UserMinus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -31,6 +31,10 @@ export default function ProfilePage() {
     const [avatar, setAvatar] = useState("https://em-content.zobj.net/source/apple/391/letter-a_1f170-fe0f.png");
     const [coins, setCoins] = useState(0);
     const [diamonds, setDiamonds] = useState(0);
+    
+    // State for followers and following
+    const [followers, setFollowers] = useState(0);
+    const [following, setFollowing] = useState(0);
 
     const handleNameChange = () => {
         setName(tempName);
@@ -42,6 +46,11 @@ export default function ProfilePage() {
             setAvatar(newAvatarUrl);
         }
     }
+
+    // Handlers to simulate follow/unfollow actions
+    const handleFollow = () => setFollowers(prev => prev + 1);
+    const handleUnfollow = () => setFollowers(prev => Math.max(0, prev - 1));
+
 
     return (
         <AppLayout>
@@ -106,16 +115,34 @@ export default function ProfilePage() {
                         <p className="text-sm mt-2 max-w-sm">Welcome to Devika!</p>
                         <div className="flex justify-around text-center mt-4 w-full max-w-xs">
                             <div>
-                                <p className="font-bold text-lg">0</p>
+                                <p className="font-bold text-lg">{following.toLocaleString()}</p>
                                 <p className="text-xs text-white/70">Following</p>
                             </div>
                             <div>
-                                <p className="font-bold text-lg">0</p>
+                                <p className="font-bold text-lg">{followers.toLocaleString()}</p>
                                 <p className="text-xs text-white/70">Followers</p>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                {/* DEMO BUTTONS - REMOVE LATER */}
+                <Card className="bg-card/50 border-dashed">
+                    <CardHeader>
+                        <CardTitle className="text-sm">Testing Controls</CardTitle>
+                        <CardDescription className="text-xs">These buttons are for testing the live follower count. They won't be in the final app.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex gap-4">
+                        <Button variant="outline" size="sm" onClick={handleFollow}>
+                            <UserPlus className="mr-2" /> Follow this user
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleUnfollow}>
+                           <UserMinus className="mr-2" /> Unfollow this user
+                        </Button>
+                    </CardContent>
+                </Card>
+                {/* END DEMO BUTTONS */}
+
 
                 <div className="space-y-4">
                     <div className="flex justify-between items-center text-sm font-semibold">
