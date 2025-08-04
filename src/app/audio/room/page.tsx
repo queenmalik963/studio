@@ -78,10 +78,15 @@ export default function AudioRoomPage() {
     const owner = { name: "op_2", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true };
     
     useEffect(() => {
-        if (chatContainerRef.current) {
-            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        const chatContainer = chatContainerRef.current;
+        if (!chatContainer) return;
+
+        const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 100; // 100px buffer
+
+        if (isScrolledToBottom) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
-    }, [messages, newMessage]);
+    }, [messages]);
     
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
