@@ -55,12 +55,12 @@ export default function VipStorePage() {
                 <div className="p-1 h-full">
                   <Card className={cn("flex flex-col h-full text-white bg-gradient-to-br", tier.color)}>
                     <CardHeader className="items-center text-center">
-                      <div className="w-28 h-28 relative mb-4">
+                      <div className="w-20 h-20 relative mb-4">
                            <Image
-                            src="https://placehold.co/100x100.png"
+                            src="https://placehold.co/80x80.png"
                             alt="User Picture"
-                            width={112}
-                            height={112}
+                            width={80}
+                            height={80}
                             className="rounded-full object-cover"
                             data-ai-hint="person face"
                           />
@@ -70,12 +70,12 @@ export default function VipStorePage() {
                                     src={(tier as any).specialFrameUrl}
                                     alt={`${tier.name} Frame`}
                                     layout="fill"
-                                    className="absolute -inset-1 pointer-events-none animate-pulse-luxury"
+                                    className="absolute -inset-2 pointer-events-none animate-pulse-luxury"
                                 />
                            ) : (
                              <>
-                                <div className={cn("absolute inset-[-6px] rounded-full", tier.frameClass)}></div>
-                                <tier.frameSvg className="absolute inset-[-12px] w-[calc(100%+24px)] h-[calc(100%+24px)]" />
+                                <div className={cn("absolute inset-[-4px] rounded-full", tier.frameClass)}></div>
+                                <tier.frameSvg className="absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]" />
                              </>
                            )}
                       </div>
