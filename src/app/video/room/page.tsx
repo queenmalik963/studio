@@ -29,19 +29,19 @@ type Message = {
 
 
 const initialMessages: Message[] = [
-  { id: 2, type: 'text', author: 'Jodie', text: 'Hey everyone!', avatar: "https://placehold.co/40x40.png"},
-  { id: 3, type: 'text', author: 'saba', text: 'Hi...', avatar: "https://placehold.co/40x40.png"},
+  { id: 2, type: 'text', author: 'Jodie', text: 'Hey everyone!', avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png"},
+  { id: 3, type: 'text', author: 'saba', text: 'Hi...', avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png"},
 ];
 
 const roomSeats = [
-    { id: 1, user: { name: "Jodie", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'crimson-danger' }, isOccupied: true },
-    { id: 2, user: { name: "Koko", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'purple' }, isOccupied: true },
-    { id: 3, user: { name: "User 3", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'pink' }, isOccupied: true },
-    { id: 4, user: { name: "Lexa", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'blue' }, isOccupied: true },
-    { id: 5, user: { name: "mhay", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'green' }, isOccupied: true },
-    { id: 6, user: { name: "saba", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'red' }, isOccupied: true },
-    { id: 7, user: { name: "MR ISMAIL", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'cyan' }, isOccupied: true },
-    { id: 8, user: { name: "Riz", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'teal' }, isOccupied: true },
+    { id: 1, user: { name: "Jodie", avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png", isMuted: false, frame: 'crimson-danger' }, isOccupied: true },
+    { id: 2, user: { name: "Koko", avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png", isMuted: false, frame: 'purple' }, isOccupied: true },
+    { id: 3, user: { name: "User 3", avatar: "https://em-content.zobj.net/source/apple/391/woman-wearing-turban_1f473-200d-2640-fe0f.png", isMuted: true, frame: 'pink' }, isOccupied: true },
+    { id: 4, user: { name: "Lexa", avatar: "https://em-content.zobj.net/source/apple/391/man-in-tuxedo_1f935.png", isMuted: true, frame: 'blue' }, isOccupied: true },
+    { id: 5, user: { name: "mhay", avatar: "https://em-content.zobj.net/source/apple/391/woman-with-headscarf_1f9d5.png", isMuted: true, frame: 'green' }, isOccupied: true },
+    { id: 6, user: { name: "saba", avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png", isMuted: false, frame: 'red' }, isOccupied: true },
+    { id: 7, user: { name: "MR ISMAIL", avatar: "https://em-content.zobj.net/source/apple/391/man-supervillain_1f9b9-200d-2642-fe0f.png", isMuted: false, frame: 'cyan' }, isOccupied: true },
+    { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false, frame: 'teal' }, isOccupied: true },
 ]
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -56,7 +56,7 @@ export default function VideoRoomPage() {
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
-    const owner = { name: "op_2", avatar: "https://placehold.co/40x40.png", isOwner: true };
+    const owner = { name: "op_2", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true };
     
     useEffect(() => {
         if (chatContainerRef.current) {
@@ -79,7 +79,7 @@ export default function VideoRoomPage() {
                 author: 'You',
                 text: `started playing ${gameName}!`,
                 game: gameName,
-                avatar: "https://placehold.co/40x40.png"
+                avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png"
             }
         ]);
     };
@@ -121,7 +121,7 @@ export default function VideoRoomPage() {
                             {owner && (
                                 <div className="flex items-center gap-2">
                                      <Avatar className="h-10 w-10 border-2 border-yellow-400">
-                                        <AvatarImage src={owner.avatar} />
+                                        <AvatarImage src={owner.avatar} unoptimized/>
                                         <AvatarFallback>{owner.name?.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     <div>
@@ -158,7 +158,7 @@ export default function VideoRoomPage() {
                                                 <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="absolute -inset-1 pointer-events-none animate-pulse-luxury" />
                                             )}
                                             <Avatar className={cn("w-9 h-9 border-2", seat.user.frame && !specialFrames[seat.user.frame] && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} unoptimized />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-0.5 z-10">
@@ -191,7 +191,7 @@ export default function VideoRoomPage() {
                             ) : (
                                 <div className="flex items-start gap-3">
                                     <Avatar className="h-8 w-8 shrink-0">
-                                        <AvatarImage src={msg.avatar}/>
+                                        <AvatarImage src={msg.avatar} unoptimized />
                                         <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     <div className="text-sm">
@@ -216,7 +216,7 @@ export default function VideoRoomPage() {
                     <div className="flex items-center justify-around gap-2">
                         <div className="flex-grow flex items-center gap-2 bg-black/30 rounded-full h-10 px-2">
                            <Avatar className="h-7 w-7">
-                               <AvatarImage src="https://placehold.co/40x40.png" />
+                               <AvatarImage src="https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png" unoptimized />
                                <AvatarFallback>Y</AvatarFallback>
                            </Avatar>
                             <Input

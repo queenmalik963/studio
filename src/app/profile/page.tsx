@@ -27,7 +27,7 @@ export default function ProfilePage() {
                     <div className="flex flex-col items-center text-center text-white">
                         <div className="relative">
                             <Avatar className="w-24 h-24 border-4 border-white">
-                                <AvatarImage src="https://placehold.co/100x100.png" alt="associate Official" data-ai-hint="person alphabet" />
+                                <AvatarImage src="https://em-content.zobj.net/source/apple/391/letter-a_1f170-fe0f.png" alt="associate Official" data-ai-hint="person alphabet" />
                                 <AvatarFallback>A</AvatarFallback>
                             </Avatar>
                             <Button size="icon" className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-card text-card-foreground hover:bg-card/80">

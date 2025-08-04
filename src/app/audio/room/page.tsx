@@ -20,27 +20,27 @@ import { Card, CardContent } from "@/components/ui/card";
 
 
 const initialMessages = [
-  { id: 1, type: 'gift', author: 'Jodie', text: 'Sent a RedRose', giftIcon: 'https://placehold.co/100x100.png', avatar: "https://placehold.co/40x40.png" },
-  { id: 2, type: 'game', author: 'Jodie', text: 'started playing Fruit!', game: 'Fruit!', avatar: "https://placehold.co/40x40.png" },
-  { id: 3, type: 'text', author: 'saba', text: 'Hi...', avatar: "https://placehold.co/40x40.png"},
+  { id: 1, type: 'gift', author: 'Jodie', text: 'Sent a RedRose', giftIcon: 'https://em-content.zobj.net/source/apple/391/rose_1f339.png', avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png" },
+  { id: 2, type: 'game', author: 'Jodie', text: 'started playing Fruit!', game: 'Fruit!', avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png" },
+  { id: 3, type: 'text', author: 'saba', text: 'Hi...', avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png"},
 ];
 
 const roomSeats = [
-    { id: 1, user: { name: "Jodie", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'crimson-danger' }, isOccupied: true },
-    { id: 2, user: { name: "Koko", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'purple' }, isOccupied: true },
-    { id: 3, user: { name: "User 3", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'pink' }, isOccupied: true },
-    { id: 4, user: { name: "Lexa", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'blue' }, isOccupied: true },
-    { id: 5, user: { name: "mhay", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'green' }, isOccupied: true },
-    { id: 6, user: { name: "saba", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'red' }, isOccupied: true },
-    { id: 7, user: { name: "MR ISMAIL", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'cyan' }, isOccupied: true },
-    { id: 8, user: { name: "Riz", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'teal' }, isOccupied: true },
-    { id: 9, user: { name: "User 9", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'orange' }, isOccupied: true },
-    { id: 10, user: { name: "User 10", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'indigo' }, isOccupied: true },
-    { id: 11, user: { name: "User 11", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'lime' }, isOccupied: true },
-    { id: 12, user: { name: "User 12", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'rose' }, isOccupied: true },
-    { id: 13, user: { name: "User 13", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'emerald' }, isOccupied: true },
-    { id: 14, user: { name: "User 14", avatar: "https://placehold.co/80x80.png", isMuted: true, frame: 'sky' }, isOccupied: true },
-    { id: 15, user: { name: "User 15", avatar: "https://placehold.co/80x80.png", isMuted: false, frame: 'amber' }, isOccupied: true },
+    { id: 1, user: { name: "Jodie", avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png", isMuted: false, frame: 'crimson-danger' }, isOccupied: true },
+    { id: 2, user: { name: "Koko", avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png", isMuted: false, frame: 'purple' }, isOccupied: true },
+    { id: 3, user: { name: "User 3", avatar: "https://em-content.zobj.net/source/apple/391/woman-wearing-turban_1f473-200d-2640-fe0f.png", isMuted: true, frame: 'pink' }, isOccupied: true },
+    { id: 4, user: { name: "Lexa", avatar: "https://em-content.zobj.net/source/apple/391/man-in-tuxedo_1f935.png", isMuted: true, frame: 'blue' }, isOccupied: true },
+    { id: 5, user: { name: "mhay", avatar: "https://em-content.zobj.net/source/apple/391/woman-with-headscarf_1f9d5.png", isMuted: true, frame: 'green' }, isOccupied: true },
+    { id: 6, user: { name: "saba", avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png", isMuted: false, frame: 'red' }, isOccupied: true },
+    { id: 7, user: { name: "MR ISMAIL", avatar: "https://em-content.zobj.net/source/apple/391/man-supervillain_1f9b9-200d-2642-fe0f.png", isMuted: false, frame: 'cyan' }, isOccupied: true },
+    { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false, frame: 'teal' }, isOccupied: true },
+    { id: 9, user: { name: "User 9", avatar: "https://em-content.zobj.net/source/apple/391/ghost_1f47b.png", isMuted: true, frame: 'orange' }, isOccupied: true },
+    { id: 10, user: { name: "User 10", avatar: "https://em-content.zobj.net/source/apple/391/robot_1f916.png", isMuted: false, frame: 'indigo' }, isOccupied: true },
+    { id: 11, user: { name: "User 11", avatar: "https://em-content.zobj.net/source/apple/391/alien_1f47d.png", isMuted: false, frame: 'lime' }, isOccupied: true },
+    { id: 12, user: { name: "User 12", avatar: "https://em-content.zobj.net/source/apple/391/red-heart_2764-fe0f.png", isMuted: true, frame: 'rose' }, isOccupied: true },
+    { id: 13, user: { name: "User 13", avatar: "https://em-content.zobj.net/source/apple/391/fire_1f525.png", isMuted: false, frame: 'emerald' }, isOccupied: true },
+    { id: 14, user: { name: "User 14", avatar: "https://em-content.zobj.net/source/apple/391/gem-stone_1f48e.png", isMuted: true, frame: 'sky' }, isOccupied: true },
+    { id: 15, user: { name: "User 15", avatar: "https://em-content.zobj.net/source/apple/391/crown_1f451.png", isMuted: false, frame: 'amber' }, isOccupied: true },
 ]
 
 export type JumpAnimation = {
@@ -75,7 +75,7 @@ export default function AudioRoomPage() {
     const sendButtonRef = useRef<HTMLButtonElement>(null);
 
 
-    const owner = { name: "op_2", avatar: "https://placehold.co/40x40.png", isOwner: true };
+    const owner = { name: "op_2", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true };
     
     useEffect(() => {
         if (chatContainerRef.current) {
@@ -122,7 +122,7 @@ export default function AudioRoomPage() {
                 author: 'You',
                 text: `Sent a ${gift.name}`,
                 giftIcon: gift.image,
-                avatar: "https://placehold.co/40x40.png"
+                avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png"
             }
         ]);
     };
@@ -137,7 +137,7 @@ export default function AudioRoomPage() {
                 author: 'You',
                 text: `started playing ${gameName}!`,
                 game: gameName,
-                avatar: "https://placehold.co/40x40.png"
+                avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png"
             }
         ]);
     };
@@ -163,7 +163,7 @@ export default function AudioRoomPage() {
                     type: 'text',
                     author: 'System',
                     text: `You selected "${file.name}" to play.`,
-                    avatar: "https://placehold.co/40x40.png" 
+                    avatar: "https://em-content.zobj.net/source/apple/391/robot_1f916.png" 
                 }
             ]);
             setIsControlsPanelOpen(false);
@@ -248,7 +248,7 @@ export default function AudioRoomPage() {
                     {owner && (
                         <div className="flex items-center gap-2">
                              <Avatar className="h-10 w-10 border-2 border-yellow-400">
-                                <AvatarImage src={owner.avatar} />
+                                <AvatarImage src={owner.avatar} unoptimized/>
                                 <AvatarFallback>{owner.name?.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div>
@@ -272,7 +272,7 @@ export default function AudioRoomPage() {
                                     {occupiedSeats.map((seat) => (
                                         <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
                                             <Avatar className="h-9 w-9">
-                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} unoptimized />
                                                 <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div>
@@ -303,7 +303,7 @@ export default function AudioRoomPage() {
                                             )}
                                             <div className={cn("absolute inset-0 spinning-border animate-spin-colors rounded-full", !specialFrames[seat.user.frame] ? '' : 'hidden' )}></div>
                                             <Avatar className={cn("w-[50px] h-[50px] border-2 bg-[#2E103F]", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} unoptimized />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
@@ -333,7 +333,7 @@ export default function AudioRoomPage() {
                                                 <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="absolute inset-0 pointer-events-none animate-pulse-luxury" />
                                             )}
                                             <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} unoptimized />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
@@ -363,7 +363,7 @@ export default function AudioRoomPage() {
                                                 <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="absolute inset-0 pointer-events-none animate-pulse-luxury" />
                                             )}
                                             <Avatar className={cn("w-[50px] h-[50px] border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} unoptimized />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
@@ -393,7 +393,7 @@ export default function AudioRoomPage() {
                             {messages.map((msg) => (
                                 <div key={msg.id} className="flex items-start gap-3">
                                     <Avatar className="h-8 w-8 shrink-0">
-                                        <AvatarImage src={msg.avatar}/>
+                                        <AvatarImage src={msg.avatar} unoptimized />
                                         <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     <div className="text-sm">
@@ -428,7 +428,7 @@ export default function AudioRoomPage() {
                      <div className="flex items-center justify-around gap-2">
                         <div className="flex-grow flex items-center gap-2 bg-black/30 rounded-full h-10 px-2">
                            <Avatar className="h-7 w-7">
-                               <AvatarImage src="https://placehold.co/40x40.png" />
+                               <AvatarImage src="https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png" unoptimized />
                                <AvatarFallback>Y</AvatarFallback>
                            </Avatar>
                             <Input

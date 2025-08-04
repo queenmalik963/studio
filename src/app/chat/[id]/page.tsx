@@ -20,7 +20,7 @@ const createInitialMessages = (contactName: string) => [
   {
     id: 1,
     author: contactName,
-    avatar: "https://placehold.co/40x40.png",
+    avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png",
     type: "text",
     text: "Hey, are you joining the live set tonight?",
     isSender: false,
@@ -29,7 +29,7 @@ const createInitialMessages = (contactName: string) => [
   {
     id: 2,
     author: "You",
-    avatar: "https://placehold.co/40x40.png",
+    avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png",
     type: "text",
     text: "For sure! Wouldn't miss it. Who's playing?",
     isSender: true,
@@ -38,7 +38,7 @@ const createInitialMessages = (contactName: string) => [
   {
     id: 3,
     author: contactName,
-    avatar: "https://placehold.co/40x40.png",
+    avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png",
     type: "text",
     text: "It's a surprise guest, but I heard it's going to be epic!",
     isSender: false,
@@ -47,7 +47,7 @@ const createInitialMessages = (contactName: string) => [
   {
     id: 4,
     author: "You",
-    avatar: "https://placehold.co/40x40.png",
+    avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png",
     type: "voice",
     duration: "0:15",
     isSender: true,
@@ -91,7 +91,7 @@ export default function ChatRoomPage() {
                     text: newMessage,
                     isSender: true,
                     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
-                    avatar: "https://placehold.co/40x40.png",
+                    avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png",
                 },
             ]);
             setNewMessage("");
@@ -106,7 +106,7 @@ export default function ChatRoomPage() {
                         <ArrowLeft />
                     </Button>
                      <Avatar className="h-10 w-10">
-                        <AvatarImage src="https://placehold.co/40x40.png" alt={contactName} data-ai-hint="person face" />
+                        <AvatarImage src="https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png" alt={contactName} data-ai-hint="person face" unoptimized />
                         <AvatarFallback>{contactName.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
@@ -148,7 +148,7 @@ export default function ChatRoomPage() {
                     >
                         {!msg.isSender && (
                             <Avatar className="h-8 w-8">
-                                <AvatarImage src={msg.avatar} alt={msg.author} />
+                                <AvatarImage src={msg.avatar} alt={msg.author} unoptimized />
                                 <AvatarFallback>{msg.author?.charAt(0)}</AvatarFallback>
                             </Avatar>
                         )}
