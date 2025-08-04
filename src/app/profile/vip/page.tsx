@@ -13,7 +13,7 @@ import Image from "next/image";
 
 const vipTiers = [
   { name: "Bronze", price: "$4.99/mo", features: ["Bronze Badge", "Basic Chat Features"], color: "from-amber-700 to-amber-900", frameClass: "border-amber-500 animate-glow-amber", frameSvg: (props: any) => (<svg {...props} viewBox="0 0 100 100"><path d="M50,2.5A47.5,47.5,0,1,1,2.5,50,47.5,47.5,0,0,1,50,2.5" fill="none" stroke="#cd7f32" strokeWidth="5"/><path d="M50,2.5L55,10L50,17.5L45,10Z" fill="#cd7f32"/><path d="M50,97.5L55,90L50,82.5L45,90Z" fill="#cd7f32"/><path d="M2.5,50L10,55L17.5,50L10,45Z" fill="#cd7f32"/><path d="M97.5,50L90,55L82.5,50L90,45Z" fill="#cd7f32"/></svg>) },
-  { name: "Silver", price: "$9.99/mo", features: ["Silver Badge", "Ad-Free Viewing", "Custom Emotes"], color: "from-slate-400 to-slate-600", frameClass: "border-slate-300 animate-glow-silver", frameSvg: (props: any) => (<svg {...props} viewBox="0 0 100 100"><path d="M50,2.5A47.5,47.5,0,1,1,2.5,50,47.5,47.5,0,0,1,50,2.5" fill="none" stroke="#c0c0c0" strokeWidth="5" strokeDasharray="10 5"/><circle cx="20" cy="20" r="5" fill="#c0c0c0"/><circle cx="80" cy="20" r="5" fill="#c0c0c0"/><circle cx="20" cy="80" r="5" fill="#c0c0c0"/><circle cx="80" cy="80" r="5" fill="#c0c0c0"/></svg>), tagImage: "https://i.imgur.com/5l3zL02.png" },
+  { name: "Silver", price: "$9.99/mo", features: ["Silver Badge", "Ad-Free Viewing", "Custom Emotes"], color: "from-slate-400 to-slate-600", frameClass: "border-slate-300 animate-glow-silver", specialFrameUrl: 'https://i.imgur.com/DADsWdw.gif', frameSvg: (props: any) => (<svg {...props} viewBox="0 0 100 100"><path d="M50,2.5A47.5,47.5,0,1,1,2.5,50,47.5,47.5,0,0,1,50,2.5" fill="none" stroke="#c0c0c0" strokeWidth="5" strokeDasharray="10 5"/><circle cx="20" cy="20" r="5" fill="#c0c0c0"/><circle cx="80" cy="20" r="5" fill="#c0c0c0"/><circle cx="20" cy="80" r="5" fill="#c0c0c0"/><circle cx="80" cy="80" r="5" fill="#c0c0c0"/></svg>), tagImage: "https://i.imgur.com/5l3zL02.png" },
   { name: "Gold", price: "$19.99/mo", features: ["Gold Badge", "All Silver Perks", "Exclusive Content"], color: "from-yellow-500 to-yellow-700", frameClass: "border-yellow-400 animate-glow-gold", frameSvg: (props: any) => (<svg {...props} viewBox="0 0 100 100"><path d="M50,2.5A47.5,47.5,0,1,1,2.5,50,47.5,47.5,0,0,1,50,2.5" fill="none" stroke="gold" strokeWidth="5"/><path d="M50,15 L55,25 L65,25 L57.5,32.5 L60,42.5 L50,37.5 L40,42.5 L42.5,32.5 L35,25 L45,25 Z" fill="gold"/></svg>) },
   { name: "Platinum", price: "$29.99/mo", features: ["Platinum Badge", "All Gold Perks", "HD Streaming"], color: "from-cyan-200 to-cyan-500", frameClass: "border-cyan-300 animate-glow-cyan", frameSvg: (props: any) => (<svg {...props} viewBox="0 0 100 100"><rect x="2.5" y="2.5" width="95" height="95" rx="50" fill="none" stroke="#e5e4e2" strokeWidth="5"/><path d="M10,30 L90,30 M10,50 L90,50 M10,70 L90,70" stroke="#e5e4e2" strokeWidth="3"/></svg>) },
   { name: "Diamond", price: "$49.99/mo", features: ["Diamond Badge", "All Platinum Perks", "Priority Support"], color: "from-sky-400 to-sky-600", frameClass: "border-sky-400 animate-glow-sky", frameSvg: (props: any) => (<svg {...props} viewBox="0 0 100 100"><path d="M50,2.5 L70,20 L97.5,50 L70,80 L50,97.5 L30,80 L2.5,50 L30,20 Z" fill="none" stroke="#b9f2ff" strokeWidth="5"/></svg>) },
@@ -56,7 +56,7 @@ export default function VipStorePage() {
                 <div className="p-1 h-full">
                   <Card className={cn("flex flex-col h-full text-white bg-gradient-to-br relative overflow-visible", tier.color)}>
                      {tier.tagImage && (
-                        <div className="absolute -top-6 -right-4 w-16 h-16 z-10 animate-glow-silver">
+                        <div className="absolute -top-4 -right-4 w-16 h-16 z-10 animate-glow-silver">
                             <Image
                                 src={tier.tagImage}
                                 alt={`${tier.name} Tag`}
@@ -73,7 +73,7 @@ export default function VipStorePage() {
                                     src={(tier as any).specialFrameUrl}
                                     alt={`${tier.name} Frame`}
                                     layout="fill"
-                                    className={cn("absolute pointer-events-none", tier.frameClass, tier.name === 'Shogun' ? '-inset-2' : '-inset-1')}
+                                    className={cn("absolute pointer-events-none animate-pulse-luxury", tier.frameClass, tier.name === 'Shogun' ? '-inset-2' : '-inset-1')}
                                 />
                            ) : (
                              <>
@@ -105,3 +105,5 @@ export default function VipStorePage() {
     </AppLayout>
   );
 }
+
+    
