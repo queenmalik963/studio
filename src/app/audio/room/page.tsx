@@ -87,7 +87,6 @@ export default function AudioRoomPage() {
         const chatContainer = chatContainerRef.current;
         if (!chatContainer) return;
 
-        // Only scroll if the user is near the bottom or if it's a new message
         const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 100;
 
         if (messages.length > lastMessageCount.current && isScrolledToBottom) {
@@ -249,6 +248,7 @@ export default function AudioRoomPage() {
         const targetSeat = seats.find(seat => seat.id === seatId);
         if (!targetSeat) return;
 
+        // Display toast before updating state
         if (action === 'mute' && targetSeat.user) {
             toast({ title: `User ${targetSeat.user.name} ${targetSeat.user.isMuted ? 'unmuted' : 'muted'}.`});
         } else if (action === 'kick' && targetSeat.user) {
@@ -308,6 +308,7 @@ export default function AudioRoomPage() {
         amber: 'border-amber-400 animate-glow-amber',
         master: 'border-purple-400 animate-glow-purple',
         platinum: 'border-cyan-300 animate-glow-cyan',
+        'dragon-fury': 'border-red-500 animate-glow-red',
     }
     
     const frameBorderColors: {[key: string]: string} = {
@@ -388,12 +389,12 @@ export default function AudioRoomPage() {
                                        seat.user && <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
                                             <div className="relative w-9 h-9 flex items-center justify-center">
                                                 <div className="relative w-full h-full">
-                                                    {specialFrames[seat.user.frame] && (
+                                                    {seat.user.frame && specialFrames[seat.user.frame] && (
                                                          <div className="absolute inset-[-3px] pointer-events-none">
                                                             <Image src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                         </div>
                                                     )}
-                                                    <Avatar className={cn("h-full w-full border-2", frameColors[seat.user.frame] && !specialFrames[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                    <Avatar className={cn("h-full w-full border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                         <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                         <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
                                                     </Avatar>
@@ -401,7 +402,7 @@ export default function AudioRoomPage() {
                                             </div>
                                             <div>
                                                 <p className="text-sm font-semibold">{seat.user.name}</p>
-                                                {frameBorderColors[seat.user.frame] && (
+                                                {seat.user.frame && frameBorderColors[seat.user.frame] && (
                                                     <div className={cn("h-0.5 w-8 rounded-full", frameBorderColors[seat.user.frame])}></div>
                                                 )}
                                             </div>
@@ -426,17 +427,17 @@ export default function AudioRoomPage() {
                                             {seat.isOccupied && seat.user ? (
                                                 <>
                                                     <div className="relative w-[50px] h-[50px] flex items-center justify-center">
-                                                        {specialFrames[seat.user.frame] && (
+                                                        {seat.user.frame && specialFrames[seat.user.frame] && (
                                                             <div className="absolute inset-[-4px] pointer-events-none">
                                                                 <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                             </div>
                                                         )}
-                                                        {FrameSvg && (
+                                                        {seat.user.frame && FrameSvg && (
                                                             <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
                                                         )}
-                                                        {frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
+                                                        {seat.user.frame && frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
                                                         
-                                                        <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                        <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                                         </Avatar>
@@ -487,16 +488,16 @@ export default function AudioRoomPage() {
                                             {seat.isOccupied && seat.user ? (
                                                 <>
                                                 <div className="relative w-[50px] h-[50px] flex items-center justify-center">
-                                                        {specialFrames[seat.user.frame] && (
+                                                        {seat.user.frame && specialFrames[seat.user.frame] && (
                                                             <div className="absolute inset-[-4px] pointer-events-none">
                                                                 <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                             </div>
                                                         )}
-                                                        {FrameSvg && (
+                                                        {seat.user.frame && FrameSvg && (
                                                             <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
                                                         )}
-                                                        {frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
-                                                        <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                        {seat.user.frame && frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
+                                                        <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                                         </Avatar>
@@ -547,16 +548,16 @@ export default function AudioRoomPage() {
                                             {seat.isOccupied && seat.user ? (
                                                 <>
                                                 <div className="relative w-[50px] h-[50px] flex items-center justify-center">
-                                                        {specialFrames[seat.user.frame] && (
+                                                        {seat.user.frame && specialFrames[seat.user.frame] && (
                                                             <div className="absolute inset-[-4px] pointer-events-none">
                                                                 <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                             </div>
                                                         )}
-                                                        {FrameSvg && (
+                                                        {seat.user.frame && FrameSvg && (
                                                             <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
                                                         )}
-                                                        {frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
-                                                        <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                        {seat.user.frame && frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
+                                                        <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                                         </Avatar>
