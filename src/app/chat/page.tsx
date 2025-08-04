@@ -9,7 +9,16 @@ import { Search, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-const conversations: any[] = [
+type Conversation = {
+    id: string;
+    avatar: string;
+    author: string;
+    timestamp: string;
+    text: string;
+    unread: number;
+};
+
+const conversations: Conversation[] = [
 ];
 
 export default function ChatListPage() {

@@ -37,8 +37,8 @@ export const roomSeats = [
     { id: 7, user: { name: "MR ISMAIL", avatar: "https://em-content.zobj.net/source/apple/391/man-supervillain_1f9b9-200d-2642-fe0f.png", isMuted: false, frame: 'dragon-fury' }, isOccupied: true },
     { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false, frame: 'dragon-fury' }, isOccupied: true },
     { id: 9, user: { name: "User 9", avatar: "https://em-content.zobj.net/source/apple/391/ghost_1f47b.png", isMuted: true, frame: 'teal' }, isOccupied: true },
-    { id: 10, user: { name: "User 10", avatar: "https://em-content.zobj.net/source/apple/391/robot_1f916.png", isMuted: false, frame: 'orange' }, isOccupied: true },
-    { id: 11, user: { name: "User 11", avatar: "https://em-content.zobj.net/source/apple/391/alien_1f47d.png", isMuted: false, frame: 'indigo' }, isOccupied: true },
+    { id: 10, user: null, isOccupied: false },
+    { id: 11, user: null, isOccupied: false },
     { id: 12, user: null, isOccupied: false },
     { id: 13, user: null, isOccupied: false },
     { id: 14, user: null, isOccupied: false },
@@ -93,7 +93,19 @@ export default function AudioRoomPage() {
     
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
-        // Sending logic would be here
+        if (newMessage.trim()) {
+            setMessages([
+                ...messages,
+                {
+                    id: messages.length + 1,
+                    type: "text",
+                    author: "You",
+                    text: newMessage,
+                    avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png",
+                },
+            ]);
+            setNewMessage("");
+        }
     };
 
     const handleSendGift = (gift: GiftType, quantity: number, recipient: string) => {
@@ -111,7 +123,7 @@ export default function AudioRoomPage() {
             if (recipient === 'All in Room') {
                 targetSeats = seats.filter(s => s.isOccupied);
             } else if (recipient === 'All on Mic') {
-                targetSeats = seats.filter(s => s.isOccupied && !s.user.isMuted);
+                targetSeats = seats.filter(s => s.isOccupied && s.user && !s.user.isMuted);
             } else {
                 const targetSeat = seats.find(s => s.isOccupied && s.user?.name === recipient);
                 if (targetSeat) {
@@ -353,7 +365,7 @@ export default function AudioRoomPage() {
                             <ScrollArea className="h-48">
                                 <div className="space-y-2">
                                     {occupiedSeats.map((seat) => (
-                                        <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
+                                       seat.user && <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
                                             <div className="relative w-9 h-9 flex items-center justify-center">
                                                 <div className="relative w-full h-full">
                                                     {specialFrames[seat.user.frame] && (
@@ -386,7 +398,7 @@ export default function AudioRoomPage() {
                  <div className="flex-shrink-0 space-y-1 px-4">
                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
                         {seats.slice(0, 5).map((seat, index) => {
-                            const FrameSvg = frameSvgs[seat.user?.frame || ''];
+                            const FrameSvg = seat.user?.frame ? frameSvgs[seat.user.frame] : null;
                             return (
                                 <Popover key={seat.id}>
                                     <PopoverTrigger asChild disabled={!seat.user || !currentUserIsOwner}>
@@ -419,7 +431,7 @@ export default function AudioRoomPage() {
                                                 </>
                                             ) : (
                                                 <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                                    <Lock className="w-5 h-5 text-white/50"/>
+                                                    <span className="text-lg font-bold text-white/50">{seat.id}</span>
                                                 </div>
                                             )}
                                         </div>
@@ -440,7 +452,7 @@ export default function AudioRoomPage() {
                     </div>
                      <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
                         {seats.slice(5, 10).map((seat, index) => {
-                             const FrameSvg = frameSvgs[seat.user?.frame || ''];
+                             const FrameSvg = seat.user?.frame ? frameSvgs[seat.user.frame] : null;
                              return (
                                 <Popover key={seat.id}>
                                     <PopoverTrigger asChild disabled={!seat.user || !currentUserIsOwner}>
@@ -493,7 +505,7 @@ export default function AudioRoomPage() {
                     </div>
                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
                         {seats.slice(10, 15).map((seat, index) => {
-                             const FrameSvg = frameSvgs[seat.user?.frame || ''];
+                             const FrameSvg = seat.user?.frame ? frameSvgs[seat.user.frame] : null;
                              return (
                                 <Popover key={seat.id}>
                                     <PopoverTrigger asChild disabled={!seat.user || !currentUserIsOwner}>
@@ -590,7 +602,7 @@ export default function AudioRoomPage() {
             </main>
             
             <footer className="flex-shrink-0 bg-[#1F0A2E] border-t border-white/10 relative">
-                <div className="p-2">
+                <form onSubmit={handleSendMessage} className="p-2">
                      <div className="flex items-center justify-around gap-2">
                         <div className="flex-grow flex items-center gap-2 bg-black/30 rounded-full h-10 px-2">
                            <Avatar className="h-7 w-7">
@@ -628,7 +640,7 @@ export default function AudioRoomPage() {
                             <Gift />
                         </Button>
                     </div>
-                </div>
+                </form>
             </footer>
 
             <Sheet open={isGamePanelOpen} onOpenChange={setIsGamePanelOpen}>

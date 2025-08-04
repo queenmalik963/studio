@@ -104,7 +104,7 @@ export default function VideoRoomPage() {
             setIsControlsPanelOpen(false);
         }},
         { name: "Mute All", icon: MicOff, ownerOnly: true, action: () => {
-            const areAllMuted = seats.every(seat => !seat.isOccupied || seat.user.isMuted);
+            const areAllMuted = seats.every(seat => !seat.isOccupied || (seat.user && seat.user.isMuted));
             setSeats(prevSeats => prevSeats.map(seat => {
                 if (seat.isOccupied && seat.user) {
                     return {...seat, user: {...seat.user, isMuted: !areAllMuted }};
@@ -121,7 +121,6 @@ export default function VideoRoomPage() {
         const chatContainer = chatContainerRef.current;
         if (!chatContainer) return;
 
-        // Only scroll if the user is near the bottom
         const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 100;
         
         if (isScrolledToBottom) {
@@ -131,7 +130,19 @@ export default function VideoRoomPage() {
     
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
-        // Sending logic would be here
+        if (newMessage.trim()) {
+            setMessages([
+                ...messages,
+                {
+                    id: messages.length + 1,
+                    type: "text",
+                    author: "You",
+                    text: newMessage,
+                    avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png",
+                },
+            ]);
+            setNewMessage("");
+        }
     };
 
     const handleSendGift = (gift: GiftType, quantity: number, recipient: string) => {
@@ -149,7 +160,7 @@ export default function VideoRoomPage() {
             if (recipient === 'All in Room') {
                 targetSeats = seats.filter(s => s.isOccupied);
             } else if (recipient === 'All on Mic') {
-                targetSeats = seats.filter(s => s.isOccupied && !s.user.isMuted);
+                targetSeats = seats.filter(s => s.isOccupied && s.user && !s.user.isMuted);
             } else {
                 const targetSeat = seats.find(s => s.isOccupied && s.user?.name === recipient);
                 if (targetSeat) {
@@ -335,7 +346,7 @@ export default function VideoRoomPage() {
                                     <ScrollArea className="h-48">
                                         <div className="space-y-2">
                                             {occupiedSeats.map((seat) => (
-                                                <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
+                                                seat.user && <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
                                                     <div className="relative w-9 h-9 flex items-center justify-center">
                                                         {seat.user.frame && specialFrames[seat.user.frame] && (
                                                             <div className="absolute inset-[-3px] pointer-events-none">
@@ -466,7 +477,7 @@ export default function VideoRoomPage() {
             </div>
             
             <footer className="flex-shrink-0 bg-[#1F0A2E] border-t border-white/10 relative">
-                <div className="p-2">
+                <form onSubmit={handleSendMessage} className="p-2">
                     <div className="flex items-center justify-around gap-2">
                         <div className="flex-grow flex items-center gap-2 bg-black/30 rounded-full h-10 px-2">
                            <Avatar className="h-7 w-7">
@@ -504,7 +515,7 @@ export default function VideoRoomPage() {
                             <Gift />
                         </Button>
                     </div>
-                </div>
+                </form>
             </footer>
 
             <Sheet open={isGamePanelOpen} onOpenChange={setIsGamePanelOpen}>
