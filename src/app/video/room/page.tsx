@@ -36,13 +36,13 @@ const initialMessages: Message[] = [
 
 const roomSeats = [
     { id: 1, user: { name: "Jodie", avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png", isMuted: false, frame: 'crimson-danger' }, isOccupied: true },
-    { id: 2, user: { name: "Koko", avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png", isMuted: false }, isOccupied: true },
-    { id: 3, user: { name: "User 3", avatar: "https://em-content.zobj.net/source/apple/391/woman-wearing-turban_1f473-200d-2640-fe0f.png", isMuted: true }, isOccupied: true },
-    { id: 4, user: { name: "Lexa", avatar: "https://em-content.zobj.net/source/apple/391/man-in-tuxedo_1f935.png", isMuted: true }, isOccupied: true },
-    { id: 5, user: { name: "mhay", avatar: "https://em-content.zobj.net/source/apple/391/woman-with-headscarf_1f9d5.png", isMuted: true }, isOccupied: true },
-    { id: 6, user: { name: "saba", avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png", isMuted: false }, isOccupied: true },
-    { id: 7, user: { name: "MR ISMAIL", avatar: "https://em-content.zobj.net/source/apple/391/man-supervillain_1f9b9-200d-2642-fe0f.png", isMuted: false }, isOccupied: true },
-    { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false }, isOccupied: true },
+    { id: 2, user: { name: "Koko", avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png", isMuted: false, frame: 'gold' }, isOccupied: true },
+    { id: 3, user: { name: "User 3", avatar: "https://em-content.zobj.net/source/apple/391/woman-wearing-turban_1f473-200d-2640-fe0f.png", isMuted: true, frame: 'purple' }, isOccupied: true },
+    { id: 4, user: { name: "Lexa", avatar: "https://em-content.zobj.net/source/apple/391/man-in-tuxedo_1f935.png", isMuted: true, frame: 'blue' }, isOccupied: true },
+    { id: 5, user: { name: "mhay", avatar: "https://em-content.zobj.net/source/apple/391/woman-with-headscarf_1f9d5.png", isMuted: true, frame: 'green' }, isOccupied: true },
+    { id: 6, user: { name: "saba", avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png", isMuted: false, frame: 'red' }, isOccupied: true },
+    { id: 7, user: { name: "MR ISMAIL", avatar: "https://em-content.zobj.net/source/apple/391/man-supervillain_1f9b9-200d-2642-fe0f.png", isMuted: false, frame: 'cyan' }, isOccupied: true },
+    { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false, frame: 'pink' }, isOccupied: true },
 ]
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -169,7 +169,7 @@ export default function VideoRoomPage() {
                                                     </div>
                                                     <div>
                                                         <p className="text-sm font-semibold">{seat.user.name}</p>
-                                                        {seat.user.frame && frameBorderColors[seat.user.frame] && (
+                                                        {seat.user.frame && frameBorderColors[seat.user.frame] && !specialFrames[seat.user.frame] && (
                                                             <div className={cn("h-0.5 w-8 rounded-full", frameBorderColors[seat.user.frame])}></div>
                                                         )}
                                                     </div>
@@ -337,5 +337,7 @@ export default function VideoRoomPage() {
         </div>
     );
 }
+
+    
 
     
