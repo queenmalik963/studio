@@ -56,7 +56,7 @@ export default function VipStorePage() {
                 <div className="p-1 h-full">
                   <Card className={cn("flex flex-col h-full text-white bg-gradient-to-br relative overflow-visible", tier.color)}>
                      {tier.tagImage && (
-                        <div className="absolute -top-4 -right-4 w-16 h-16 z-10 animate-glow-silver">
+                        <div className="absolute -top-4 right-[-16px] w-16 h-16 z-10 animate-glow-silver">
                             <Image
                                 src={tier.tagImage}
                                 alt={`${tier.name} Tag`}
@@ -73,7 +73,7 @@ export default function VipStorePage() {
                                     src={(tier as any).specialFrameUrl}
                                     alt={`${tier.name} Frame`}
                                     layout="fill"
-                                    className={cn("absolute pointer-events-none animate-pulse-luxury", tier.frameClass, tier.name === 'Shogun' ? '-inset-2' : '-inset-1')}
+                                    className={cn("absolute pointer-events-none", tier.frameClass, tier.name === 'Shogun' ? '-inset-2' : '-inset-1')}
                                 />
                            ) : (
                              <>
@@ -105,3 +105,5 @@ export default function VipStorePage() {
     </AppLayout>
   );
 }
+
+    
