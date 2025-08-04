@@ -177,6 +177,16 @@ export default {
             '0%, 100%': { filter: 'drop-shadow(0 0 5px rgba(16,185,129,0.6))' },
             '50%': { filter: 'drop-shadow(0 0 10px rgba(16,185,129,1))' },
         },
+        'shogun-fury': {
+            '0%, 100%': { 
+                transform: 'scale(1)',
+                filter: 'drop-shadow(0 0 6px rgba(255,185,0,0.5)) drop-shadow(0 0 2px rgba(239,68,68,0.7))'
+            },
+            '50%': { 
+                transform: 'scale(1.03)',
+                filter: 'drop-shadow(0 0 12px rgba(255,185,0,0.8)) drop-shadow(0 0 6px rgba(239,68,68,1))'
+            },
+        },
         'fade-in-out': {
           '0%, 100%': { opacity: '0', transform: 'scale(0.9)' },
           '20%, 80%': { opacity: '1', transform: 'scale(1.05)' },
@@ -243,6 +253,7 @@ export default {
         'glow-sky-shadow': 'glow-sky-shadow 2s ease-in-out infinite',
         'glow-red-shadow': 'glow-red-shadow 2s ease-in-out infinite',
         'glow-emerald-shadow': 'glow-emerald-shadow 2s ease-in-out infinite',
+        'shogun-fury': 'shogun-fury 2.5s ease-in-out infinite',
         'fly-across': 'fly-across 3s ease-in-out infinite',
         'shimmer': 'shimmer 2.5s ease-in-out infinite',
         'pulse-luxury': 'pulse-luxury 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -253,5 +264,7 @@ export default {
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
+
+    
 
     
