@@ -87,6 +87,7 @@ export default function AudioRoomPage() {
         const chatContainer = chatContainerRef.current;
         if (!chatContainer) return;
 
+        // Only scroll if the user is near the bottom
         const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 100;
 
         if (messages.length > lastMessageCount.current && isScrolledToBottom) {
@@ -247,8 +248,8 @@ export default function AudioRoomPage() {
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
         const targetSeat = seats.find(seat => seat.id === seatId);
         if (!targetSeat) return;
-
-        // Display toast before updating state
+        
+        // Display toast before updating state to avoid render errors
         if (action === 'mute' && targetSeat.user) {
             toast({ title: `User ${targetSeat.user.name} ${targetSeat.user.isMuted ? 'unmuted' : 'muted'}.`});
         } else if (action === 'kick' && targetSeat.user) {
@@ -435,7 +436,7 @@ export default function AudioRoomPage() {
                                                         {seat.user.frame && FrameSvg && (
                                                             <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
                                                         )}
-                                                        {seat.user.frame && frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
+                                                        {seat.user.frame && frameColors[seat.user.frame] && <div className={cn("absolute inset-[-2px] spinning-border animate-spin-colors rounded-full", specialFrames[seat.user.frame] && 'hidden' )}></div>}
                                                         
                                                         <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
@@ -496,7 +497,7 @@ export default function AudioRoomPage() {
                                                         {seat.user.frame && FrameSvg && (
                                                             <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
                                                         )}
-                                                        {seat.user.frame && frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
+                                                        {seat.user.frame && frameColors[seat.user.frame] && <div className={cn("absolute inset-[-2px] spinning-border animate-spin-colors rounded-full", specialFrames[seat.user.frame] && 'hidden' )}></div>}
                                                         <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
@@ -556,7 +557,7 @@ export default function AudioRoomPage() {
                                                         {seat.user.frame && FrameSvg && (
                                                             <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
                                                         )}
-                                                        {seat.user.frame && frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
+                                                        {seat.user.frame && frameColors[seat.user.frame] && <div className={cn("absolute inset-[-2px] spinning-border animate-spin-colors rounded-full", specialFrames[seat.user.frame] && 'hidden' )}></div>}
                                                         <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
@@ -763,5 +764,7 @@ export default function AudioRoomPage() {
         </div>
     );
 }
+
+    
 
     
