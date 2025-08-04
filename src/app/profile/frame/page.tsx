@@ -12,12 +12,12 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 const frameTiers = [
-  { name: "Neon Glow", price: "500 Coins", color: "animate-glow-green-shadow", image: "https://i.imgur.com/QJOss4l.png" },
-  { name: "Golden Ornate", price: "1500 Coins", color: "animate-glow-gold-shadow", image: "https://i.imgur.com/KHhzNAV.png" },
-  { name: "Cosmic Swirl", price: "3000 Coins", color: "animate-glow-purple-shadow", image: "https://i.imgur.com/xm6TS00.png" },
-  { name: "Glacial Ice", price: "5000 Coins", color: "animate-glow-sky-shadow", image: "https://i.imgur.com/3fZOzLh.png" },
-  { name: "Ruby Red", price: "7500 Coins", color: "animate-glow-red-shadow", image: "https://i.imgur.com/2wGrqno.png" },
-  { name: "Emerald Shine", price: "10000 Coins", color: "animate-glow-emerald-shadow", image: "https://i.imgur.com/jj5kzAj.png" },
+  { name: "Neon Glow", price: "500 Coins", animationClass: "animate-glow-green-shadow", image: "https://i.imgur.com/QJOss4l.png" },
+  { name: "Golden Ornate", price: "1500 Coins", animationClass: "animate-glow-gold-shadow", image: "https://i.imgur.com/KHhzNAV.png" },
+  { name: "Cosmic Swirl", price: "3000 Coins", animationClass: "animate-glow-purple-shadow", image: "https://i.imgur.com/xm6TS00.png" },
+  { name: "Glacial Ice", price: "5000 Coins", animationClass: "animate-glow-sky-shadow", image: "https://i.imgur.com/3fZOzLh.png" },
+  { name: "Ruby Red", price: "7500 Coins", animationClass: "animate-glow-red-shadow", image: "https://i.imgur.com/2wGrqno.png" },
+  { name: "Emerald Shine", price: "10000 Coins", animationClass: "animate-glow-emerald-shadow", image: "https://i.imgur.com/jj5kzAj.png" },
 ];
 
 export default function FrameStorePage() {
@@ -54,7 +54,7 @@ export default function FrameStorePage() {
                     <CardContent className="flex flex-col items-center justify-center p-4 gap-4 flex-grow">
                       <div className="w-40 h-40 flex items-center justify-center relative">
                         <Image 
-                            src="https://placehold.co/150x150.png"
+                            src="https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png"
                             alt="Your Pic" 
                             width={140}
                             height={140}
@@ -65,7 +65,7 @@ export default function FrameStorePage() {
                             src={tier.image}
                             alt={tier.name}
                             layout="fill"
-                            className={cn("absolute inset-0 object-contain", tier.color)}
+                            className={cn("absolute inset-0 object-contain", tier.animationClass)}
                             data-ai-hint="frame"
                         />
                       </div>
