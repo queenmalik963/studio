@@ -106,7 +106,7 @@ export default function ChatRoomPage() {
                         <ArrowLeft />
                     </Button>
                      <Avatar className="h-10 w-10">
-                        <AvatarImage src="https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png" alt={contactName} data-ai-hint="person face" unoptimized />
+                        <AvatarImage src="https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png" alt={contactName} data-ai-hint="person face" />
                         <AvatarFallback>{contactName.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
@@ -148,7 +148,7 @@ export default function ChatRoomPage() {
                     >
                         {!msg.isSender && (
                             <Avatar className="h-8 w-8">
-                                <AvatarImage src={msg.avatar} alt={msg.author} unoptimized />
+                                <AvatarImage src={msg.avatar} alt={msg.author} />
                                 <AvatarFallback>{msg.author?.charAt(0)}</AvatarFallback>
                             </Avatar>
                         )}

@@ -377,7 +377,7 @@ export function GiftPanel({ onSendGift, sendButtonRef }: { onSendGift: (gift: Gi
                                         alt={gift.name}
                                         width={48}
                                         height={48}
-                                        unoptimized={true}
+                                        
                                         className={cn(getAnimationClass(gift.animation))}
                                       />
                                        {gift.animation === 'fullscreen-video' && (

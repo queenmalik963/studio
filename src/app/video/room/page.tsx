@@ -121,7 +121,7 @@ export default function VideoRoomPage() {
                             {owner && (
                                 <div className="flex items-center gap-2">
                                      <Avatar className="h-10 w-10 border-2 border-yellow-400">
-                                        <AvatarImage src={owner.avatar} unoptimized/>
+                                        <AvatarImage src={owner.avatar} />
                                         <AvatarFallback>{owner.name?.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     <div>
@@ -155,10 +155,10 @@ export default function VideoRoomPage() {
                                     <>
                                         <div className="relative w-9 h-9 flex items-center justify-center">
                                             {seat.user.frame && specialFrames[seat.user.frame] && (
-                                                <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="absolute -inset-1 pointer-events-none animate-pulse-luxury" />
+                                                <Image  src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="absolute -inset-1 pointer-events-none animate-pulse-luxury" />
                                             )}
                                             <Avatar className={cn("w-9 h-9 border-2", seat.user.frame && !specialFrames[seat.user.frame] && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} unoptimized />
+                                                <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-0.5 z-10">
@@ -191,7 +191,7 @@ export default function VideoRoomPage() {
                             ) : (
                                 <div className="flex items-start gap-3">
                                     <Avatar className="h-8 w-8 shrink-0">
-                                        <AvatarImage src={msg.avatar} unoptimized />
+                                        <AvatarImage src={msg.avatar} />
                                         <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     <div className="text-sm">
@@ -216,7 +216,7 @@ export default function VideoRoomPage() {
                     <div className="flex items-center justify-around gap-2">
                         <div className="flex-grow flex items-center gap-2 bg-black/30 rounded-full h-10 px-2">
                            <Avatar className="h-7 w-7">
-                               <AvatarImage src="https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png" unoptimized />
+                               <AvatarImage src="https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png" />
                                <AvatarFallback>Y</AvatarFallback>
                            </Avatar>
                             <Input

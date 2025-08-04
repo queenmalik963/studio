@@ -52,7 +52,7 @@ export function GiftJumpAnimation({
         alt={gift.name}
         width={64}
         height={64}
-        unoptimized
+        
       />
     </motion.div>
   );
