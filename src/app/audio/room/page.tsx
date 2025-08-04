@@ -52,16 +52,6 @@ export type JumpAnimation = {
     endY: number;
 };
 
-const roomControls = [
-    { name: "Gathering", icon: Flag },
-    { name: "Broadcast", icon: Megaphone },
-    { name: "Music", icon: Music },
-    { name: "Invite", icon: UserPlus },
-    { name: "Effect", icon: Wand2 },
-    { name: "Clean", icon: Trash2 },
-    { name: "Upload", icon: Upload },
-]
-
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
 );
@@ -84,14 +74,13 @@ export default function AudioRoomPage() {
     const seatRefs = useRef(roomSeats.map(() => createRef<HTMLDivElement>()));
     const sendButtonRef = useRef<HTMLButtonElement>(null);
 
-
     const owner = { name: "op_2", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true };
     
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
         if (!chatContainer) return;
 
-        const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 100; // 100px buffer
+        const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 100;
 
         if (isScrolledToBottom) {
             chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -206,6 +195,35 @@ export default function AudioRoomPage() {
             setIsControlsPanelOpen(false);
         }
     };
+    
+    const roomControls = [
+        { name: "Gathering", icon: Flag, action: () => {
+            toast({ title: "Gathering Started!", description: "Special room effects are now active." });
+            setMessages(prev => [...prev, { id: Date.now(), type: 'text', author: 'System', text: 'A gathering has been started by the owner!', avatar: "https://em-content.zobj.net/source/apple/391/robot_1f916.png" }]);
+            setIsControlsPanelOpen(false);
+        }},
+        { name: "Broadcast", icon: Megaphone, action: () => {
+            toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
+            setMessages(prev => [...prev, { id: Date.now(), type: 'text', author: 'Broadcast', text: 'Welcome to the room everyone! Enjoy your stay.', avatar: "https://em-content.zobj.net/source/apple/391/megaphone_1f4e3.png" }]);
+            setIsControlsPanelOpen(false);
+        }},
+        { name: "Music", icon: Music, action: () => fileInputRef.current?.click() },
+        { name: "Invite", icon: UserPlus, action: () => {
+             toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." });
+             navigator.clipboard.writeText(window.location.href);
+             setIsControlsPanelOpen(false);
+        }},
+        { name: "Effect", icon: Wand2, action: () => {
+            toast({ title: "Effects On!", description: "Room entry effects are now active." });
+            setIsControlsPanelOpen(false);
+        }},
+        { name: "Clean", icon: Trash2, action: () => {
+            setMessages(prev => prev.filter(m => m.type !== 'text'));
+            toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
+            setIsControlsPanelOpen(false);
+        }},
+        { name: "Upload", icon: Upload, action: () => fileInputRef.current?.click() },
+    ]
 
 
     const specialFrames: {[key: string]: {img: string}} = {
@@ -606,7 +624,7 @@ export default function AudioRoomPage() {
                                         size="icon"
                                         variant="ghost"
                                         className="w-14 h-14 bg-black/30 rounded-2xl"
-                                        onClick={() => control.name === 'Upload' && fileInputRef.current?.click()}
+                                        onClick={control.action}
                                     >
                                         <control.icon className="w-7 h-7 text-white/80" />
                                     </Button>
@@ -620,3 +638,5 @@ export default function AudioRoomPage() {
         </div>
     );
 }
+
+    
