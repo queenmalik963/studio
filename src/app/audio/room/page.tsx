@@ -60,6 +60,24 @@ const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 
+// Extracted RoomControlButton to prevent re-rendering issues with toasts
+const RoomControlButton = ({ control, onClick }: { control: { name: string; icon: React.ElementType }; onClick: (name: string) => void }) => {
+    return (
+        <div className="flex flex-col items-center gap-2 text-center">
+            <Button
+                size="icon"
+                variant="ghost"
+                className="w-14 h-14 bg-black/30 rounded-2xl"
+                onClick={() => onClick(control.name)}
+            >
+                <control.icon className="w-7 h-7 text-white/80" />
+            </Button>
+            <Label className="text-xs">{control.name}</Label>
+        </div>
+    );
+};
+
+
 export default function AudioRoomPage() {
     const router = useRouter();
     const [messages, setMessages] = useState(initialMessages);
@@ -439,11 +457,12 @@ export default function AudioRoomPage() {
                                             {seat.isOccupied && seat.user ? (
                                                 <>
                                                     <div className="relative w-[50px] h-[50px] flex items-center justify-center">
-                                                        {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] ? (
+                                                        {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
                                                             <div className="absolute inset-[-4px] pointer-events-none">
                                                                 <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                             </div>
-                                                        ) : areEffectsEnabled && seat.user.frame && (
+                                                        )}
+                                                        {areEffectsEnabled && seat.user.frame && !specialFrames[seat.user.frame] && (
                                                             <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
                                                         )}
                                                         
@@ -497,11 +516,12 @@ export default function AudioRoomPage() {
                                             {seat.isOccupied && seat.user ? (
                                                 <>
                                                 <div className="relative w-[50px] h-[50px] flex items-center justify-center">
-                                                    {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] ? (
+                                                    {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
                                                         <div className="absolute inset-[-4px] pointer-events-none">
                                                             <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                         </div>
-                                                    ) : areEffectsEnabled && seat.user.frame && (
+                                                    )}
+                                                    {areEffectsEnabled && seat.user.frame && !specialFrames[seat.user.frame] && (
                                                         <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
                                                     )}
                                                     <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
@@ -554,11 +574,12 @@ export default function AudioRoomPage() {
                                             {seat.isOccupied && seat.user ? (
                                                 <>
                                                 <div className="relative w-[50px] h-[50px] flex items-center justify-center">
-                                                     {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] ? (
+                                                     {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
                                                         <div className="absolute inset-[-4px] pointer-events-none">
                                                             <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                         </div>
-                                                    ) : areEffectsEnabled && seat.user.frame && (
+                                                    )}
+                                                     {areEffectsEnabled && seat.user.frame && !specialFrames[seat.user.frame] && (
                                                         <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
                                                     )}
                                                     <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
@@ -748,17 +769,7 @@ export default function AudioRoomPage() {
                         />
                         <div className="grid grid-cols-4 gap-4">
                            {roomControls.map((control) => (
-                                <div key={control.name} className="flex flex-col items-center gap-2 text-center">
-                                     <Button
-                                        size="icon"
-                                        variant="ghost"
-                                        className="w-14 h-14 bg-black/30 rounded-2xl"
-                                        onClick={() => handleControlAction(control.name)}
-                                    >
-                                        <control.icon className="w-7 h-7 text-white/80" />
-                                    </Button>
-                                    <Label className="text-xs">{control.name}</Label>
-                                </div>
+                                <RoomControlButton key={control.name} control={control} onClick={handleControlAction} />
                            ))}
                         </div>
                     </div>
@@ -766,4 +777,5 @@ export default function AudioRoomPage() {
             </Sheet>
         </div>
     );
-}
+
+    
