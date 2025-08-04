@@ -153,16 +153,6 @@ export default {
             '0%, 100%': { filter: 'drop-shadow(0 0 5px rgba(191,191,191,0.6))' },
             '50%': { filter: 'drop-shadow(0 0 10px rgba(220,220,220,1))' },
         },
-        'shogun-fury': {
-            '0%, 100%': { 
-                transform: 'scale(1)',
-                filter: 'drop-shadow(0 0 6px rgba(255,185,0,0.5)) drop-shadow(0 0 2px rgba(239,68,68,0.7))'
-            },
-            '50%': { 
-                transform: 'scale(1.03)',
-                filter: 'drop-shadow(0 0 12px rgba(255,185,0,0.8)) drop-shadow(0 0 6px rgba(239,68,68,1))'
-            },
-        },
         'pulse-luxury': {
             '0%, 100%': { transform: 'scale(1)', opacity: '0.9' },
             '50%': { transform: 'scale(1.05)', opacity: '1' },
@@ -187,12 +177,9 @@ export default {
         'glow-sky': 'glow-sky 2s ease-in-out infinite',
         'glow-amber': 'glow-amber 2s ease-in-out infinite',
         'glow-silver': 'glow-silver 2s ease-in-out infinite',
-        'shogun-fury': 'shogun-fury 2.5s ease-in-out infinite',
         'pulse-luxury': 'pulse-luxury 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
-
-    
