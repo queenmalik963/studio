@@ -70,6 +70,7 @@ export default function VideoRoomPage() {
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
     const sendButtonRef = useRef<HTMLButtonElement>(null);
+    const lastMessageCount = useRef(messages.length);
 
     const owner = { name: "op_2", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true };
     const currentUserIsOwner = true; // For simulation
@@ -114,7 +115,7 @@ export default function VideoRoomPage() {
             toast({ title: areAllMuted ? "All Unmuted" : "All Muted", description: `All users have been ${areAllMuted ? 'unmuted' : 'muted'}.`});
             setIsControlsPanelOpen(false);
         }},
-        { name: "Change Video", icon: Youtube, action: (router: any) => router.push('/video/add') },
+        { name: "Change Video", icon: Youtube, action: () => router.push('/video/add') },
     ];
     
     useEffect(() => {
@@ -123,9 +124,11 @@ export default function VideoRoomPage() {
 
         const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 100;
         
-        if (isScrolledToBottom) {
+        if (messages.length > lastMessageCount.current && isScrolledToBottom) {
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
+
+        lastMessageCount.current = messages.length;
     }, [messages]);
     
     const handleSendMessage = (e: React.FormEvent) => {
@@ -576,7 +579,7 @@ export default function VideoRoomPage() {
                                             size="icon"
                                             variant="ghost"
                                             className="w-14 h-14 bg-black/30 rounded-2xl"
-                                            onClick={() => (control.action as any)(router)}
+                                            onClick={control.action}
                                         >
                                             <control.icon className="w-7 h-7 text-white/80" />
                                         </Button>
