@@ -35,17 +35,19 @@ const initialMessages: Message[] = [
   { id: 1, type: 'system', text: 'Welcome to the video room!' },
   { id: 2, type: 'text', author: 'Jodie', text: 'Hey everyone!', avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png"},
   { id: 3, type: 'text', author: 'saba', text: 'Hi...', avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png"},
+  { id: 4, type: 'system', text: 'Riz has joined the room.'},
+  { id: 5, type: 'system', text: 'Koko has left the room.'},
 ];
 
 export const videoRoomSeats = [
-    { id: 1, user: { name: "Jodie", avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png", isMuted: false, frame: 'crimson-danger' }, isOccupied: true },
-    { id: 2, user: { name: "Koko", avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png", isMuted: false, frame: 'gold' }, isOccupied: true },
-    { id: 3, user: { name: "User 3", avatar: "https://em-content.zobj.net/source/apple/391/woman-wearing-turban_1f473-200d-2640-fe0f.png", isMuted: true, frame: 'purple' }, isOccupied: true },
-    { id: 4, user: { name: "Lexa", avatar: "https://em-content.zobj.net/source/apple/391/man-in-tuxedo_1f935.png", isMuted: true, frame: 'blue' }, isOccupied: true },
-    { id: 5, user: { name: "mhay", avatar: "https://em-content.zobj.net/source/apple/391/woman-with-headscarf_1f9d5.png", isMuted: true, frame: 'green' }, isOccupied: true },
-    { id: 6, user: { name: "saba", avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png", isMuted: false, frame: 'red' }, isOccupied: true },
-    { id: 7, user: { name: "MR ISMAIL", avatar: "https://em-content.zobj.net/source/apple/391/man-supervillain_1f9b9-200d-2642-fe0f.png", isMuted: false, frame: 'cyan' }, isOccupied: true },
-    { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false, frame: 'pink' }, isOccupied: true },
+    { id: 1, user: { name: "Jodie", avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png", isMuted: false, frame: 'crimson-danger' }, isOccupied: true, isLocked: false },
+    { id: 2, user: { name: "Koko", avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png", isMuted: false, frame: 'gold' }, isOccupied: true, isLocked: false },
+    { id: 3, user: { name: "User 3", avatar: "https://em-content.zobj.net/source/apple/391/woman-wearing-turban_1f473-200d-2640-fe0f.png", isMuted: true, frame: 'purple' }, isOccupied: true, isLocked: false },
+    { id: 4, user: { name: "Lexa", avatar: "https://em-content.zobj.net/source/apple/391/man-in-tuxedo_1f935.png", isMuted: true, frame: 'blue' }, isOccupied: true, isLocked: false },
+    { id: 5, user: { name: "mhay", avatar: "https://em-content.zobj.net/source/apple/391/woman-with-headscarf_1f9d5.png", isMuted: true, frame: 'green' }, isOccupied: true, isLocked: false },
+    { id: 6, user: { name: "saba", avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png", isMuted: false, frame: 'red' }, isOccupied: true, isLocked: false },
+    { id: 7, user: { name: "MR ISMAIL", avatar: "https://em-content.zobj.net/source/apple/391/man-supervillain_1f9b9-200d-2642-fe0f.png", isMuted: false, frame: 'cyan' }, isOccupied: true, isLocked: false },
+    { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false, frame: 'pink' }, isOccupied: true, isLocked: false },
 ]
 
 
@@ -236,18 +238,33 @@ export default function VideoRoomPage() {
     };
 
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
+        const targetSeat = seats.find(seat => seat.id === seatId);
+        if (!targetSeat) return;
+
+        // Display toast before updating state
+        if (action === 'mute' && targetSeat.user) {
+            toast({ title: `User ${targetSeat.user.name} ${targetSeat.user.isMuted ? 'unmuted' : 'muted'}.`});
+        } else if (action === 'kick' && targetSeat.user) {
+            toast({ title: `User ${targetSeat.user.name} has been kicked from the seat.`});
+        } else if (action === 'lock') {
+            toast({ title: `Seat ${targetSeat.id} has been ${targetSeat.isLocked ? 'unlocked' : 'locked'}.`});
+        }
+        
         setSeats(prevSeats => prevSeats.map(seat => {
-            if (seat.id === seatId && seat.user) {
+            if (seat.id === seatId) {
                 switch(action) {
                     case 'mute':
-                        toast({ title: `User ${seat.user.name} ${seat.user.isMuted ? 'unmuted' : 'muted'}.`});
-                        return {...seat, user: {...seat.user, isMuted: !seat.user.isMuted}};
+                        if (seat.user) {
+                            return {...seat, user: {...seat.user, isMuted: !seat.user.isMuted}};
+                        }
+                        break;
                     case 'kick':
-                        toast({ title: `User ${seat.user.name} has been kicked from the seat.`});
-                        return {...seat, user: null, isOccupied: false};
+                        if (seat.user) {
+                            return {...seat, user: null, isOccupied: false};
+                        }
+                        break;
                     case 'lock':
-                         toast({ title: `Seat ${seat.id} has been locked.`});
-                        return {...seat, user: null, isOccupied: false }; // Simplified logic
+                        return {...seat, isLocked: !seat.isLocked };
                 }
             }
             return seat;
@@ -353,7 +370,7 @@ export default function VideoRoomPage() {
                                                     <div className="relative w-9 h-9 flex items-center justify-center">
                                                         {seat.user.frame && specialFrames[seat.user.frame] && (
                                                             <div className="absolute inset-[-3px] pointer-events-none">
-                                                                <Image src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                                                                <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                             </div>
                                                         )}
                                                         <div className={cn("absolute inset-[-1px] spinning-border animate-spin-colors rounded-full", !specialFrames[seat.user.frame] && seat.user.frame ? '' : 'hidden' )}></div>
@@ -415,7 +432,7 @@ export default function VideoRoomPage() {
                                             </>
                                         ) : (
                                             <div className="w-9 h-9 rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                                {(seat as any).isLocked ? <Lock className="w-4 h-4 text-white/50"/> : <span className="text-sm font-bold text-white/50">{seat.id}</span>}
+                                                {seat.isLocked ? <Lock className="w-4 h-4 text-white/50"/> : <span className="text-sm font-bold text-white/50">{seat.id}</span>}
                                             </div>
                                         )}
                                     </div>
@@ -425,7 +442,7 @@ export default function VideoRoomPage() {
                                         <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
                                             {seat.user?.isMuted ? <Mic /> : <MicOff />} {seat.user?.isMuted ? 'Unmute' : 'Mute Mic'}
                                         </Button>
-                                        <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}><Lock /> Lock Seat</Button>
+                                        <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}><Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}</Button>
                                         <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
                                         <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
                                     </div>
@@ -508,7 +525,8 @@ export default function VideoRoomPage() {
                         </Button>
                          <Button 
                             type="button" 
-                            size="icon" 
+                            size="icon"
+                            ref={sendButtonRef}
                             className={cn(
                                 "w-10 h-10 rounded-full flex-shrink-0",
                                 isGiftPanelOpen ? "bg-primary" : "bg-yellow-500 hover:bg-yellow-600"
