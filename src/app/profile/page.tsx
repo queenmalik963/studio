@@ -6,38 +6,92 @@ import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Star, Send, Landmark, Gem, Coins, Settings, Edit, Wallet, Edit2, ChevronRight } from "lucide-react";
+import { Star, Send, Landmark, Gem, Coins, Settings, Edit, Wallet, Edit2, ChevronRight, Camera } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
 
 export default function ProfilePage() {
     const idLevel = 10;
     const sendingLevel = 10;
+    const [name, setName] = useState("associate Official Ds");
+    const [tempName, setTempName] = useState(name);
+
+    const handleNameChange = () => {
+        setName(tempName);
+    }
 
     return (
         <AppLayout>
             <div className="space-y-6">
                 <div className="bg-gradient-to-b from-primary/30 to-background rounded-xl p-4 -m-4 md:m-0 relative">
-                    <Link href="/profile/settings" className="absolute top-4 right-4">
-                        <Button variant="ghost" size="icon">
+                    <Link href="/profile/settings" passHref>
+                        <Button variant="ghost" size="icon" className="absolute top-4 right-4">
                             <Settings className="text-white" />
                         </Button>
                     </Link>
                     <div className="flex flex-col items-center text-center text-white">
-                        <div className="relative">
-                            <Avatar className="w-24 h-24 border-4 border-white">
-                                <AvatarImage src="https://em-content.zobj.net/source/apple/391/letter-a_1f170-fe0f.png" alt="associate Official" data-ai-hint="person alphabet" />
-                                <AvatarFallback>A</AvatarFallback>
-                            </Avatar>
-                            <Button size="icon" className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-card text-card-foreground hover:bg-card/80">
-                                <Edit className="h-4 w-4" />
-                            </Button>
-                        </div>
-                        <div className="flex items-center gap-2 mt-4">
-                            <h1 className="text-2xl font-bold">associate Official Ds</h1>
-                            <Edit2 className="w-5 h-5 cursor-pointer" />
-                        </div>
+                         <Dialog>
+                            <DialogTrigger asChild>
+                                <div className="relative cursor-pointer">
+                                    <Avatar className="w-24 h-24 border-4 border-white">
+                                        <AvatarImage src="https://em-content.zobj.net/source/apple/391/letter-a_1f170-fe0f.png" alt="associate Official" data-ai-hint="person alphabet" />
+                                        <AvatarFallback>A</AvatarFallback>
+                                    </Avatar>
+                                    <div className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-card text-card-foreground hover:bg-card/80 flex items-center justify-center">
+                                        <Camera className="h-4 w-4" />
+                                    </div>
+                                </div>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Change Avatar</DialogTitle>
+                                </DialogHeader>
+                                <div className="py-4">
+                                    <p className="text-muted-foreground mb-4">Choose a new avatar for your profile.</p>
+                                    <Input type="file" accept="image/*" />
+                                </div>
+                                <DialogFooter>
+                                    <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
+                                    <DialogClose asChild><Button>Upload</Button></DialogClose>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                        
+                         <Dialog>
+                            <DialogTrigger asChild>
+                                <div className="flex items-center gap-2 mt-4 cursor-pointer">
+                                    <h1 className="text-2xl font-bold">{name}</h1>
+                                    <Edit2 className="w-5 h-5" />
+                                </div>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Change Username</DialogTitle>
+                                </DialogHeader>
+                                <div className="py-4">
+                                     <Label htmlFor="username" className="sr-only">Username</Label>
+                                     <Input id="username" value={tempName} onChange={(e) => setTempName(e.target.value)} />
+                                </div>
+                                <DialogFooter>
+                                    <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
+                                    <DialogClose asChild><Button onClick={handleNameChange}>Save</Button></DialogClose>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+
                         <p className="text-sm text-white/70">@user1754000546251</p>
                         <p className="text-sm mt-2 max-w-sm">Welcome to Devika!</p>
                         <div className="flex justify-around text-center mt-4 w-full max-w-xs">
