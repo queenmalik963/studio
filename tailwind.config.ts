@@ -252,7 +252,7 @@ export default {
         'shogun-fury': 'shogun-fury 2.5s ease-in-out infinite',
         'fly-across': 'fly-across 3s ease-in-out infinite',
         'shimmer': 'shimmer 2.5s ease-in-out infinite',
-        'pulse-luxury': 'pulse-luxury 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'pulse-luxury': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'tada': 'tada 1s ease-in-out infinite',
         'bounce': 'bounce 1s infinite',
       },
