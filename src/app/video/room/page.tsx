@@ -46,7 +46,7 @@ const roomSeats = [
 ]
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
 );
 
 
@@ -159,10 +159,13 @@ export default function VideoRoomPage() {
                                             {occupiedSeats.map((seat) => (
                                                 <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
                                                     <div className="relative w-9 h-9 flex items-center justify-center">
-                                                         {seat.user.frame && specialFrames[seat.user.frame] && (
-                                                            <Image src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="absolute -inset-1 pointer-events-none animate-pulse-luxury" />
+                                                        {seat.user.frame && specialFrames[seat.user.frame] && (
+                                                            <div className="absolute inset-[-3px] pointer-events-none">
+                                                                <Image src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                                                            </div>
                                                         )}
-                                                        <Avatar className={cn("h-9 w-9 border-2", seat.user.frame && !specialFrames[seat.user.frame] && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                        <div className={cn("absolute inset-[-1px] spinning-border animate-spin-colors rounded-full", !specialFrames[seat.user.frame] && seat.user.frame ? '' : 'hidden' )}></div>
+                                                        <Avatar className={cn("h-full w-full border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                             <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
                                                         </Avatar>
@@ -198,9 +201,12 @@ export default function VideoRoomPage() {
                                     <>
                                         <div className="relative w-9 h-9 flex items-center justify-center">
                                             {seat.user.frame && specialFrames[seat.user.frame] && (
-                                                <Image  src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="absolute -inset-1 pointer-events-none animate-pulse-luxury" />
+                                                <div className="absolute inset-[-3px] pointer-events-none">
+                                                    <Image  src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                                                </div>
                                             )}
-                                            <Avatar className={cn("w-9 h-9 border-2", seat.user.frame && !specialFrames[seat.user.frame] && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                            <div className={cn("absolute inset-[-1px] spinning-border animate-spin-colors rounded-full", !specialFrames[seat.user.frame] && seat.user.frame ? '' : 'hidden' )}></div>
+                                            <Avatar className={cn("w-full h-full border-2", seat.user.frame && !specialFrames[seat.user.frame] && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                 <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                             </Avatar>
