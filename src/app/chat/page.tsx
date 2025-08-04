@@ -57,7 +57,7 @@ export default function ChatListPage() {
                                  <Card className="bg-card/50 hover:bg-card/80 transition-colors border-transparent hover:border-primary/20">
                                      <CardContent className="p-3 flex items-center gap-4">
                                          <Avatar className="h-12 w-12 border-2 border-primary/50">
-                                            <AvatarImage src={chat.avatar} alt={chat.author} data-ai-hint="person face" />
+                                            <AvatarImage src={chat.avatar} alt={chat.author} />
                                             <AvatarFallback>{chat.author.charAt(0)}</AvatarFallback>
                                         </Avatar>
                                         <div className="flex-1 overflow-hidden">
