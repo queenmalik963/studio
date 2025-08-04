@@ -95,6 +95,7 @@ export default function AudioRoomPage() {
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
     const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
@@ -132,6 +133,7 @@ export default function AudioRoomPage() {
                 },
             ]);
             setNewMessage("");
+            inputRef.current?.blur();
         }
     };
 
@@ -683,6 +685,7 @@ export default function AudioRoomPage() {
                                <AvatarFallback>Y</AvatarFallback>
                            </Avatar>
                             <Input
+                                ref={inputRef}
                                 autoComplete="off"
                                 name="message"
                                 placeholder="Hi..."

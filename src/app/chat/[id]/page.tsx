@@ -72,6 +72,7 @@ export default function ChatRoomPage() {
     const [messages, setMessages] = useState(() => createInitialMessages(contactName));
     const [newMessage, setNewMessage] = useState("");
     const chatContainerRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
@@ -100,6 +101,7 @@ export default function ChatRoomPage() {
                 },
             ]);
             setNewMessage("");
+            inputRef.current?.blur();
         }
     };
 
@@ -217,6 +219,7 @@ export default function ChatRoomPage() {
                         </PopoverContent>
                     </Popover>
                     <Input
+                        ref={inputRef}
                         autoComplete="off"
                         name="message"
                         placeholder="Type your message..."

@@ -72,6 +72,7 @@ export default function VideoRoomPage() {
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
     const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
     const sendButtonRef = useRef<HTMLButtonElement>(null);
     const lastMessageCount = useRef(messages.length);
@@ -149,6 +150,7 @@ export default function VideoRoomPage() {
                 },
             ]);
             setNewMessage("");
+            inputRef.current?.blur();
         }
     };
 
@@ -511,6 +513,7 @@ export default function VideoRoomPage() {
                                <AvatarFallback>Y</AvatarFallback>
                            </Avatar>
                             <Input
+                                ref={inputRef}
                                 autoComplete="off"
                                 name="message"
                                 placeholder="Hi..."
