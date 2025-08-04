@@ -28,21 +28,21 @@ const initialMessages = [
 ];
 
 export const roomSeats = [
-    { id: 1, user: { name: "Jodie", avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png", isMuted: false, frame: 'master' }, isOccupied: true },
-    { id: 2, user: { name: "Koko", avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png", isMuted: false, frame: 'gold' }, isOccupied: true },
-    { id: 3, user: { name: "User 3", avatar: "https://em-content.zobj.net/source/apple/391/woman-wearing-turban_1f473-200d-2640-fe0f.png", isMuted: true, frame: 'platinum' }, isOccupied: true },
-    { id: 4, user: { name: "Lexa", avatar: "https://em-content.zobj.net/source/apple/391/man-in-tuxedo_1f935.png", isMuted: true, frame: 'blue' }, isOccupied: true },
-    { id: 5, user: { name: "mhay", avatar: "https://em-content.zobj.net/source/apple/391/woman-with-headscarf_1f9d5.png", isMuted: true, frame: 'green' }, isOccupied: true },
-    { id: 6, user: { name: "saba", avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png", isMuted: false, frame: 'red' }, isOccupied: true },
-    { id: 7, user: { name: "MR ISMAIL", avatar: "https://em-content.zobj.net/source/apple/391/man-supervillain_1f9b9-200d-2642-fe0f.png", isMuted: false, frame: 'dragon-fury' }, isOccupied: true },
-    { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false, frame: 'dragon-fury' }, isOccupied: true },
-    { id: 9, user: { name: "User 9", avatar: "https://em-content.zobj.net/source/apple/391/ghost_1f47b.png", isMuted: true, frame: 'teal' }, isOccupied: true },
-    { id: 10, user: null, isOccupied: false },
-    { id: 11, user: null, isOccupied: false },
-    { id: 12, user: null, isOccupied: false },
-    { id: 13, user: null, isOccupied: false },
-    { id: 14, user: null, isOccupied: false },
-    { id: 15, user: null, isOccupied: false },
+    { id: 1, user: { name: "Jodie", avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png", isMuted: false, frame: 'master' }, isOccupied: true, isLocked: false },
+    { id: 2, user: { name: "Koko", avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png", isMuted: false, frame: 'gold' }, isOccupied: true, isLocked: false },
+    { id: 3, user: { name: "User 3", avatar: "https://em-content.zobj.net/source/apple/391/woman-wearing-turban_1f473-200d-2640-fe0f.png", isMuted: true, frame: 'platinum' }, isOccupied: true, isLocked: false },
+    { id: 4, user: { name: "Lexa", avatar: "https://em-content.zobj.net/source/apple/391/man-in-tuxedo_1f935.png", isMuted: true, frame: 'blue' }, isOccupied: true, isLocked: false },
+    { id: 5, user: { name: "mhay", avatar: "https://em-content.zobj.net/source/apple/391/woman-with-headscarf_1f9d5.png", isMuted: true, frame: 'green' }, isOccupied: true, isLocked: false },
+    { id: 6, user: { name: "saba", avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png", isMuted: false, frame: 'red' }, isOccupied: true, isLocked: false },
+    { id: 7, user: { name: "MR ISMAIL", avatar: "https://em-content.zobj.net/source/apple/391/man-supervillain_1f9b9-200d-2642-fe0f.png", isMuted: false, frame: 'dragon-fury' }, isOccupied: true, isLocked: false },
+    { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false, frame: 'dragon-fury' }, isOccupied: true, isLocked: false },
+    { id: 9, user: { name: "User 9", avatar: "https://em-content.zobj.net/source/apple/391/ghost_1f47b.png", isMuted: true, frame: 'teal' }, isOccupied: true, isLocked: false },
+    { id: 10, user: null, isOccupied: false, isLocked: false },
+    { id: 11, user: null, isOccupied: false, isLocked: false },
+    { id: 12, user: null, isOccupied: false, isLocked: false },
+    { id: 13, user: null, isOccupied: false, isLocked: false },
+    { id: 14, user: null, isOccupied: false, isLocked: false },
+    { id: 15, user: null, isOccupied: false, isLocked: false },
 ]
 
 export type JumpAnimation = {
@@ -70,12 +70,14 @@ export default function AudioRoomPage() {
     const [animatedGift, setAnimatedGift] = useState<GiftType | null>(null);
     const [animatedVideoGift, setAnimatedVideoGift] = useState<string | null>(null);
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
+    const [isPersonalMicMuted, setIsPersonalMicMuted] = useState(true);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
     const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
     const sendButtonRef = useRef<HTMLButtonElement>(null);
+    const lastMessageCount = useRef(messages.length);
 
     const owner = { name: "op_2", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true };
     const currentUserIsOwner = true; // For simulation
@@ -84,20 +86,23 @@ export default function AudioRoomPage() {
         const chatContainer = chatContainerRef.current;
         if (!chatContainer) return;
 
+        // Only scroll if the user is near the bottom or if it's a new message
         const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 100;
 
-        if (isScrolledToBottom) {
+        if (messages.length > lastMessageCount.current && isScrolledToBottom) {
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
+
+        lastMessageCount.current = messages.length;
     }, [messages]);
     
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
         if (newMessage.trim()) {
-            setMessages([
-                ...messages,
+            setMessages(prev => [
+                ...prev,
                 {
-                    id: messages.length + 1,
+                    id: prev.length + 1,
                     type: "text",
                     author: "You",
                     text: newMessage,
@@ -241,17 +246,23 @@ export default function AudioRoomPage() {
 
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
         setSeats(prevSeats => prevSeats.map(seat => {
-            if (seat.id === seatId && seat.user) {
+            if (seat.id === seatId) {
                 switch(action) {
                     case 'mute':
-                        toast({ title: `User ${seat.user.name} ${seat.user.isMuted ? 'unmuted' : 'muted'}.`});
-                        return {...seat, user: {...seat.user, isMuted: !seat.user.isMuted}};
+                        if (seat.user) {
+                            toast({ title: `User ${seat.user.name} ${seat.user.isMuted ? 'unmuted' : 'muted'}.`});
+                            return {...seat, user: {...seat.user, isMuted: !seat.user.isMuted}};
+                        }
+                        break;
                     case 'kick':
-                        toast({ title: `User ${seat.user.name} has been kicked from the seat.`});
-                        return {...seat, user: null, isOccupied: false};
+                        if (seat.user) {
+                            toast({ title: `User ${seat.user.name} has been kicked from the seat.`});
+                            return {...seat, user: null, isOccupied: false};
+                        }
+                        break;
                     case 'lock':
-                         toast({ title: `Seat ${seat.id} has been locked.`});
-                        return {...seat, user: null, isOccupied: false }; // Simplified logic
+                         toast({ title: `Seat ${seat.id} has been ${seat.isLocked ? 'unlocked' : 'locked'}.`});
+                        return {...seat, user: null, isOccupied: false, isLocked: !seat.isLocked };
                 }
             }
             return seat;
@@ -401,7 +412,7 @@ export default function AudioRoomPage() {
                             const FrameSvg = seat.user?.frame ? frameSvgs[seat.user.frame] : null;
                             return (
                                 <Popover key={seat.id}>
-                                    <PopoverTrigger asChild disabled={!seat.user || !currentUserIsOwner}>
+                                    <PopoverTrigger asChild disabled={!seat.user && !seat.isLocked || !currentUserIsOwner}>
                                         <div ref={seatRefs.current[index]} className="flex flex-col items-center gap-1 w-[50px] text-center cursor-pointer">
                                             {seat.isOccupied && seat.user ? (
                                                 <>
@@ -414,8 +425,8 @@ export default function AudioRoomPage() {
                                                         {FrameSvg && (
                                                             <FrameSvg className={cn("absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]", frameColors[seat.user.frame])} />
                                                         )}
-                                                        <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
-
+                                                        {frameColors[seat.user.frame] && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
+                                                        
                                                         <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                             <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
@@ -431,19 +442,26 @@ export default function AudioRoomPage() {
                                                 </>
                                             ) : (
                                                 <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                                    <span className="text-lg font-bold text-white/50">{seat.id}</span>
+                                                    {seat.isLocked ? <Lock className="w-6 h-6 text-white/50" /> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
                                                 </div>
                                             )}
                                         </div>
                                     </PopoverTrigger>
                                      <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
                                         <div className="flex flex-col gap-1">
-                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
-                                                {seat.user?.isMuted ? <Mic /> : <MicOff />} {seat.user?.isMuted ? 'Unmute' : 'Mute Mic'}
+                                            {seat.user && (
+                                                <>
+                                                    <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
+                                                        {seat.user.isMuted ? <Mic /> : <MicOff />} {seat.user.isMuted ? 'Unmute' : 'Mute Mic'}
+                                                    </Button>
+                                                     <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
+                                                    <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
+                                                    <Separator className="my-1" />
+                                                </>
+                                            )}
+                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}>
+                                                <Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}
                                             </Button>
-                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}><Lock /> Lock Seat</Button>
-                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
-                                            <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
                                         </div>
                                     </PopoverContent>
                                 </Popover>
@@ -455,7 +473,7 @@ export default function AudioRoomPage() {
                              const FrameSvg = seat.user?.frame ? frameSvgs[seat.user.frame] : null;
                              return (
                                 <Popover key={seat.id}>
-                                    <PopoverTrigger asChild disabled={!seat.user || !currentUserIsOwner}>
+                                    <PopoverTrigger asChild disabled={!seat.user && !seat.isLocked || !currentUserIsOwner}>
                                         <div ref={seatRefs.current[index+5]} className="flex flex-col items-center gap-1 w-[50px] text-center cursor-pointer">
                                             {seat.isOccupied && seat.user ? (
                                                 <>
@@ -484,19 +502,26 @@ export default function AudioRoomPage() {
                                                 </>
                                             ) : (
                                             <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                                    <span className="text-lg font-bold text-white/50">{seat.id}</span>
+                                                    {seat.isLocked ? <Lock className="w-6 h-6 text-white/50" /> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
                                                 </div>
                                         ) }
                                         </div>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
+                                     <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
                                         <div className="flex flex-col gap-1">
-                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
-                                                {seat.user?.isMuted ? <Mic /> : <MicOff />} {seat.user?.isMuted ? 'Unmute' : 'Mute Mic'}
+                                            {seat.user && (
+                                                <>
+                                                    <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
+                                                        {seat.user.isMuted ? <Mic /> : <MicOff />} {seat.user.isMuted ? 'Unmute' : 'Mute Mic'}
+                                                    </Button>
+                                                     <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
+                                                    <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
+                                                    <Separator className="my-1" />
+                                                </>
+                                            )}
+                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}>
+                                                <Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}
                                             </Button>
-                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}><Lock /> Lock Seat</Button>
-                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
-                                            <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
                                         </div>
                                     </PopoverContent>
                                 </Popover>
@@ -508,7 +533,7 @@ export default function AudioRoomPage() {
                              const FrameSvg = seat.user?.frame ? frameSvgs[seat.user.frame] : null;
                              return (
                                 <Popover key={seat.id}>
-                                    <PopoverTrigger asChild disabled={!seat.user || !currentUserIsOwner}>
+                                    <PopoverTrigger asChild disabled={!seat.user && !seat.isLocked || !currentUserIsOwner}>
                                         <div ref={seatRefs.current[index+10]} className="flex flex-col items-center gap-1 w-[50px] text-center cursor-pointer">
                                             {seat.isOccupied && seat.user ? (
                                                 <>
@@ -537,19 +562,26 @@ export default function AudioRoomPage() {
                                                 </>
                                             ) : (
                                             <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                                    <span className="text-lg font-bold text-white/50">{seat.id}</span>
+                                                    {seat.isLocked ? <Lock className="w-6 h-6 text-white/50" /> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
                                                 </div>
                                         )}
                                         </div>
                                     </PopoverTrigger>
                                      <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
                                         <div className="flex flex-col gap-1">
-                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
-                                                {seat.user?.isMuted ? <Mic /> : <MicOff />} {seat.user?.isMuted ? 'Unmute' : 'Mute Mic'}
+                                            {seat.user && (
+                                                <>
+                                                    <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
+                                                        {seat.user.isMuted ? <Mic /> : <MicOff />} {seat.user.isMuted ? 'Unmute' : 'Mute Mic'}
+                                                    </Button>
+                                                     <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
+                                                    <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
+                                                    <Separator className="my-1" />
+                                                </>
+                                            )}
+                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}>
+                                                <Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}
                                             </Button>
-                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}><Lock /> Lock Seat</Button>
-                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
-                                            <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
                                         </div>
                                     </PopoverContent>
                                 </Popover>
@@ -621,8 +653,8 @@ export default function AudioRoomPage() {
                                 <SendIcon />
                             </Button>
                         </div>
-                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0">
-                            <Mic />
+                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={() => setIsPersonalMicMuted(prev => !prev)}>
+                           {isPersonalMicMuted ? <MicOff /> : <Mic />}
                         </Button>
                          <Button type="button" size="icon" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0" onClick={() => setIsGamePanelOpen(true)}><Gamepad2 /></Button>
                          <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={() => setIsControlsPanelOpen(true)}>
@@ -631,6 +663,7 @@ export default function AudioRoomPage() {
                          <Button 
                             type="button" 
                             size="icon"
+                            ref={sendButtonRef}
                             className={cn(
                                 "w-10 h-10 rounded-full flex-shrink-0",
                                 isGiftPanelOpen ? "bg-primary" : "bg-yellow-500 hover:bg-yellow-600"
@@ -720,3 +753,4 @@ export default function AudioRoomPage() {
         </div>
     );
 }
+
