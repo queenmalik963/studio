@@ -217,45 +217,53 @@ export default function AudioRoomPage() {
         }
     };
     
-    const roomControls = useMemo(() => [
-        { name: "Gathering", icon: Flag, action: () => {
-            toast({ title: "Gathering Started!", description: "Special room effects are now active." });
-            setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'A gathering has been started by the owner!' }]);
-            setIsControlsPanelOpen(false);
-        }},
-        { name: "Broadcast", icon: Megaphone, action: () => {
-            toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
-            setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'Broadcast: Welcome to the room everyone! Enjoy your stay.' }]);
-            setIsControlsPanelOpen(false);
-        }},
-        { name: "Music", icon: Music, action: () => fileInputRef.current?.click() },
-        { name: "Invite", icon: UserPlus, action: () => {
-             toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." });
-             navigator.clipboard.writeText(window.location.href);
-             setIsControlsPanelOpen(false);
-        }},
-        { name: "Effect", icon: Wand2, action: () => {
-            setAreEffectsEnabled(prev => {
-                const newState = !prev;
-                toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` });
-                return newState;
-            });
-            setIsControlsPanelOpen(false);
-        }},
-        { name: "Clean", icon: Trash2, action: () => {
-            setMessages(prev => prev.filter(m => m.type !== 'text'));
-            toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
-            setIsControlsPanelOpen(false);
-        }},
-        { name: "Upload", icon: Upload, action: () => fileInputRef.current?.click() },
-    ], [toast, setMessages, setAreEffectsEnabled, setIsControlsPanelOpen]);
-
+    const roomControls = [
+        { name: "Gathering", icon: Flag },
+        { name: "Broadcast", icon: Megaphone },
+        { name: "Music", icon: Music },
+        { name: "Invite", icon: UserPlus },
+        { name: "Effect", icon: Wand2 },
+        { name: "Clean", icon: Trash2 },
+        { name: "Upload", icon: Upload },
+    ];
+    
+    const handleControlAction = (controlName: string) => {
+        switch (controlName) {
+            case "Gathering":
+                toast({ title: "Gathering Started!", description: "Special room effects are now active." });
+                setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'A gathering has been started by the owner!' }]);
+                break;
+            case "Broadcast":
+                toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
+                setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'Broadcast: Welcome to the room everyone! Enjoy your stay.' }]);
+                break;
+            case "Music":
+            case "Upload":
+                fileInputRef.current?.click();
+                break;
+            case "Invite":
+                toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." });
+                navigator.clipboard.writeText(window.location.href);
+                break;
+            case "Effect":
+                setAreEffectsEnabled(prev => {
+                    const newState = !prev;
+                    toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` });
+                    return newState;
+                });
+                break;
+            case "Clean":
+                setMessages(prev => prev.filter(m => m.type !== 'text'));
+                toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
+                break;
+        }
+        setIsControlsPanelOpen(false);
+    };
 
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
         const targetSeat = seats.find(seat => seat.id === seatId);
         if (!targetSeat) return;
         
-        // Display toast before updating state to avoid render errors
         if (action === 'mute' && targetSeat.user) {
             toast({ title: `User ${targetSeat.user.name} ${targetSeat.user.isMuted ? 'unmuted' : 'muted'}.`});
         } else if (action === 'kick' && targetSeat.user) {
@@ -745,7 +753,7 @@ export default function AudioRoomPage() {
                                         size="icon"
                                         variant="ghost"
                                         className="w-14 h-14 bg-black/30 rounded-2xl"
-                                        onClick={control.action}
+                                        onClick={() => handleControlAction(control.name)}
                                     >
                                         <control.icon className="w-7 h-7 text-white/80" />
                                     </Button>
@@ -759,5 +767,3 @@ export default function AudioRoomPage() {
         </div>
     );
 }
-
-    
