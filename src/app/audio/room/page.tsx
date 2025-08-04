@@ -32,8 +32,8 @@ const roomSeats = [
     { id: 4, user: { name: "Lexa", avatar: "https://em-content.zobj.net/source/apple/391/man-in-tuxedo_1f935.png", isMuted: true, frame: 'blue' }, isOccupied: true },
     { id: 5, user: { name: "mhay", avatar: "https://em-content.zobj.net/source/apple/391/woman-with-headscarf_1f9d5.png", isMuted: true, frame: 'green' }, isOccupied: true },
     { id: 6, user: { name: "saba", avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png", isMuted: false, frame: 'red' }, isOccupied: true },
-    { id: 7, user: { name: "MR ISMAIL", avatar: "https://em-content.zobj.net/source/apple/391/man-supervillain_1f9b9-200d-2642-fe0f.png", isMuted: false, frame: 'cyan' }, isOccupied: true },
-    { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false, frame: 'pink' }, isOccupied: true },
+    { id: 7, user: { name: "MR ISMAIL", avatar: "https://em-content.zobj.net/source/apple/391/man-supervillain_1f9b9-200d-2642-fe0f.png", isMuted: false, frame: 'crimson-danger' }, isOccupied: true },
+    { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false, frame: 'crimson-danger' }, isOccupied: true },
     { id: 9, user: { name: "User 9", avatar: "https://em-content.zobj.net/source/apple/391/ghost_1f47b.png", isMuted: true, frame: 'teal' }, isOccupied: true },
     { id: 10, user: { name: "User 10", avatar: "https://em-content.zobj.net/source/apple/391/robot_1f916.png", isMuted: false, frame: 'orange' }, isOccupied: true },
     { id: 11, user: { name: "User 11", avatar: "https://em-content.zobj.net/source/apple/391/alien_1f47d.png", isMuted: false, frame: 'indigo' }, isOccupied: true },
@@ -310,7 +310,9 @@ export default function AudioRoomPage() {
                                                     <Image src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                 </div>
                                             )}
-                                            <div className={cn("absolute inset-[-2px] spinning-border animate-spin-colors rounded-full", seat.user.frame && !specialFrames[seat.user.frame] ? '' : 'hidden' )}></div>
+                                            {seat.user.frame && !specialFrames[seat.user.frame] && (
+                                                <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
+                                            )}
                                             <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                 <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
@@ -343,7 +345,9 @@ export default function AudioRoomPage() {
                                                     <Image src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                 </div>
                                             )}
-                                            <div className={cn("absolute inset-[-2px] spinning-border animate-spin-colors rounded-full", seat.user.frame && !specialFrames[seat.user.frame] ? '' : 'hidden' )}></div>
+                                            {seat.user.frame && !specialFrames[seat.user.frame] && (
+                                                <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
+                                            )}
                                             <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                 <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
@@ -373,10 +377,12 @@ export default function AudioRoomPage() {
                                        <div className="relative w-[50px] h-[50px] flex items-center justify-center">
                                             {seat.user.frame && specialFrames[seat.user.frame] && (
                                                 <div className="absolute inset-[-4px] pointer-events-none">
-                                                    <Image  src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                                                    <Image src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                 </div>
                                             )}
-                                            <div className={cn("absolute inset-[-2px] spinning-border animate-spin-colors rounded-full", seat.user.frame && !specialFrames[seat.user.frame] ? '' : 'hidden' )}></div>
+                                            {seat.user.frame && !specialFrames[seat.user.frame] && (
+                                                <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
+                                            )}
                                             <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                 <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                 <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
@@ -417,7 +423,7 @@ export default function AudioRoomPage() {
                                             <div className="flex items-center gap-2 mt-1">
                                                 <p className="text-xs">Sent a RedRose</p>
                                                 <div className="bg-black/20 p-1 rounded-md flex items-center gap-1">
-                                                    <Image  src="https://em-content.zobj.net/source/apple/391/rose_1f339.png" alt="RedRose" width={16} height={16}/>
+                                                    <Image src="https://em-content.zobj.net/source/apple/391/rose_1f339.png" alt="RedRose" width={16} height={16}/>
                                                     <span className="text-xs">x1</span>
                                                 </div>
                                             </div>
@@ -556,3 +562,4 @@ export default function AudioRoomPage() {
     
 
     
+
