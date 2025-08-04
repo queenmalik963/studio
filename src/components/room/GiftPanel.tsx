@@ -410,14 +410,14 @@ export function GiftPanel({ onSendGift, sendButtonRef, roomSeats }: GiftPanelPro
         </Tabs>
       </div>
       <div className="flex-shrink-0 flex items-center justify-between gap-2 p-2 border-t border-white/10">
-         <div className="flex items-center gap-2 flex-grow">
+         <div className="flex items-center gap-2">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="outline" className="bg-black/20 border-white/20 h-9 text-xs px-2">
                         To: {recipient} <ChevronDown className="ml-1 w-4 h-4" />
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="bg-popover text-popover-foreground">
+                <DropdownMenuContent align="start" className="bg-popover text-popover-foreground max-h-60 overflow-y-auto">
                     <DropdownMenuItem onClick={() => setRecipient("All in Room")}>All in Room</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setRecipient("All on Mic")}>All on Mic</DropdownMenuItem>
                     <DropdownMenuSeparator />
