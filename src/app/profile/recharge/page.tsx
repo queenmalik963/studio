@@ -9,6 +9,9 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const rechargePacks = [
   { coins: 100, price: "$0.99", color: "from-gray-500 to-gray-600" },
@@ -28,6 +31,32 @@ const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
+const GooglePayIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10.186 10.32L8.53 7.554H6.264l3.96 6.444L10.186 10.32Z" fill="#34A853"/>
+        <path d="M14.186 10.32L12.53 7.554H10.26l3.96 6.444L14.186 10.32Z" fill="#34A853"/>
+        <path d="M15.42 12.18L13.763 15h2.264l1.657-2.82Z" fill="#FBBC04"/>
+        <path d="M8.58 12.18L6.923 15H9.187l-0.607-2.82Z" fill="#FBBC04"/>
+        <path d="M12 4.5C10.02 4.5 8.22 5.25 6.84 6.45L4.95 4.56C6.96 2.82 9.39 1.8 12 1.8c4.68 0 8.64 3.06 9.99 7.2H12V4.5Z" fill="#EA4335"/>
+        <path d="M21.99 9H12v4.5h6.18c-.36 1.98-1.71 3.42-3.6 4.23l1.89 1.98c2.7-2.25 4.23-5.76 4.23-9.54V9Z" fill="#4285F4"/>
+    </svg>
+);
+
+const JazzCashIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="24" height="24" rx="4" fill="#D9002C"/>
+        <path d="M12 6.5C9.51 6.5 7.5 8.51 7.5 11V13C7.5 15.49 9.51 17.5 12 17.5C14.49 17.5 16.5 15.49 16.5 13V11C16.5 8.51 14.49 6.5 12 6.5ZM12 15.5C10.62 15.5 9.5 14.38 9.5 13V11C9.5 9.62 10.62 8.5 12 8.5C13.38 8.5 14.5 9.62 14.5 11V13C14.5 14.38 13.38 15.5 12 15.5Z" fill="white"/>
+    </svg>
+);
+
+const CreditCardIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+        <rect x="5" y="14" width="4" height="2" fill="currentColor"/>
+        <path d="M2 9H22" stroke="currentColor" strokeWidth="1.5"/>
+    </svg>
+);
+
 
 export default function RechargePage() {
   const router = useRouter();
@@ -36,8 +65,15 @@ export default function RechargePage() {
   const handleRecharge = (coins: number) => {
     toast({
         title: "Recharge Pack Selected!",
-        description: `Contact us on WhatsApp to purchase ${coins.toLocaleString()} coins.`,
+        description: `Proceed with payment for ${coins.toLocaleString()} coins.`,
     })
+  }
+
+  const handlePaymentSubmit = (method: string) => {
+    toast({
+        title: "Processing Payment",
+        description: `Your payment via ${method} is being processed.`,
+    });
   }
 
   return (
@@ -85,7 +121,100 @@ export default function RechargePage() {
                 </Link>
             </CardContent>
         </Card>
+
+        <Card>
+            <CardHeader>
+                <CardTitle>More Payment Methods</CardTitle>
+                <CardDescription>Select another payment method.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="outline" className="h-16 text-base gap-3">
+                            <GooglePayIcon /> Google Pay
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Google Pay</DialogTitle>
+                            <DialogDescription>Enter your Google Pay details to proceed.</DialogDescription>
+                        </DialogHeader>
+                        <div className="py-4 space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="gpay-id">Google Pay ID</Label>
+                                <Input id="gpay-id" placeholder="yourname@okhdfcbank" />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
+                            <DialogClose asChild><Button onClick={() => handlePaymentSubmit('Google Pay')}>Proceed</Button></DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="outline" className="h-16 text-base gap-3">
+                            <JazzCashIcon /> JazzCash
+                        </Button>
+                    </DialogTrigger>
+                     <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>JazzCash</DialogTitle>
+                            <DialogDescription>Enter your JazzCash account number.</DialogDescription>
+                        </DialogHeader>
+                        <div className="py-4 space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="jazzcash-number">JazzCash Number</Label>
+                                <Input id="jazzcash-number" type="tel" placeholder="03xxxxxxxxx" />
+                            </div>
+                        </div>
+                         <DialogFooter>
+                            <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
+                            <DialogClose asChild><Button onClick={() => handlePaymentSubmit('JazzCash')}>Proceed</Button></DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="outline" className="h-16 text-base gap-3">
+                           <CreditCardIcon /> Credit Card
+                        </Button>
+                    </DialogTrigger>
+                     <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Credit/Debit Card</DialogTitle>
+                            <DialogDescription>Enter your card details.</DialogDescription>
+                        </DialogHeader>
+                        <div className="py-4 space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="card-number">Card Number</Label>
+                                <Input id="card-number" placeholder="0000 0000 0000 0000" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="expiry">Expiry</Label>
+                                    <Input id="expiry" placeholder="MM/YY" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="cvc">CVC</Label>
+                                    <Input id="cvc" placeholder="123" />
+                                </div>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                           <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
+                           <DialogClose asChild><Button onClick={() => handlePaymentSubmit('Credit Card')}>Pay Now</Button></DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </CardContent>
+        </Card>
+
       </div>
     </AppLayout>
   );
 }
+
+    

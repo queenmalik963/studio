@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, Gem, Landmark, Repeat } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -17,15 +19,45 @@ const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
+const BankIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 3L2 9l10 6 10-6-10-6z"/>
+        <path d="M2 9v12l10 6 10-6V9"/>
+        <path d="M22 9l-10 6"/>
+    </svg>
+);
+
+const CryptoIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20z"/>
+        <path d="M8 12h8"/>
+        <path d="M12 8v8"/>
+        <path d="M12 2v2"/>
+        <path d="M12 20v2"/>
+        <path d="M5.5 5.5l1.4 1.4"/>
+        <path d="M17.1 17.1l1.4 1.4"/>
+        <path d="M5.5 18.5l1.4-1.4"/>
+        <path d="M17.1 6.9l1.4-1.4"/>
+    </svg>
+);
+
 
 export default function WithdrawPage() {
     const router = useRouter();
+    const { toast } = useToast();
     const [exchangeAmount, setExchangeAmount] = useState<number | string>("");
 
     const handleExchangeAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setExchangeAmount(value === "" ? "" : Number(value));
     };
+
+    const handleWithdrawalSubmit = (method: string) => {
+        toast({
+            title: "Request Submitted",
+            description: `Your withdrawal request via ${method} has been submitted.`,
+        });
+    }
 
     return (
         <AppLayout>
@@ -37,11 +69,11 @@ export default function WithdrawPage() {
                     <h1 className="text-2xl font-bold font-headline">Withdraw & Exchange</h1>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Card className="bg-gradient-to-br from-teal-700 to-cyan-900 text-white border-teal-500/50 flex flex-col">
                         <CardHeader className="p-4">
                             <CardTitle className="text-base">Withdraw Diamonds</CardTitle>
-                            <CardDescription className="text-white/80 text-xs">100 = $1.00</CardDescription>
+                            <CardDescription className="text-white/80 text-xs">100 Diamonds = $1.00</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-3 p-4 flex-grow flex flex-col justify-between">
                             <div className="space-y-2">
@@ -52,11 +84,7 @@ export default function WithdrawPage() {
                                 </div>
                                 <p className="text-xs text-white/70">Available: 5,800</p>
                             </div>
-
-                            <Button className="w-full bg-white/20 hover:bg-white/30 border border-white/40 h-9" size="sm">
-                                <Landmark className="mr-2 h-4 w-4"/>
-                                Submit Request
-                            </Button>
+                            <p className="text-xs text-center text-white/80">Submit your request via one of the methods below.</p>
                         </CardContent>
                     </Card>
 
@@ -97,7 +125,7 @@ export default function WithdrawPage() {
                         <CardHeader>
                             <CardTitle>Withdraw via WhatsApp</CardTitle>
                             <CardDescription>
-                                After submitting your request above, please contact us on WhatsApp to complete the process.
+                                After filling the amount above, contact us on WhatsApp to complete the process.
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -106,6 +134,70 @@ export default function WithdrawPage() {
                                     <WhatsAppIcon className="w-8 h-8 text-green-500" /> Contact on WhatsApp
                                 </Button>
                             </Link>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Other Withdrawal Methods</CardTitle>
+                            <CardDescription>Select an alternative method for withdrawal.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline" className="h-16 text-base gap-3">
+                                        <BankIcon /> Bank Transfer
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>Bank Transfer Details</DialogTitle>
+                                        <DialogDescription>Please provide your bank account information.</DialogDescription>
+                                    </DialogHeader>
+                                    <div className="py-4 space-y-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="bank-name">Bank Name</Label>
+                                            <Input id="bank-name" placeholder="e.g., HBL Pakistan" />
+                                        </div>
+                                         <div className="space-y-2">
+                                            <Label htmlFor="account-holder">Account Holder Name</Label>
+                                            <Input id="account-holder" placeholder="John Doe" />
+                                        </div>
+                                         <div className="space-y-2">
+                                            <Label htmlFor="iban">IBAN / Account Number</Label>
+                                            <Input id="iban" placeholder="PK00 HABB 0000 0000 0000 0" />
+                                        </div>
+                                    </div>
+                                    <DialogFooter>
+                                        <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
+                                        <DialogClose asChild><Button onClick={() => handleWithdrawalSubmit('Bank Transfer')}>Submit Request</Button></DialogClose>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+
+                             <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline" className="h-16 text-base gap-3">
+                                        <CryptoIcon /> Crypto Wallet
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>Crypto Wallet Details</DialogTitle>
+                                        <DialogDescription>Enter your USDT (TRC20) wallet address.</DialogDescription>
+                                    </DialogHeader>
+                                    <div className="py-4 space-y-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="wallet-address">USDT (TRC20) Address</Label>
+                                            <Input id="wallet-address" placeholder="T..." />
+                                        </div>
+                                    </div>
+                                    <DialogFooter>
+                                        <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
+                                        <DialogClose asChild><Button onClick={() => handleWithdrawalSubmit('Crypto Wallet')}>Submit Request</Button></DialogClose>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
                         </CardContent>
                     </Card>
                 </div>
