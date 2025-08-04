@@ -21,21 +21,21 @@ const frameTiers = [
 ];
 
 const animatedFrameTiers = [
-    { name: "Welcome", price: "25000 Coins", image: "https://i.imgur.com/L0QVCz5.gif" },
-    { name: "Baby Tiger", price: "35000 Coins", image: "https://i.imgur.com/0Ida8tN.gif" },
-    { name: "No No", price: "10000 Coins", image: "https://i.imgur.com/ivjX3AG.gif" },
-    { name: "Thank You", price: "20000 Coins", image: "https://i.imgur.com/KkRoyNG.gif" },
-    { name: "Happy", price: "22000 Coins", image: "https://i.imgur.com/ur8gnNg.gif" },
-    { name: "I'm King", price: "50000 Coins", image: "https://i.imgur.com/RGlRi8p.gif" },
-    { name: "Long Life", price: "45000 Coins", image: "https://i.imgur.com/uuYE1y6.gif" },
-    { name: "Don't Worry", price: "18000 Coins", image: "https://i.imgur.com/R5PCG1C.gif" },
-    { name: "Boss", price: "60000 Coins", image: "https://i.imgur.com/Oz4ud1o.gif" },
-    { name: "Geooo", price: "40000 Coins", image: "https://i.imgur.com/O4Fxx4F.gif" },
-    { name: "Baby", price: "15000 Coins", image: "https://i.imgur.com/Z1q3Wzp.gif" },
-    { name: "I'm Going", price: "28000 Coins", image: "https://i.imgur.com/7aQbGmH.gif" },
-    { name: "I'm Coming", price: "30000 Coins", image: "https://i.imgur.com/kUs3XY4.gif" },
-    { name: "Gift Box 1", price: "12000 Coins", image: "https://i.imgur.com/cnp5DtX.gif" },
-    { name: "Gift Box 2", price: "18000 Coins", image: "https://i.imgur.com/0I2I0qJ.gif" },
+    { name: "Welcome", price: "25000 Coins", image: "https://i.imgur.com/L0QVCz5.gif", animationClass: "animate-glow-gold-shadow" },
+    { name: "Baby Tiger", price: "35000 Coins", image: "https://i.imgur.com/0Ida8tN.gif", animationClass: "animate-pulse-luxury" },
+    { name: "No No", price: "10000 Coins", image: "https://i.imgur.com/ivjX3AG.gif", animationClass: "animate-bounce" },
+    { name: "Thank You", price: "20000 Coins", image: "https://i.imgur.com/KkRoyNG.gif", animationClass: "animate-glow-pink-shadow" },
+    { name: "Happy", price: "22000 Coins", image: "https://i.imgur.com/ur8gnNg.gif", animationClass: "animate-tada" },
+    { name: "I'm King", price: "50000 Coins", image: "https://i.imgur.com/RGlRi8p.gif", animationClass: "animate-pulse-luxury" },
+    { name: "Long Life", price: "45000 Coins", image: "https://i.imgur.com/uuYE1y6.gif", animationClass: "animate-glow-gold-shadow" },
+    { name: "Don't Worry", price: "18000 Coins", image: "https://i.imgur.com/R5PCG1C.gif", animationClass: "animate-bounce" },
+    { name: "Boss", price: "60000 Coins", image: "https://i.imgur.com/Oz4ud1o.gif", animationClass: "animate-pulse-luxury" },
+    { name: "Geooo", price: "40000 Coins", image: "https://i.imgur.com/O4Fxx4F.gif", animationClass: "animate-glow-green-shadow" },
+    { name: "Baby", price: "15000 Coins", image: "https://i.imgur.com/Z1q3Wzp.gif", animationClass: "animate-glow-sky-shadow" },
+    { name: "I'm Going", price: "28000 Coins", image: "https://i.imgur.com/7aQbGmH.gif", animationClass: "animate-tada" },
+    { name: "I'm Coming", price: "30000 Coins", image: "https://i.imgur.com/kUs3XY4.gif", animationClass: "animate-glow-purple-shadow" },
+    { name: "Gift Box 1", price: "12000 Coins", image: "https://i.imgur.com/cnp5DtX.gif", animationClass: "animate-bounce" },
+    { name: "Gift Box 2", price: "18000 Coins", image: "https://i.imgur.com/0I2I0qJ.gif", animationClass: "animate-glow-red-shadow" },
 ]
 
 export default function FrameStorePage() {
@@ -55,14 +55,7 @@ export default function FrameStorePage() {
             <Carousel
               opts={{
                 align: "start",
-                loop: true,
               }}
-              plugins={[
-                Autoplay({
-                  delay: 2500,
-                  stopOnInteraction: true,
-                }),
-              ]}
               className="w-full"
             >
               <CarouselContent>
@@ -71,20 +64,12 @@ export default function FrameStorePage() {
                     <div className="p-1 h-full">
                       <Card className="bg-card/50 h-full flex flex-col">
                         <CardContent className="flex flex-col items-center justify-center p-4 gap-4 flex-grow">
-                          <div className="w-40 h-40 flex items-center justify-center relative">
-                            <Image 
-                                src="https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png"
-                                alt="Your Pic" 
-                                width={140}
-                                height={140}
-                                className="rounded-full"
-                                data-ai-hint="person face"
-                            />
+                          <div className={cn("w-40 h-40 flex items-center justify-center relative", tier.animationClass)}>
                             <Image
                                 src={tier.image}
                                 alt={tier.name}
                                 layout="fill"
-                                className={cn("absolute inset-0 object-contain", tier.animationClass)}
+                                className="object-contain"
                                 data-ai-hint="frame"
                             />
                           </div>
@@ -109,14 +94,7 @@ export default function FrameStorePage() {
             <Carousel
               opts={{
                 align: "start",
-                loop: true,
               }}
-              plugins={[
-                Autoplay({
-                  delay: 3500,
-                  stopOnInteraction: true,
-                }),
-              ]}
               className="w-full"
             >
               <CarouselContent>
@@ -125,25 +103,15 @@ export default function FrameStorePage() {
                     <div className="p-1 h-full">
                       <Card className="bg-card/50 h-full flex flex-col">
                         <CardContent className="flex flex-col items-center justify-center p-4 gap-4 flex-grow">
-                          <div className="w-40 h-40 flex items-center justify-center relative">
-                            <Image 
-                                src="https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png"
-                                alt="Your Pic" 
-                                width={140}
-                                height={140}
-                                className="rounded-full"
-                                data-ai-hint="person face"
+                          <div className={cn("w-40 h-40 flex items-center justify-center relative", tier.animationClass)}>
+                             <Image
+                                unoptimized
+                                src={tier.image}
+                                alt={tier.name}
+                                layout="fill"
+                                className="object-contain"
+                                data-ai-hint="animated frame"
                             />
-                             <div className="absolute inset-[-4px] pointer-events-none">
-                                <Image
-                                    unoptimized
-                                    src={tier.image}
-                                    alt={tier.name}
-                                    layout="fill"
-                                    className="object-contain"
-                                    data-ai-hint="animated frame"
-                                />
-                             </div>
                           </div>
                           <div className="text-center">
                             <p className="font-semibold text-lg">{tier.name}</p>
