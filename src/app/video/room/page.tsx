@@ -63,7 +63,7 @@ export default function VideoRoomPage() {
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
-    }, [messages]);
+    }, [messages, newMessage]);
     
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
@@ -343,6 +343,8 @@ export default function VideoRoomPage() {
         </div>
     );
 }
+
+    
 
     
 
