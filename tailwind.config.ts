@@ -200,10 +200,6 @@ export default {
           '0%, 100%': { boxShadow: '0 0 6px 2px #fff, 0 0 10px 4px #f0f, 0 0 14px 6px #0ff', opacity: '0.8' },
           '50%': { boxShadow: '0 0 12px 3px #fff, 0 0 16px 5px #f0f, 0 0 20px 7px #0ff', opacity: '1' },
         },
-        'pulse-luxury': {
-          '0%, 100%': { transform: 'scale(1)', opacity: '1' },
-          '50%': { transform: 'scale(1.05)', opacity: '0.9' },
-        },
         'tada': {
             '0%': { transform: 'scale(1)' },
             '10%, 20%': { transform: 'scale(0.9) rotate(-3deg)' },
@@ -264,9 +260,3 @@ export default {
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
-
-    
-
-    
-
-
