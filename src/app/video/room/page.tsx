@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, Fragment } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Maximize, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift } from "lucide-react";
+import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Maximize, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, Flag, Megaphone, Music, UserPlus, Wand2, Trash2, MicOff, Youtube } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -45,6 +45,17 @@ const roomSeats = [
     { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false, frame: 'pink' }, isOccupied: true },
 ]
 
+const videoRoomControls = [
+    { name: "Gathering", icon: Flag, action: () => {} },
+    { name: "Broadcast", icon: Megaphone, action: () => {} },
+    { name: "Music", icon: Music, action: () => {} },
+    { name: "Invite", icon: UserPlus, action: () => {} },
+    { name: "Effect", icon: Wand2, action: () => {} },
+    { name: "Clean", icon: Trash2, action: () => {} },
+    { name: "Mute All", icon: MicOff, action: () => {}, ownerOnly: true },
+    { name: "Change Video", icon: Youtube, action: (router: any) => router.push('/video/add') },
+]
+
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
 );
@@ -55,6 +66,7 @@ export default function VideoRoomPage() {
     const [messages, setMessages] = useState(initialMessages);
     const [newMessage, setNewMessage] = useState("");
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
+    const [isControlsPanelOpen, setIsControlsPanelOpen] = useState(false);
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
     const owner = { name: "op_2", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true };
@@ -289,7 +301,7 @@ export default function VideoRoomPage() {
                             <Mic />
                         </Button>
                          <Button type="button" size="icon" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0" onClick={() => setIsGamePanelOpen(true)}><Gamepad2 /></Button>
-                         <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0">
+                         <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={() => setIsControlsPanelOpen(true)}>
                             <RectangleVertical />
                         </Button>
                          <Button 
@@ -345,12 +357,34 @@ export default function VideoRoomPage() {
                     </ScrollArea>
                 </SheetContent>
             </Sheet>
+
+            <Sheet open={isControlsPanelOpen} onOpenChange={setIsControlsPanelOpen}>
+                <SheetContent side="bottom" className="bg-[#1F0A2E] border-t-2 border-primary/50 text-white rounded-t-2xl" style={{ height: '45vh' }}>
+                    <SheetHeader>
+                        <SheetTitle className="text-2xl font-headline text-white">Room Controls</SheetTitle>
+                    </SheetHeader>
+                    <div className="py-4">
+                        <div className="grid grid-cols-4 gap-4">
+                           {videoRoomControls.map((control) => {
+                                if (control.ownerOnly && !owner.isOwner) return null;
+                                return (
+                                    <div key={control.name} className="flex flex-col items-center gap-2 text-center">
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            className="w-14 h-14 bg-black/30 rounded-2xl"
+                                            onClick={() => control.action(router)}
+                                        >
+                                            <control.icon className="w-7 h-7 text-white/80" />
+                                        </Button>
+                                        <Label className="text-xs">{control.name}</Label>
+                                    </div>
+                                )
+                           })}
+                        </div>
+                    </div>
+                </SheetContent>
+            </Sheet>
         </div>
     );
 }
-
-    
-
-    
-
-    

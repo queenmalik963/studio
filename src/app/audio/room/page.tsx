@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, Fragment, createRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, X, Loader2, Crown, Upload } from "lucide-react";
+import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, X, Loader2, Crown, Upload, Flag, Megaphone, Music, UserPlus, Wand2, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -51,6 +51,16 @@ export type JumpAnimation = {
     endX: number;
     endY: number;
 };
+
+const roomControls = [
+    { name: "Gathering", icon: Flag },
+    { name: "Broadcast", icon: Megaphone },
+    { name: "Music", icon: Music },
+    { name: "Invite", icon: UserPlus },
+    { name: "Effect", icon: Wand2 },
+    { name: "Clean", icon: Trash2 },
+    { name: "Upload", icon: Upload },
+]
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
@@ -589,33 +599,24 @@ export default function AudioRoomPage() {
                             accept="audio/mp3"
                             className="hidden"
                         />
-                        <Card 
-                            className="bg-black/30 border-white/20 cursor-pointer hover:bg-black/40"
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            <CardContent className="p-4 flex flex-col items-center justify-center gap-2 text-center">
-                                <Upload className="w-12 h-12 text-primary" />
-                                <h3 className="font-semibold text-lg">Upload Track</h3>
-                                <p className="text-xs text-muted-foreground">Select an MP3 file from your device</p>
-                            </CardContent>
-                        </Card>
+                        <div className="grid grid-cols-4 gap-4">
+                           {roomControls.map((control) => (
+                                <div key={control.name} className="flex flex-col items-center gap-2 text-center">
+                                     <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        className="w-14 h-14 bg-black/30 rounded-2xl"
+                                        onClick={() => control.name === 'Upload' && fileInputRef.current?.click()}
+                                    >
+                                        <control.icon className="w-7 h-7 text-white/80" />
+                                    </Button>
+                                    <Label className="text-xs">{control.name}</Label>
+                                </div>
+                           ))}
+                        </div>
                     </div>
                 </SheetContent>
             </Sheet>
         </div>
     );
 }
-
-    
-
-    
-
-
-
-    
-
-    
-
-    
-
-    
