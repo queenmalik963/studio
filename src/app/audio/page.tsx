@@ -11,7 +11,41 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
-const initialRooms: any[] = [];
+const initialRooms = [
+    {
+        name: "Lofi Beats Chill Room",
+        thumbnail: "https://i.imgur.com/sCbrK9U.png",
+        thumbnailHint: "podcast microphone audio",
+        isPlaying: true,
+        progress: 75,
+        users: [
+            { name: "Alex", src: "https://placehold.co/40x40.png" },
+            { name: "Ben", src: "https://placehold.co/40x40.png" },
+            { name: "Cara", src: "https://placehold.co/40x40.png" },
+        ]
+    },
+    {
+        name: "Community Hangout",
+        thumbnail: "https://i.imgur.com/m4Kmzk3.png",
+        thumbnailHint: "gaming headphones neon",
+        isPlaying: false,
+        progress: 40,
+        users: [
+            { name: "David", src: "https://placehold.co/40x40.png" },
+            { name: "Eva", src: "https://placehold.co/40x40.png" },
+        ]
+    },
+    {
+        name: "Silent Study Group",
+        thumbnail: "https://i.imgur.com/RqnqCso.gif",
+        thumbnailHint: "animated tiger cub",
+        isPlaying: true,
+        progress: 90,
+        users: [
+            { name: "Frank", src: "https://placehold.co/40x40.png" },
+        ]
+    }
+];
 
 
 export default function AudioPage() {
@@ -48,6 +82,7 @@ export default function AudioPage() {
                                       fill
                                       className="rounded-lg object-cover"
                                       data-ai-hint={room.thumbnailHint}
+                                      unoptimized={room.thumbnail.endsWith('.gif')}
                                   />
                                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
                                       {room.isPlaying && (

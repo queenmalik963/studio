@@ -12,7 +12,41 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
-const initialRooms: any[] = [];
+const initialRooms = [
+    {
+        name: "Lofi Hip Hop Radio 📚 - Beats to Relax/Study to",
+        thumbnail: "https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault_live.jpg",
+        thumbnailHint: "lofi anime girl studying",
+        isPlaying: true,
+        progress: 65,
+        users: [
+            { name: "LofiGirl", src: "https://placehold.co/40x40.png" },
+            { name: "Chillhop", src: "https://placehold.co/40x40.png" },
+            { name: "User123", src: "https://placehold.co/40x40.png" },
+        ]
+    },
+    {
+        name: "Live from Tomorrowland 2024",
+        thumbnail: "https://i.ytimg.com/vi/5qap5aO4i9A/hqdefault_live.jpg",
+        thumbnailHint: "live music festival rave",
+        isPlaying: true,
+        progress: 80,
+        users: [
+            { name: "RaverX", src: "https://placehold.co/40x40.png" },
+            { name: "EDMLover", src: "https://placehold.co/40x40.png" },
+        ]
+    },
+    {
+        name: "Movie Watch Party: Sci-Fi Classics",
+        thumbnail: "https://i.imgur.com/Oz4ud1o.gif",
+        thumbnailHint: "animated space battle",
+        isPlaying: false,
+        progress: 25,
+        users: [
+            { name: "SciFiFan", src: "https://placehold.co/40x40.png" },
+        ]
+    }
+];
 
 
 export default function VideoPage() {
@@ -49,6 +83,7 @@ export default function VideoPage() {
                                       fill
                                       className="rounded-lg object-cover"
                                       data-ai-hint={room.thumbnailHint}
+                                      unoptimized={room.thumbnail.endsWith('.gif')}
                                   />
                                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
                                       {room.isPlaying && (

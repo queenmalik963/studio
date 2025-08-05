@@ -16,8 +16,14 @@ import {
 } from "@/components/ui/select";
 import { MusicSuggestions } from "@/components/video/MusicSuggestions";
 
-const initialTrendingVideos: any[] = [];
-const initialTrendingAudio: any[] = [];
+const initialTrendingVideos = [
+    { href: "/video/room", image: "https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg", hint: "lofi hip-hop music", title: "Lofi Beats to Relax To", creator: "Chillhop Music", viewers: "1.2K" },
+    { href: "/video/room", image: "https://i.ytimg.com/vi/5qap5aO4i9A/hqdefault.jpg", hint: "techno rave party", title: "Techno Bunker Session", creator: "Hardwell", viewers: "876" },
+];
+const initialTrendingAudio = [
+    { href: "/audio/room", image: "https://i.imgur.com/sCbrK9U.png", hint: "podcast microphone audio", title: "Late Night Conversations", creator: "Alex & Friends", listeners: "2.5K" },
+    { href: "/audio/room", image: "https://i.imgur.com/m4Kmzk3.png", hint: "gaming headphones neon", title: "Gaming Squad Hangout", creator: "GamerX", listeners: "1.8K" },
+];
 
 const TrendingCard = ({ href, image, hint, title, creator, viewers, icon: Icon }: { href: string, image: string, hint: string, title: string, creator: string, viewers: string, icon: React.ElementType }) => (
     <Link href={href} className="block">
@@ -206,7 +212,7 @@ export default function HomePage() {
                         title={item.title}
                         creator={item.creator}
                         viewers={item.viewers}
-                        icon={Headphones}
+                        icon={PlaySquare}
                     />
                   ))}
                 </div>
