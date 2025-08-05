@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef, useEffect, Fragment, createRef, Suspense, memo } from "react";
+import { useState, useRef, useEffect, Fragment, createRef, Suspense, memo, useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import YouTube from 'react-youtube';
-import { listenToMessages, sendMessage, type Message, listenToRoom, type Room, takeSeat, leaveSeat, updateSeatAsOwner, type SeatUser } from "@/services/roomService";
+import { listenToMessages, sendMessage, type Message, listenToRoom, type Room, takeSeat, leaveSeat, updateSeatAsOwner, type SeatUser, updateSeatUser } from "@/services/roomService";
 import { auth } from "@/lib/firebase";
 
 
@@ -54,7 +54,6 @@ function VideoRoomPageComponent() {
     const [animatedVideoGift, setAnimatedVideoGift] = useState<string | null>(null);
     const [animatedWalkingGift, setAnimatedWalkingGift] = useState<string | null>(null);
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
-    const [isPersonalMicMuted, setIsPersonalMicMuted] = useState(true);
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
     const [coins, setCoins] = useState(0);
     
@@ -69,6 +68,8 @@ function VideoRoomPageComponent() {
 
     const [currentUser, setCurrentUser] = useState<SeatUser | null>(null);
     const currentUserIsOwner = room?.ownerId === currentUser?.id;
+    const currentUserSeat = useMemo(() => seats.find(s => s.user?.id === currentUser?.id), [seats, currentUser]);
+
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
@@ -143,8 +144,7 @@ function VideoRoomPageComponent() {
             const areAllMuted = seats.every(seat => !seat.user || seat.user.isMuted);
             for (const seat of seats) {
                 if (seat.user) {
-                    const updatedUser = { ...seat.user, isMuted: !areAllMuted };
-                    await updateSeatAsOwner(roomId, seat.id, { user: updatedUser });
+                   await updateSeatUser(roomId, seat.id, { isMuted: !areAllMuted });
                 }
             }
             toast({ title: areAllMuted ? "All Unmuted" : "All Muted", description: `All users have been ${areAllMuted ? 'unmuted' : 'muted'}.`});
@@ -305,8 +305,10 @@ function VideoRoomPageComponent() {
         setJumpAnimations(prev => prev.filter(anim => anim.id !== id));
     };
 
-    const handleTogglePersonalMic = () => {
-        setIsPersonalMicMuted(prev => !prev);
+    const handleTogglePersonalMic = async () => {
+        if (!roomId || !currentUserSeat) return;
+        const newMuteState = !currentUserSeat.user.isMuted;
+        await updateSeatUser(roomId, currentUserSeat.id, { isMuted: newMuteState });
     };
 
     const handleSeatClick = async (seat: any) => {
@@ -330,8 +332,7 @@ function VideoRoomPageComponent() {
         
         if (action === 'mute' && targetSeat.user) {
             const isMuted = !targetSeat.user.isMuted;
-            const updatedUser = { ...targetSeat.user, isMuted };
-            await updateSeatAsOwner(roomId, seatId, { user: updatedUser });
+            await updateSeatUser(roomId, seatId, { isMuted });
             toast({ title: `User ${targetSeat.user.name} ${isMuted ? 'unmuted' : 'muted'}.`});
         } else if (action === 'kick' && targetSeat.user) {
             await updateSeatAsOwner(roomId, seatId, { user: null });
@@ -465,7 +466,7 @@ function VideoRoomPageComponent() {
                             
                             <div className="flex items-center gap-2">
                                  <Avatar className="h-10 w-10 border-2 border-yellow-400">
-                                    <AvatarImage src={currentUser.avatar} />
+                                    <AvatarImage src={room.ownerAvatar} />
                                     <AvatarFallback>{room.ownerName?.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <div>
@@ -649,8 +650,8 @@ function VideoRoomPageComponent() {
                                 <SendIcon />
                             </Button>
                         </div>
-                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={handleTogglePersonalMic}>
-                            {isPersonalMicMuted ? <MicOff /> : <Mic />}
+                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={handleTogglePersonalMic} disabled={!currentUserSeat}>
+                            {currentUserSeat?.user?.isMuted ? <MicOff /> : <Mic />}
                         </Button>
                          <Button type="button" size="icon" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0" onClick={() => setIsGamePanelOpen(true)}><Gamepad2 /></Button>
                          <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={() => setIsControlsPanelOpen(true)}>

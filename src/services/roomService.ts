@@ -53,6 +53,7 @@ export interface Room {
     seats: Seat[];
     ownerId: string;
     ownerName: string;
+    ownerAvatar?: string;
     isLive: boolean;
     createdAt: any; // serverTimestamp
     youtubeVideoId?: string;
@@ -80,7 +81,7 @@ export const getRoomDetails = async (roomId: string): Promise<Room | null> => {
 
 
 // Function to create a new room in Firestore
-export const createRoom = async (roomDetails: Omit<Room, 'createdAt' | 'isLive' | 'ownerId' | 'ownerName' | 'id'>): Promise<{ success: boolean; roomId: string | null; error: string | null; }> => {
+export const createRoom = async (roomDetails: Partial<Omit<Room, 'createdAt' | 'isLive' | 'ownerId' | 'ownerName' | 'id' | 'seats'>> & { seats: number }): Promise<{ success: boolean; roomId: string | null; error: string | null; }> => {
     const user = auth.currentUser;
     if (!user) {
         return { success: false, roomId: null, error: "You must be logged in to create a room." };
@@ -88,7 +89,7 @@ export const createRoom = async (roomDetails: Omit<Room, 'createdAt' | 'isLive' 
 
     try {
         const roomsColRef = collection(db, 'rooms');
-        const initialSeats = Array.from({ length: roomDetails.seats.length }, (_, i) => ({
+        const initialSeats = Array.from({ length: roomDetails.seats }, (_, i) => ({
             id: i + 1,
             user: null,
             isLocked: false,
@@ -99,6 +100,7 @@ export const createRoom = async (roomDetails: Omit<Room, 'createdAt' | 'isLive' 
             seats: initialSeats,
             ownerId: user.uid,
             ownerName: user.displayName || user.email,
+            ownerAvatar: user.photoURL,
             isLive: true,
             createdAt: serverTimestamp(),
         });
@@ -170,7 +172,7 @@ export const takeSeat = async (roomId: string, seatId: number, user: SeatUser) =
         if (roomDoc.exists()) {
             const roomData = roomDoc.data() as Room;
             const seats = roomData.seats.map(seat => 
-                seat.id === seatId ? { ...seat, user: user } : seat
+                seat.id === seatId ? { ...seat, user: { ...user, isMuted: true } } : seat
             );
             await updateDoc(roomDocRef, { seats });
             return { success: true };
@@ -202,8 +204,32 @@ export const leaveSeat = async (roomId: string, seatId: number) => {
     }
 };
 
-// Function for owner to manage seats (lock/unlock, mute/unmute, kick)
-export const updateSeatAsOwner = async (roomId: string, seatId: number, updates: Partial<Seat>) => {
+
+// Function for a user to update their own seat properties (e.g., mute/unmute)
+export const updateSeatUser = async (roomId: string, seatId: number, updates: Partial<SeatUser>) => {
+    try {
+        const roomDocRef = doc(db, 'rooms', roomId);
+        const roomDoc = await getDoc(roomDocRef);
+        if (roomDoc.exists()) {
+            const roomData = roomDoc.data() as Room;
+            const seats = roomData.seats.map(seat => {
+                if (seat.id === seatId && seat.user) {
+                    return { ...seat, user: { ...seat.user, ...updates }};
+                }
+                return seat;
+            });
+            await updateDoc(roomDocRef, { seats });
+            return { success: true };
+        }
+        return { success: false, error: "Room not found." };
+    } catch (e) {
+        console.error("Error updating seat user:", e);
+        return { success: false, error: (e as Error).message };
+    }
+};
+
+// Function for owner to manage seats (lock/unlock, kick)
+export const updateSeatAsOwner = async (roomId: string, seatId: number, updates: Partial<Pick<Seat, 'isLocked' | 'user'>>) => {
     try {
         const roomDocRef = doc(db, 'rooms', roomId);
         const roomDoc = await getDoc(roomDocRef);

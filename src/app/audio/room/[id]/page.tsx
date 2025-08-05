@@ -19,7 +19,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
-import { listenToMessages, sendMessage, type Message, listenToRoom, type Room, takeSeat, leaveSeat, updateSeatAsOwner, type SeatUser } from "@/services/roomService";
+import { listenToMessages, sendMessage, type Message, listenToRoom, type Room, takeSeat, leaveSeat, updateSeatAsOwner, type SeatUser, updateSeatUser } from "@/services/roomService";
 import { auth } from "@/lib/firebase";
 
 
@@ -72,12 +72,12 @@ export default function AudioRoomPage() {
     const [animatedVideoGift, setAnimatedVideoGift] = useState<string | null>(null);
     const [animatedWalkingGift, setAnimatedWalkingGift] = useState<string | null>(null);
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
-    const [isPersonalMicMuted, setIsPersonalMicMuted] = useState(true);
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
     const [coins, setCoins] = useState(0);
 
     const [currentUser, setCurrentUser] = useState<SeatUser | null>(null);
     const currentUserIsOwner = room?.ownerId === currentUser?.id;
+    const currentUserSeat = useMemo(() => seats.find(s => s.user?.id === currentUser?.id), [seats, currentUser]);
 
     // Audio Player State
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -296,8 +296,10 @@ export default function AudioRoomPage() {
         }
     }, [isPlaying, audioSrc]);
 
-    const handleTogglePersonalMic = () => {
-        setIsPersonalMicMuted(prev => !prev);
+    const handleTogglePersonalMic = async () => {
+        if (!roomId || !currentUserSeat) return;
+        const newMuteState = !currentUserSeat.user.isMuted;
+        await updateSeatUser(roomId, currentUserSeat.id, { isMuted: newMuteState });
     };
 
     const roomControls = useMemo(() => [
@@ -374,8 +376,7 @@ export default function AudioRoomPage() {
         
         if (action === 'mute' && targetSeat.user) {
             const isMuted = !targetSeat.user.isMuted;
-            const updatedUser = { ...targetSeat.user, isMuted };
-            await updateSeatAsOwner(roomId, seatId, { user: updatedUser });
+            await updateSeatUser(roomId, seatId, { isMuted });
             toast({ title: `User ${targetSeat.user.name} ${isMuted ? 'muted' : 'unmuted'}.`});
         } else if (action === 'kick' && targetSeat.user) {
             await updateSeatAsOwner(roomId, seatId, { user: null });
@@ -553,7 +554,7 @@ export default function AudioRoomPage() {
                     </Button>
                     <div className="flex items-center gap-2">
                          <Avatar className="h-10 w-10 border-2 border-yellow-400">
-                            <AvatarImage src={currentUser?.avatar} />
+                            <AvatarImage src={room.ownerAvatar} />
                             <AvatarFallback>{room.ownerName?.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div>
@@ -580,7 +581,7 @@ export default function AudioRoomPage() {
                                                     <>
                                                         {seat.user.frame && specialFrames[seat.user.frame] && (
                                                             <div className="absolute inset-[-3px] pointer-events-none">
-                                                                <Image src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                                                                <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                             </div>
                                                         )}
                                                         {seat.user.frame && !specialFrames[seat.user.frame] && (
@@ -681,8 +682,8 @@ export default function AudioRoomPage() {
                                 <SendIcon />
                             </Button>
                         </div>
-                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={handleTogglePersonalMic}>
-                           {isPersonalMicMuted ? <MicOff /> : <Mic />}
+                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={handleTogglePersonalMic} disabled={!currentUserSeat}>
+                           {currentUserSeat?.user?.isMuted ? <MicOff /> : <Mic />}
                         </Button>
                          <Button type="button" size="icon" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0" onClick={() => setIsGamePanelOpen(true)}><Gamepad2 /></Button>
                          <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={() => setIsControlsPanelOpen(true)}>
