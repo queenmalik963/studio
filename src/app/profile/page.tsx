@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -21,35 +21,78 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { listenToUserProfile, type UserProfile } from "@/services/userService";
+import { Loader2 } from "lucide-react";
 
 
 export default function ProfilePage() {
-    const [idLevel, setIdLevel] = useState(0);
-    const [sendingLevel, setSendingLevel] = useState(0);
-    const [name, setName] = useState("Your Name");
-    const [tempName, setTempName] = useState(name);
-    const [avatar, setAvatar] = useState("https://placehold.co/100x100.png");
-    const [coins, setCoins] = useState(0);
-    const [diamonds, setDiamonds] = useState(0);
-    
-    // State for followers and following
-    const [followers, setFollowers] = useState(0);
-    const [following, setFollowing] = useState(0);
+    const [profile, setProfile] = useState<UserProfile | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [tempName, setTempName] = useState("");
+
+    // In a real app, you would get the userId from your authentication state
+    const userId = "demo-user-id"; 
+
+    useEffect(() => {
+        if (!userId) {
+            setIsLoading(false);
+            return;
+        }
+
+        const unsubscribe = listenToUserProfile(userId, (data) => {
+            setProfile(data);
+            if(data) {
+                setTempName(data.name);
+            }
+            setIsLoading(false);
+        });
+
+        // Cleanup subscription on unmount
+        return () => unsubscribe();
+    }, [userId]);
+
 
     const handleNameChange = () => {
-        setName(tempName);
+        if (profile) {
+            // In a real app, you would call a service to update the name in Firestore
+            // e.g., await updateUserProfile(userId, { name: tempName });
+            setProfile({ ...profile, name: tempName });
+        }
     }
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
+        if (e.target.files && e.target.files[0] && profile) {
             const newAvatarUrl = URL.createObjectURL(e.target.files[0]);
-            setAvatar(newAvatarUrl);
+            // In a real app, you would upload this to Firebase Storage and then
+            // update the avatar URL in Firestore
+            setProfile({ ...profile, avatar: newAvatarUrl });
         }
     }
 
     // Handlers to simulate follow/unfollow actions
-    const handleFollow = () => setFollowers(prev => prev + 1);
-    const handleUnfollow = () => setFollowers(prev => Math.max(0, prev - 1));
+    // In a real app, these would be cloud functions or transactional updates
+    const handleFollow = () => console.log("Follow action triggered");
+    const handleUnfollow = () => console.log("Unfollow action triggered");
+
+    if (isLoading) {
+        return (
+            <AppLayout>
+                <div className="flex justify-center items-center h-full">
+                    <Loader2 className="w-16 h-16 animate-spin text-primary" />
+                </div>
+            </AppLayout>
+        )
+    }
+    
+    if (!profile) {
+        return (
+            <AppLayout>
+                <div className="text-center">
+                    <p>Could not load profile. Please try again.</p>
+                </div>
+            </AppLayout>
+        )
+    }
 
 
     return (
@@ -67,8 +110,8 @@ export default function ProfilePage() {
                                 <DialogTrigger asChild>
                                     <div className="relative cursor-pointer">
                                         <Avatar className="w-24 h-24 border-4 border-white">
-                                            <AvatarImage src={avatar} alt={name} data-ai-hint="person alphabet" />
-                                            <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+                                            <AvatarImage src={profile.avatar} alt={profile.name} data-ai-hint="person alphabet" />
+                                            <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
                                         </Avatar>
                                         <div className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-card text-card-foreground hover:bg-card/80 flex items-center justify-center">
                                             <Camera className="h-4 w-4" />
@@ -90,10 +133,10 @@ export default function ProfilePage() {
                                 </DialogContent>
                             </Dialog>
                             
-                             <Dialog onOpenChange={(open) => !open && setTempName(name)}>
+                             <Dialog onOpenChange={(open) => !open && setTempName(profile.name)}>
                                 <DialogTrigger asChild>
                                     <div className="flex items-center gap-2 mt-4 cursor-pointer">
-                                        <h1 className="text-2xl font-bold">{name}</h1>
+                                        <h1 className="text-2xl font-bold">{profile.name}</h1>
                                         <Edit2 className="w-5 h-5" />
                                     </div>
                                 </DialogTrigger>
@@ -112,15 +155,15 @@ export default function ProfilePage() {
                                 </DialogContent>
                             </Dialog>
 
-                            <p className="text-sm text-white/70">@username</p>
-                            <p className="text-sm mt-2 max-w-sm">Welcome to my profile!</p>
+                            <p className="text-sm text-white/70">@{profile.username}</p>
+                            <p className="text-sm mt-2 max-w-sm">{profile.bio}</p>
                              <div className="flex justify-around text-center mt-4 w-full max-w-xs">
                                 <div>
-                                    <p className="font-bold text-lg">{following.toLocaleString()}</p>
+                                    <p className="font-bold text-lg">{profile.following.toLocaleString()}</p>
                                     <p className="text-xs text-white/70">Following</p>
                                 </div>
                                 <div>
-                                    <p className="font-bold text-lg">{followers.toLocaleString()}</p>
+                                    <p className="font-bold text-lg">{profile.followers.toLocaleString()}</p>
                                     <p className="text-xs text-white/70">Followers</p>
                                 </div>
                             </div>
@@ -141,14 +184,14 @@ export default function ProfilePage() {
                     <div className="space-y-4">
                         <div className="flex justify-between items-center text-sm font-semibold">
                             <p className="flex items-center"><Star className="w-4 h-4 mr-1 text-yellow-300"/> ID Level (Receiver)</p>
-                            <p>{idLevel}/100</p>
+                            <p>{profile.idLevel}/100</p>
                         </div>
-                        <Progress value={idLevel} className="h-2 bg-muted [&>div]:bg-yellow-400" />
+                        <Progress value={profile.idLevel} className="h-2 bg-muted [&>div]:bg-yellow-400" />
                         <div className="flex justify-between items-center text-sm font-semibold">
                             <p className="flex items-center"><Send className="w-4 h-4 mr-1 text-sky-300"/> Sending Level (Gifter)</p>
-                            <p>{sendingLevel}/100</p>
+                            <p>{profile.sendingLevel}/100</p>
                         </div>
-                        <Progress value={sendingLevel} className="h-2 bg-muted [&>div]:bg-sky-400" />
+                        <Progress value={profile.sendingLevel} className="h-2 bg-muted [&>div]:bg-sky-400" />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -162,14 +205,14 @@ export default function ProfilePage() {
                                         <Coins className="w-4 h-4 text-yellow-300" />
                                         <div>
                                             <p className="font-semibold text-xs">Coins</p>
-                                            <p className="font-bold text-sm">{coins.toLocaleString()}</p>
+                                            <p className="font-bold text-sm">{profile.coins.toLocaleString()}</p>
                                         </div>
                                     </div>
                                      <div className="flex items-center justify-center bg-white/10 p-1 rounded-lg gap-2 h-12">
                                         <Gem className="w-4 h-4 text-cyan-300" />
                                         <div>
                                             <p className="font-semibold text-xs">Diamonds</p>
-                                            <p className="font-bold text-sm">{diamonds.toLocaleString()}</p>
+                                            <p className="font-bold text-sm">{profile.diamonds.toLocaleString()}</p>
                                         </div>
                                     </div>
                                 </div>
