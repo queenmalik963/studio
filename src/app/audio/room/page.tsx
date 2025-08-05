@@ -301,7 +301,7 @@ export default function AudioRoomPage() {
     ];
     
     // Extracted RoomControlButton to prevent re-rendering issues with toasts
-    const RoomControlButton = ({ control, onClick }: { control: { name: string; icon: React.ElementType, action: () => void }; onClick: (name: string) => void }) => {
+    const RoomControlButton = ({ control }: { control: { name: string; icon: React.ElementType, action: () => void }; }) => {
         return (
             <div className="flex flex-col items-center gap-2 text-center">
                 <Button
@@ -812,7 +812,7 @@ export default function AudioRoomPage() {
                         />
                         <div className="grid grid-cols-4 gap-4">
                            {roomControls.map((control) => (
-                                <RoomControlButton key={control.name} control={control} onClick={() => {}} />
+                                <RoomControlButton key={control.name} control={control} />
                            ))}
                         </div>
                     </div>
@@ -821,5 +821,3 @@ export default function AudioRoomPage() {
         </div>
     );
 }
-
-    
