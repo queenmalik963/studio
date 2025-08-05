@@ -1,20 +1,25 @@
 
 "use client";
 
+import { useState } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
-import { ArrowLeft, Crown, Inbox } from "lucide-react";
+import { ArrowLeft, Crown, Inbox, Loader2, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Autoplay from "embla-carousel-autoplay";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { useToast } from "@/hooks/use-toast";
+import { auth } from "@/lib/firebase";
+import { buyVipTier } from "@/services/userService";
 
 const vipTiers = [
     {
+        id: 'baron',
         name: 'Baron',
-        price: '1500 Coins/m',
+        price: 1500,
         color: 'from-gray-700 to-gray-900',
         frameClass: 'border-2 border-gray-400 animate-glow-silver',
         features: ['VIP Badge', 'Special Welcome Message', 'No Ads'],
@@ -22,8 +27,9 @@ const vipTiers = [
         tagImage: 'https://i.imgur.com/eB3sY3d.png',
     },
     {
+        id: 'duke',
         name: 'Duke',
-        price: '4000 Coins/m',
+        price: 4000,
         color: 'from-blue-800 to-indigo-900',
         frameClass: 'border-2 border-blue-400 animate-glow-blue',
         features: ['All Baron Features', 'Exclusive Gifts', 'Colored Chat Text'],
@@ -31,8 +37,9 @@ const vipTiers = [
         tagImage: 'https://i.imgur.com/YQ8qV4g.png',
     },
     {
+        id: 'prince',
         name: 'Prince',
-        price: '10000 Coins/m',
+        price: 10000,
         color: 'from-purple-800 to-fuchsia-900',
         frameClass: 'border-2 border-purple-400 animate-glow-purple',
         features: ['All Duke Features', 'Animated Profile Frame', 'Room Creation Priority'],
@@ -40,8 +47,9 @@ const vipTiers = [
         tagImage: 'https://i.imgur.com/b5XzY1A.png',
     },
     {
+        id: 'shogun',
         name: 'Shogun',
-        price: '25000 Coins/m',
+        price: 25000,
         color: 'from-red-800 to-rose-900',
         frameClass: 'border-2 border-red-500 animate-glow-red',
         features: ['All Prince Features', 'Global Broadcast Pin', 'Unique Entrance Effect'],
@@ -50,8 +58,37 @@ const vipTiers = [
     },
 ];
 
+type VipTier = typeof vipTiers[0];
+
 export default function VipStorePage() {
   const router = useRouter();
+  const { toast } = useToast();
+  const [isBuying, setIsBuying] = useState<string | null>(null);
+
+  const handlePurchase = async (tier: VipTier) => {
+    const user = auth.currentUser;
+    if (!user) {
+        toast({ title: "Please log in", description: "You need to be logged in to purchase a VIP tier.", variant: "destructive" });
+        return;
+    }
+    
+    setIsBuying(tier.id);
+    const result = await buyVipTier(user.uid, tier.id, tier.price);
+    setIsBuying(null);
+
+    if (result.success) {
+        toast({
+            title: "Purchase Successful!",
+            description: `Congratulations! You are now a ${tier.name}.`,
+        });
+    } else {
+        toast({
+            title: "Purchase Failed",
+            description: result.error || "An unknown error occurred.",
+            variant: "destructive",
+        });
+    }
+  };
 
   return (
     <AppLayout>
@@ -107,14 +144,18 @@ export default function VipStorePage() {
                         <CardTitle className="flex items-center gap-2 text-2xl">
                             <Crown /> {tier.name} VIP
                         </CardTitle>
-                        <CardDescription className="text-white/80 text-lg font-bold">{tier.price}</CardDescription>
+                        <CardDescription className="text-white/80 text-lg font-bold">{tier.price.toLocaleString()} Coins/m</CardDescription>
                         </CardHeader>
                         <CardContent className="flex-grow flex flex-col justify-between p-4">
                         <ul className="space-y-2 list-disc list-inside text-white/90">
                             {tier.features.map((feature: string) => <li key={feature}>{feature}</li>)}
                         </ul>
-                        <Button className="w-full mt-6 bg-white/20 hover:bg-white/30 backdrop-blur-lg border border-white/30">
-                            Purchase
+                        <Button 
+                            className="w-full mt-6 bg-white/20 hover:bg-white/30 backdrop-blur-lg border border-white/30"
+                            onClick={() => handlePurchase(tier)}
+                            disabled={isBuying === tier.id}
+                        >
+                             {isBuying === tier.id ? <Loader2 className="animate-spin" /> : "Purchase"}
                         </Button>
                         </CardContent>
                     </Card>

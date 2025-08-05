@@ -1,6 +1,6 @@
 
 import { db } from '@/lib/firebase';
-import { doc, getDoc, onSnapshot, DocumentData, Unsubscribe, runTransaction, writeBatch, increment, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, DocumentData, Unsubscribe, runTransaction, writeBatch, increment, updateDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
 
 export interface UserProfile {
     id: string;
@@ -16,6 +16,8 @@ export interface UserProfile {
     sendingLevel: number;
     frames?: string[];
     currentFrame?: string;
+    vipTier?: 'baron' | 'duke' | 'prince' | 'shogun' | null;
+    vipExpiry?: any; // Timestamp
 }
 
 // Function to update a user's profile
@@ -58,6 +60,8 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
             sendingLevel: data.sendingLevel || 0,
             frames: data.frames || [],
             currentFrame: data.currentFrame || null,
+            vipTier: data.vipTier || null,
+            vipExpiry: data.vipExpiry || null,
         };
     } else {
         console.log('No such user!');
@@ -86,6 +90,8 @@ export const listenToUserProfile = (userId: string, callback: (profile: UserProf
                 sendingLevel: data.sendingLevel || 0,
                 frames: data.frames || [],
                 currentFrame: data.currentFrame || null,
+                vipTier: data.vipTier || null,
+                vipExpiry: data.vipExpiry || null,
             };
             callback(profile);
         } else {
@@ -235,6 +241,40 @@ export const equipFrame = async (userId: string, frameId: string): Promise<{ suc
         return { success: true };
     } catch (e) {
         console.error("Error equipping frame:", e);
+        return { success: false, error: (e as Error).message };
+    }
+};
+
+// Function to buy a VIP tier
+export const buyVipTier = async (userId: string, tierId: string, tierPrice: number): Promise<{ success: boolean, error?: string }> => {
+    const userDocRef = doc(db, 'users', userId);
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const userDoc = await transaction.get(userDocRef);
+            if (!userDoc.exists()) {
+                throw new Error("User not found.");
+            }
+            const userData = userDoc.data();
+            const currentCoins = userData.coins || 0;
+
+            if (currentCoins < tierPrice) {
+                throw new Error("Insufficient coins.");
+            }
+
+            // For simplicity, this sets VIP for 30 days. A real app would handle this more robustly.
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 30);
+
+            transaction.update(userDocRef, {
+                coins: increment(-tierPrice),
+                vipTier: tierId,
+                vipExpiry: expiryDate,
+            });
+        });
+        return { success: true };
+    } catch (e) {
+        console.error("Buy VIP transaction failed:", e);
         return { success: false, error: (e as Error).message };
     }
 };

@@ -6,7 +6,7 @@ import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Star, Send, Landmark, Gem, Coins, Settings, Edit, Wallet, Edit2, ChevronRight, Camera, UserPlus, UserMinus } from "lucide-react";
+import { Star, Send, Landmark, Gem, Coins, Settings, Edit, Wallet, Edit2, ChevronRight, Camera, UserPlus, UserMinus, Crown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -177,6 +177,7 @@ export default function ProfilePage() {
                              <Dialog onOpenChange={(open) => !open && setTempName(profile.name)}>
                                 <DialogTrigger asChild>
                                     <div className="flex items-center gap-2 mt-4 cursor-pointer">
+                                        {profile.vipTier && <Crown className="w-5 h-5 text-yellow-400" />}
                                         <h1 className="text-2xl font-bold">{profile.name}</h1>
                                         <Edit2 className="w-5 h-5" />
                                     </div>
