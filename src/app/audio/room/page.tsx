@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef, useEffect, Fragment, createRef, useMemo } from "react";
+import { useState, useRef, useEffect, Fragment, createRef, useMemo, memo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,47 +14,38 @@ import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import { GiftPanel, type Gift as GiftType } from "@/components/room/GiftPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
+import type { JumpAnimation } from "@/app/video/room/page";
+import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 
 
-const initialMessages = [
-  { id: 1, type: 'system', text: 'Welcome to the room!' },
-];
-
-export const roomSeats: any[] = [
-    { id: 1, user: null, isOccupied: false, isLocked: false },
-    { id: 2, user: null, isOccupied: false, isLocked: false },
-    { id: 3, user: null, isOccupied: false, isLocked: false },
-    { id: 4, user: null, isOccupied: false, isLocked: false },
-    { id: 5, user: null, isOccupied: false, isLocked: false },
-    { id: 6, user: null, isOccupied: false, isLocked: false },
-    { id: 7, user: null, isOccupied: false, isLocked: false },
-    { id: 8, user: null, isOccupied: false, isLocked: false },
-    { id: 9, user: null, isOccupied: false, isLocked: false },
-    { id: 10, user: null, isOccupied: false, isLocked: false },
-    { id: 11, user: null, isOccupied: false, isLocked: false },
-    { id: 12, user: null, isOccupied: false, isLocked: false },
-    { id: 13, user: null, isOccupied: false, isLocked: false },
-    { id: 14, user: null, isOccupied: false, isLocked: false },
-    { id: 15, user: null, isOccupied: false, isLocked: false },
-]
-
-export type JumpAnimation = {
-    id: number;
-    gift: GiftType;
-    startX: number;
-    startY: number;
-    endX: number;
-    endY: number;
-};
+const initialMessages: any[] = [];
+const roomSeats: any[] = [];
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
 );
+
+// Extracted and memoized RoomControlButton to prevent re-rendering issues with toasts
+const RoomControlButton = memo(({ control }: { control: { name: string; icon: React.ElementType, action: () => void }; }) => {
+    return (
+        <div className="flex flex-col items-center gap-2 text-center">
+            <Button
+                size="icon"
+                variant="ghost"
+                className="w-14 h-14 bg-black/30 rounded-2xl"
+                onClick={control.action}
+            >
+                <control.icon className="w-7 h-7 text-white/80" />
+            </Button>
+            <Label className="text-xs">{control.name}</Label>
+        </div>
+    );
+});
+RoomControlButton.displayName = 'RoomControlButton';
 
 
 export default function AudioRoomPage() {
@@ -248,7 +239,7 @@ export default function AudioRoomPage() {
         setIsPersonalMicMuted(prev => !prev);
     };
 
-    const roomControls = [
+    const roomControls = useMemo(() => [
         { name: "Gathering", icon: Flag, action: () => {
             toast({ title: "Gathering Started!", description: "Special room effects are now active." });
             setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'A gathering has been started by the owner!' }]);
@@ -294,25 +285,7 @@ export default function AudioRoomPage() {
             toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
              setIsControlsPanelOpen(false);
         }},
-    ];
-    
-    // Extracted RoomControlButton to prevent re-rendering issues with toasts
-    const RoomControlButton = ({ control }: { control: { name: string; icon: React.ElementType, action: () => void }; }) => {
-        return (
-            <div className="flex flex-col items-center gap-2 text-center">
-                <Button
-                    size="icon"
-                    variant="ghost"
-                    className="w-14 h-14 bg-black/30 rounded-2xl"
-                    onClick={control.action}
-                >
-                    <control.icon className="w-7 h-7 text-white/80" />
-                </Button>
-                <Label className="text-xs">{control.name}</Label>
-            </div>
-        );
-    };
-
+    ], [toast, audioSrc, setAreEffectsEnabled]);
 
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
         const targetSeat = seats.find(seat => seat.id === seatId);
@@ -668,7 +641,11 @@ export default function AudioRoomPage() {
                         <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} roomSeats={seats} />
                     ) : (
                         <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-3 px-4 pr-2">
-                            {messages.map((msg) => (
+                            {messages.length === 0 ? (
+                                <div className="flex items-center justify-center h-full text-muted-foreground">
+                                    <p>Say hi and start the party!</p>
+                                </div>
+                            ) : messages.map((msg) => (
                                 <Fragment key={msg.id}>
                                     {msg.type === 'system' ? (
                                         <div className="text-center text-xs text-primary font-semibold p-1 bg-primary/10 rounded-full">
@@ -817,3 +794,5 @@ export default function AudioRoomPage() {
         </div>
     );
 }
+
+    
