@@ -12,7 +12,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
-import { listenToUserProfile, buyFrame, type UserProfile } from "@/services/userService";
+import { listenToUserProfile, buyFrame, equipFrame, type UserProfile } from "@/services/userService";
 
 const frameTiers = [
     { id: "gold", name: "Gold", price: 1000, image: "https://i.imgur.com/K1hT0G8.png", animationClass: 'animate-glow-gold' },
@@ -29,6 +29,8 @@ const animatedFrameTiers = [
     { id: "dragon-fury", name: "Dragon Fury", price: 25000, image: "https://i.imgur.com/RqnqCso.gif", animationClass: 'animate-glow-amber' },
     { id: "platinum", name: "Platinum", price: 10000, image: "https://i.imgur.com/L7iFvH0.png", animationClass: 'animate-glow-cyan' },
 ];
+
+type FrameTier = typeof frameTiers[0];
 
 export default function FrameStorePage() {
     const router = useRouter();
@@ -50,14 +52,9 @@ export default function FrameStorePage() {
         return () => unsubscribeAuth();
     }, [router]);
 
-    const handleBuyFrame = async (frame: typeof frameTiers[0]) => {
+    const handleBuyFrame = async (frame: FrameTier) => {
         if (!currentUser || !userProfile) {
             toast({ title: "Error", description: "You must be logged in to buy a frame.", variant: "destructive" });
-            return;
-        }
-
-        if ((userProfile.frames || []).includes(frame.id)) {
-            toast({ title: "Already Owned", description: "You already own this frame.", });
             return;
         }
 
@@ -83,6 +80,39 @@ export default function FrameStorePage() {
             });
         }
     };
+    
+    const handleEquipFrame = async (frame: FrameTier) => {
+        if (!currentUser) return;
+        
+        setIsBuying(frame.id);
+        const result = await equipFrame(currentUser.uid, frame.id);
+        setIsBuying(null);
+
+        if (result.success) {
+            toast({
+                title: "Frame Equipped!",
+                description: `You have equipped the ${frame.name} frame.`,
+            });
+        } else {
+            toast({
+                title: "Failed to equip frame",
+                description: result.error || "An unknown error occurred.",
+                variant: "destructive",
+            });
+        }
+    }
+    
+    const handleFrameClick = (frame: FrameTier) => {
+        if (!userProfile) return;
+        const isOwned = (userProfile.frames || []).includes(frame.id);
+        
+        if(isOwned) {
+            handleEquipFrame(frame);
+        } else {
+            handleBuyFrame(frame);
+        }
+    };
+
 
   return (
     <AppLayout>
@@ -105,6 +135,7 @@ export default function FrameStorePage() {
                 <CarouselContent>
                     {frameTiers.map((tier) => {
                       const isOwned = (userProfile?.frames || []).includes(tier.id);
+                      const isEquipped = userProfile?.currentFrame === tier.id;
                       return (
                         <CarouselItem key={tier.id} className="md:basis-1/2 lg:basis-1/3">
                             <div className="p-1 h-full">
@@ -123,9 +154,10 @@ export default function FrameStorePage() {
                                     <p className="font-semibold text-lg">{tier.name}</p>
                                     <p className="text-muted-foreground">{tier.price.toLocaleString()} Coins</p>
                                 </div>
-                                <Button className="w-full mt-auto" onClick={() => handleBuyFrame(tier)} disabled={isOwned || isBuying === tier.id}>
+                                <Button className="w-full mt-auto" onClick={() => handleFrameClick(tier)} disabled={isEquipped || isBuying === tier.id}>
                                     {isBuying === tier.id ? <Loader2 className="animate-spin" /> : 
-                                     isOwned ? <><CheckCircle className="mr-2 h-4 w-4" /> Owned</> : 
+                                     isEquipped ? <><CheckCircle className="mr-2 h-4 w-4" /> Equipped</> :
+                                     isOwned ? <><CheckCircle className="mr-2 h-4 w-4" /> Equip Frame</> : 
                                      <><Square className="mr-2 h-4 w-4" /> Buy Frame</>
                                     }
                                 </Button>
@@ -158,6 +190,7 @@ export default function FrameStorePage() {
                 <CarouselContent>
                     {animatedFrameTiers.map((tier) => {
                       const isOwned = (userProfile?.frames || []).includes(tier.id);
+                      const isEquipped = userProfile?.currentFrame === tier.id;
                       return (
                       <CarouselItem key={tier.id} className="md:basis-1/2 lg:basis-1/3">
                           <div className="p-1 h-full">
@@ -177,9 +210,10 @@ export default function FrameStorePage() {
                                   <p className="font-semibold text-lg">{tier.name}</p>
                                   <p className="text-muted-foreground">{tier.price.toLocaleString()} Coins</p>
                               </div>
-                              <Button className="w-full mt-auto" onClick={() => handleBuyFrame(tier)} disabled={isOwned || isBuying === tier.id}>
+                              <Button className="w-full mt-auto" onClick={() => handleFrameClick(tier)} disabled={isEquipped || isBuying === tier.id}>
                                     {isBuying === tier.id ? <Loader2 className="animate-spin" /> : 
-                                     isOwned ? <><CheckCircle className="mr-2 h-4 w-4" /> Owned</> : 
+                                     isEquipped ? <><CheckCircle className="mr-2 h-4 w-4" /> Equipped</> :
+                                     isOwned ? <><CheckCircle className="mr-2 h-4 w-4" /> Equip Frame</> : 
                                      <><Square className="mr-2 h-4 w-4" /> Buy Frame</>
                                     }
                                 </Button>

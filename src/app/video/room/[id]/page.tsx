@@ -333,7 +333,7 @@ function VideoRoomPageComponent() {
         if (action === 'mute' && targetSeat.user) {
             const isMuted = !targetSeat.user.isMuted;
             await updateSeatUser(roomId, seatId, { isMuted });
-            toast({ title: `User ${targetSeat.user.name} ${isMuted ? 'unmuted' : 'muted'}.`});
+            toast({ title: `User ${targetSeat.user.name} ${isMuted ? 'muted' : 'unmuted'}.`});
         } else if (action === 'kick' && targetSeat.user) {
             await updateSeatAsOwner(roomId, seatId, { user: null });
             toast({ title: `User ${targetSeat.user.name} has been kicked from the seat.`});

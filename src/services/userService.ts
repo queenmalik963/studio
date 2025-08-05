@@ -1,3 +1,4 @@
+
 import { db } from '@/lib/firebase';
 import { doc, getDoc, onSnapshot, DocumentData, Unsubscribe, runTransaction, writeBatch, increment, updateDoc, arrayUnion } from 'firebase/firestore';
 
@@ -219,6 +220,21 @@ export const buyFrame = async (userId: string, frameId: string, framePrice: numb
         return { success: true };
     } catch (e) {
         console.error("Buy frame transaction failed:", e);
+        return { success: false, error: (e as Error).message };
+    }
+};
+
+
+// Function to equip a frame
+export const equipFrame = async (userId: string, frameId: string): Promise<{ success: boolean, error?: string }> => {
+    const userDocRef = doc(db, 'users', userId);
+    try {
+        await updateDoc(userDocRef, {
+            currentFrame: frameId
+        });
+        return { success: true };
+    } catch (e) {
+        console.error("Error equipping frame:", e);
         return { success: false, error: (e as Error).message };
     }
 };
