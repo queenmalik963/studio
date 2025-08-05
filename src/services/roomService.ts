@@ -61,10 +61,13 @@ export interface Room {
     createdAt: any; // serverTimestamp
     youtubeVideoId?: string;
     thumbnail?: string;
-    // Audio Playback State
+    // Audio/Video Playback State
     currentTrack?: string | null;
     isPlaying?: boolean;
     playbackTime?: number;
+    // Game State
+    activeGame?: string | null;
+    gameHostId?: string | null;
 }
 
 // Function to get details for a single room
@@ -126,8 +129,8 @@ export const createRoom = async (roomDetails: Partial<Omit<Room, 'createdAt' | '
 
 // Function to send a message to a specific room
 export const sendMessage = async (roomId: string, message: Message): Promise<{ success: boolean; error: string | null; }> => {
-    if (!message.text && !message.giftIcon) {
-        return { success: false, error: "Message text cannot be empty." };
+    if (!message.text && !message.giftIcon && !message.game) {
+        return { success: false, error: "Message cannot be empty." };
     }
 
     try {
@@ -262,8 +265,8 @@ export const updateSeatAsOwner = async (roomId: string, seatId: number, updates:
     }
 };
 
-// Function to update the audio playback state for a room
-export const updatePlaybackState = async (roomId: string, state: Partial<Pick<Room, 'currentTrack' | 'isPlaying' | 'playbackTime'>>) => {
+// Function to update the playback or game state for a room
+export const updatePlaybackState = async (roomId: string, state: Partial<Pick<Room, 'currentTrack' | 'isPlaying' | 'playbackTime' | 'activeGame' | 'gameHostId'>>) => {
     try {
         const roomDocRef = doc(db, 'rooms', roomId);
         await updateDoc(roomDocRef, state);
@@ -280,6 +283,7 @@ export const sendGift = async (
     roomId: string,
     sender: SeatUser,
     recipientId: string,
+    recipientName: string,
     gift: Gift,
     quantity: number
 ): Promise<{ success: boolean; error?: string }> => {
@@ -292,9 +296,8 @@ export const sendGift = async (
     try {
         await runTransaction(db, async (transaction) => {
             const senderDoc = await transaction.get(senderRef);
-            const recipientDoc = await transaction.get(recipientRef);
 
-            if (!senderDoc.exists() || !recipientDoc.exists()) {
+            if (!senderDoc.exists()) {
                 throw new Error("Sender or recipient not found.");
             }
 
@@ -315,7 +318,7 @@ export const sendGift = async (
             authorId: sender.id,
             authorName: sender.name,
             authorAvatar: sender.avatar,
-            text: `Sent ${quantity}x ${gift.name} to ${recipientDoc.data()?.name || 'the Room'}`,
+            text: `Sent ${quantity}x ${gift.name} to ${recipientName}`,
             giftIcon: gift.image,
             type: 'gift',
         });

@@ -216,8 +216,11 @@ function VideoRoomPageComponent() {
         if (!roomId || !currentUser) return;
         
         let recipientId: string | null = null;
+        let finalRecipientName = recipientName;
+
         if (recipientName === 'All on Mic' || recipientName === 'All in Room') {
-            recipientId = room?.ownerId || null; // For now, send to owner
+            recipientId = room?.ownerId || null; 
+            finalRecipientName = room?.ownerName || 'the Room';
         } else {
             const targetSeat = seats.find(s => s.user?.name === recipientName);
             recipientId = targetSeat?.user?.id || null;
@@ -228,7 +231,7 @@ function VideoRoomPageComponent() {
              return;
         }
         
-        const result = await sendGift(roomId, currentUser, recipientId, gift, quantity);
+        const result = await sendGift(roomId, currentUser, recipientId, finalRecipientName, gift, quantity);
 
         if (!result.success) {
             toast({
@@ -291,16 +294,31 @@ function VideoRoomPageComponent() {
     };
 
     const handleStartGame = async (gameName: string) => {
-        if (!roomId || !currentUser) return;
+        if (!roomId || !currentUser || !currentUserIsOwner) {
+             toast({
+                title: "Only the room owner can start a game.",
+                variant: "destructive",
+            });
+            return;
+        }
         setIsGamePanelOpen(false);
+
+        // Update the room state to show the active game
+        await updatePlaybackState(roomId, { 
+            activeGame: gameName,
+            gameHostId: currentUser.id,
+        });
+
+        // Send a system message to announce the game
         await sendMessage(roomId, {
             authorId: currentUser.id,
             authorName: currentUser.name,
             authorAvatar: currentUser.avatar,
-            text: `started playing ${gameName}!`,
+            text: `started playing`,
             game: gameName,
             type: 'game',
         });
+        
         toast({
             title: "Game Started!",
             description: `You have started playing ${gameName}.`,
@@ -630,8 +648,8 @@ function VideoRoomPageComponent() {
                                                         {msg.giftIcon && <Image src={msg.giftIcon} alt="gift" width={16} height={16}/>}
                                                     </div>
                                                 )}
-                                                {msg.type === 'game' && (
-                                                    <p className="mt-1 text-xs">{msg.authorName} <span className="font-bold text-yellow-400">{msg.text}</span></p>
+                                                {msg.type === 'game' && msg.game && (
+                                                    <p className="mt-1 text-xs">{msg.text} <span className="font-bold text-yellow-400">{msg.game}</span>!</p>
                                                 )}
                                                 {msg.type === 'text' && (
                                                     <div className="bg-black/20 rounded-lg p-2 mt-1">
