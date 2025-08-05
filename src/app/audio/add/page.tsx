@@ -5,7 +5,7 @@ import { useState, useRef } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Upload, Mic, UserPlus, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Upload, Mic, UserPlus, Image as ImageIcon, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { 
     Dialog, 
@@ -23,27 +23,50 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
+import { createRoom } from "@/services/roomService";
 
 
 export default function AddAudioPage() {
     const router = useRouter();
     const { toast } = useToast();
     const [open, setOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [numberOfSeats, setNumberOfSeats] = useState("8");
     const [roomName, setRoomName] = useState("");
 
 
-    const handleCreateRoom = () => {
-        setOpen(false);
-        // Pass room settings to the next page
-        localStorage.setItem("audio_room_seats", numberOfSeats);
-        localStorage.setItem("audio_room_name", roomName || "My Audio Room");
-        toast({
-            title: "Room Created!",
-            description: "Your new audio room is ready.",
+    const handleCreateRoom = async () => {
+        if (!roomName.trim()) {
+            toast({
+                variant: "destructive",
+                title: "Room name is required.",
+            });
+            return;
+        }
+        
+        setIsLoading(true);
+        const result = await createRoom({
+            name: roomName,
+            type: 'audio',
+            seats: parseInt(numberOfSeats, 10),
         });
-        router.push('/audio/room');
+        setIsLoading(false);
+        setOpen(false);
+
+        if (result.success && result.roomId) {
+            toast({
+                title: "Room Created!",
+                description: "Your new audio room is live.",
+            });
+            router.push(`/audio/room/${result.roomId}`);
+        } else {
+            toast({
+                variant: "destructive",
+                title: "Failed to create room",
+                description: result.error || "An unknown error occurred.",
+            });
+        }
     }
 
     const handleUploadClick = () => {
@@ -126,10 +149,10 @@ export default function AddAudioPage() {
                             </div>
                             <DialogFooter>
                                 <DialogClose asChild>
-                                    <Button variant="ghost">Cancel</Button>
+                                    <Button variant="ghost" disabled={isLoading}>Cancel</Button>
                                 </DialogClose>
-                                <Button onClick={handleCreateRoom}>
-                                    <UserPlus className="mr-2" />
+                                <Button onClick={handleCreateRoom} disabled={isLoading}>
+                                    {isLoading ? <Loader2 className="mr-2 animate-spin" /> : <UserPlus className="mr-2" />}
                                     Create Room
                                 </Button>
                             </DialogFooter>

@@ -1,5 +1,5 @@
-
 import { 
+    auth,
     db 
 } from '@/lib/firebase';
 import { 
@@ -26,6 +26,41 @@ export interface Message {
     giftIcon?: string;
     game?: string;
 }
+
+export interface Room {
+    name: string;
+    type: 'audio' | 'video';
+    seats: number;
+    ownerId: string;
+    ownerName: string;
+    isLive: boolean;
+    createdAt: any; // serverTimestamp
+}
+
+// Function to create a new room in Firestore
+export const createRoom = async (roomDetails: Omit<Room, 'createdAt' | 'isLive' | 'ownerId' | 'ownerName'>): Promise<{ success: boolean; roomId: string | null; error: string | null; }> => {
+    const user = auth.currentUser;
+    if (!user) {
+        return { success: false, roomId: null, error: "You must be logged in to create a room." };
+    }
+
+    try {
+        const roomsColRef = collection(db, 'rooms');
+        const newRoomDoc = await addDoc(roomsColRef, {
+            ...roomDetails,
+            ownerId: user.uid,
+            ownerName: user.displayName || user.email,
+            isLive: true,
+            createdAt: serverTimestamp(),
+        });
+        return { success: true, roomId: newRoomDoc.id, error: null };
+    } catch (e) {
+        const error = e as FirestoreError;
+        console.error("Error creating room:", error);
+        return { success: false, roomId: null, error: error.message };
+    }
+}
+
 
 // Function to send a message to a specific room
 export const sendMessage = async (roomId: string, message: Message): Promise<{ success: boolean; error: string | null; }> => {
