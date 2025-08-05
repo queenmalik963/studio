@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, Fragment, createRef, useMemo } from "react
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, X, Loader2, Crown, Upload, Flag, Megaphone, Music, UserPlus, Wand2, Trash2, MicOff, Shield, UserX, Axe } from "lucide-react";
+import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, X, Loader2, Crown, Upload, Flag, Megaphone, Music, UserPlus, Wand2, Trash2, MicOff, Shield, UserX, Axe, Play, Pause } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -62,7 +62,7 @@ const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 
 // Extracted RoomControlButton to prevent re-rendering issues with toasts
-const RoomControlButton = ({ control, onClick }: { control: { name: string; icon: React.ElementType }; onClick: (name: string) => void }) => {
+const RoomControlButton = ({ control, onClick }: { control: { name: string; icon: React.ElementType, action: (name: string) => void }; onClick: (name: string) => void }) => {
     return (
         <div className="flex flex-col items-center gap-2 text-center">
             <Button
@@ -93,6 +93,11 @@ export default function AudioRoomPage() {
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
     const [isPersonalMicMuted, setIsPersonalMicMuted] = useState(true);
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
+
+    // Audio Player State
+    const audioRef = useRef<HTMLAudioElement>(null);
+    const [audioSrc, setAudioSrc] = useState<string | null>(null);
+    const [isPlaying, setIsPlaying] = useState(false);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -214,6 +219,10 @@ export default function AudioRoomPage() {
                 avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png"
             }
         ]);
+        toast({
+            title: "Game Started!",
+            description: `You have started playing ${gameName}.`,
+        });
     };
     
     const handleAnimateGift = (gift: GiftType) => {
@@ -230,11 +239,12 @@ export default function AudioRoomPage() {
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
+            setAudioSrc(URL.createObjectURL(file));
+            setIsPlaying(true); // Auto-play on select
             toast({
                 title: "Track Selected!",
-                description: `"${file.name}" is ready to be played.`,
+                description: `"${file.name}" is now playing.`,
             });
-            // Here you would typically upload the file and update the room's track
             setMessages(prev => [
                 ...prev,
                 {
@@ -246,55 +256,74 @@ export default function AudioRoomPage() {
             setIsControlsPanelOpen(false);
         }
     };
+    
+     useEffect(() => {
+        if (!audioRef.current) return;
+        if (isPlaying) {
+            audioRef.current.play().catch(e => console.error("Audio play failed:", e));
+        } else {
+            audioRef.current.pause();
+        }
+    }, [isPlaying, audioSrc]);
 
     const handleTogglePersonalMic = () => {
         setIsPersonalMicMuted(prev => !prev);
     };
     
-    const roomControls = [
-        { name: "Gathering", icon: Flag },
-        { name: "Broadcast", icon: Megaphone },
-        { name: "Music", icon: Music },
-        { name: "Invite", icon: UserPlus },
-        { name: "Effect", icon: Wand2 },
-        { name: "Clean", icon: Trash2 },
-        { name: "Upload", icon: Upload },
-    ];
-    
     const handleControlAction = (controlName: string) => {
-        switch (controlName) {
-            case "Gathering":
-                toast({ title: "Gathering Started!", description: "Special room effects are now active." });
-                setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'A gathering has been started by the owner!' }]);
-                break;
-            case "Broadcast":
-                toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
-                setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'Broadcast: Welcome to the room everyone! Enjoy your stay.' }]);
-                break;
-            case "Music":
-            case "Upload":
-                fileInputRef.current?.click();
-                break;
-            case "Invite":
-                toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." });
-                navigator.clipboard.writeText(window.location.href);
-                break;
-            case "Effect":
-                setAreEffectsEnabled(prev => {
-                    const newState = !prev;
-                    toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` });
-                    return newState;
-                });
-                break;
-            case "Clean":
-                setMessages(prev => prev.filter(m => m.type !== 'text'));
-                toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
-                break;
-        }
-        if (controlName !== 'Upload') {
-            setIsControlsPanelOpen(false);
+        const control = roomControls.find(c => c.name === controlName);
+        if (control) {
+            control.action(controlName);
         }
     };
+
+    const roomControls = [
+        { name: "Gathering", icon: Flag, action: () => {
+            toast({ title: "Gathering Started!", description: "Special room effects are now active." });
+            setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'A gathering has been started by the owner!' }]);
+            setIsControlsPanelOpen(false);
+        }},
+        { name: "Broadcast", icon: Megaphone, action: () => {
+            toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
+            setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'Broadcast: Welcome to the room everyone! Enjoy your stay.' }]);
+            setIsControlsPanelOpen(false);
+        }},
+        { name: "Play Track", icon: Play, action: () => {
+            if (audioSrc) {
+                setIsPlaying(true);
+                toast({ title: "Music Resumed" });
+            } else {
+                toast({ title: "No Track", description: "Please upload a track first.", variant: "destructive" });
+            }
+            setIsControlsPanelOpen(false);
+        }},
+        { name: "Pause Track", icon: Pause, action: () => {
+            if (audioSrc) {
+                setIsPlaying(false);
+                toast({ title: "Music Paused" });
+            }
+             setIsControlsPanelOpen(false);
+        }},
+        { name: "Upload", icon: Upload, action: () => fileInputRef.current?.click() },
+        { name: "Invite", icon: UserPlus, action: () => {
+             toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." });
+             navigator.clipboard.writeText(window.location.href);
+             setIsControlsPanelOpen(false);
+        }},
+        { name: "Effect", icon: Wand2, action: () => {
+            setAreEffectsEnabled(prev => {
+                const newState = !prev;
+                toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` });
+                return newState;
+            });
+            setIsControlsPanelOpen(false);
+        }},
+        { name: "Clean", icon: Trash2, action: () => {
+            setMessages(prev => prev.filter(m => m.type !== 'text'));
+            toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
+             setIsControlsPanelOpen(false);
+        }},
+    ];
 
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
         const targetSeat = seats.find(seat => seat.id === seatId);
@@ -377,6 +406,7 @@ export default function AudioRoomPage() {
 
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
+             {audioSrc && <audio ref={audioRef} src={audioSrc} loop />}
              {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
              {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
@@ -798,5 +828,7 @@ export default function AudioRoomPage() {
         </div>
     );
 }
+
+    
 
     
