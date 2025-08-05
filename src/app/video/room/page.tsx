@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef, useEffect, Fragment, createRef, Suspense } from "react";
+import { useState, useRef, useEffect, Fragment, createRef, Suspense, memo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,20 +33,9 @@ type Message = {
 };
 
 
-const initialMessages: Message[] = [
-  { id: 1, type: 'system', text: 'Welcome to the video room!' },
-];
+const initialMessages: Message[] = [];
 
-export const videoRoomSeats: any[] = [
-    { id: 1, user: null, isOccupied: false, isLocked: false },
-    { id: 2, user: null, isOccupied: false, isLocked: false },
-    { id: 3, user: null, isOccupied: false, isLocked: false },
-    { id: 4, user: null, isOccupied: false, isLocked: false },
-    { id: 5, user: null, isOccupied: false, isLocked: false },
-    { id: 6, user: null, isOccupied: false, isLocked: false },
-    { id: 7, user: null, isOccupied: false, isLocked: false },
-    { id: 8, user: null, isOccupied: false, isLocked: false },
-]
+export const videoRoomSeats: any[] = [];
 
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -71,6 +60,7 @@ function VideoRoomPageComponent() {
     const [animatedWalkingGift, setAnimatedWalkingGift] = useState<string | null>(null);
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
     const [isPersonalMicMuted, setIsPersonalMicMuted] = useState(true);
+    const [coins, setCoins] = useState(0);
     
     const playerRef = useRef<any>(null);
     const [isPlaying, setIsPlaying] = useState(true);
@@ -149,7 +139,7 @@ function VideoRoomPageComponent() {
                 player.pauseVideo();
             }
         }
-    }, [isPlaying]);
+    }, [isPlaying, playerRef]);
 
     
     const handleSendMessage = (e: React.FormEvent) => {
@@ -171,6 +161,17 @@ function VideoRoomPageComponent() {
     };
 
     const handleSendGift = (gift: GiftType, quantity: number, recipient: string) => {
+        const totalCost = gift.price * quantity;
+        if (coins < totalCost) {
+            toast({
+                title: "Not enough coins",
+                description: "You need more coins to send this gift. Please recharge.",
+                variant: "destructive",
+            });
+            return;
+        }
+        setCoins(prev => prev - totalCost);
+        
         if (gift.animation === 'walking') {
             setAnimatedWalkingGift(gift.image);
             setTimeout(() => setAnimatedWalkingGift(null), 5000); // 5s animation duration
@@ -332,8 +333,8 @@ function VideoRoomPageComponent() {
 
     const onPlayerReady = (event: any) => {
         playerRef.current = event.target;
-        if (playerRef.current && typeof playerRef.current.playVideo === 'function') {
-           playerRef.current.playVideo();
+        if (event.target && typeof event.target.playVideo === 'function') {
+           event.target.playVideo();
         }
     };
 
@@ -525,7 +526,7 @@ function VideoRoomPageComponent() {
                 {/* Chat Panel */}
                  <div className="flex-1 mt-2 relative p-0">
                     {isGiftPanelOpen ? (
-                        <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} roomSeats={seats} giftContext="video" />
+                        <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} roomSeats={seats} giftContext="video" coins={coins} />
                     ) : (
                         <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-3 px-4 pr-2">
                             {messages.map((msg) => (
@@ -617,7 +618,7 @@ function VideoRoomPageComponent() {
                             <SheetTitle className="text-2xl font-headline text-white flex items-center gap-2"><Gamepad2 /> Game Center</SheetTitle>
                             <div className="flex items-center gap-2 bg-black/30 rounded-full px-3 py-1 border border-white/20">
                                 <Coins className="w-5 h-5 text-yellow-400" />
-                                <span className="font-bold text-lg">1,250</span>
+                                <span className="font-bold text-lg">{coins.toLocaleString()}</span>
                             </div>
                         </div>
                     </SheetHeader>
@@ -691,3 +692,5 @@ export default function VideoRoomPage() {
         </Suspense>
     );
 }
+
+    

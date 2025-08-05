@@ -62,6 +62,7 @@ export default function AudioRoomPage() {
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
     const [isPersonalMicMuted, setIsPersonalMicMuted] = useState(true);
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
+    const [coins, setCoins] = useState(0);
 
     // Audio Player State
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -112,6 +113,17 @@ export default function AudioRoomPage() {
     };
 
     const handleSendGift = (gift: GiftType, quantity: number, recipient: string) => {
+        const totalCost = gift.price * quantity;
+        if (coins < totalCost) {
+            toast({
+                title: "Not enough coins",
+                description: "You need more coins to send this gift. Please recharge.",
+                variant: "destructive",
+            });
+            return;
+        }
+        setCoins(prev => prev - totalCost);
+        
         if (gift.animation === 'walking') {
             setAnimatedWalkingGift(gift.image);
             setTimeout(() => setAnimatedWalkingGift(null), 5000); // 5s animation duration
@@ -638,7 +650,7 @@ export default function AudioRoomPage() {
 
                 <div className="flex-1 mt-2 relative p-0">
                     {isGiftPanelOpen ? (
-                        <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} roomSeats={seats} />
+                        <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} roomSeats={seats} coins={coins} />
                     ) : (
                         <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-3 px-4 pr-2">
                             {messages.length === 0 ? (
@@ -734,7 +746,7 @@ export default function AudioRoomPage() {
                             <SheetTitle className="text-2xl font-headline text-white flex items-center gap-2"><Gamepad2 /> Game Center</SheetTitle>
                             <div className="flex items-center gap-2 bg-black/30 rounded-full px-3 py-1 border border-white/20">
                                 <Coins className="w-5 h-5 text-yellow-400" />
-                                <span className="font-bold text-lg">1,250</span>
+                                <span className="font-bold text-lg">{coins.toLocaleString()}</span>
                             </div>
                         </div>
                     </SheetHeader>
@@ -794,5 +806,7 @@ export default function AudioRoomPage() {
         </div>
     );
 }
+
+    
 
     

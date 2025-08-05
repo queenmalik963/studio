@@ -327,10 +327,11 @@ type GiftPanelProps = {
     onSendGift: (gift: Gift, quantity: number, recipient: string) => void;
     sendButtonRef: React.RefObject<HTMLButtonElement>;
     roomSeats: typeof roomSeats | any[];
+    coins: number;
     giftContext?: 'audio' | 'video';
 }
 
-export function GiftPanel({ onSendGift, sendButtonRef, roomSeats, giftContext = 'audio' }: GiftPanelProps) {
+export function GiftPanel({ onSendGift, sendButtonRef, roomSeats, coins, giftContext = 'audio' }: GiftPanelProps) {
   const [selectedGift, setSelectedGift] = useState<Gift | null>(gifts.hot[0]);
   const [quantity, setQuantity] = useState(1);
   const [recipient, setRecipient] = useState("All in Room");
@@ -373,7 +374,14 @@ export function GiftPanel({ onSendGift, sendButtonRef, roomSeats, giftContext = 
   }
 
   const currentGiftSet = giftContext === 'video' ? videoGiftSet : audioGiftSet;
-  const defaultTab = Object.keys(currentGiftSet)[0];
+  const defaultTab = Object.keys(currentGiftSet)[0] as GiftCategory;
+  
+  // Update selected gift if it's not in the current context
+    useState(() => {
+        if (!Object.values(currentGiftSet).flat().some(g => g.name === selectedGift?.name)) {
+            setSelectedGift(currentGiftSet[defaultTab][0]);
+        }
+    });
 
 
   return (
@@ -447,7 +455,7 @@ export function GiftPanel({ onSendGift, sendButtonRef, roomSeats, giftContext = 
             </DropdownMenu>
             <div className="flex-shrink-0 flex items-center gap-1 bg-black/20 rounded-full h-9 px-3 border border-white/20 text-sm">
                 <Coins className="w-4 h-4 text-yellow-300" />
-                <span className="font-bold text-white">1,250</span>
+                <span className="font-bold text-white">{coins.toLocaleString()}</span>
             </div>
          </div>
 
@@ -469,3 +477,5 @@ export function GiftPanel({ onSendGift, sendButtonRef, roomSeats, giftContext = 
     </div>
   );
 }
+
+    
