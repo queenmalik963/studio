@@ -12,7 +12,9 @@ import {
     limit,
     DocumentData,
     FirestoreError,
-    Unsubscribe
+    Unsubscribe,
+    doc,
+    getDoc,
 } from 'firebase/firestore';
 
 export interface Message {
@@ -35,7 +37,28 @@ export interface Room {
     ownerName: string;
     isLive: boolean;
     createdAt: any; // serverTimestamp
+    youtubeVideoId?: string;
+    thumbnail?: string;
 }
+
+// Function to get details for a single room
+export const getRoomDetails = async (roomId: string): Promise<Room | null> => {
+    try {
+        const roomDocRef = doc(db, 'rooms', roomId);
+        const roomDocSnap = await getDoc(roomDocRef);
+
+        if (roomDocSnap.exists()) {
+            return {
+                ...roomDocSnap.data()
+            } as Room;
+        }
+        return null;
+    } catch (e) {
+        console.error("Error fetching room details:", e);
+        return null;
+    }
+}
+
 
 // Function to create a new room in Firestore
 export const createRoom = async (roomDetails: Omit<Room, 'createdAt' | 'isLive' | 'ownerId' | 'ownerName'>): Promise<{ success: boolean; roomId: string | null; error: string | null; }> => {
@@ -85,22 +108,4 @@ export const sendMessage = async (roomId: string, message: Message): Promise<{ s
 // Function to listen to real-time messages in a room
 export const listenToMessages = (roomId: string, callback: (messages: Message[]) => void): Unsubscribe => {
     const messagesColRef = collection(db, 'rooms', roomId, 'messages');
-    const q = query(messagesColRef, orderBy('timestamp', 'asc'), limit(100));
-
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        const messages: Message[] = [];
-        querySnapshot.forEach((doc) => {
-            const data = doc.data() as DocumentData;
-            messages.push({
-                id: doc.id,
-                ...data,
-                timestamp: data.timestamp?.toDate(),
-            } as Message);
-        });
-        callback(messages);
-    }, (error) => {
-        console.error("Error listening to messages:", error);
-    });
-
-    return unsubscribe;
-};
+    const q = query(messagesColR

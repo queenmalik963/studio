@@ -1,12 +1,11 @@
-
 "use client";
 
 import { useState, useRef, useEffect, Fragment, createRef, Suspense, memo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Maximize, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, Flag, Megaphone, Music, UserPlus, Wand2, Trash2, MicOff, Youtube, UserX, Axe, Play, Pause } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Maximize, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, Flag, Megaphone, Music, UserPlus, Wand2, Trash2, MicOff, Youtube, UserX, Axe, Play, Pause, Loader2 } from "lucide-react";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -19,7 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import YouTube from 'react-youtube';
-import { listenToMessages, sendMessage, type Message } from "@/services/roomService";
+import { listenToMessages, sendMessage, type Message, getRoomDetails } from "@/services/roomService";
 
 
 export type JumpAnimation = {
@@ -31,19 +30,6 @@ export type JumpAnimation = {
     endY: number;
 };
 
-
-const videoRoomSeats: any[] = [
-    { id: 1, isOccupied: true, user: { name: 'RaverX', avatar: 'https://placehold.co/40x40.png', isMuted: false, frame: 'gold' }, isLocked: false },
-    { id: 2, isOccupied: true, user: { name: 'Echostage', avatar: 'https://placehold.co/40x40.png', isMuted: true, frame: 'purple' }, isLocked: false },
-    { id: 3, isOccupied: false, user: null, isLocked: false },
-    { id: 4, isOccupied: true, user: { name: 'Hardwell', avatar: 'https://placehold.co/40x40.png', isMuted: false, frame: 'crimson-danger' }, isLocked: false },
-    { id: 5, isOccupied: false, user: null, isLocked: true },
-    { id: 6, isOccupied: false, user: null, isLocked: false },
-    { id: 7, isOccupied: true, user: { name: 'Tiesto', avatar: 'https://placehold.co/40x40.png', isMuted: false, frame: 'blue' }, isLocked: false },
-    { id: 8, isOccupied: false, user: null, isLocked: false },
-];
-
-
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
 );
@@ -51,13 +37,19 @@ const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 function VideoRoomPageComponent() {
     const router = useRouter();
+    const params = useParams();
     const searchParams = useSearchParams();
+    
+    // The room ID now comes from the dynamic route parameter
+    const roomId = params.id as string;
+    // We can still get the videoId from a query param if needed, or from the room doc
     const videoIdParam = searchParams.get('id');
 
     const { toast } = useToast();
     const [messages, setMessages] = useState<Message[]>([]);
+    const [roomDetails, setRoomDetails] = useState<any>(null);
     const [newMessage, setNewMessage] = useState("");
-    const [seats, setSeats] = useState(videoRoomSeats);
+    const [seats, setSeats] = useState<any[]>([]);
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
     const [isControlsPanelOpen, setIsControlsPanelOpen] = useState(false);
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
@@ -78,23 +70,47 @@ function VideoRoomPageComponent() {
     const sendButtonRef = useRef<HTMLButtonElement>(null);
     const lastMessageCount = useRef(messages.length);
 
-    // In a real app, this would come from the URL or state management
-    const roomId = videoIdParam ? `video-${videoIdParam}` : "demo-video-room"; 
     // This would come from the auth context
     const currentUserId = "user-123";
     const currentUserAvatar = "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png";
     const currentUsername = "You";
 
-    const owner = { name: "op_2", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true };
+    const owner = roomDetails?.owner || { name: "op_2", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true };
     const currentUserIsOwner = true; // For simulation
+
+    useEffect(() => {
+        if (!roomId) return;
+
+        getRoomDetails(roomId).then(details => {
+            if (details) {
+                setRoomDetails(details);
+                 const initialSeats = Array.from({ length: details.seats || 8 }, (_, i) => ({
+                    id: i + 1,
+                    isOccupied: false,
+                    user: null,
+                    isLocked: false,
+                }));
+                setSeats(initialSeats);
+            }
+        });
+
+        const unsubscribe = listenToMessages(roomId, (newMessages) => {
+            setMessages(newMessages);
+        });
+
+        return () => unsubscribe();
+    }, [roomId]);
+
 
      const videoRoomControls = [
         { name: "Gathering", icon: Flag, action: async () => {
+            if (!roomId) return;
             toast({ title: "Gathering Started in Video Room!", description: "Special room effects are now active." });
             await sendMessage(roomId, { type: 'system', text: 'A gathering has been started by the owner!' });
             setIsControlsPanelOpen(false);
         }},
         { name: "Broadcast", icon: Megaphone, action: async () => {
+            if (!roomId) return;
             toast({ title: "Video Room Broadcast Sent!", description: "Your message has been sent to all users." });
             await sendMessage(roomId, { type: 'system', text: 'Broadcast: Welcome to the video room! Enjoy your stay.' });
             setIsControlsPanelOpen(false);
@@ -149,17 +165,6 @@ function VideoRoomPageComponent() {
     }, [messages]);
 
     useEffect(() => {
-        if (!roomId) return;
-
-        const unsubscribe = listenToMessages(roomId, (newMessages) => {
-            setMessages(newMessages);
-        });
-
-        // Cleanup subscription on unmount
-        return () => unsubscribe();
-    }, [roomId]);
-
-    useEffect(() => {
         const player = playerRef.current;
         if (player && typeof player.playVideo === 'function') {
             if (isPlaying) {
@@ -198,6 +203,7 @@ function VideoRoomPageComponent() {
     };
 
     const handleSendGift = async (gift: GiftType, quantity: number, recipient: string) => {
+        if (!roomId) return;
         const totalCost = gift.price * quantity;
         if (coins < totalCost) {
             toast({
@@ -270,6 +276,7 @@ function VideoRoomPageComponent() {
     };
 
     const handleStartGame = async (gameName: string) => {
+        if (!roomId) return;
         setIsGamePanelOpen(false);
         await sendMessage(roomId, {
             authorId: currentUserId,
@@ -374,8 +381,6 @@ function VideoRoomPageComponent() {
     };
 
     const togglePlay = () => {
-        // In a real app, this would send a command to the database
-        // e.g., db.collection('rooms').doc(roomId).update({ isPlaying: !isPlaying });
         setIsPlaying(!isPlaying);
     };
 
@@ -390,6 +395,14 @@ function VideoRoomPageComponent() {
           modestbranding: 1,
         },
     };
+    
+    if (!roomId || !roomDetails) {
+        return (
+            <div className="flex items-center justify-center h-screen bg-[#180828] text-white">
+                <Loader2 className="w-10 h-10 animate-spin" />
+            </div>
+        )
+    }
 
     return (
         <div className="flex flex-col h-screen bg-[#180828] text-white font-sans overflow-hidden">
@@ -420,8 +433,8 @@ function VideoRoomPageComponent() {
             {/* Video Player Section */}
             <div className="relative w-full bg-black h-[45%] flex-shrink-0">
                  <div className="absolute inset-0 bg-black flex items-center justify-center">
-                    {videoIdParam ? (
-                        <YouTube videoId={videoIdParam} opts={youtubeOpts} onReady={onPlayerReady} className="w-full h-full" />
+                    {roomDetails.youtubeVideoId ? (
+                        <YouTube videoId={roomDetails.youtubeVideoId} opts={youtubeOpts} onReady={onPlayerReady} className="w-full h-full" />
                     ) : (
                         <p className="text-white/50">No video selected. Go to Add Video to start a room.</p>
                     )}
@@ -429,7 +442,7 @@ function VideoRoomPageComponent() {
 
                 {/* Video Controls Overlay */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                    {currentUserIsOwner && videoIdParam && (
+                    {currentUserIsOwner && roomDetails.youtubeVideoId && (
                         <Button
                             variant="ghost"
                             size="icon"
@@ -454,8 +467,8 @@ function VideoRoomPageComponent() {
                                         <AvatarFallback>{owner.name?.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <p className="font-semibold">{owner.name}</p>
-                                        <p className="text-xs text-white/70">ID: 66768</p>
+                                        <p className="font-semibold">{roomDetails.name}</p>
+                                        <p className="text-xs text-white/70">ID: {roomId.substring(0, 6)}</p>
                                     </div>
                                 </div>
                             )}
@@ -730,7 +743,11 @@ function VideoRoomPageComponent() {
 
 export default function VideoRoomPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={
+            <div className="flex items-center justify-center h-screen bg-[#180828] text-white">
+                <Loader2 className="w-10 h-10 animate-spin" />
+            </div>
+        }>
             <VideoRoomPageComponent />
         </Suspense>
     );

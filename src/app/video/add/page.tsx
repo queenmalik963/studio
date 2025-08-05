@@ -1,11 +1,10 @@
-
 "use client";
 
 import { useState } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, History, Search as SearchIcon, X } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { ArrowLeft, History, Search as SearchIcon, X, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -13,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
+import { createRoom } from "@/services/roomService";
+
 
 // Inline Netflix Icon
 const NetflixIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -32,12 +33,16 @@ const dummyResults = [
     {id: '5qap5aO4i9A', title: 'lofi hip hop radio - sad & sleepy beats', thumbnail: 'https://i.ytimg.com/vi/5qap5aO4i9A/hqdefault_live.jpg', channel: 'the bootleg boy'},
     {id: '7NOSDKb0HlU', title: '1 A.M Study Session 📚 - [lofi hip hop/chill beats]', thumbnail: 'https://i.ytimg.com/vi/7NOSDKb0HlU/hqdefault.jpg', channel: 'Lofi Girl'},
     {id: 'rUxyKA_-grg', title: 'Chillhop Radio - jazzy & lofi hip hop beats', thumbnail: 'https://i.ytimg.com/vi/rUxyKA_-grg/hqdefault_live.jpg', channel: 'Chillhop Music'},
-]
+    {id: 'DWcJFNfaw9c', title: 'Coffee Shop Radio ☕ - 24/7 lofi hip-hop beats', thumbnail: 'https://i.ytimg.com/vi/DWcJFNfaw9c/hqdefault_live.jpg', channel: 'STEEZYASFUCK'},
+];
+
+type VideoResult = typeof dummyResults[0];
 
 export default function AddVideoPage() {
     const router = useRouter();
     const { toast } = useToast();
     const [isSheetOpen, setIsSheetOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState(dummyResults);
 
@@ -47,8 +52,6 @@ export default function AddVideoPage() {
             title: "Searching...",
             description: `Looking for "${searchTerm}" on YouTube.`,
         });
-        // In a real app, you would call the YouTube API here.
-        // For now, we'll just filter the dummy results.
         if(searchTerm) {
             const filtered = dummyResults.filter(r => r.title.toLowerCase().includes(searchTerm.toLowerCase()));
             setSearchResults(filtered);
@@ -57,13 +60,42 @@ export default function AddVideoPage() {
         }
     };
 
-    const handleVideoSelect = (videoId: string) => {
+    const handleVideoSelect = async (video: VideoResult) => {
+        setIsLoading(true);
+
+        const result = await createRoom({
+            name: video.title,
+            type: 'video',
+            seats: 8, // Default seats for a video room
+            youtubeVideoId: video.id,
+            thumbnail: video.thumbnail,
+        });
+
+        setIsLoading(false);
         setIsSheetOpen(false);
-        router.push(`/video/room?id=${videoId}`);
+
+        if (result.success && result.roomId) {
+            toast({
+                title: "Room Created!",
+                description: "Your new video room is live.",
+            });
+            router.push(`/video/room/${result.roomId}`);
+        } else {
+             toast({
+                variant: "destructive",
+                title: "Failed to create room",
+                description: result.error || "An unknown error occurred.",
+            });
+        }
     }
 
     return (
         <AppLayout>
+            {isLoading && (
+                <div className="fixed inset-0 bg-background/80 flex items-center justify-center z-50">
+                    <Loader2 className="w-16 h-16 animate-spin text-primary" />
+                </div>
+            )}
             <div className="space-y-6">
                 <div className="flex items-center gap-4">
                     <Button variant="ghost" size="icon" onClick={() => router.back()}>
@@ -117,7 +149,7 @@ export default function AddVideoPage() {
                         <ScrollArea className="flex-1 my-4 -mx-6 px-6">
                             <div className="space-y-3">
                                 {searchResults.map((video) => (
-                                    <div key={video.id} onClick={() => handleVideoSelect(video.id)} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 cursor-pointer">
+                                    <div key={video.id} onClick={() => handleVideoSelect(video)} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 cursor-pointer">
                                         <div className="relative w-32 h-20 flex-shrink-0">
                                             <Image 
                                                 src={video.thumbnail}
