@@ -487,15 +487,15 @@ export default function AudioRoomPage() {
 
             <main className="flex-1 flex flex-col pt-0 overflow-hidden gap-2">
                  <div className="flex-shrink-0 space-y-1 px-4">
-                    <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
+                    <div className="grid grid-cols-5 gap-y-2 gap-x-2 justify-items-center">
                         {seats.slice(0, 5).map((seat, index) => {
                             return (
                                 <Popover key={seat.id}>
                                     <PopoverTrigger asChild disabled={!currentUserIsOwner && !seat.user}>
-                                        <div ref={seatRefs.current[index]} className="flex flex-col items-center gap-1 w-[50px] text-center cursor-pointer">
+                                        <div ref={seatRefs.current[index]} className="flex flex-col items-center gap-1.5 w-[60px] text-center cursor-pointer">
                                             {seat.isOccupied && seat.user ? (
                                                 <>
-                                                    <div className="relative w-[50px] h-[50px] flex items-center justify-center">
+                                                    <div className="relative w-[60px] h-[60px] flex items-center justify-center">
                                                         {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
                                                             <div className="absolute inset-[-4px] pointer-events-none">
                                                                 <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
@@ -519,8 +519,8 @@ export default function AudioRoomPage() {
                                                     <p className="text-xs truncate w-full">{seat.user.name}</p>
                                                 </>
                                             ) : (
-                                                <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                                    {seat.isLocked ? <Lock className="w-6 h-6 text-white/50" /> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
+                                                <div className="w-[60px] h-[60px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                                    {seat.isLocked ? <Lock className="w-6 h-6 text-white/50" /> : <span className="text-xl font-bold text-white/50">{seat.id}</span>}
                                                 </div>
                                             )}
                                         </div>
@@ -546,15 +546,15 @@ export default function AudioRoomPage() {
                             )
                         })}
                     </div>
-                     <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
+                     <div className="grid grid-cols-5 gap-y-2 gap-x-2 justify-items-center">
                         {seats.slice(5, 10).map((seat, index) => {
                              return (
                                 <Popover key={seat.id}>
                                     <PopoverTrigger asChild disabled={!currentUserIsOwner && !seat.user}>
-                                        <div ref={seatRefs.current[index+5]} className="flex flex-col items-center gap-1 w-[50px] text-center cursor-pointer">
+                                        <div ref={seatRefs.current[index+5]} className="flex flex-col items-center gap-1.5 w-[60px] text-center cursor-pointer">
                                             {seat.isOccupied && seat.user ? (
                                                 <>
-                                                <div className="relative w-[50px] h-[50px] flex items-center justify-center">
+                                                <div className="relative w-[60px] h-[60px] flex items-center justify-center">
                                                     {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
                                                         <div className="absolute inset-[-4px] pointer-events-none">
                                                             <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
@@ -577,8 +577,8 @@ export default function AudioRoomPage() {
                                                 <p className="text-xs truncate w-full">{seat.user.name}</p>
                                                 </>
                                             ) : (
-                                            <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                                    {seat.isLocked ? <Lock className="w-6 h-6 text-white/50" /> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
+                                            <div className="w-[60px] h-[60px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                                    {seat.isLocked ? <Lock className="w-6 h-6 text-white/50" /> : <span className="text-xl font-bold text-white/50">{seat.id}</span>}
                                                 </div>
                                         ) }
                                         </div>
@@ -604,15 +604,15 @@ export default function AudioRoomPage() {
                             )
                         })}
                     </div>
-                    <div className="grid grid-cols-5 gap-y-1 gap-x-2 justify-items-center">
+                    <div className="grid grid-cols-5 gap-y-2 gap-x-2 justify-items-center">
                         {seats.slice(10, 15).map((seat, index) => {
                              return (
                                 <Popover key={seat.id}>
                                     <PopoverTrigger asChild disabled={!currentUserIsOwner && !seat.user}>
-                                        <div ref={seatRefs.current[index+10]} className="flex flex-col items-center gap-1 w-[50px] text-center cursor-pointer">
+                                        <div ref={seatRefs.current[index+10]} className="flex flex-col items-center gap-1.5 w-[60px] text-center cursor-pointer">
                                             {seat.isOccupied && seat.user ? (
                                                 <>
-                                                <div className="relative w-[50px] h-[50px] flex items-center justify-center">
+                                                <div className="relative w-[60px] h-[60px] flex items-center justify-center">
                                                      {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
                                                         <div className="absolute inset-[-4px] pointer-events-none">
                                                             <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
@@ -635,8 +635,8 @@ export default function AudioRoomPage() {
                                                 <p className="text-xs truncate w-full">{seat.user.name}</p>
                                                 </>
                                             ) : (
-                                            <div className="w-[50px] h-[50px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                                    {seat.isLocked ? <Lock className="w-6 h-6 text-white/50" /> : <span className="text-lg font-bold text-white/50">{seat.id}</span>}
+                                            <div className="w-[60px] h-[60px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                                    {seat.isLocked ? <Lock className="w-6 h-6 text-white/50" /> : <span className="text-xl font-bold text-white/50">{seat.id}</span>}
                                                 </div>
                                         )}
                                         </div>
