@@ -230,12 +230,17 @@ export default function AudioRoomPage() {
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
+            toast({
+                title: "Track Selected!",
+                description: `"${file.name}" is ready to be played.`,
+            });
+            // Here you would typically upload the file and update the room's track
             setMessages(prev => [
                 ...prev,
                 {
                     id: Date.now(),
                     type: 'system',
-                    text: `You selected "${file.name}" to play.`,
+                    text: `Owner selected "${file.name}" to play.`,
                 }
             ]);
             setIsControlsPanelOpen(false);
@@ -286,7 +291,9 @@ export default function AudioRoomPage() {
                 toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
                 break;
         }
-        setIsControlsPanelOpen(false);
+        if (controlName !== 'Upload') {
+            setIsControlsPanelOpen(false);
+        }
     };
 
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
@@ -777,7 +784,7 @@ export default function AudioRoomPage() {
                             type="file"
                             ref={fileInputRef}
                             onChange={handleFileSelect}
-                            accept="audio/mp3"
+                            accept="audio/mp3,audio/wav,audio/ogg"
                             className="hidden"
                         />
                         <div className="grid grid-cols-4 gap-4">
@@ -791,3 +798,5 @@ export default function AudioRoomPage() {
         </div>
     );
 }
+
+    

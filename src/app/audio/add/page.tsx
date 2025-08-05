@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -21,17 +21,37 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/hooks/use-toast";
 
 
 export default function AddAudioPage() {
     const router = useRouter();
+    const { toast } = useToast();
     const [open, setOpen] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
 
     const handleCreateRoom = () => {
         setOpen(false);
         router.push('/audio/room');
     }
+
+    const handleUploadClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            toast({
+                title: "Track Selected!",
+                description: `"${file.name}" is ready to be played in a new room.`,
+            });
+            // Here you would typically upload the file and create a new room
+            router.push('/audio/room'); // Navigate to the room after selection
+        }
+    };
 
     return (
         <AppLayout>
@@ -108,7 +128,14 @@ export default function AddAudioPage() {
                         </DialogContent>
                     </Dialog>
                     
-                    <Card className="aspect-square flex items-center justify-center p-6 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer">
+                    <Card onClick={handleUploadClick} className="aspect-square flex items-center justify-center p-6 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer">
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileSelect}
+                            accept="audio/mp3,audio/wav,audio/ogg"
+                            className="hidden"
+                        />
                          <div className="flex flex-col items-center gap-4">
                             <Upload className="w-16 h-16 text-accent" />
                              <span className="font-semibold text-lg">Upload Track</span>
