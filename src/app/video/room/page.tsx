@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Maximize, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, Flag, Megaphone, Music, UserPlus, Wand2, Trash2, MicOff, Youtube, UserX, Axe } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -19,6 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import type { JumpAnimation } from "@/app/audio/room/page";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
+import YouTube from 'react-youtube';
 
 
 type Message = {
@@ -57,8 +58,11 @@ const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 
-export default function VideoRoomPage() {
+function VideoRoomPageComponent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const videoId = searchParams.get('id');
+
     const { toast } = useToast();
     const [messages, setMessages] = useState(initialMessages);
     const [newMessage, setNewMessage] = useState("");
@@ -310,6 +314,17 @@ export default function VideoRoomPage() {
 
     const occupiedSeats = seats.filter(seat => seat.isOccupied && seat.user);
 
+    const youtubeOpts = {
+        height: '100%',
+        width: '100%',
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          rel: 0,
+          showinfo: 0,
+        },
+    };
+
     return (
         <div className="flex flex-col h-screen bg-[#180828] text-white font-sans overflow-hidden">
              {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
@@ -339,7 +354,11 @@ export default function VideoRoomPage() {
             {/* Video Player Section */}
             <div className="relative w-full bg-black h-[45%] flex-shrink-0">
                  <div className="absolute inset-0 bg-black flex items-center justify-center">
-                    <p className="text-white/50">Video Player Placeholder</p>
+                    {videoId ? (
+                        <YouTube videoId={videoId} opts={youtubeOpts} className="w-full h-full" />
+                    ) : (
+                        <p className="text-white/50">No video selected. Go to Add Video to start a room.</p>
+                    )}
                 </div>
 
                 {/* Video Controls Overlay */}
@@ -619,5 +638,13 @@ export default function VideoRoomPage() {
                 </SheetContent>
             </Sheet>
         </div>
+    );
+}
+
+export default function VideoRoomPage() {
+    return (
+        <React.Suspense fallback={<div>Loading...</div>}>
+            <VideoRoomPageComponent />
+        </React.Suspense>
     );
 }
