@@ -11,21 +11,29 @@ import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase";
 import { getConversations, type ConversationSummary } from "@/services/chatService";
 import { formatDistanceToNow } from 'date-fns';
+import { useRouter } from "next/navigation";
+import { User } from "firebase/auth";
 
 export default function ChatListPage() {
+    const router = useRouter();
     const [conversations, setConversations] = useState<ConversationSummary[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [currentUser, setCurrentUser] = useState(auth.currentUser);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
-            setCurrentUser(user);
+            if (user) {
+                setCurrentUser(user);
+            } else {
+                router.push('/');
+            }
         });
         return () => unsubscribe();
-    }, []);
+    }, [router]);
 
     useEffect(() => {
         if (!currentUser) {
+            // This case is handled by the auth state listener, but as a fallback:
             setIsLoading(false);
             return;
         }

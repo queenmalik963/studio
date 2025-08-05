@@ -26,20 +26,21 @@ import { Loader2 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { User } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 
 export default function ProfilePage() {
+    const router = useRouter();
+    const { toast } = useToast();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [tempName, setTempName] = useState("");
     const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const { toast } = useToast();
 
     useEffect(() => {
         const unsubscribeAuth = auth.onAuthStateChanged(user => {
-            setCurrentUser(user);
             if (user) {
-                // If a user is logged in, listen to *their* profile
+                setCurrentUser(user);
                 const unsubscribeProfile = listenToUserProfile(user.uid, (data) => {
                     setProfile(data);
                     if (data) {
@@ -47,16 +48,13 @@ export default function ProfilePage() {
                     }
                     setIsLoading(false);
                 });
-                // Return the profile listener cleanup function
                 return () => unsubscribeProfile();
             } else {
-                // Handle user not logged in case
-                setIsLoading(false);
+                router.push('/');
             }
         });
-        // Return the auth listener cleanup function
         return () => unsubscribeAuth();
-    }, []);
+    }, [router]);
 
 
     const handleFollow = async () => {
@@ -119,11 +117,9 @@ export default function ProfilePage() {
     if (!profile || !currentUser) {
         return (
             <AppLayout>
-                <div className="text-center">
-                    <p>Could not load profile. Please log in and try again.</p>
-                     <Link href="/" passHref>
-                        <Button className="mt-4">Go to Login</Button>
-                    </Link>
+                <div className="flex justify-center items-center h-full">
+                    <Loader2 className="w-16 h-16 animate-spin text-primary" />
+                    <p className="ml-4">Redirecting to login...</p>
                 </div>
             </AppLayout>
         )

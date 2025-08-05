@@ -1,11 +1,11 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from 'next/image';
-import { Users, Headphones, PlaySquare, Mic, Globe } from "lucide-react";
+import { Users, Headphones, PlaySquare, Mic, Globe, Loader2 } from "lucide-react";
 import Link from "next/link";
 import {
   Select,
@@ -15,6 +15,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MusicSuggestions } from "@/components/video/MusicSuggestions";
+import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
+import { User } from "firebase/auth";
 
 const initialTrendingVideos = [
     { href: "/video/room", image: "https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg", hint: "lofi hip-hop music", title: "Lofi Beats to Relax To", creator: "Chillhop Music", viewers: "1.2K" },
@@ -138,8 +141,33 @@ const CAFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 
 export default function HomePage() {
+  const router = useRouter();
   const [trendingVideos, setTrendingVideos] = useState(initialTrendingVideos);
   const [trendingAudio, setTrendingAudio] = useState(initialTrendingAudio);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+        if (user) {
+            setCurrentUser(user);
+        } else {
+            router.push('/');
+        }
+        setIsLoading(false);
+    });
+    return () => unsubscribe();
+  }, [router]);
+
+  if (isLoading || !currentUser) {
+      return (
+          <AppLayout>
+              <div className="flex justify-center items-center h-full">
+                  <Loader2 className="w-16 h-16 animate-spin text-primary" />
+              </div>
+          </AppLayout>
+      );
+  }
 
   return (
     <AppLayout>
