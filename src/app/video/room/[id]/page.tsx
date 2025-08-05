@@ -19,7 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import YouTube from 'react-youtube';
-import { listenToMessages, sendMessage, type Message, listenToRoom, type Room, takeSeat, leaveSeat, updateSeatAsOwner, type SeatUser, updateSeatUser } from "@/services/roomService";
+import { listenToMessages, sendMessage, type Message, listenToRoom, type Room, takeSeat, leaveSeat, updateSeatAsOwner, type SeatUser, updateSeatUser, updatePlaybackState } from "@/services/roomService";
 import { auth } from "@/lib/firebase";
 
 
@@ -58,7 +58,6 @@ function VideoRoomPageComponent() {
     const [coins, setCoins] = useState(0);
     
     const playerRef = useRef<any>(null);
-    const [isPlaying, setIsPlaying] = useState(true);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -92,6 +91,16 @@ function VideoRoomPageComponent() {
         const unsubRoom = listenToRoom(roomId, (roomData) => {
             setRoom(roomData);
             setSeats(roomData?.seats || []);
+            
+            // Sync video player for all users
+            const player = playerRef.current;
+            if (player && roomData && typeof player.playVideo === 'function' && !currentUserIsOwner) {
+                if (roomData.isPlaying && player.getPlayerState() !== 1) {
+                     player.playVideo();
+                } else if (!roomData.isPlaying && player.getPlayerState() === 1) {
+                    player.pauseVideo();
+                }
+            }
         });
         const unsubMessages = listenToMessages(roomId, (newMessages) => {
             setMessages(newMessages);
@@ -101,7 +110,7 @@ function VideoRoomPageComponent() {
             unsubRoom();
             unsubMessages();
         };
-    }, [roomId]);
+    }, [roomId, currentUserIsOwner]);
 
 
      const videoRoomControls = [
@@ -165,17 +174,6 @@ function VideoRoomPageComponent() {
 
         lastMessageCount.current = messages.length;
     }, [messages]);
-
-    useEffect(() => {
-        const player = playerRef.current;
-        if (player && typeof player.playVideo === 'function') {
-            if (isPlaying) {
-                player.playVideo();
-            } else {
-                player.pauseVideo();
-            }
-        }
-    }, [isPlaying, playerRef]);
 
     
     const handleSendMessage = async (e: React.FormEvent) => {
@@ -383,8 +381,10 @@ function VideoRoomPageComponent() {
         }
     };
 
-    const togglePlay = () => {
-        setIsPlaying(!isPlaying);
+    const togglePlay = async () => {
+        if (!roomId || !currentUserIsOwner || !room) return;
+        const newIsPlaying = !room.isPlaying;
+        await updatePlaybackState(roomId, { isPlaying: newIsPlaying });
     };
 
     const youtubeOpts = {
@@ -452,7 +452,7 @@ function VideoRoomPageComponent() {
                             className="w-16 h-16 rounded-full bg-black/30 text-white/70 hover:bg-black/50 hover:text-white"
                             onClick={togglePlay}
                         >
-                            {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8" />}
+                            {room.isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8" />}
                         </Button>
                     )}
                 </div>
@@ -568,12 +568,16 @@ function VideoRoomPageComponent() {
                                 </PopoverTrigger>
                                  <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
                                     <div className="flex flex-col gap-1">
-                                        <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
-                                            {seat.user?.isMuted ? <Mic /> : <MicOff />} {seat.user?.isMuted ? 'Unmute' : 'Mute Mic'}
-                                        </Button>
+                                        {seat.user && (
+                                          <>
+                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
+                                                {seat.user?.isMuted ? <Mic /> : <MicOff />} {seat.user?.isMuted ? 'Unmute' : 'Mute Mic'}
+                                            </Button>
+                                             <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
+                                            <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
+                                          </>
+                                        )}
                                         <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}><Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}</Button>
-                                        <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
-                                        <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
                                     </div>
                                 </PopoverContent>
                             </Popover>
