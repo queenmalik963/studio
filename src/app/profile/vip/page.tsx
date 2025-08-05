@@ -11,7 +11,44 @@ import Autoplay from "embla-carousel-autoplay";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
-const vipTiers: any[] = [];
+const vipTiers = [
+    {
+        name: 'Baron',
+        price: '1500 Coins/m',
+        color: 'from-gray-700 to-gray-900',
+        frameClass: 'border-2 border-gray-400 animate-glow-silver',
+        features: ['VIP Badge', 'Special Welcome Message', 'No Ads'],
+        specialFrameUrl: 'https://i.imgur.com/K1hT0G8.png', // Using Gold Frame for demo
+        tagImage: 'https://i.imgur.com/eB3sY3d.png',
+    },
+    {
+        name: 'Duke',
+        price: '4000 Coins/m',
+        color: 'from-blue-800 to-indigo-900',
+        frameClass: 'border-2 border-blue-400 animate-glow-blue',
+        features: ['All Baron Features', 'Exclusive Gifts', 'Colored Chat Text'],
+        specialFrameUrl: 'https://i.imgur.com/L7iFvH0.png',
+        tagImage: 'https://i.imgur.com/YQ8qV4g.png',
+    },
+    {
+        name: 'Prince',
+        price: '10000 Coins/m',
+        color: 'from-purple-800 to-fuchsia-900',
+        frameClass: 'border-2 border-purple-400 animate-glow-purple',
+        features: ['All Duke Features', 'Animated Profile Frame', 'Room Creation Priority'],
+        specialFrameUrl: 'https://i.imgur.com/qg9gGgC.png',
+        tagImage: 'https://i.imgur.com/b5XzY1A.png',
+    },
+    {
+        name: 'Shogun',
+        price: '25000 Coins/m',
+        color: 'from-red-800 to-rose-900',
+        frameClass: 'border-2 border-red-500 animate-glow-red',
+        features: ['All Prince Features', 'Global Broadcast Pin', 'Unique Entrance Effect'],
+        specialFrameUrl: 'https://i.imgur.com/DADsWdw.gif',
+        tagImage: 'https://i.imgur.com/nJgqK7i.png',
+    },
+];
 
 export default function VipStorePage() {
   const router = useRouter();
@@ -46,38 +83,33 @@ export default function VipStorePage() {
                     <div className="p-1 h-full">
                     <Card className={cn("flex flex-col h-full text-white bg-gradient-to-br relative overflow-visible", tier.color)}>
                         {tier.tagImage && (
-                            <div className="absolute -top-4 right-[-16px] w-16 h-16 z-10 animate-glow-silver">
+                            <div className="absolute -top-4 right-[-16px] w-20 h-20 z-10 animate-pulse-luxury">
                                 <Image
                                     src={tier.tagImage}
                                     alt={`${tier.name} Tag`}
                                     layout="fill"
                                     className="object-contain"
+                                    unoptimized
                                 />
                             </div>
                         )}
                         <CardHeader className="items-center text-center">
                         <div className={cn("relative mb-4", tier.name === 'Shogun' ? 'w-24 h-24' : 'w-20 h-20')}>
-                            {(tier as any).specialFrameUrl ? (
-                                    <Image 
-                                        unoptimized
-                                        src={(tier as any).specialFrameUrl}
-                                        alt={`${tier.name} Frame`}
-                                        layout="fill"
-                                        className={cn("absolute pointer-events-none animate-pulse-luxury", tier.frameClass, tier.name === 'Shogun' ? '-inset-2' : '-inset-1')}
-                                    />
-                            ) : (
-                                <>
-                                    <div className={cn("absolute rounded-full", tier.frameClass, tier.name === 'Shogun' ? 'inset-[-8px]' : 'inset-[-4px]')}></div>
-                                    {tier.frameSvg && <tier.frameSvg className={cn("absolute", tier.name === 'Shogun' ? '-inset-2 w-[calc(100%+16px)] h-[calc(100%+16px)]' : '-inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)]')} />}
-                                </>
-                            )}
+                           <div className={cn("absolute rounded-full", tier.frameClass, tier.name === 'Shogun' ? 'inset-[-8px]' : 'inset-[-4px]')}></div>
+                            <Image 
+                                unoptimized
+                                src={tier.specialFrameUrl}
+                                alt={`${tier.name} Frame`}
+                                layout="fill"
+                                className={cn("absolute pointer-events-none", tier.frameClass, tier.name === 'Shogun' ? '-inset-2' : '-inset-1')}
+                            />
                         </div>
                         <CardTitle className="flex items-center gap-2 text-2xl">
                             <Crown /> {tier.name} VIP
                         </CardTitle>
-                        <CardDescription className="text-white/80 text-3xl font-bold">{tier.price}</CardDescription>
+                        <CardDescription className="text-white/80 text-lg font-bold">{tier.price}</CardDescription>
                         </CardHeader>
-                        <CardContent className="flex-grow flex flex-col justify-between">
+                        <CardContent className="flex-grow flex flex-col justify-between p-4">
                         <ul className="space-y-2 list-disc list-inside text-white/90">
                             {tier.features.map((feature: string) => <li key={feature}>{feature}</li>)}
                         </ul>

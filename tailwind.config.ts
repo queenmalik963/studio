@@ -153,9 +153,9 @@ export default {
             '0%, 100%': { filter: 'drop-shadow(0 0 5px rgba(245, 158, 11, 0.6))' },
             '50%': { filter: 'drop-shadow(0 0 10px rgba(245, 158, 11, 1))' },
         },
-         'glow-silver': {
-            '0%, 100%': { filter: 'drop-shadow(0 0 5px rgba(191,191,191,0.6))' },
-            '50%': { filter: 'drop-shadow(0 0 10px rgba(220,220,220,1))' },
+        'glow-silver': {
+          '0%, 100%': { filter: 'drop-shadow(0 0 5px rgba(209, 213, 219, 0.6))' },
+          '50%': { filter: 'drop-shadow(0 0 10px rgba(229, 231, 235, 1))' },
         },
         'pulse-luxury': {
             '0%, 100%': { transform: 'scale(1)', opacity: '0.9' },
