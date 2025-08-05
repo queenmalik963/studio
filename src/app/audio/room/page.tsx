@@ -23,7 +23,6 @@ import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 
 
 const initialMessages: any[] = [];
-const roomSeats: any[] = [];
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
@@ -51,7 +50,7 @@ RoomControlButton.displayName = 'RoomControlButton';
 export default function AudioRoomPage() {
     const router = useRouter();
     const [messages, setMessages] = useState(initialMessages);
-    const [seats, setSeats] = useState(roomSeats);
+    const [seats, setSeats] = useState<any[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
@@ -79,6 +78,18 @@ export default function AudioRoomPage() {
 
     const owner = { name: "op_2", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true };
     const currentUserIsOwner = true; // For simulation
+
+     useEffect(() => {
+        const seatCount = parseInt(localStorage.getItem('audio_room_seats') || '8', 10);
+        const initialSeats = Array.from({ length: seatCount }, (_, i) => ({
+            id: i + 1,
+            isOccupied: false,
+            user: null,
+            isLocked: false,
+        }));
+        setSeats(initialSeats);
+    }, []);
+
     
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
@@ -217,10 +228,11 @@ export default function AudioRoomPage() {
         setJumpAnimations(prev => prev.filter(anim => anim.id !== id));
     };
 
-    const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            setAudioSrc(URL.createObjectURL(file));
+            const trackUrl = URL.createObjectURL(file);
+            setAudioSrc(trackUrl);
             setIsPlaying(true); // Auto-play on select
             toast({
                 title: "Track Selected!",

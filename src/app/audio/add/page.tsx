@@ -30,12 +30,13 @@ export default function AddAudioPage() {
     const { toast } = useToast();
     const [open, setOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [numberOfSeats, setNumberOfSeats] = useState("4");
 
 
     const handleCreateRoom = () => {
         setOpen(false);
-        // Here you would typically pass room settings to the next page
-        // For now, it just navigates to a generic room
+        // Pass room settings to the next page
+        localStorage.setItem("audio_room_seats", numberOfSeats);
         toast({
             title: "Room Created!",
             description: "Your new audio room is ready.",
@@ -106,7 +107,7 @@ export default function AddAudioPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Number of Seats</Label>
-                                    <RadioGroup defaultValue="4" className="flex gap-2">
+                                    <RadioGroup value={numberOfSeats} onValueChange={setNumberOfSeats} className="flex gap-2">
                                         {[2, 4, 8, 15].map((seats) => (
                                              <div key={seats} className="flex-1">
                                                 <RadioGroupItem value={String(seats)} id={`seats-${seats}`} className="peer sr-only" />
