@@ -133,4 +133,9 @@ export default function VideoPage() {
         
         <Link href="/video/add" passHref>
              <Button className="fixed bottom-6 right-6 h-16 w-16 rounded-full bg-white text-black shadow-lg hover:bg-gray-200">
-                <Plus className="h-8 w-8"
+                <Plus className="h-8 w-8" />
+            </Button>
+        </Link>
+    </div>
+  );
+}

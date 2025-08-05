@@ -1,29 +1,29 @@
 
 "use client";
 
-import { useState, useRef, useEffect, Fragment, createRef, useMemo, memo } from "react";
+import { useState, useRef, useEffect, Fragment, createRef, Suspense, memo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, X, Loader2, Crown, Upload, Flag, Megaphone, Music, UserPlus, Wand2, Trash2, MicOff, Shield, UserX, Axe, Play, Pause } from "lucide-react";
+import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Maximize, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, Flag, Megaphone, Music, UserPlus, Wand2, Trash2, MicOff, Youtube, UserX, Axe, Play, Pause, Loader2 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Card, CardContent } from "@/components/ui/card";
 import { GiftPanel, type Gift as GiftType } from "@/components/room/GiftPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
+import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
+import YouTube from 'react-youtube';
 import { listenToMessages, sendMessage, type Message, listenToRoom, type Room, takeSeat, leaveSeat, updateSeatAsOwner, type SeatUser } from "@/services/roomService";
 import { auth } from "@/lib/firebase";
 
 
-type JumpAnimation = {
+export type JumpAnimation = {
     id: number;
     gift: GiftType;
     startX: number;
@@ -32,42 +32,24 @@ type JumpAnimation = {
     endY: number;
 };
 
-
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
 );
 
-// Extracted and memoized RoomControlButton to prevent re-rendering issues with toasts
-const RoomControlButton = memo(({ control }: { control: { name: string; icon: React.ElementType, action: () => void }; }) => {
-    return (
-        <div className="flex flex-col items-center gap-2 text-center">
-            <Button
-                size="icon"
-                variant="ghost"
-                className="w-14 h-14 bg-black/30 rounded-2xl"
-                onClick={control.action}
-            >
-                <control.icon className="w-7 h-7 text-white/80" />
-            </Button>
-            <Label className="text-xs">{control.name}</Label>
-        </div>
-    );
-});
-RoomControlButton.displayName = 'RoomControlButton';
 
-
-export default function AudioRoomPage() {
+function VideoRoomPageComponent() {
     const router = useRouter();
     const params = useParams();
     const roomId = params.id as string;
-    
+
+    const { toast } = useToast();
     const [room, setRoom] = useState<Room | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
-    const [seats, setSeats] = useState<any[]>([]);
     const [newMessage, setNewMessage] = useState("");
-    const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
+    const [seats, setSeats] = useState<any[]>([]);
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
     const [isControlsPanelOpen, setIsControlsPanelOpen] = useState(false);
+    const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
     const [animatedGift, setAnimatedGift] = useState<GiftType | null>(null);
     const [animatedVideoGift, setAnimatedVideoGift] = useState<string | null>(null);
     const [animatedWalkingGift, setAnimatedWalkingGift] = useState<string | null>(null);
@@ -75,22 +57,18 @@ export default function AudioRoomPage() {
     const [isPersonalMicMuted, setIsPersonalMicMuted] = useState(true);
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
     const [coins, setCoins] = useState(0);
-
-    const [currentUser, setCurrentUser] = useState<SeatUser | null>(null);
-    const currentUserIsOwner = room?.ownerId === currentUser?.id;
-
-    // Audio Player State
-    const audioRef = useRef<HTMLAudioElement>(null);
-    const [audioSrc, setAudioSrc] = useState<string | null>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
+    
+    const playerRef = useRef<any>(null);
+    const [isPlaying, setIsPlaying] = useState(true);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const { toast } = useToast();
     const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
     const sendButtonRef = useRef<HTMLButtonElement>(null);
     const lastMessageCount = useRef(messages.length);
+
+    const [currentUser, setCurrentUser] = useState<SeatUser | null>(null);
+    const currentUserIsOwner = room?.ownerId === currentUser?.id;
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
@@ -124,25 +102,87 @@ export default function AudioRoomPage() {
         };
     }, [roomId]);
 
+
+     const videoRoomControls = [
+        { name: "Gathering", icon: Flag, action: async () => {
+            if (!roomId) return;
+            toast({ title: "Gathering Started in Video Room!", description: "Special room effects are now active." });
+            await sendMessage(roomId, { type: 'system', text: 'A gathering has been started by the owner!' });
+            setIsControlsPanelOpen(false);
+        }},
+        { name: "Broadcast", icon: Megaphone, action: async () => {
+            if (!roomId) return;
+            toast({ title: "Video Room Broadcast Sent!", description: "Your message has been sent to all users." });
+            await sendMessage(roomId, { type: 'system', text: 'Broadcast: Welcome to the video room! Enjoy your stay.' });
+            setIsControlsPanelOpen(false);
+        }},
+        { name: "Music", icon: Music, action: () => {
+             toast({ title: "Music Playing", description: "Background music has started for the video room." });
+             setIsControlsPanelOpen(false);
+        }},
+        { name: "Invite", icon: UserPlus, action: () => {
+             toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." });
+             navigator.clipboard.writeText(window.location.href);
+             setIsControlsPanelOpen(false);
+        }},
+        { name: "Effect", icon: Wand2, action: () => {
+            setAreEffectsEnabled(prev => {
+                const newState = !prev;
+                toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` });
+                return newState;
+            });
+            setIsControlsPanelOpen(false);
+        }},
+        { name: "Clean", icon: Trash2, action: () => {
+            setMessages(prev => prev.filter(m => m.type !== 'text'));
+            toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
+             setIsControlsPanelOpen(false);
+        }},
+        { name: "Mute All", icon: MicOff, ownerOnly: true, action: async () => {
+            if (!roomId) return;
+            const areAllMuted = seats.every(seat => !seat.user || seat.user.isMuted);
+            for (const seat of seats) {
+                if (seat.user) {
+                    const updatedUser = { ...seat.user, isMuted: !areAllMuted };
+                    await updateSeatAsOwner(roomId, seat.id, { user: updatedUser });
+                }
+            }
+            toast({ title: areAllMuted ? "All Unmuted" : "All Muted", description: `All users have been ${areAllMuted ? 'unmuted' : 'muted'}.`});
+            setIsControlsPanelOpen(false);
+        }},
+        { name: "Change Video", icon: Youtube, action: () => router.push('/video/add') },
+    ];
     
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
         if (!chatContainer) return;
 
         const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 100;
-
+        
         if (messages.length > lastMessageCount.current && isScrolledToBottom) {
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
         lastMessageCount.current = messages.length;
     }, [messages]);
+
+    useEffect(() => {
+        const player = playerRef.current;
+        if (player && typeof player.playVideo === 'function') {
+            if (isPlaying) {
+                player.playVideo();
+            } else {
+                player.pauseVideo();
+            }
+        }
+    }, [isPlaying, playerRef]);
+
     
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
         if (newMessage.trim() && roomId && currentUser) {
             const messageToSend = newMessage;
-            setNewMessage(""); 
+            setNewMessage(""); // Clear input immediately for better UX
             inputRef.current?.blur();
             
             const result = await sendMessage(roomId, {
@@ -159,7 +199,7 @@ export default function AudioRoomPage() {
                     title: "Failed to send message",
                     description: result.error,
                 });
-                setNewMessage(messageToSend);
+                setNewMessage(messageToSend); // Restore message on failure
             }
         }
     };
@@ -184,7 +224,7 @@ export default function AudioRoomPage() {
             setAnimatedVideoGift(gift.videoUrl);
             setTimeout(() => {
                 setAnimatedVideoGift(null);
-            }, 5000); 
+            }, 5000);
         } else if (gift.animation === 'jump-to-seat') {
             const startRect = sendButtonRef.current?.getBoundingClientRect();
             if (!startRect) return;
@@ -253,8 +293,8 @@ export default function AudioRoomPage() {
             description: `You have started playing ${gameName}.`,
         });
     };
-    
-    const handleAnimateGift = (gift: GiftType) => {
+
+     const handleAnimateGift = (gift: GiftType) => {
         setAnimatedGift(gift);
         setTimeout(() => {
             setAnimatedGift(null);
@@ -265,107 +305,23 @@ export default function AudioRoomPage() {
         setJumpAnimations(prev => prev.filter(anim => anim.id !== id));
     };
 
-     const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (!roomId || !currentUser) return;
-        const file = event.target.files?.[0];
-        if (file) {
-            const trackUrl = URL.createObjectURL(file);
-            setAudioSrc(trackUrl);
-            setIsPlaying(true); // Auto-play on select
-            toast({
-                title: "Track Selected!",
-                description: `"${file.name}" is now playing.`,
-            });
-            await sendMessage(roomId, {
-                authorId: currentUser.id,
-                authorName: currentUser.name,
-                authorAvatar: currentUser.avatar,
-                type: 'system',
-                text: `Owner selected "${file.name}" to play.`,
-            });
-            setIsControlsPanelOpen(false);
-        }
-    };
-    
-     useEffect(() => {
-        if (!audioRef.current) return;
-        if (isPlaying && audioSrc) {
-            audioRef.current.play().catch(e => console.error("Audio play failed:", e));
-        } else {
-            audioRef.current.pause();
-        }
-    }, [isPlaying, audioSrc]);
-
     const handleTogglePersonalMic = () => {
         setIsPersonalMicMuted(prev => !prev);
     };
 
-    const roomControls = useMemo(() => [
-        { name: "Gathering", icon: Flag, action: async () => {
-            if (!roomId) return;
-            toast({ title: "Gathering Started!", description: "Special room effects are now active." });
-            await sendMessage(roomId, { type: 'system', text: 'A gathering has been started by the owner!' });
-            setIsControlsPanelOpen(false);
-        }},
-        { name: "Broadcast", icon: Megaphone, action: async () => {
-            if (!roomId) return;
-            toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
-            await sendMessage(roomId, { type: 'system', text: 'Broadcast: Welcome to the room everyone! Enjoy your stay.' });
-            setIsControlsPanelOpen(false);
-        }},
-        { name: "Play Track", icon: Play, action: () => {
-            if (audioSrc) {
-                setIsPlaying(true);
-                toast({ title: "Music Resumed" });
-            } else {
-                toast({ title: "No Track", description: "Please upload a track first.", variant: "destructive" });
-            }
-            setIsControlsPanelOpen(false);
-        }},
-        { name: "Pause Track", icon: Pause, action: () => {
-            if (audioSrc) {
-                setIsPlaying(false);
-                toast({ title: "Music Paused" });
-            }
-             setIsControlsPanelOpen(false);
-        }},
-        { name: "Upload", icon: Upload, action: () => fileInputRef.current?.click() },
-        { name: "Invite", icon: UserPlus, action: () => {
-             toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." });
-             navigator.clipboard.writeText(window.location.href);
-             setIsControlsPanelOpen(false);
-        }},
-        { name: "Effect", icon: Wand2, action: () => {
-            setAreEffectsEnabled(prev => {
-                const newState = !prev;
-                toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` });
-                return newState;
-            });
-            setIsControlsPanelOpen(false);
-        }},
-        { name: "Clean", icon: Trash2, action: () => {
-            setMessages(prev => prev.filter(m => m.type !== 'text'));
-            toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
-             setIsControlsPanelOpen(false);
-        }},
-    ], [toast, audioSrc, setAreEffectsEnabled, roomId]);
-
-
     const handleSeatClick = async (seat: any) => {
         if (!currentUser || !roomId) return;
 
-        // If user is already on a seat, they leave it first
         const userSeat = seats.find(s => s.user?.id === currentUser.id);
         if (userSeat) {
             await leaveSeat(roomId, userSeat.id);
         }
 
-        // If the clicked seat is not the one they just left, they take the new seat
         if (userSeat?.id !== seat.id && !seat.user && !seat.isLocked) {
             await takeSeat(roomId, seat.id, currentUser);
         }
     };
-    
+
     const handleSeatAction = async (action: 'mute' | 'kick' | 'lock', seatId: number) => {
         if (!roomId) return;
 
@@ -376,7 +332,7 @@ export default function AudioRoomPage() {
             const isMuted = !targetSeat.user.isMuted;
             const updatedUser = { ...targetSeat.user, isMuted };
             await updateSeatAsOwner(roomId, seatId, { user: updatedUser });
-            toast({ title: `User ${targetSeat.user.name} ${isMuted ? 'muted' : 'unmuted'}.`});
+            toast({ title: `User ${targetSeat.user.name} ${isMuted ? 'unmuted' : 'muted'}.`});
         } else if (action === 'kick' && targetSeat.user) {
             await updateSeatAsOwner(roomId, seatId, { user: null });
             toast({ title: `User ${targetSeat.user.name} has been kicked from the seat.`});
@@ -386,10 +342,9 @@ export default function AudioRoomPage() {
             toast({ title: `Seat ${targetSeat.id} has been ${isLocked ? 'unlocked' : 'locked'}.`});
         }
     };
-
+    
     const specialFrames: {[key: string]: {img: string}} = {
-        'master': { img: 'https://i.imgur.com/DADsWdw.gif' },
-        'dragon-fury': { img: 'https://i.imgur.com/DADsWdw.gif' },
+        'crimson-danger': { img: 'https://i.imgur.com/DADsWdw.gif' },
     }
 
     const frameColors: {[key: string]: string} = {
@@ -403,14 +358,6 @@ export default function AudioRoomPage() {
         teal: 'border-teal-400 animate-glow-teal',
         orange: 'border-orange-500 animate-glow-orange',
         indigo: 'border-indigo-500 animate-glow-indigo',
-        lime: 'border-lime-400 animate-glow-lime',
-        rose: 'border-rose-400 animate-glow-rose',
-        emerald: 'border-emerald-400 animate-glow-emerald',
-        sky: 'border-sky-400 animate-glow-sky',
-        amber: 'border-amber-400 animate-glow-amber',
-        master: 'border-purple-400 animate-glow-purple',
-        platinum: 'border-cyan-300 animate-glow-cyan',
-        'dragon-fury': 'border-red-500 animate-glow-red',
     }
     
     const frameBorderColors: {[key: string]: string} = {
@@ -424,104 +371,43 @@ export default function AudioRoomPage() {
         teal: 'border-teal-400',
         orange: 'border-orange-500',
         indigo: 'border-indigo-500',
-        lime: 'border-lime-400',
-        rose: 'border-rose-400',
-        emerald: 'border-emerald-400',
-        sky: 'border-sky-400',
-        amber: 'border-amber-400',
     }
 
     const occupiedSeats = seats.filter(seat => seat.user);
 
-    const renderSeats = () => {
-        const rows = [];
-        for (let i = 0; i < 4; i++) {
-            const rowSeats = seats.slice(i * 4, i * 4 + 4);
-            rows.push(
-                <div key={`row-${i}`} className="grid grid-cols-4 gap-y-3 gap-x-3 justify-items-center">
-                    {rowSeats.map((seat, index) => {
-                        const seatIndex = i * 4 + index;
-                        if (!seat) return null;
-                        
-                        const isSeatActionable = currentUserIsOwner && seat.user;
-                        
-                        return (
-                            <Popover key={seat.id}>
-                                <PopoverTrigger asChild disabled={!isSeatActionable}>
-                                    <div 
-                                        ref={seatRefs.current[seatIndex]} 
-                                        className="flex flex-col items-center gap-1.5 w-[65px] text-center cursor-pointer"
-                                        onClick={() => handleSeatClick(seat)}
-                                    >
-                                        {seat.user ? (
-                                            <>
-                                                <div className="relative w-[65px] h-[65px] flex items-center justify-center">
-                                                    {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
-                                                        <div className="absolute inset-[-4px] pointer-events-none">
-                                                            <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
-                                                        </div>
-                                                    )}
-                                                    {areEffectsEnabled && seat.user.frame && !specialFrames[seat.user.frame] && (
-                                                        <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
-                                                    )}
-                                                    
-                                                    <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                        <AvatarImage src={seat.user.avatar} alt={seat.user.name} data-ai-hint="person portrait"/>
-                                                        <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                                    </Avatar>
-                                                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
-                                                        {seat.user.isMuted ? 
-                                                            <MicOff className="w-3 h-3 text-red-500" /> :
-                                                            <Mic className="w-3 h-3 text-green-400" />
-                                                        }
-                                                    </div>
-                                                </div>
-                                                <p className="text-xs truncate w-full">{seat.user.name}</p>
-                                            </>
-                                        ) : (
-                                            <div className="w-[65px] h-[65px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                                {seat.isLocked ? <Lock className="w-6 h-6 text-white/50" /> : <span className="text-xl font-bold text-white/50">{seat.id}</span>}
-                                            </div>
-                                        )}
-                                    </div>
-                                </PopoverTrigger>
-                                 <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
-                                    <div className="flex flex-col gap-1">
-                                        {seat.user && (
-                                            <>
-                                                <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
-                                                    {seat.user.isMuted ? <Mic /> : <MicOff />} {seat.user.isMuted ? 'Unmute' : 'Mute Mic'}
-                                                </Button>
-                                                 <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
-                                                <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
-                                                <Separator className="my-1" />
-                                            </>
-                                        )}
-                                        <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}>
-                                            <Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}
-                                        </Button>
-                                    </div>
-                                </PopoverContent>
-                            </Popover>
-                        )
-                    })}
-                </div>
-            );
+    const onPlayerReady = (event: any) => {
+        playerRef.current = event.target;
+        if (event.target && typeof event.target.playVideo === 'function') {
+           event.target.playVideo();
         }
-        return rows;
     };
 
+    const togglePlay = () => {
+        setIsPlaying(!isPlaying);
+    };
+
+    const youtubeOpts = {
+        height: '100%',
+        width: '100%',
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          rel: 0,
+          showinfo: 0,
+          modestbranding: 1,
+        },
+    };
+    
     if (!room || !currentUser) {
         return (
-            <div className="flex items-center justify-center h-screen bg-[#2E103F] text-white">
+            <div className="flex items-center justify-center h-screen bg-[#180828] text-white">
                 <Loader2 className="w-10 h-10 animate-spin" />
             </div>
         )
     }
 
     return (
-        <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
-             {audioSrc && <audio ref={audioRef} src={audioSrc} loop onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />}
+        <div className="flex flex-col h-screen bg-[#180828] text-white font-sans overflow-hidden">
              {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
              {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
@@ -546,79 +432,161 @@ export default function AudioRoomPage() {
                 />
             ))}
 
-            <header className="flex-shrink-0 flex items-center justify-between p-4">
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => router.back()}>
-                        <ArrowLeft />
-                    </Button>
-                    <div className="flex items-center gap-2">
-                         <Avatar className="h-10 w-10 border-2 border-yellow-400">
-                            <AvatarImage src={currentUser?.avatar} />
-                            <AvatarFallback>{room.ownerName?.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <p className="font-semibold">{room.name}</p>
-                            <p className="text-xs text-white/70">ID: {roomId.substring(0, 6)}</p>
+            {/* Video Player Section */}
+            <div className="relative w-full bg-black h-[45%] flex-shrink-0">
+                 <div className="absolute inset-0 bg-black flex items-center justify-center">
+                    {room.youtubeVideoId ? (
+                        <YouTube videoId={room.youtubeVideoId} opts={youtubeOpts} onReady={onPlayerReady} className="w-full h-full" />
+                    ) : (
+                        <p className="text-white/50">No video selected. Go to Add Video to start a room.</p>
+                    )}
+                </div>
+
+                {/* Video Controls Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                    {currentUserIsOwner && room.youtubeVideoId && (
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="w-16 h-16 rounded-full bg-black/30 text-white/70 hover:bg-black/50 hover:text-white"
+                            onClick={togglePlay}
+                        >
+                            {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8" />}
+                        </Button>
+                    )}
+                </div>
+
+                <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/50 to-transparent pointer-events-none">
+                    <div className="flex items-center justify-between">
+                         <div className="flex items-center gap-4 pointer-events-auto">
+                            <Button variant="ghost" size="icon" onClick={() => router.back()}>
+                                <ArrowLeft />
+                            </Button>
+                            
+                            <div className="flex items-center gap-2">
+                                 <Avatar className="h-10 w-10 border-2 border-yellow-400">
+                                    <AvatarImage src={currentUser.avatar} />
+                                    <AvatarFallback>{room.ownerName?.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <p className="font-semibold">{room.name}</p>
+                                    <p className="text-xs text-white/70">ID: {roomId.substring(0, 6)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2 pointer-events-auto">
+                             <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button variant="ghost" className="h-auto p-1 text-white/80 bg-black/20 rounded-full px-3">
+                                        <Users className="w-5 h-5 mr-1" />
+                                        <span className="font-bold">{occupiedSeats.length}</span>
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-48 p-2 bg-black/50 backdrop-blur-md border-white/20 text-white">
+                                    <ScrollArea className="h-48">
+                                        <div className="space-y-2">
+                                            {occupiedSeats.map((seat) => (
+                                                seat.user && <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
+                                                    <div className="relative w-9 h-9 flex items-center justify-center">
+                                                        {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
+                                                            <div className="absolute inset-[-3px] pointer-events-none">
+                                                                <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                                                            </div>
+                                                        )}
+                                                        {areEffectsEnabled && seat.user.frame && !specialFrames[seat.user.frame] && (
+                                                          <div className="absolute inset-[-1px] spinning-border animate-spin-colors rounded-full"></div>
+                                                        )}
+                                                        <Avatar className={cn("h-full w-full border-2", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                            <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                            <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
+                                                        </Avatar>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-semibold">{seat.user.name}</p>
+                                                        {areEffectsEnabled && seat.user.frame && frameBorderColors[seat.user.frame] && !specialFrames[seat.user.frame] && (
+                                                            <div className={cn("h-0.5 w-8 rounded-full", frameBorderColors[seat.user.frame])}></div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </ScrollArea>
+                                </PopoverContent>
+                            </Popover>
+                             <Button variant="ghost" size="icon" className="text-white/80 bg-black/20 rounded-full">
+                                <Maximize />
+                            </Button>
                         </div>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="ghost" className="h-auto p-1 text-white/80 bg-black/20 rounded-full px-3">
-                                <Users className="w-5 h-5 mr-1" />
-                                <span className="font-bold">{occupiedSeats.length}</span>
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-48 p-2 bg-black/50 backdrop-blur-md border-white/20 text-white">
-                            <ScrollArea className="h-48">
-                                <div className="space-y-2">
-                                    {occupiedSeats.map((seat) => (
-                                       seat.user && <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
-                                            <div className="relative w-9 h-9 flex items-center justify-center">
-                                                {areEffectsEnabled && (
-                                                    <>
-                                                        {seat.user.frame && specialFrames[seat.user.frame] && (
-                                                            <div className="absolute inset-[-3px] pointer-events-none">
-                                                                <Image src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
-                                                            </div>
-                                                        )}
-                                                        {seat.user.frame && !specialFrames[seat.user.frame] && (
-                                                            <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
-                                                        )}
-                                                    </>
-                                                )}
-                                                <Avatar className={cn("h-full w-full border-2 bg-background", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                    <AvatarImage src={seat.user.avatar} alt={seat.user.name} data-ai-hint="person portrait" />
-                                                    <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
-                                                </Avatar>
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-semibold">{seat.user.name}</p>
-                                                {areEffectsEnabled && seat.user.frame && frameBorderColors[seat.user.frame] && (
-                                                    <div className={cn("h-0.5 w-8 rounded-full", frameBorderColors[seat.user.frame])}></div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </ScrollArea>
-                        </PopoverContent>
-                    </Popover>
-                </div>
-            </header>
+            </div>
 
-            <main className="flex-1 flex flex-col pt-0 overflow-hidden gap-2">
-                 <div className="flex-shrink-0 space-y-4 px-4">
-                    {renderSeats()}
+            {/* Interactive Panel */}
+            <div className="flex-1 flex flex-col overflow-hidden bg-[#2E103F]">
+                 {/* Seats */}
+                <div className="w-full flex-shrink-0 py-2">
+                    <div className="grid grid-cols-8 gap-2 justify-items-center px-2">
+                        {seats.map((seat, index) => (
+                            <Popover key={seat.id}>
+                                <PopoverTrigger asChild disabled={!(currentUserIsOwner && seat.user)}>
+                                    <div 
+                                        ref={seatRefs.current[index]}
+                                        className="flex flex-col items-center gap-1 w-full text-center cursor-pointer"
+                                        onClick={() => handleSeatClick(seat)}
+                                    >
+                                        {seat.user ? (
+                                            <>
+                                                <div className="relative w-9 h-9 flex items-center justify-center">
+                                                    {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
+                                                        <div className="absolute inset-[-3px] pointer-events-none">
+                                                            <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                                                        </div>
+                                                    )}
+                                                    {areEffectsEnabled && seat.user.frame && !specialFrames[seat.user.frame] && (
+                                                      <div className={cn("absolute inset-[-1px] spinning-border animate-spin-colors rounded-full")}></div>
+                                                    )}
+                                                    <Avatar className={cn("w-full h-full border-2", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                        <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                        <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-0.5 z-10">
+                                                        {seat.user.isMuted ? 
+                                                            <MicOff className="w-2.5 h-2.5 text-red-500" /> :
+                                                            <Mic className="w-2.5 h-2.5 text-green-400" />
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <p className="text-[10px] truncate w-full">{seat.user.name}</p>
+                                            </>
+                                        ) : (
+                                            <div className="w-9 h-9 rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                                {seat.isLocked ? <Lock className="w-4 h-4 text-white/50"/> : <span className="text-sm font-bold text-white/50">{seat.id}</span>}
+                                            </div>
+                                        )}
+                                    </div>
+                                </PopoverTrigger>
+                                 <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
+                                    <div className="flex flex-col gap-1">
+                                        <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
+                                            {seat.user?.isMuted ? <Mic /> : <MicOff />} {seat.user?.isMuted ? 'Unmute' : 'Mute Mic'}
+                                        </Button>
+                                        <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}><Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}</Button>
+                                        <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
+                                        <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        ))}
+                    </div>
                 </div>
-
-                <div className="flex-1 mt-2 relative p-0">
+                
+                {/* Chat Panel */}
+                 <div className="flex-1 mt-2 relative p-0">
                     {isGiftPanelOpen ? (
-                        <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} roomSeats={seats} coins={coins} />
+                        <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} roomSeats={seats} giftContext="video" coins={coins} />
                     ) : (
                         <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-3 px-4 pr-2">
-                            {messages.length === 0 ? (
+                           {messages.length === 0 ? (
                                 <div className="flex items-center justify-center h-full text-muted-foreground">
                                     <p>Say hi and start the party!</p>
                                 </div>
@@ -658,11 +626,11 @@ export default function AudioRoomPage() {
                         </div>
                     )}
                  </div>
-            </main>
+            </div>
             
             <footer className="flex-shrink-0 bg-[#1F0A2E] border-t border-white/10 relative">
                 <form onSubmit={handleSendMessage} className="p-2">
-                     <div className="flex items-center justify-around gap-2">
+                    <div className="flex items-center justify-around gap-2">
                         <div className="flex-grow flex items-center gap-2 bg-black/30 rounded-full h-10 px-2">
                            <Avatar className="h-7 w-7">
                                <AvatarImage src={currentUser.avatar} />
@@ -682,7 +650,7 @@ export default function AudioRoomPage() {
                             </Button>
                         </div>
                         <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={handleTogglePersonalMic}>
-                           {isPersonalMicMuted ? <MicOff /> : <Mic />}
+                            {isPersonalMicMuted ? <MicOff /> : <Mic />}
                         </Button>
                          <Button type="button" size="icon" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0" onClick={() => setIsGamePanelOpen(true)}><Gamepad2 /></Button>
                          <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={() => setIsControlsPanelOpen(true)}>
@@ -697,7 +665,7 @@ export default function AudioRoomPage() {
                                 isGiftPanelOpen ? "bg-primary" : "bg-yellow-500 hover:bg-yellow-600"
                             )}
                             onClick={() => setIsGiftPanelOpen(!isGiftPanelOpen)}
-                         >
+                        >
                             <Gift />
                         </Button>
                     </div>
@@ -753,21 +721,39 @@ export default function AudioRoomPage() {
                         <SheetTitle className="text-2xl font-headline text-white">Room Controls</SheetTitle>
                     </SheetHeader>
                     <div className="py-4">
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleFileSelect}
-                            accept="audio/mp3,audio/wav,audio/ogg"
-                            className="hidden"
-                        />
                         <div className="grid grid-cols-4 gap-4">
-                           {roomControls.map((control) => (
-                                <RoomControlButton key={control.name} control={control} />
-                           ))}
+                           {videoRoomControls.map((control) => {
+                                if (control.ownerOnly && !currentUserIsOwner) return null;
+                                return (
+                                    <div key={control.name} className="flex flex-col items-center gap-2 text-center">
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            className="w-14 h-14 bg-black/30 rounded-2xl"
+                                            onClick={control.action}
+                                        >
+                                            <control.icon className="w-7 h-7 text-white/80" />
+                                        </Button>
+                                        <Label className="text-xs">{control.name}</Label>
+                                    </div>
+                                )
+                           })}
                         </div>
                     </div>
                 </SheetContent>
             </Sheet>
         </div>
+    );
+}
+
+export default function VideoRoomPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex items-center justify-center h-screen bg-[#180828] text-white">
+                <Loader2 className="w-10 h-10 animate-spin" />
+            </div>
+        }>
+            <VideoRoomPageComponent />
+        </Suspense>
     );
 }

@@ -9,13 +9,16 @@ import {
     onSnapshot,
     query,
     orderBy,
-    limit,
     DocumentData,
     FirestoreError,
     Unsubscribe,
     doc,
     getDoc,
+    updateDoc,
+    arrayUnion,
+    arrayRemove
 } from 'firebase/firestore';
+import { User } from 'firebase/auth';
 
 export interface Message {
     id?: string;
@@ -29,10 +32,25 @@ export interface Message {
     game?: string;
 }
 
+export interface SeatUser {
+    id: string;
+    name: string;
+    avatar: string;
+    isMuted: boolean;
+    frame?: string;
+}
+
+export interface Seat {
+    id: number;
+    user: SeatUser | null;
+    isLocked: boolean;
+}
+
 export interface Room {
+    id?: string;
     name: string;
     type: 'audio' | 'video';
-    seats: number;
+    seats: Seat[];
     ownerId: string;
     ownerName: string;
     isLive: boolean;
@@ -49,6 +67,7 @@ export const getRoomDetails = async (roomId: string): Promise<Room | null> => {
 
         if (roomDocSnap.exists()) {
             return {
+                id: roomDocSnap.id,
                 ...roomDocSnap.data()
             } as Room;
         }
@@ -61,7 +80,7 @@ export const getRoomDetails = async (roomId: string): Promise<Room | null> => {
 
 
 // Function to create a new room in Firestore
-export const createRoom = async (roomDetails: Omit<Room, 'createdAt' | 'isLive' | 'ownerId' | 'ownerName'>): Promise<{ success: boolean; roomId: string | null; error: string | null; }> => {
+export const createRoom = async (roomDetails: Omit<Room, 'createdAt' | 'isLive' | 'ownerId' | 'ownerName' | 'id'>): Promise<{ success: boolean; roomId: string | null; error: string | null; }> => {
     const user = auth.currentUser;
     if (!user) {
         return { success: false, roomId: null, error: "You must be logged in to create a room." };
@@ -69,8 +88,15 @@ export const createRoom = async (roomDetails: Omit<Room, 'createdAt' | 'isLive' 
 
     try {
         const roomsColRef = collection(db, 'rooms');
+        const initialSeats = Array.from({ length: roomDetails.seats.length }, (_, i) => ({
+            id: i + 1,
+            user: null,
+            isLocked: false,
+        }));
+
         const newRoomDoc = await addDoc(roomsColRef, {
             ...roomDetails,
+            seats: initialSeats,
             ownerId: user.uid,
             ownerName: user.displayName || user.email,
             isLive: true,
@@ -108,4 +134,93 @@ export const sendMessage = async (roomId: string, message: Message): Promise<{ s
 // Function to listen to real-time messages in a room
 export const listenToMessages = (roomId: string, callback: (messages: Message[]) => void): Unsubscribe => {
     const messagesColRef = collection(db, 'rooms', roomId, 'messages');
-    const q = query(messagesColR
+    const q = query(messagesColRef, orderBy('timestamp', 'asc'));
+
+    return onSnapshot(q, (querySnapshot) => {
+        const messages: Message[] = [];
+        querySnapshot.forEach((doc) => {
+            messages.push({ id: doc.id, ...doc.data() } as Message);
+        });
+        callback(messages);
+    }, (error) => {
+        console.error("Error listening to messages:", error);
+    });
+};
+
+// Function to listen to the entire room document for real-time updates (including seats)
+export const listenToRoom = (roomId: string, callback: (room: Room | null) => void): Unsubscribe => {
+    const roomDocRef = doc(db, 'rooms', roomId);
+    return onSnapshot(roomDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+            callback({ id: docSnap.id, ...docSnap.data() } as Room);
+        } else {
+            callback(null);
+        }
+    }, (error) => {
+        console.error("Error listening to room:", error);
+        callback(null);
+    });
+}
+
+// Function to take a seat
+export const takeSeat = async (roomId: string, seatId: number, user: SeatUser) => {
+    try {
+        const roomDocRef = doc(db, 'rooms', roomId);
+        const roomDoc = await getDoc(roomDocRef);
+        if (roomDoc.exists()) {
+            const roomData = roomDoc.data() as Room;
+            const seats = roomData.seats.map(seat => 
+                seat.id === seatId ? { ...seat, user: user } : seat
+            );
+            await updateDoc(roomDocRef, { seats });
+            return { success: true };
+        }
+        return { success: false, error: "Room not found." };
+    } catch (e) {
+        console.error("Error taking seat:", e);
+        return { success: false, error: (e as Error).message };
+    }
+};
+
+// Function to leave a seat
+export const leaveSeat = async (roomId: string, seatId: number) => {
+     try {
+        const roomDocRef = doc(db, 'rooms', roomId);
+        const roomDoc = await getDoc(roomDocRef);
+        if (roomDoc.exists()) {
+            const roomData = roomDoc.data() as Room;
+            const seats = roomData.seats.map(seat => 
+                seat.id === seatId ? { ...seat, user: null } : seat
+            );
+            await updateDoc(roomDocRef, { seats });
+            return { success: true };
+        }
+        return { success: false, error: "Room not found." };
+    } catch (e) {
+        console.error("Error leaving seat:", e);
+        return { success: false, error: (e as Error).message };
+    }
+};
+
+// Function for owner to manage seats (lock/unlock, mute/unmute, kick)
+export const updateSeatAsOwner = async (roomId: string, seatId: number, updates: Partial<Seat>) => {
+    try {
+        const roomDocRef = doc(db, 'rooms', roomId);
+        const roomDoc = await getDoc(roomDocRef);
+        if (roomDoc.exists()) {
+            const roomData = roomDoc.data() as Room;
+            const seats = roomData.seats.map(seat => {
+                if (seat.id === seatId) {
+                    return { ...seat, ...updates };
+                }
+                return seat;
+            });
+            await updateDoc(roomDocRef, { seats });
+            return { success: true };
+        }
+        return { success: false, error: "Room not found." };
+    } catch (e) {
+        console.error("Error updating seat:", e);
+        return { success: false, error: (e as Error).message };
+    }
+};
