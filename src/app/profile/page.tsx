@@ -25,52 +25,43 @@ import { listenToUserProfile, type UserProfile, followUser, unfollowUser, update
 import { Loader2 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
+import { User } from "firebase/auth";
 
 
 export default function ProfilePage() {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [tempName, setTempName] = useState("");
-    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
     const { toast } = useToast();
-
-    // For this demo, we'll use a static ID for the profile being viewed.
-    // In a real app, this would come from the URL, e.g., /profile/[userId]
-    const viewedUserId = "demo-user-id"; 
 
     useEffect(() => {
         const unsubscribeAuth = auth.onAuthStateChanged(user => {
+            setCurrentUser(user);
             if (user) {
-                setCurrentUserId(user.uid);
+                // If a user is logged in, listen to *their* profile
+                const unsubscribeProfile = listenToUserProfile(user.uid, (data) => {
+                    setProfile(data);
+                    if (data) {
+                        setTempName(data.name);
+                    }
+                    setIsLoading(false);
+                });
+                // Return the profile listener cleanup function
+                return () => unsubscribeProfile();
             } else {
                 // Handle user not logged in case
                 setIsLoading(false);
             }
         });
-        
-        if (!viewedUserId) {
-            setIsLoading(false);
-            return;
-        }
+        // Return the auth listener cleanup function
+        return () => unsubscribeAuth();
+    }, []);
 
-        const unsubscribeProfile = listenToUserProfile(viewedUserId, (data) => {
-            setProfile(data);
-            if(data) {
-                setTempName(data.name);
-            }
-            setIsLoading(false);
-        });
-
-        // Cleanup subscription on unmount
-        return () => {
-            unsubscribeAuth();
-            unsubscribeProfile();
-        };
-    }, [viewedUserId]);
 
     const handleFollow = async () => {
-        if (!currentUserId || !profile) return;
-        const result = await followUser(currentUserId, profile.id);
+        if (!currentUser || !profile || currentUser.uid === profile.id) return;
+        const result = await followUser(currentUser.uid, profile.id);
         if (result.success) {
             toast({ title: "Followed!", description: `You are now following ${profile.name}.` });
         } else {
@@ -79,8 +70,8 @@ export default function ProfilePage() {
     };
 
     const handleUnfollow = async () => {
-        if (!currentUserId || !profile) return;
-        const result = await unfollowUser(currentUserId, profile.id);
+        if (!currentUser || !profile || currentUser.uid === profile.id) return;
+        const result = await unfollowUser(currentUser.uid, profile.id);
         if (result.success) {
             toast({ title: "Unfollowed", description: `You are no longer following ${profile.name}.` });
         } else {
@@ -90,7 +81,7 @@ export default function ProfilePage() {
 
     const handleNameChange = async () => {
         if (profile && tempName !== profile.name) {
-            const result = await updateUserProfile(viewedUserId, { name: tempName });
+            const result = await updateUserProfile(profile.id, { name: tempName });
             if (result.success) {
                 toast({ title: "Name updated successfully!" });
             } else {
@@ -106,7 +97,7 @@ export default function ProfilePage() {
             // For now, we'll just simulate with a local URL.
             const newAvatarUrl = URL.createObjectURL(newAvatarFile);
 
-            const result = await updateUserProfile(viewedUserId, { avatar: newAvatarUrl });
+            const result = await updateUserProfile(profile.id, { avatar: newAvatarUrl });
             if(result.success) {
                 toast({ title: "Avatar updated!" });
             } else {
@@ -125,16 +116,20 @@ export default function ProfilePage() {
         )
     }
     
-    if (!profile) {
+    if (!profile || !currentUser) {
         return (
             <AppLayout>
                 <div className="text-center">
-                    <p>Could not load profile. Please try again.</p>
+                    <p>Could not load profile. Please log in and try again.</p>
+                     <Link href="/" passHref>
+                        <Button className="mt-4">Go to Login</Button>
+                    </Link>
                 </div>
             </AppLayout>
         )
     }
 
+    const isOwnProfile = currentUser.uid === profile.id;
 
     return (
         <AppLayout>
@@ -148,15 +143,18 @@ export default function ProfilePage() {
                         </Link>
                         <div className="flex flex-col items-center text-center text-white">
                              <Dialog>
-                                <DialogTrigger asChild>
-                                    <div className="relative cursor-pointer group">
-                                        <Avatar className="w-24 h-24 border-4 border-white">
+                                <DialogTrigger asChild disabled={!isOwnProfile}>
+                                    <div className={cn("relative group", isOwnProfile && "cursor-pointer")}>
+                                        <Avatar className={cn("w-24 h-24 border-4", profile.currentFrame ? 'border-transparent p-1' : 'border-white')}>
+                                            <div className={cn("absolute rounded-full", profile.currentFrame && "animate-spin-colors" , 'inset-[-4px]')}></div>
                                             <AvatarImage src={profile.avatar} alt={profile.name} data-ai-hint="person alphabet" />
                                             <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
                                         </Avatar>
-                                        <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                            <Camera className="h-8 w-8" />
-                                        </div>
+                                        {isOwnProfile && (
+                                            <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                                <Camera className="h-8 w-8" />
+                                            </div>
+                                        )}
                                     </div>
                                 </DialogTrigger>
                                 <DialogContent>
@@ -175,11 +173,11 @@ export default function ProfilePage() {
                             </Dialog>
                             
                              <Dialog onOpenChange={(open) => !open && setTempName(profile.name)}>
-                                <DialogTrigger asChild>
-                                    <div className="flex items-center gap-2 mt-4 cursor-pointer">
+                                <DialogTrigger asChild disabled={!isOwnProfile}>
+                                    <div className={cn("flex items-center gap-2 mt-4", isOwnProfile && "cursor-pointer")}>
                                         {profile.vipTier && <Crown className="w-5 h-5 text-yellow-400" />}
                                         <h1 className="text-2xl font-bold">{profile.name}</h1>
-                                        <Edit2 className="w-5 h-5" />
+                                        {isOwnProfile && <Edit2 className="w-5 h-5" />}
                                     </div>
                                 </DialogTrigger>
                                 <DialogContent>
@@ -214,7 +212,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="space-y-6">
-                    {currentUserId && currentUserId !== profile.id && (
+                    {!isOwnProfile && (
                          <div className="flex justify-center gap-4 -mt-2">
                             <Button variant="outline" size="sm" onClick={handleFollow}>
                                 <UserPlus className="mr-2" /> Follow this user

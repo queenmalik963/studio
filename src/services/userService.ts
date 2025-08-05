@@ -29,7 +29,9 @@ export const updateUserProfile = async (userId: string, data: Partial<UserProfil
                 coins: increment(data.coins)
             });
         } else {
-            await updateDoc(userDocRef, data);
+            // Ensure we don't overwrite the creation timestamp
+            const { ...updateData } = data;
+            await updateDoc(userDocRef, updateData);
         }
         return { success: true };
     } catch (e) {
