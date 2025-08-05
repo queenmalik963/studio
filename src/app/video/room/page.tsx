@@ -35,7 +35,16 @@ type Message = {
 
 const initialMessages: Message[] = [];
 
-export const videoRoomSeats: any[] = [];
+export const videoRoomSeats: any[] = [
+    { id: 1, isOccupied: true, user: { name: 'RaverX', avatar: 'https://placehold.co/40x40.png', isMuted: false, frame: 'gold' }, isLocked: false },
+    { id: 2, isOccupied: true, user: { name: 'Echostage', avatar: 'https://placehold.co/40x40.png', isMuted: true, frame: 'purple' }, isLocked: false },
+    { id: 3, isOccupied: false, user: null, isLocked: false },
+    { id: 4, isOccupied: true, user: { name: 'Hardwell', avatar: 'https://placehold.co/40x40.png', isMuted: false, frame: 'crimson-danger' }, isLocked: false },
+    { id: 5, isOccupied: false, user: null, isLocked: true },
+    { id: 6, isOccupied: false, user: null, isLocked: false },
+    { id: 7, isOccupied: true, user: { name: 'Tiesto', avatar: 'https://placehold.co/40x40.png', isMuted: false, frame: 'blue' }, isLocked: false },
+    { id: 8, isOccupied: false, user: null, isLocked: false },
+];
 
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
