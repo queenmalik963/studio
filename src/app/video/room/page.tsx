@@ -69,6 +69,7 @@ function VideoRoomPageComponent() {
     const [animatedWalkingGift, setAnimatedWalkingGift] = useState<string | null>(null);
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
     const [isPersonalMicMuted, setIsPersonalMicMuted] = useState(true);
+    const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
     const [coins, setCoins] = useState(0);
     
     const playerRef = useRef<any>(null);
@@ -104,7 +105,11 @@ function VideoRoomPageComponent() {
              setIsControlsPanelOpen(false);
         }},
         { name: "Effect", icon: Wand2, action: () => {
-            toast({ title: "Effects On!", description: "Room entry effects are now active." });
+            setAreEffectsEnabled(prev => {
+                const newState = !prev;
+                toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` });
+                return newState;
+            });
             setIsControlsPanelOpen(false);
         }},
         { name: "Clean", icon: Trash2, action: () => {
@@ -448,20 +453,22 @@ function VideoRoomPageComponent() {
                                             {occupiedSeats.map((seat) => (
                                                 seat.user && <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
                                                     <div className="relative w-9 h-9 flex items-center justify-center">
-                                                        {seat.user.frame && specialFrames[seat.user.frame] && (
+                                                        {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
                                                             <div className="absolute inset-[-3px] pointer-events-none">
                                                                 <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                             </div>
                                                         )}
-                                                        <div className={cn("absolute inset-[-1px] spinning-border animate-spin-colors rounded-full", !specialFrames[seat.user.frame] && seat.user.frame ? '' : 'hidden' )}></div>
-                                                        <Avatar className={cn("h-full w-full border-2", seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                        {areEffectsEnabled && seat.user.frame && !specialFrames[seat.user.frame] && (
+                                                          <div className="absolute inset-[-1px] spinning-border animate-spin-colors rounded-full"></div>
+                                                        )}
+                                                        <Avatar className={cn("h-full w-full border-2", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                             <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
                                                         </Avatar>
                                                     </div>
                                                     <div>
                                                         <p className="text-sm font-semibold">{seat.user.name}</p>
-                                                        {seat.user.frame && frameBorderColors[seat.user.frame] && !specialFrames[seat.user.frame] && (
+                                                        {areEffectsEnabled && seat.user.frame && frameBorderColors[seat.user.frame] && !specialFrames[seat.user.frame] && (
                                                             <div className={cn("h-0.5 w-8 rounded-full", frameBorderColors[seat.user.frame])}></div>
                                                         )}
                                                     </div>
@@ -491,13 +498,15 @@ function VideoRoomPageComponent() {
                                         {seat.isOccupied && seat.user ? (
                                             <>
                                                 <div className="relative w-9 h-9 flex items-center justify-center">
-                                                    {seat.user.frame && specialFrames[seat.user.frame] && (
+                                                    {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
                                                         <div className="absolute inset-[-3px] pointer-events-none">
                                                             <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                         </div>
                                                     )}
-                                                    <div className={cn("absolute inset-[-1px] spinning-border animate-spin-colors rounded-full", !specialFrames[seat.user.frame] && seat.user.frame ? '' : 'hidden' )}></div>
-                                                    <Avatar className={cn("w-full h-full border-2", seat.user.frame && !specialFrames[seat.user.frame] && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                    {areEffectsEnabled && seat.user.frame && !specialFrames[seat.user.frame] && (
+                                                      <div className={cn("absolute inset-[-1px] spinning-border animate-spin-colors rounded-full")}></div>
+                                                    )}
+                                                    <Avatar className={cn("w-full h-full border-2", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
                                                         <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                         <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                                     </Avatar>
