@@ -34,6 +34,12 @@ export default function AddAudioPage() {
 
     const handleCreateRoom = () => {
         setOpen(false);
+        // Here you would typically pass room settings to the next page
+        // For now, it just navigates to a generic room
+        toast({
+            title: "Room Created!",
+            description: "Your new audio room is ready.",
+        });
         router.push('/audio/room');
     }
 
@@ -45,12 +51,10 @@ export default function AddAudioPage() {
         const file = event.target.files?.[0];
         if (file) {
             toast({
-                title: "Track Selected!",
-                description: `"${file.name}" is ready. Creating a new room...`,
+                title: "Track Ready!",
+                description: `"${file.name}" is selected. You can now create a room and play it from the controls.`,
             });
-            const trackUrl = URL.createObjectURL(file);
-            localStorage.setItem('newlySelectedTrack', trackUrl);
-            router.push('/audio/room');
+            // In a real app, you might upload this file or store its reference
         }
     };
 
@@ -147,5 +151,3 @@ export default function AddAudioPage() {
         </AppLayout>
     );
 }
-
-    

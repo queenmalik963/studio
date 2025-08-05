@@ -79,15 +79,6 @@ export default function AudioRoomPage() {
 
     const owner = { name: "op_2", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true };
     const currentUserIsOwner = true; // For simulation
-
-    useEffect(() => {
-        const newTrackUrl = localStorage.getItem('newlySelectedTrack');
-        if (newTrackUrl) {
-            setAudioSrc(newTrackUrl);
-            setIsPlaying(true);
-            localStorage.removeItem('newlySelectedTrack'); // Clean up after use
-        }
-    }, []);
     
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
@@ -815,7 +806,3 @@ export default function AudioRoomPage() {
         </div>
     );
 }
-
-    
-
-    
