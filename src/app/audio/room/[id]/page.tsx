@@ -19,7 +19,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
-import { listenToMessages, sendMessage, type Message, listenToRoom, type Room, takeSeat, leaveSeat, updateSeatAsOwner, type SeatUser, updateSeatUser } from "@/services/roomService";
+import { listenToMessages, sendMessage, type Message, listenToRoom, type Room, takeSeat, leaveSeat, updateSeatAsOwner, type SeatUser, updateSeatUser, updatePlaybackState } from "@/services/roomService";
 import { auth } from "@/lib/firebase";
 
 
@@ -81,8 +81,6 @@ export default function AudioRoomPage() {
 
     // Audio Player State
     const audioRef = useRef<HTMLAudioElement>(null);
-    const [audioSrc, setAudioSrc] = useState<string | null>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -111,8 +109,23 @@ export default function AudioRoomPage() {
     useEffect(() => {
         if (!roomId) return;
         const unsubRoom = listenToRoom(roomId, (roomData) => {
-            setRoom(roomData);
-            setSeats(roomData?.seats || []);
+            if (roomData) {
+                setRoom(roomData);
+                setSeats(roomData.seats || []);
+
+                // Sync audio player for all users
+                if (audioRef.current && !currentUserIsOwner) {
+                    if (roomData.currentTrack && audioRef.current.src !== roomData.currentTrack) {
+                        audioRef.current.src = roomData.currentTrack;
+                        audioRef.current.currentTime = roomData.playbackTime || 0;
+                    }
+                    if (roomData.isPlaying && audioRef.current.paused) {
+                        audioRef.current.play().catch(e => console.error("Audio sync play failed:", e));
+                    } else if (!roomData.isPlaying && !audioRef.current.paused) {
+                        audioRef.current.pause();
+                    }
+                }
+            }
         });
         const unsubMessages = listenToMessages(roomId, (newMessages) => {
             setMessages(newMessages);
@@ -122,7 +135,7 @@ export default function AudioRoomPage() {
             unsubRoom();
             unsubMessages();
         };
-    }, [roomId]);
+    }, [roomId, currentUserIsOwner]);
 
     
     useEffect(() => {
@@ -266,16 +279,26 @@ export default function AudioRoomPage() {
     };
 
      const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (!roomId || !currentUser) return;
+        if (!roomId || !currentUser || !currentUserIsOwner) return;
         const file = event.target.files?.[0];
         if (file) {
             const trackUrl = URL.createObjectURL(file);
-            setAudioSrc(trackUrl);
-            setIsPlaying(true); // Auto-play on select
+            if (audioRef.current) {
+                audioRef.current.src = trackUrl;
+                audioRef.current.play();
+            }
+
+            await updatePlaybackState(roomId, {
+                currentTrack: trackUrl,
+                isPlaying: true,
+                playbackTime: 0
+            });
+            
             toast({
                 title: "Track Selected!",
-                description: `"${file.name}" is now playing.`,
+                description: `"${file.name}" is now playing for everyone.`,
             });
+            
             await sendMessage(roomId, {
                 authorId: currentUser.id,
                 authorName: currentUser.name,
@@ -287,14 +310,12 @@ export default function AudioRoomPage() {
         }
     };
     
-     useEffect(() => {
-        if (!audioRef.current) return;
-        if (isPlaying && audioSrc) {
-            audioRef.current.play().catch(e => console.error("Audio play failed:", e));
-        } else {
-            audioRef.current.pause();
-        }
-    }, [isPlaying, audioSrc]);
+    const togglePlay = async () => {
+        if (!roomId || !currentUserIsOwner || !room?.currentTrack) return;
+        const newIsPlaying = !room.isPlaying;
+        await updatePlaybackState(roomId, { isPlaying: newIsPlaying });
+        toast({ title: newIsPlaying ? "Music Resumed" : "Music Paused" });
+    };
 
     const handleTogglePersonalMic = async () => {
         if (!roomId || !currentUserSeat) return;
@@ -316,18 +337,16 @@ export default function AudioRoomPage() {
             setIsControlsPanelOpen(false);
         }},
         { name: "Play Track", icon: Play, action: () => {
-            if (audioSrc) {
-                setIsPlaying(true);
-                toast({ title: "Music Resumed" });
+            if (room?.currentTrack) {
+                togglePlay();
             } else {
                 toast({ title: "No Track", description: "Please upload a track first.", variant: "destructive" });
             }
             setIsControlsPanelOpen(false);
         }},
         { name: "Pause Track", icon: Pause, action: () => {
-            if (audioSrc) {
-                setIsPlaying(false);
-                toast({ title: "Music Paused" });
+            if (room?.currentTrack) {
+                togglePlay();
             }
              setIsControlsPanelOpen(false);
         }},
@@ -350,7 +369,7 @@ export default function AudioRoomPage() {
             toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
              setIsControlsPanelOpen(false);
         }},
-    ], [toast, audioSrc, setAreEffectsEnabled, roomId]);
+    ], [toast, setAreEffectsEnabled, roomId, room, togglePlay]);
 
 
     const handleSeatClick = async (seat: any) => {
@@ -522,7 +541,7 @@ export default function AudioRoomPage() {
 
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
-             {audioSrc && <audio ref={audioRef} src={audioSrc} loop onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />}
+             <audio ref={audioRef} loop />
              {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
              {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">

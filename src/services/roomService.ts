@@ -58,6 +58,10 @@ export interface Room {
     createdAt: any; // serverTimestamp
     youtubeVideoId?: string;
     thumbnail?: string;
+    // Audio Playback State
+    currentTrack?: string | null;
+    isPlaying?: boolean;
+    playbackTime?: number;
 }
 
 // Function to get details for a single room
@@ -103,6 +107,10 @@ export const createRoom = async (roomDetails: Partial<Omit<Room, 'createdAt' | '
             ownerAvatar: user.photoURL,
             isLive: true,
             createdAt: serverTimestamp(),
+            // Initialize playback state for audio rooms
+            currentTrack: null,
+            isPlaying: false,
+            playbackTime: 0,
         });
         return { success: true, roomId: newRoomDoc.id, error: null };
     } catch (e) {
@@ -149,7 +157,7 @@ export const listenToMessages = (roomId: string, callback: (messages: Message[])
     });
 };
 
-// Function to listen to the entire room document for real-time updates (including seats)
+// Function to listen to the entire room document for real-time updates (including seats and playback)
 export const listenToRoom = (roomId: string, callback: (room: Room | null) => void): Unsubscribe => {
     const roomDocRef = doc(db, 'rooms', roomId);
     return onSnapshot(roomDocRef, (docSnap) => {
@@ -247,6 +255,18 @@ export const updateSeatAsOwner = async (roomId: string, seatId: number, updates:
         return { success: false, error: "Room not found." };
     } catch (e) {
         console.error("Error updating seat:", e);
+        return { success: false, error: (e as Error).message };
+    }
+};
+
+// Function to update the audio playback state for a room
+export const updatePlaybackState = async (roomId: string, state: Partial<Pick<Room, 'currentTrack' | 'isPlaying' | 'playbackTime'>>) => {
+    try {
+        const roomDocRef = doc(db, 'rooms', roomId);
+        await updateDoc(roomDocRef, state);
+        return { success: true };
+    } catch (e) {
+        console.error("Error updating playback state:", e);
         return { success: false, error: (e as Error).message };
     }
 };
