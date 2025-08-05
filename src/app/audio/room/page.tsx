@@ -61,24 +61,6 @@ const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 
-// Extracted RoomControlButton to prevent re-rendering issues with toasts
-const RoomControlButton = ({ control, onClick }: { control: { name: string; icon: React.ElementType, action: (name: string) => void }; onClick: (name: string) => void }) => {
-    return (
-        <div className="flex flex-col items-center gap-2 text-center">
-            <Button
-                size="icon"
-                variant="ghost"
-                className="w-14 h-14 bg-black/30 rounded-2xl"
-                onClick={() => onClick(control.name)}
-            >
-                <control.icon className="w-7 h-7 text-white/80" />
-            </Button>
-            <Label className="text-xs">{control.name}</Label>
-        </div>
-    );
-};
-
-
 export default function AudioRoomPage() {
     const router = useRouter();
     const [messages, setMessages] = useState(initialMessages);
@@ -269,13 +251,6 @@ export default function AudioRoomPage() {
     const handleTogglePersonalMic = () => {
         setIsPersonalMicMuted(prev => !prev);
     };
-    
-    const handleControlAction = (controlName: string) => {
-        const control = roomControls.find(c => c.name === controlName);
-        if (control) {
-            control.action(controlName);
-        }
-    };
 
     const roomControls = [
         { name: "Gathering", icon: Flag, action: () => {
@@ -324,6 +299,24 @@ export default function AudioRoomPage() {
              setIsControlsPanelOpen(false);
         }},
     ];
+    
+    // Extracted RoomControlButton to prevent re-rendering issues with toasts
+    const RoomControlButton = ({ control, onClick }: { control: { name: string; icon: React.ElementType, action: () => void }; onClick: (name: string) => void }) => {
+        return (
+            <div className="flex flex-col items-center gap-2 text-center">
+                <Button
+                    size="icon"
+                    variant="ghost"
+                    className="w-14 h-14 bg-black/30 rounded-2xl"
+                    onClick={control.action}
+                >
+                    <control.icon className="w-7 h-7 text-white/80" />
+                </Button>
+                <Label className="text-xs">{control.name}</Label>
+            </div>
+        );
+    };
+
 
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
         const targetSeat = seats.find(seat => seat.id === seatId);
@@ -819,7 +812,7 @@ export default function AudioRoomPage() {
                         />
                         <div className="grid grid-cols-4 gap-4">
                            {roomControls.map((control) => (
-                                <RoomControlButton key={control.name} control={control} onClick={handleControlAction} />
+                                <RoomControlButton key={control.name} control={control} onClick={() => {}} />
                            ))}
                         </div>
                     </div>
@@ -828,7 +821,5 @@ export default function AudioRoomPage() {
         </div>
     );
 }
-
-    
 
     
