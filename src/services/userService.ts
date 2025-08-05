@@ -103,7 +103,7 @@ export const listenToUserProfile = (userId: string, callback: (profile: UserProf
                 bio: 'This is a demo profile for a user that does not exist in the database yet.',
                 avatar: 'https://placehold.co/100x100.png',
                 coins: 100,
-                diamonds: 50,
+                diamonds: 5000,
                 followers: 120,
                 following: 75,
                 idLevel: 5,
@@ -196,6 +196,37 @@ export const unfollowUser = async (currentUserId: string, targetUserId: string):
         return { success: true };
     } catch (e) {
         console.error("Unfollow user transaction failed: ", e);
+        return { success: false, error: (e as Error).message };
+    }
+};
+
+// Function to exchange diamonds for coins (1 Diamond = 2 Coins)
+export const exchangeDiamondsForCoins = async (userId: string, diamondsToExchange: number): Promise<{ success: boolean; error?: string }> => {
+    const userDocRef = doc(db, 'users', userId);
+    const exchangeRate = 2; // 1 diamond = 2 coins
+    const coinsToReceive = diamondsToExchange * exchangeRate;
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const userDoc = await transaction.get(userDocRef);
+            if (!userDoc.exists()) {
+                throw new Error("User profile not found.");
+            }
+            
+            const currentDiamonds = userDoc.data().diamonds || 0;
+            if (currentDiamonds < diamondsToExchange) {
+                throw new Error("Insufficient diamonds to exchange.");
+            }
+
+            // Perform the atomic update
+            transaction.update(userDocRef, {
+                diamonds: increment(-diamondsToExchange),
+                coins: increment(coinsToReceive),
+            });
+        });
+        return { success: true };
+    } catch (e) {
+        console.error("Exchange transaction failed: ", e);
         return { success: false, error: (e as Error).message };
     }
 };

@@ -1,17 +1,19 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Gem, Landmark, Repeat } from "lucide-react";
+import { ArrowLeft, Gem, Landmark, Repeat, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { auth } from "@/lib/firebase";
+import { listenToUserProfile, exchangeDiamondsForCoins, type UserProfile } from "@/services/userService";
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -46,6 +48,20 @@ export default function WithdrawPage() {
     const router = useRouter();
     const { toast } = useToast();
     const [exchangeAmount, setExchangeAmount] = useState<number | string>("");
+    const [profile, setProfile] = useState<UserProfile | null>(null);
+    const [isExchanging, setIsExchanging] = useState(false);
+
+    useEffect(() => {
+        const user = auth.currentUser;
+        if (user) {
+            const unsubscribe = listenToUserProfile(user.uid, (profileData) => {
+                setProfile(profileData);
+            });
+            return () => unsubscribe();
+        } else {
+            router.push('/'); // Redirect if not logged in
+        }
+    }, [router]);
 
     const handleExchangeAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -57,6 +73,56 @@ export default function WithdrawPage() {
             title: "Request Submitted",
             description: `Your withdrawal request via ${method} has been submitted.`,
         });
+    }
+
+    const handleExchange = async () => {
+        const user = auth.currentUser;
+        const amount = Number(exchangeAmount);
+
+        if (!user) {
+            toast({ title: "Error", description: "You are not logged in.", variant: "destructive" });
+            return;
+        }
+        if (!profile) {
+            toast({ title: "Error", description: "Could not load your profile.", variant: "destructive" });
+            return;
+        }
+        if (!amount || amount <= 0) {
+            toast({ title: "Invalid Amount", description: "Please enter a valid amount of diamonds to exchange.", variant: "destructive" });
+            return;
+        }
+        if (amount > profile.diamonds) {
+            toast({ title: "Insufficient Diamonds", description: `You only have ${profile.diamonds.toLocaleString()} diamonds.`, variant: "destructive" });
+            return;
+        }
+
+        setIsExchanging(true);
+        const result = await exchangeDiamondsForCoins(user.uid, amount);
+        setIsExchanging(false);
+
+        if (result.success) {
+            toast({
+                title: "Exchange Successful!",
+                description: `${amount.toLocaleString()} diamonds have been converted to ${(amount * 2).toLocaleString()} coins.`,
+            });
+            setExchangeAmount("");
+        } else {
+            toast({
+                title: "Exchange Failed",
+                description: result.error || "An unknown error occurred.",
+                variant: "destructive",
+            });
+        }
+    };
+
+    if (!profile) {
+        return (
+            <AppLayout>
+                <div className="flex justify-center items-center h-full">
+                    <Loader2 className="w-16 h-16 animate-spin text-primary" />
+                </div>
+            </AppLayout>
+        )
     }
 
     return (
@@ -82,7 +148,7 @@ export default function WithdrawPage() {
                                     <Gem className="absolute left-2 top-1/2 -translate-y-1/2 text-white/70 w-4 h-4" />
                                     <Input id="amount" type="number" placeholder="5000" className="pl-8 text-sm h-9 bg-white/10 border-white/20 placeholder:text-white/60 focus:ring-white/80" />
                                 </div>
-                                <p className="text-xs text-white/70">Available: 5,800</p>
+                                <p className="text-xs text-white/70">Available: {profile.diamonds.toLocaleString()}</p>
                             </div>
                             <p className="text-xs text-center text-white/80">Submit your request via one of the methods below.</p>
                         </CardContent>
@@ -105,6 +171,7 @@ export default function WithdrawPage() {
                                         className="pl-8 text-sm h-9 bg-white/10 border-white/20 placeholder:text-white/60 focus:ring-white/80"
                                         value={exchangeAmount}
                                         onChange={handleExchangeAmountChange}
+                                        disabled={isExchanging}
                                     />
                                 </div>
                                  <p className="text-xs text-white/70 h-6">
@@ -113,9 +180,9 @@ export default function WithdrawPage() {
                                         : ''}
                                  </p>
                             </div>
-                            <Button className="w-full bg-white/20 hover:bg-white/30 border border-white/40 h-9" size="sm">
-                                <Repeat className="mr-2 h-4 w-4"/>
-                                Exchange
+                            <Button className="w-full bg-white/20 hover:bg-white/30 border border-white/40 h-9" size="sm" onClick={handleExchange} disabled={isExchanging}>
+                                {isExchanging ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Repeat className="mr-2 h-4 w-4"/>}
+                                {isExchanging ? 'Exchanging...' : 'Exchange'}
                             </Button>
                         </CardContent>
                     </Card>
