@@ -76,7 +76,7 @@ function VideoRoomPageComponent() {
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
     const [isPersonalMicMuted, setIsPersonalMicMuted] = useState(true);
     
-    const [player, setPlayer] = useState<any>(null);
+    const playerRef = useRef<any>(null);
     const [isPlaying, setIsPlaying] = useState(true);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -147,14 +147,18 @@ function VideoRoomPageComponent() {
     // This effect would listen to database changes for play/pause state
     // For now, it just logs the local state
     useEffect(() => {
-        if (player && typeof player.playVideo === 'function') {
-            if (isPlaying) {
-                player.playVideo();
-            } else {
-                player.pauseVideo();
+        const player = playerRef.current;
+        if (player && typeof player.playVideo === 'function' && typeof player.pauseVideo === 'function') {
+            // Added extra check for internal player readiness.
+            if (player.getPlayerState && typeof player.getPlayerState() !== 'undefined') {
+                if (isPlaying) {
+                    player.playVideo();
+                } else {
+                    player.pauseVideo();
+                }
             }
         }
-    }, [isPlaying, player]);
+    }, [isPlaying]);
 
     
     const handleSendMessage = (e: React.FormEvent) => {
@@ -336,9 +340,9 @@ function VideoRoomPageComponent() {
     const occupiedSeats = seats.filter(seat => seat.isOccupied && seat.user);
 
     const onPlayerReady = (event: any) => {
-        setPlayer(event.target);
-        if (event.target && typeof event.target.playVideo === 'function') {
-           event.target.playVideo();
+        playerRef.current = event.target;
+        if (playerRef.current && typeof playerRef.current.playVideo === 'function') {
+           playerRef.current.playVideo();
         }
     };
 
@@ -696,4 +700,3 @@ export default function VideoRoomPage() {
         </Suspense>
     );
 }
-
