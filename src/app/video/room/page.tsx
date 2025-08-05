@@ -147,7 +147,7 @@ function VideoRoomPageComponent() {
     // This effect would listen to database changes for play/pause state
     // For now, it just logs the local state
     useEffect(() => {
-        if (player) {
+        if (player && typeof player.playVideo === 'function') {
             if (isPlaying) {
                 player.playVideo();
             } else {
@@ -337,7 +337,9 @@ function VideoRoomPageComponent() {
 
     const onPlayerReady = (event: any) => {
         setPlayer(event.target);
-        event.target.playVideo();
+        if (event.target && typeof event.target.playVideo === 'function') {
+           event.target.playVideo();
+        }
     };
 
     const togglePlay = () => {
