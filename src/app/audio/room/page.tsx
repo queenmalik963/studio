@@ -80,7 +80,7 @@ export default function AudioRoomPage() {
     const currentUserIsOwner = true; // For simulation
 
      useEffect(() => {
-        const seatCount = parseInt(localStorage.getItem('audio_room_seats') || '8', 10);
+        const seatCount = 16; // Fixed to 16 seats for 4x4 grid
         const roomName = localStorage.getItem('audio_room_name') || 'My Audio Room';
 
         setOwner(prev => ({...prev, name: roomName}));
@@ -394,6 +394,77 @@ export default function AudioRoomPage() {
 
     const occupiedSeats = seats.filter(seat => seat.isOccupied && seat.user);
 
+    const renderSeats = () => {
+        const rows = [];
+        for (let i = 0; i < 4; i++) {
+            const rowSeats = seats.slice(i * 4, i * 4 + 4);
+            rows.push(
+                <div key={`row-${i}`} className="grid grid-cols-4 gap-y-3 gap-x-3 justify-items-center">
+                    {rowSeats.map((seat, index) => {
+                        const seatIndex = i * 4 + index;
+                        return (
+                            <Popover key={seat.id}>
+                                <PopoverTrigger asChild disabled={!currentUserIsOwner && !seat.user}>
+                                    <div ref={seatRefs.current[seatIndex]} className="flex flex-col items-center gap-1.5 w-[65px] text-center cursor-pointer">
+                                        {seat.isOccupied && seat.user ? (
+                                            <>
+                                                <div className="relative w-[65px] h-[65px] flex items-center justify-center">
+                                                    {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
+                                                        <div className="absolute inset-[-4px] pointer-events-none">
+                                                            <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                                                        </div>
+                                                    )}
+                                                    {areEffectsEnabled && seat.user.frame && !specialFrames[seat.user.frame] && (
+                                                        <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
+                                                    )}
+                                                    
+                                                    <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                        <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                        <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
+                                                        {seat.user.isMuted ? 
+                                                            <MicOff className="w-3 h-3 text-red-500" /> :
+                                                            <Mic className="w-3 h-3 text-green-400" />
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <p className="text-xs truncate w-full">{seat.user.name}</p>
+                                            </>
+                                        ) : (
+                                            <div className="w-[65px] h-[65px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                                {seat.isLocked ? <Lock className="w-6 h-6 text-white/50" /> : <span className="text-xl font-bold text-white/50">{seat.id}</span>}
+                                            </div>
+                                        )}
+                                    </div>
+                                </PopoverTrigger>
+                                 <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
+                                    <div className="flex flex-col gap-1">
+                                        {seat.user && (
+                                            <>
+                                                <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
+                                                    {seat.user.isMuted ? <Mic /> : <MicOff />} {seat.user.isMuted ? 'Unmute' : 'Mute Mic'}
+                                                </Button>
+                                                 <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
+                                                <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
+                                                <Separator className="my-1" />
+                                            </>
+                                        )}
+                                        <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}>
+                                            <Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}
+                                        </Button>
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        )
+                    })}
+                </div>
+            );
+        }
+        return rows;
+    };
+
+
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
              {audioSrc && <audio ref={audioRef} src={audioSrc} loop onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />}
@@ -486,182 +557,8 @@ export default function AudioRoomPage() {
             </header>
 
             <main className="flex-1 flex flex-col pt-0 overflow-hidden gap-2">
-                 <div className="flex-shrink-0 space-y-1 px-4">
-                    <div className="grid grid-cols-5 gap-y-2 gap-x-2 justify-items-center">
-                        {seats.slice(0, 5).map((seat, index) => {
-                            return (
-                                <Popover key={seat.id}>
-                                    <PopoverTrigger asChild disabled={!currentUserIsOwner && !seat.user}>
-                                        <div ref={seatRefs.current[index]} className="flex flex-col items-center gap-1.5 w-[60px] text-center cursor-pointer">
-                                            {seat.isOccupied && seat.user ? (
-                                                <>
-                                                    <div className="relative w-[60px] h-[60px] flex items-center justify-center">
-                                                        {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
-                                                            <div className="absolute inset-[-4px] pointer-events-none">
-                                                                <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
-                                                            </div>
-                                                        )}
-                                                        {areEffectsEnabled && seat.user.frame && !specialFrames[seat.user.frame] && (
-                                                            <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
-                                                        )}
-                                                        
-                                                        <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                            <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                                            <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                                        </Avatar>
-                                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
-                                                            {seat.user.isMuted ? 
-                                                                <MicOff className="w-3 h-3 text-red-500" /> :
-                                                                <Mic className="w-3 h-3 text-green-400" />
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                    <p className="text-xs truncate w-full">{seat.user.name}</p>
-                                                </>
-                                            ) : (
-                                                <div className="w-[60px] h-[60px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                                    {seat.isLocked ? <Lock className="w-6 h-6 text-white/50" /> : <span className="text-xl font-bold text-white/50">{seat.id}</span>}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </PopoverTrigger>
-                                     <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
-                                        <div className="flex flex-col gap-1">
-                                            {seat.user && (
-                                                <>
-                                                    <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
-                                                        {seat.user.isMuted ? <Mic /> : <MicOff />} {seat.user.isMuted ? 'Unmute' : 'Mute Mic'}
-                                                    </Button>
-                                                     <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
-                                                    <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
-                                                    <Separator className="my-1" />
-                                                </>
-                                            )}
-                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}>
-                                                <Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}
-                                            </Button>
-                                        </div>
-                                    </PopoverContent>
-                                </Popover>
-                            )
-                        })}
-                    </div>
-                     <div className="grid grid-cols-5 gap-y-2 gap-x-2 justify-items-center">
-                        {seats.slice(5, 10).map((seat, index) => {
-                             return (
-                                <Popover key={seat.id}>
-                                    <PopoverTrigger asChild disabled={!currentUserIsOwner && !seat.user}>
-                                        <div ref={seatRefs.current[index+5]} className="flex flex-col items-center gap-1.5 w-[60px] text-center cursor-pointer">
-                                            {seat.isOccupied && seat.user ? (
-                                                <>
-                                                <div className="relative w-[60px] h-[60px] flex items-center justify-center">
-                                                    {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
-                                                        <div className="absolute inset-[-4px] pointer-events-none">
-                                                            <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
-                                                        </div>
-                                                    )}
-                                                    {areEffectsEnabled && seat.user.frame && !specialFrames[seat.user.frame] && (
-                                                        <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
-                                                    )}
-                                                    <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                        <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                                        <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                                    </Avatar>
-                                                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
-                                                        {seat.user.isMuted ? 
-                                                            <MicOff className="w-3 h-3 text-red-500" /> :
-                                                            <Mic className="w-3 h-3 text-green-400" />
-                                                        }
-                                                    </div>
-                                                </div>
-                                                <p className="text-xs truncate w-full">{seat.user.name}</p>
-                                                </>
-                                            ) : (
-                                            <div className="w-[60px] h-[60px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                                    {seat.isLocked ? <Lock className="w-6 h-6 text-white/50" /> : <span className="text-xl font-bold text-white/50">{seat.id}</span>}
-                                                </div>
-                                        ) }
-                                        </div>
-                                    </PopoverTrigger>
-                                     <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
-                                        <div className="flex flex-col gap-1">
-                                            {seat.user && (
-                                                <>
-                                                    <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
-                                                        {seat.user.isMuted ? <Mic /> : <MicOff />} {seat.user.isMuted ? 'Unmute' : 'Mute Mic'}
-                                                    </Button>
-                                                     <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
-                                                    <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
-                                                    <Separator className="my-1" />
-                                                </>
-                                            )}
-                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}>
-                                                <Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}
-                                            </Button>
-                                        </div>
-                                    </PopoverContent>
-                                </Popover>
-                            )
-                        })}
-                    </div>
-                    <div className="grid grid-cols-5 gap-y-2 gap-x-2 justify-items-center">
-                        {seats.slice(10, 15).map((seat, index) => {
-                             return (
-                                <Popover key={seat.id}>
-                                    <PopoverTrigger asChild disabled={!currentUserIsOwner && !seat.user}>
-                                        <div ref={seatRefs.current[index+10]} className="flex flex-col items-center gap-1.5 w-[60px] text-center cursor-pointer">
-                                            {seat.isOccupied && seat.user ? (
-                                                <>
-                                                <div className="relative w-[60px] h-[60px] flex items-center justify-center">
-                                                     {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
-                                                        <div className="absolute inset-[-4px] pointer-events-none">
-                                                            <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
-                                                        </div>
-                                                    )}
-                                                     {areEffectsEnabled && seat.user.frame && !specialFrames[seat.user.frame] && (
-                                                        <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
-                                                    )}
-                                                    <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                        <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                                        <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                                    </Avatar>
-                                                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
-                                                        {seat.user.isMuted ? 
-                                                            <MicOff className="w-3 h-3 text-red-500" /> :
-                                                            <Mic className="w-3 h-3 text-green-400" />
-                                                        }
-                                                    </div>
-                                                </div>
-                                                <p className="text-xs truncate w-full">{seat.user.name}</p>
-                                                </>
-                                            ) : (
-                                            <div className="w-[60px] h-[60px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                                    {seat.isLocked ? <Lock className="w-6 h-6 text-white/50" /> : <span className="text-xl font-bold text-white/50">{seat.id}</span>}
-                                                </div>
-                                        )}
-                                        </div>
-                                    </PopoverTrigger>
-                                     <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
-                                        <div className="flex flex-col gap-1">
-                                            {seat.user && (
-                                                <>
-                                                    <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
-                                                        {seat.user.isMuted ? <Mic /> : <MicOff />} {seat.user.isMuted ? 'Unmute' : 'Mute Mic'}
-                                                    </Button>
-                                                     <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
-                                                    <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
-                                                    <Separator className="my-1" />
-                                                </>
-                                            )}
-                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}>
-                                                <Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}
-                                            </Button>
-                                        </div>
-                                    </PopoverContent>
-                                </Popover>
-                            )
-                        })}
-                    </div>
+                 <div className="flex-shrink-0 space-y-4 px-4">
+                    {renderSeats()}
                 </div>
 
                 <div className="flex-1 mt-2 relative p-0">
