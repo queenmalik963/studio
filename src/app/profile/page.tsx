@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { listenToUserProfile, type UserProfile, followUser, unfollowUser } from "@/services/userService";
+import { listenToUserProfile, type UserProfile, followUser, unfollowUser, updateUserProfile } from "@/services/userService";
 import { Loader2 } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
@@ -88,20 +88,30 @@ export default function ProfilePage() {
         }
     };
 
-    const handleNameChange = () => {
-        if (profile) {
-            // In a real app, you would call a service to update the name in Firestore
-            // e.g., await updateUserProfile(viewedUserId, { name: tempName });
-            setProfile({ ...profile, name: tempName });
+    const handleNameChange = async () => {
+        if (profile && tempName !== profile.name) {
+            const result = await updateUserProfile(viewedUserId, { name: tempName });
+            if (result.success) {
+                toast({ title: "Name updated successfully!" });
+            } else {
+                 toast({ title: "Error", description: result.error, variant: "destructive" });
+            }
         }
     }
 
-    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0] && profile) {
-            const newAvatarUrl = URL.createObjectURL(e.target.files[0]);
-            // In a real app, you would upload this to Firebase Storage and then
-            // update the avatar URL in Firestore
-            setProfile({ ...profile, avatar: newAvatarUrl });
+            const newAvatarFile = e.target.files[0];
+            // In a real app, you would upload this to Firebase Storage and get a URL
+            // For now, we'll just simulate with a local URL.
+            const newAvatarUrl = URL.createObjectURL(newAvatarFile);
+
+            const result = await updateUserProfile(viewedUserId, { avatar: newAvatarUrl });
+            if(result.success) {
+                toast({ title: "Avatar updated!" });
+            } else {
+                toast({ title: "Error updating avatar", description: result.error, variant: "destructive" });
+            }
         }
     }
 
@@ -139,13 +149,13 @@ export default function ProfilePage() {
                         <div className="flex flex-col items-center text-center text-white">
                              <Dialog>
                                 <DialogTrigger asChild>
-                                    <div className="relative cursor-pointer">
+                                    <div className="relative cursor-pointer group">
                                         <Avatar className="w-24 h-24 border-4 border-white">
                                             <AvatarImage src={profile.avatar} alt={profile.name} data-ai-hint="person alphabet" />
                                             <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
                                         </Avatar>
-                                        <div className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-card text-card-foreground hover:bg-card/80 flex items-center justify-center">
-                                            <Camera className="h-4 w-4" />
+                                        <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                            <Camera className="h-8 w-8" />
                                         </div>
                                     </div>
                                 </DialogTrigger>

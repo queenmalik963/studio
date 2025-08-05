@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase';
-import { doc, getDoc, onSnapshot, DocumentData, Unsubscribe, runTransaction, writeBatch, increment } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, DocumentData, Unsubscribe, runTransaction, writeBatch, increment, updateDoc } from 'firebase/firestore';
 
 export interface UserProfile {
     id: string;
@@ -14,6 +14,25 @@ export interface UserProfile {
     idLevel: number;
     sendingLevel: number;
 }
+
+// Function to update a user's profile
+export const updateUserProfile = async (userId: string, data: Partial<UserProfile>, incrementCoins = false): Promise<{ success: boolean, error?: string }> => {
+    const userDocRef = doc(db, 'users', userId);
+    try {
+        if (incrementCoins && data.coins) {
+             await updateDoc(userDocRef, {
+                coins: increment(data.coins)
+            });
+        } else {
+            await updateDoc(userDocRef, data);
+        }
+        return { success: true };
+    } catch (e) {
+        console.error("Error updating user profile:", e);
+        return { success: false, error: (e as Error).message };
+    }
+};
+
 
 // Function to get a user's profile once
 export const getUserProfile = async (userId: string): Promise<UserProfile | null> => {

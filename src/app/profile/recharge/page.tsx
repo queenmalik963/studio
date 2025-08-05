@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -12,6 +13,8 @@ import Link from "next/link";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { auth } from "@/lib/firebase";
+import { updateUserProfile, type UserProfile } from "@/services/userService";
 
 const rechargePacks = [
   { coins: 100, price: "$0.99", color: "from-gray-500 to-gray-600" },
@@ -57,23 +60,53 @@ const CreditCardIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
+type RechargePack = typeof rechargePacks[0];
 
 export default function RechargePage() {
   const router = useRouter();
   const { toast } = useToast();
+  const [selectedPack, setSelectedPack] = useState<RechargePack | null>(null);
 
-  const handleRecharge = (coins: number) => {
+  const handleRecharge = (pack: RechargePack) => {
+    setSelectedPack(pack);
     toast({
         title: "Recharge Pack Selected!",
-        description: `Proceed with payment for ${coins.toLocaleString()} coins.`,
+        description: `Proceed with payment for ${pack.coins.toLocaleString()} coins.`,
     })
   }
 
-  const handlePaymentSubmit = (method: string) => {
+  const handlePaymentSubmit = async (method: string) => {
+    const user = auth.currentUser;
+    if (!user || !selectedPack) {
+        toast({
+            title: "Something went wrong",
+            description: "Please select a pack and be logged in to recharge.",
+            variant: "destructive",
+        });
+        return;
+    }
+
     toast({
         title: "Processing Payment",
         description: `Your payment via ${method} is being processed.`,
     });
+    
+    // In a real app, you would process payment here. For demo, we just add coins.
+    const result = await updateUserProfile(user.uid, { coins: selectedPack.coins }, true);
+
+    if (result.success) {
+        toast({
+            title: "Recharge Successful!",
+            description: `${selectedPack.coins.toLocaleString()} coins have been added to your wallet.`,
+        });
+        router.push('/profile');
+    } else {
+        toast({
+            title: "Recharge Failed",
+            description: result.error || "An unknown error occurred.",
+            variant: "destructive",
+        });
+    }
   }
 
   return (
@@ -90,8 +123,12 @@ export default function RechargePage() {
           {rechargePacks.map((pack, index) => (
             <Card 
               key={index} 
-              onClick={() => handleRecharge(pack.coins)}
-              className={cn(`text-white bg-gradient-to-br cursor-pointer relative overflow-hidden aspect-square flex flex-col justify-center items-center p-2 text-center`, pack.color)}
+              onClick={() => handleRecharge(pack)}
+              className={cn(
+                `text-white bg-gradient-to-br cursor-pointer relative overflow-hidden aspect-square flex flex-col justify-center items-center p-2 text-center border-2`, 
+                pack.color,
+                selectedPack?.coins === pack.coins ? 'border-yellow-300' : 'border-transparent'
+              )}
             >
               {pack.popular && (
                 <div className="absolute top-0 right-[-18px] bg-yellow-400 text-black text-[8px] font-bold px-4 py-0.5 transform rotate-45">
@@ -130,7 +167,7 @@ export default function RechargePage() {
             <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button variant="outline" className="h-16 text-base gap-3">
+                        <Button variant="outline" className="h-16 text-base gap-3" disabled={!selectedPack}>
                             <GooglePayIcon /> Google Pay
                         </Button>
                     </DialogTrigger>
@@ -154,7 +191,7 @@ export default function RechargePage() {
 
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button variant="outline" className="h-16 text-base gap-3">
+                        <Button variant="outline" className="h-16 text-base gap-3" disabled={!selectedPack}>
                             <JazzCashIcon /> JazzCash
                         </Button>
                     </DialogTrigger>
@@ -178,7 +215,7 @@ export default function RechargePage() {
 
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button variant="outline" className="h-16 text-base gap-3">
+                        <Button variant="outline" className="h-16 text-base gap-3" disabled={!selectedPack}>
                            <CreditCardIcon /> Credit Card
                         </Button>
                     </DialogTrigger>
@@ -216,5 +253,3 @@ export default function RechargePage() {
     </AppLayout>
   );
 }
-
-    
