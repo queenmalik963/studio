@@ -1,4 +1,7 @@
 
+"use client";
+
+import { useState } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from 'next/image';
@@ -13,47 +16,47 @@ import {
 } from "@/components/ui/select";
 import { MusicSuggestions } from "@/components/video/MusicSuggestions";
 
-const trendingVideos = [
+const initialTrendingVideos = [
   {
     title: "Live from Tomorrowland",
     creator: "Anyma",
     viewers: "15.2k",
-    image: "https://placehold.co/600x400.png",
+    image: "https://i.ytimg.com/vi/1_M6g_OKc6w/hq720.jpg",
     hint: "concert crowd",
-    href: "/video/room"
+    href: "/video/room?id=1_M6g_OKc6w"
   },
   {
     title: "Techno Bunker Set",
     creator: "Charlotte de Witte",
     viewers: "12.8k",
-    image: "https://placehold.co/600x400.png",
+    image: "https://i.ytimg.com/vi/slGaB-aFpIE/hq720.jpg",
     hint: "dj turntables",
-    href: "/video/room"
+    href: "/video/room?id=slGaB-aFpIE"
   },
   {
     title: "Boiler Room: London",
     creator: "Fred Again..",
     viewers: "25.1k",
-    image: "https://placehold.co/600x400.png",
+    image: "https://i.ytimg.com/vi/c0-hvjV2A5Y/hq720.jpg",
     hint: "dj crowd",
-    href: "/video/room"
+    href: "/video/room?id=c0-hvjV2A5Y"
   },
   {
     title: "Deep House Mix",
     creator: "Nora En Pure",
     viewers: "8.9k",
-    image: "https://placehold.co/600x400.png",
+    image: "https://i.ytimg.com/vi/b4Y8pOU-N5M/hq720.jpg",
     hint: "beach sunset",
-    href: "/video/room"
+    href: "/video/room?id=b4Y8pOU-N5M"
   },
 ];
 
-const trendingAudio = [
+const initialTrendingAudio = [
     {
         title: "Lofi Beats to Relax/Study to",
         creator: "Lofi Girl",
         listeners: "32.5k",
-        image: "https://placehold.co/600x400.png",
+        image: "https://i.imgur.com/P5n9G2b.jpeg",
         hint: "lofi hip hop",
         href: "/audio/room"
     },
@@ -61,7 +64,7 @@ const trendingAudio = [
         title: "Deep House Mix by Nora En Pure",
         creator: "Nora En Pure",
         listeners: "18.2k",
-        image: "https://placehold.co/600x400.png",
+        image: "https://i.imgur.com/h5TLLvX.jpeg",
         hint: "dj mixing",
         href: "/audio/room"
     },
@@ -69,7 +72,7 @@ const trendingAudio = [
         title: "Techno Bunker Live Set",
         creator: "Amelie Lens",
         listeners: "21.7k",
-        image: "https://placehold.co/600x400.png",
+        image: "https://i.imgur.com/BQMwI4Y.jpeg",
         hint: "dark club",
         href: "/audio/room"
     },
@@ -77,7 +80,7 @@ const trendingAudio = [
         title: "Anjunadeep Selections",
         creator: "Anjunadeep",
         listeners: "11.4k",
-        image: "https://placehold.co/600x400.png",
+        image: "https://i.imgur.com/5l3zL02.png",
         hint: "ocean sunset",
         href: "/audio/room"
     }
@@ -196,10 +199,13 @@ const CAFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 
 export default function HomePage() {
+  const [trendingVideos, setTrendingVideos] = useState(initialTrendingVideos);
+  const [trendingAudio, setTrendingAudio] = useState(initialTrendingAudio);
+
   return (
     <AppLayout>
-      <div className="space-y-8">
-        <header>
+      <div className="relative">
+        <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md -mx-4 md:-mx-8 px-4 md:px-8 py-4 mb-4">
           <div className="max-w-xs">
             <Select defaultValue="global">
               <SelectTrigger className="w-full bg-card/50">
