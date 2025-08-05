@@ -21,25 +21,39 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { listenToUserProfile, type UserProfile } from "@/services/userService";
+import { listenToUserProfile, type UserProfile, followUser, unfollowUser } from "@/services/userService";
 import { Loader2 } from "lucide-react";
+import { auth } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
 
 
 export default function ProfilePage() {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [tempName, setTempName] = useState("");
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+    const { toast } = useToast();
 
-    // In a real app, you would get the userId from your authentication state
-    const userId = "demo-user-id"; 
+    // For this demo, we'll use a static ID for the profile being viewed.
+    // In a real app, this would come from the URL, e.g., /profile/[userId]
+    const viewedUserId = "demo-user-id"; 
 
     useEffect(() => {
-        if (!userId) {
+        const unsubscribeAuth = auth.onAuthStateChanged(user => {
+            if (user) {
+                setCurrentUserId(user.uid);
+            } else {
+                // Handle user not logged in case
+                setIsLoading(false);
+            }
+        });
+        
+        if (!viewedUserId) {
             setIsLoading(false);
             return;
         }
 
-        const unsubscribe = listenToUserProfile(userId, (data) => {
+        const unsubscribeProfile = listenToUserProfile(viewedUserId, (data) => {
             setProfile(data);
             if(data) {
                 setTempName(data.name);
@@ -48,14 +62,36 @@ export default function ProfilePage() {
         });
 
         // Cleanup subscription on unmount
-        return () => unsubscribe();
-    }, [userId]);
+        return () => {
+            unsubscribeAuth();
+            unsubscribeProfile();
+        };
+    }, [viewedUserId]);
 
+    const handleFollow = async () => {
+        if (!currentUserId || !profile) return;
+        const result = await followUser(currentUserId, profile.id);
+        if (result.success) {
+            toast({ title: "Followed!", description: `You are now following ${profile.name}.` });
+        } else {
+            toast({ title: "Error", description: result.error, variant: "destructive" });
+        }
+    };
+
+    const handleUnfollow = async () => {
+        if (!currentUserId || !profile) return;
+        const result = await unfollowUser(currentUserId, profile.id);
+        if (result.success) {
+            toast({ title: "Unfollowed", description: `You are no longer following ${profile.name}.` });
+        } else {
+            toast({ title: "Error", description: result.error, variant: "destructive" });
+        }
+    };
 
     const handleNameChange = () => {
         if (profile) {
             // In a real app, you would call a service to update the name in Firestore
-            // e.g., await updateUserProfile(userId, { name: tempName });
+            // e.g., await updateUserProfile(viewedUserId, { name: tempName });
             setProfile({ ...profile, name: tempName });
         }
     }
@@ -68,11 +104,6 @@ export default function ProfilePage() {
             setProfile({ ...profile, avatar: newAvatarUrl });
         }
     }
-
-    // Handlers to simulate follow/unfollow actions
-    // In a real app, these would be cloud functions or transactional updates
-    const handleFollow = () => console.log("Follow action triggered");
-    const handleUnfollow = () => console.log("Unfollow action triggered");
 
     if (isLoading) {
         return (
@@ -172,14 +203,16 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="space-y-6">
-                    <div className="flex justify-center gap-4 -mt-2">
-                        <Button variant="outline" size="sm" onClick={handleFollow}>
-                            <UserPlus className="mr-2" /> Follow this user
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={handleUnfollow}>
-                           <UserMinus className="mr-2" /> Unfollow this user
-                        </Button>
-                    </div>
+                    {currentUserId && currentUserId !== profile.id && (
+                         <div className="flex justify-center gap-4 -mt-2">
+                            <Button variant="outline" size="sm" onClick={handleFollow}>
+                                <UserPlus className="mr-2" /> Follow this user
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={handleUnfollow}>
+                                <UserMinus className="mr-2" /> Unfollow this user
+                            </Button>
+                        </div>
+                    )}
 
                     <div className="space-y-4">
                         <div className="flex justify-between items-center text-sm font-semibold">

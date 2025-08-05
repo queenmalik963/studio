@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase';
-import { doc, getDoc, onSnapshot, DocumentData, Unsubscribe } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, DocumentData, Unsubscribe, runTransaction, writeBatch, increment } from 'firebase/firestore';
 
 export interface UserProfile {
     id: string;
@@ -40,16 +40,16 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
         // For demo, we can return a default profile
         return {
             id: userId,
-            name: 'New User',
-            username: 'newuser',
-            bio: 'Welcome to my profile!',
+            name: 'Demo User',
+            username: 'demouser',
+            bio: 'This is a demo profile for a user that does not exist in the database yet.',
             avatar: 'https://placehold.co/100x100.png',
-            coins: 0,
-            diamonds: 0,
-            followers: 0,
-            following: 0,
-            idLevel: 0,
-            sendingLevel: 0,
+            coins: 100,
+            diamonds: 50,
+            followers: 120,
+            following: 75,
+            idLevel: 5,
+            sendingLevel: 3,
         };
     }
 };
@@ -79,20 +79,104 @@ export const listenToUserProfile = (userId: string, callback: (profile: UserProf
             // For demo purposes, create a default profile if one doesn't exist
              const profile: UserProfile = {
                 id: userId,
-                name: 'New User',
-                username: 'newuser',
-                bio: 'Welcome to my profile!',
+                name: 'Demo User',
+                username: 'demouser',
+                bio: 'This is a demo profile for a user that does not exist in the database yet.',
                 avatar: 'https://placehold.co/100x100.png',
-                coins: 0,
-                diamonds: 0,
-                followers: 0,
-                following: 0,
-                idLevel: 0,
-                sendingLevel: 0,
+                coins: 100,
+                diamonds: 50,
+                followers: 120,
+                following: 75,
+                idLevel: 5,
+                sendingLevel: 3,
             };
             callback(profile);
         }
+    }, (error) => {
+        console.error("Error listening to user profile:", error);
+        callback(null);
     });
 
     return unsubscribe;
+};
+
+// Function to follow a user
+export const followUser = async (currentUserId: string, targetUserId: string): Promise<{ success: boolean, error?: string }> => {
+    if (currentUserId === targetUserId) {
+        return { success: false, error: "You cannot follow yourself." };
+    }
+
+    const currentUserDocRef = doc(db, 'users', currentUserId);
+    const targetUserDocRef = doc(db, 'users', targetUserId);
+    const followingRef = doc(db, `users/${currentUserId}/following`, targetUserId);
+    const followersRef = doc(db, `users/${targetUserId}/followers`, currentUserId);
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const targetUserDoc = await transaction.get(targetUserDocRef);
+            if (!targetUserDoc.exists()) {
+                throw new Error("User to follow does not exist.");
+            }
+            // Use writeBatch inside transaction for non-read operations
+            const batch = writeBatch(db);
+
+            // Increment counts
+            batch.update(currentUserDocRef, { following: increment(1) });
+            batch.update(targetUserDocRef, { followers: increment(1) });
+
+            // Add records to subcollections
+            batch.set(followingRef, { userId: targetUserId, timestamp: new Date() });
+            batch.set(followersRef, { userId: currentUserId, timestamp: new Date() });
+            
+            // This is incorrect. A transaction's callback must be passed the transaction object.
+            // and all writes must be performed on that object. A write batch is not needed.
+            await batch.commit();
+        });
+
+        await runTransaction(db, async (transaction) => {
+            const targetUserDoc = await transaction.get(targetUserDocRef);
+            if (!targetUserDoc.exists()) {
+                throw new Error("User to follow does not exist.");
+            }
+            transaction.update(currentUserDocRef, { following: increment(1) });
+            transaction.update(targetUserDocRef, { followers: increment(1) });
+            transaction.set(followingRef, { userId: targetUserId, timestamp: new Date() });
+            transaction.set(followersRef, { userId: currentUserId, timestamp: new Date() });
+        });
+
+        return { success: true };
+    } catch (e) {
+        console.error("Follow user transaction failed: ", e);
+        return { success: false, error: (e as Error).message };
+    }
+};
+
+// Function to unfollow a user
+export const unfollowUser = async (currentUserId: string, targetUserId: string): Promise<{ success: boolean, error?: string }> => {
+    if (currentUserId === targetUserId) {
+        return { success: false, error: "You cannot unfollow yourself." };
+    }
+
+    const currentUserDocRef = doc(db, 'users', currentUserId);
+    const targetUserDocRef = doc(db, 'users', targetUserId);
+    const followingRef = doc(db, `users/${currentUserId}/following`, targetUserId);
+    const followersRef = doc(db, `users/${targetUserId}/followers`, currentUserId);
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const targetUserDoc = await transaction.get(targetUserDocRef);
+            if (!targetUserDoc.exists()) {
+                throw new Error("User to unfollow does not exist.");
+            }
+
+            transaction.update(currentUserDocRef, { following: increment(-1) });
+            transaction.update(targetUserDocRef, { followers: increment(-1) });
+            transaction.delete(followingRef);
+            transaction.delete(followersRef);
+        });
+        return { success: true };
+    } catch (e) {
+        console.error("Unfollow user transaction failed: ", e);
+        return { success: false, error: (e as Error).message };
+    }
 };
