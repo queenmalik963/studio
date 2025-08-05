@@ -48,6 +48,7 @@ export default function WithdrawPage() {
     const router = useRouter();
     const { toast } = useToast();
     const [exchangeAmount, setExchangeAmount] = useState<number | string>("");
+    const [withdrawAmount, setWithdrawAmount] = useState<number | string>("");
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [isExchanging, setIsExchanging] = useState(false);
 
@@ -62,6 +63,11 @@ export default function WithdrawPage() {
             router.push('/'); // Redirect if not logged in
         }
     }, [router]);
+
+    const handleWithdrawAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setWithdrawAmount(value === "" ? "" : Number(value));
+    };
 
     const handleExchangeAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -125,6 +131,11 @@ export default function WithdrawPage() {
         )
     }
 
+    const whatsappPhoneNumber = "971564423341";
+    const isWithdrawAmountValid = typeof withdrawAmount === 'number' && withdrawAmount > 0 && withdrawAmount <= profile.diamonds;
+    const whatsappMessage = encodeURIComponent(`I'd like to withdraw ${withdrawAmount} diamonds. My User ID is ${profile.id}.`);
+    const whatsappLink = `https://wa.me/${whatsappPhoneNumber}?text=${whatsappMessage}`;
+
     return (
         <AppLayout>
             <div className="space-y-6">
@@ -146,7 +157,14 @@ export default function WithdrawPage() {
                                 <Label htmlFor="amount" className="text-xs">Amount</Label>
                                 <div className="relative">
                                     <Gem className="absolute left-2 top-1/2 -translate-y-1/2 text-white/70 w-4 h-4" />
-                                    <Input id="amount" type="number" placeholder="5000" className="pl-8 text-sm h-9 bg-white/10 border-white/20 placeholder:text-white/60 focus:ring-white/80" />
+                                    <Input 
+                                        id="amount" 
+                                        type="number" 
+                                        placeholder="5000" 
+                                        className="pl-8 text-sm h-9 bg-white/10 border-white/20 placeholder:text-white/60 focus:ring-white/80"
+                                        value={withdrawAmount}
+                                        onChange={handleWithdrawAmountChange}
+                                    />
                                 </div>
                                 <p className="text-xs text-white/70">Available: {profile.diamonds.toLocaleString()}</p>
                             </div>
@@ -196,11 +214,11 @@ export default function WithdrawPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                             <Link href={`https://wa.me/971564423341?text=I'd%20like%20to%20make%20a%20withdrawal.`} target="_blank" rel="noopener noreferrer" passHref>
-                                <Button variant="outline" size="lg" className="h-16 w-full text-lg justify-center gap-3 bg-green-500/10 border-green-500/30 hover:bg-green-500/20 text-foreground">
+                             <Button asChild disabled={!isWithdrawAmountValid} className="h-16 w-full text-lg justify-center gap-3 bg-green-500/10 border-green-500/30 hover:bg-green-500/20 text-foreground">
+                                <Link href={whatsappLink} target="_blank" rel="noopener noreferrer">
                                     <WhatsAppIcon className="w-8 h-8 text-green-500" /> Contact on WhatsApp
-                                </Button>
-                            </Link>
+                                </Link>
+                            </Button>
                         </CardContent>
                     </Card>
 
@@ -212,7 +230,7 @@ export default function WithdrawPage() {
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <Dialog>
                                 <DialogTrigger asChild>
-                                    <Button variant="outline" className="h-16 text-base gap-3">
+                                    <Button variant="outline" className="h-16 text-base gap-3" disabled={!isWithdrawAmountValid}>
                                         <BankIcon /> Bank Transfer
                                     </Button>
                                 </DialogTrigger>
@@ -244,7 +262,7 @@ export default function WithdrawPage() {
 
                              <Dialog>
                                 <DialogTrigger asChild>
-                                    <Button variant="outline" className="h-16 text-base gap-3">
+                                    <Button variant="outline" className="h-16 text-base gap-3" disabled={!isWithdrawAmountValid}>
                                         <CryptoIcon /> Crypto Wallet
                                     </Button>
                                 </DialogTrigger>
