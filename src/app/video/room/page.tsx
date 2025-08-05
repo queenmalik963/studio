@@ -1,11 +1,11 @@
 
 "use client";
 
-import { useState, useRef, useEffect, Fragment, createRef } from "react";
+import { useState, useRef, useEffect, Fragment, createRef, Suspense } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Maximize, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, Flag, Megaphone, Music, UserPlus, Wand2, Trash2, MicOff, Youtube, UserX, Axe } from "lucide-react";
+import { ArrowLeft, Users, Gamepad2, Mic, Lock, MessageSquare, Maximize, Coins, Send as SendIconLucide, ChevronDown, RectangleVertical, Gift, Flag, Megaphone, Music, UserPlus, Wand2, Trash2, MicOff, Youtube, UserX, Axe, Play, Pause } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -74,6 +74,9 @@ function VideoRoomPageComponent() {
     const [animatedVideoGift, setAnimatedVideoGift] = useState<string | null>(null);
     const [animatedWalkingGift, setAnimatedWalkingGift] = useState<string | null>(null);
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
+    
+    const [player, setPlayer] = useState<any>(null);
+    const [isPlaying, setIsPlaying] = useState(true);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -139,6 +142,20 @@ function VideoRoomPageComponent() {
 
         lastMessageCount.current = messages.length;
     }, [messages]);
+
+    // This effect would listen to database changes for play/pause state
+    // For now, it just logs the local state
+    useEffect(() => {
+        console.log(`Video is now ${isPlaying ? 'playing' : 'paused'}`);
+        if (player) {
+            if (isPlaying) {
+                player.playVideo();
+            } else {
+                player.pauseVideo();
+            }
+        }
+    }, [isPlaying, player]);
+
     
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
@@ -158,7 +175,7 @@ function VideoRoomPageComponent() {
         }
     };
 
-    const handleSendGift = (gift: GiftType, quantity: number, recipient: string) => {
+    const handleSendGift = (gift: Gift, quantity: number, recipient: string) => {
         if (gift.animation === 'walking') {
             setAnimatedWalkingGift(gift.image);
             setTimeout(() => setAnimatedWalkingGift(null), 5000); // 5s animation duration
@@ -314,6 +331,17 @@ function VideoRoomPageComponent() {
 
     const occupiedSeats = seats.filter(seat => seat.isOccupied && seat.user);
 
+    const onPlayerReady = (event: any) => {
+        setPlayer(event.target);
+        event.target.playVideo();
+    };
+
+    const togglePlay = () => {
+        // In a real app, this would send a command to the database
+        // e.g., db.collection('rooms').doc(roomId).update({ isPlaying: !isPlaying });
+        setIsPlaying(!isPlaying);
+    };
+
     const youtubeOpts = {
         height: '100%',
         width: '100%',
@@ -322,6 +350,7 @@ function VideoRoomPageComponent() {
           controls: 0,
           rel: 0,
           showinfo: 0,
+          modestbranding: 1,
         },
     };
 
@@ -355,16 +384,29 @@ function VideoRoomPageComponent() {
             <div className="relative w-full bg-black h-[45%] flex-shrink-0">
                  <div className="absolute inset-0 bg-black flex items-center justify-center">
                     {videoId ? (
-                        <YouTube videoId={videoId} opts={youtubeOpts} className="w-full h-full" />
+                        <YouTube videoId={videoId} opts={youtubeOpts} onReady={onPlayerReady} className="w-full h-full" />
                     ) : (
                         <p className="text-white/50">No video selected. Go to Add Video to start a room.</p>
                     )}
                 </div>
 
                 {/* Video Controls Overlay */}
-                <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/50 to-transparent">
+                <div className="absolute inset-0 flex items-center justify-center">
+                    {currentUserIsOwner && videoId && (
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="w-16 h-16 rounded-full bg-black/30 text-white/70 hover:bg-black/50 hover:text-white"
+                            onClick={togglePlay}
+                        >
+                            {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8" />}
+                        </Button>
+                    )}
+                </div>
+
+                <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/50 to-transparent pointer-events-none">
                     <div className="flex items-center justify-between">
-                         <div className="flex items-center gap-4">
+                         <div className="flex items-center gap-4 pointer-events-auto">
                             <Button variant="ghost" size="icon" onClick={() => router.back()}>
                                 <ArrowLeft />
                             </Button>
@@ -381,7 +423,7 @@ function VideoRoomPageComponent() {
                                 </div>
                             )}
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 pointer-events-auto">
                              <Popover>
                                 <PopoverTrigger asChild>
                                     <Button variant="ghost" className="h-auto p-1 text-white/80 bg-black/20 rounded-full px-3">
@@ -643,8 +685,9 @@ function VideoRoomPageComponent() {
 
 export default function VideoRoomPage() {
     return (
-        <React.Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div>Loading...</div>}>
             <VideoRoomPageComponent />
-        </React.Suspense>
+        </Suspense>
     );
 }
+
