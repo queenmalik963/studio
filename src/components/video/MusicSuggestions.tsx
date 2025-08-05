@@ -7,26 +7,31 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/com
 import { Music2, Loader2, AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-const dummySuggestions: SuggestUpNextMusicOutput = {
-    suggestedTracks: [
-        "Lane 8 - Summer 2021 Mixtape",
-        "Ben Böhmer - Breathing (Live from Printworks)",
-        "Tinlicker - Children",
-    ]
-};
-
 export function MusicSuggestions() {
-    const [suggestions, setSuggestions] = useState<SuggestUpNextMusicOutput | null>(dummySuggestions);
-    const [isLoading, setIsLoading] = useState(false);
+    const [suggestions, setSuggestions] = useState<SuggestUpNextMusicOutput | null>(null);
+    const [isLoading, setIsLoading] = useState(true); // Start with loading true
     const [error, setError] = useState<string | null>(null);
 
-    // Note: The API call is commented out for now to prevent loading, as requested.
-    // We can re-enable it later.
-    /*
     useEffect(() => {
         const fetchSuggestions = async () => {
             try {
-                setIsLoading(true);
+                // To keep the initial state without calling the API, we can simulate a successful call with dummy data
+                // When you are ready to enable the real API call, uncomment the lines below and remove the dummy data part.
+                
+                // START: DUMMY DATA SIMULATION (Remove when enabling API)
+                await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+                const dummySuggestions: SuggestUpNextMusicOutput = {
+                    suggestedTracks: [
+                        "Lane 8 - Summer 2021 Mixtape",
+                        "Ben Böhmer - Breathing (Live from Printworks)",
+                        "Tinlicker - Children",
+                    ]
+                };
+                setSuggestions(dummySuggestions);
+                // END: DUMMY DATA SIMULATION
+
+                /*
+                // UNCOMMENT THIS BLOCK TO ENABLE REAL API CALLS
                 setError(null);
                 // In a real app, you'd get this from user data
                 const recentlyWatched = [
@@ -36,6 +41,7 @@ export function MusicSuggestions() {
                 ];
                 const result = await suggestUpNextMusic({ recentlyWatchedVideos: recentlyWatched });
                 setSuggestions(result);
+                */
             } catch (e: any) {
                  if (e.message.includes("API key not valid")) {
                     setError("Your Gemini API key is not valid. Please check your .env file.");
@@ -54,7 +60,6 @@ export function MusicSuggestions() {
         fetchSuggestions();
 
     }, []);
-    */
 
     return (
         <Card className="bg-card/50 border-primary/20 backdrop-blur-sm">
