@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ArrowLeft, Gem } from "lucide-react";
+import { ArrowLeft, Gem, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { auth } from "@/lib/firebase";
-import { updateUserProfile, type UserProfile } from "@/services/userService";
+import { updateUserProfile, type UserProfile, listenToUserProfile } from "@/services/userService";
 
 const rechargePacks = [
   { coins: 100, price: "$0.99", color: "from-gray-500 to-gray-600" },
@@ -66,48 +66,32 @@ export default function RechargePage() {
   const router = useRouter();
   const { toast } = useToast();
   const [selectedPack, setSelectedPack] = useState<RechargePack | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
 
-  const handleRecharge = (pack: RechargePack) => {
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (user) {
+      const unsubscribe = listenToUserProfile(user.uid, setProfile);
+      return () => unsubscribe();
+    } else {
+      router.push('/');
+    }
+  }, [router]);
+
+  const handleRechargeSelect = (pack: RechargePack) => {
     setSelectedPack(pack);
     toast({
-        title: "Recharge Pack Selected!",
-        description: `Proceed with payment for ${pack.coins.toLocaleString()} coins.`,
+        title: "Pack Selected!",
+        description: `Contact on WhatsApp to buy ${pack.coins.toLocaleString()} coins for ${pack.price}.`,
     })
   }
 
-  const handlePaymentSubmit = async (method: string) => {
-    const user = auth.currentUser;
-    if (!user || !selectedPack) {
-        toast({
-            title: "Something went wrong",
-            description: "Please select a pack and be logged in to recharge.",
-            variant: "destructive",
-        });
-        return;
-    }
-
-    toast({
-        title: "Processing Payment",
-        description: `Your payment via ${method} is being processed.`,
-    });
-    
-    // In a real app, you would process payment here. For demo, we just add coins.
-    const result = await updateUserProfile(user.uid, { coins: selectedPack.coins }, true);
-
-    if (result.success) {
-        toast({
-            title: "Recharge Successful!",
-            description: `${selectedPack.coins.toLocaleString()} coins have been added to your wallet.`,
-        });
-        router.push('/profile');
-    } else {
-        toast({
-            title: "Recharge Failed",
-            description: result.error || "An unknown error occurred.",
-            variant: "destructive",
-        });
-    }
-  }
+  const whatsappPhoneNumber = "971564423341";
+  const rechargeMessage = selectedPack
+    ? `I'd like to recharge my account with the pack: ${selectedPack.coins.toLocaleString()} Coins for ${selectedPack.price}. My User ID is ${profile?.id}.`
+    : `I'd like to recharge my account. My User ID is ${profile?.id}.`;
+  
+  const whatsappLink = `https://wa.me/${whatsappPhoneNumber}?text=${encodeURIComponent(rechargeMessage)}`;
 
   return (
     <AppLayout>
@@ -123,7 +107,7 @@ export default function RechargePage() {
           {rechargePacks.map((pack, index) => (
             <Card 
               key={index} 
-              onClick={() => handleRecharge(pack)}
+              onClick={() => handleRechargeSelect(pack)}
               className={cn(
                 `text-white bg-gradient-to-br cursor-pointer relative overflow-hidden aspect-square flex flex-col justify-center items-center p-2 text-center border-2`, 
                 pack.color,
@@ -148,107 +132,34 @@ export default function RechargePage() {
         <Card>
             <CardHeader>
                 <CardTitle>Payment Method</CardTitle>
-                <CardDescription>Click the button below to contact us for recharge.</CardDescription>
+                <CardDescription>Click the button below to contact us for recharge. Please select a pack first.</CardDescription>
             </CardHeader>
             <CardContent>
-                <Link href={`https://wa.me/971564423341?text=I'd%20like%20to%20recharge%20my%20account.`} target="_blank" rel="noopener noreferrer" passHref>
-                    <Button variant="outline" size="lg" className="h-16 w-full text-lg justify-center gap-3 bg-green-500/10 border-green-500/30 hover:bg-green-500/20 text-foreground">
+                <Button asChild disabled={!selectedPack} className="h-16 w-full text-lg justify-center gap-3 bg-green-500/10 border-green-500/30 hover:bg-green-500/20 text-foreground">
+                    <Link href={whatsappLink} target="_blank" rel="noopener noreferrer">
                         <WhatsAppIcon className="w-8 h-8 text-green-500" /> Contact on WhatsApp
-                    </Button>
-                </Link>
+                    </Link>
+                </Button>
             </CardContent>
         </Card>
 
         <Card>
             <CardHeader>
                 <CardTitle>More Payment Methods</CardTitle>
-                <CardDescription>Select another payment method.</CardDescription>
+                <CardDescription>These payment methods are coming soon.</CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <Button variant="outline" className="h-16 text-base gap-3" disabled={!selectedPack}>
-                            <GooglePayIcon /> Google Pay
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Google Pay</DialogTitle>
-                            <DialogDescription>Enter your Google Pay details to proceed.</DialogDescription>
-                        </DialogHeader>
-                        <div className="py-4 space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="gpay-id">Google Pay ID</Label>
-                                <Input id="gpay-id" placeholder="yourname@okhdfcbank" />
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
-                            <DialogClose asChild><Button onClick={() => handlePaymentSubmit('Google Pay')}>Proceed</Button></DialogClose>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <Button variant="outline" className="h-16 text-base gap-3" disabled={!selectedPack}>
-                            <JazzCashIcon /> JazzCash
-                        </Button>
-                    </DialogTrigger>
-                     <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>JazzCash</DialogTitle>
-                            <DialogDescription>Enter your JazzCash account number.</DialogDescription>
-                        </DialogHeader>
-                        <div className="py-4 space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="jazzcash-number">JazzCash Number</Label>
-                                <Input id="jazzcash-number" type="tel" placeholder="03xxxxxxxxx" />
-                            </div>
-                        </div>
-                         <DialogFooter>
-                            <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
-                            <DialogClose asChild><Button onClick={() => handlePaymentSubmit('JazzCash')}>Proceed</Button></DialogClose>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <Button variant="outline" className="h-16 text-base gap-3" disabled={!selectedPack}>
-                           <CreditCardIcon /> Credit Card
-                        </Button>
-                    </DialogTrigger>
-                     <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Credit/Debit Card</DialogTitle>
-                            <DialogDescription>Enter your card details.</DialogDescription>
-                        </DialogHeader>
-                        <div className="py-4 space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="card-number">Card Number</Label>
-                                <Input id="card-number" placeholder="0000 0000 0000 0000" />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="expiry">Expiry</Label>
-                                    <Input id="expiry" placeholder="MM/YY" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="cvc">CVC</Label>
-                                    <Input id="cvc" placeholder="123" />
-                                </div>
-                            </div>
-                        </div>
-                        <DialogFooter>
-                           <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
-                           <DialogClose asChild><Button onClick={() => handlePaymentSubmit('Credit Card')}>Pay Now</Button></DialogClose>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
+                <Button variant="outline" className="h-16 text-base gap-3" disabled>
+                    <GooglePayIcon /> Google Pay
+                </Button>
+                <Button variant="outline" className="h-16 text-base gap-3" disabled>
+                    <JazzCashIcon /> JazzCash
+                </Button>
+                <Button variant="outline" className="h-16 text-base gap-3" disabled>
+                   <CreditCardIcon /> Credit Card
+                </Button>
             </CardContent>
         </Card>
-
       </div>
     </AppLayout>
   );
