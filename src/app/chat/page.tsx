@@ -3,26 +3,40 @@
 
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, MessageCircle } from "lucide-react";
+import { Search, MessageCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { useState } from "react";
-
-type Conversation = {
-    id: string;
-    avatar: string;
-    author: string;
-    timestamp: string;
-    text: string;
-    unread: number;
-};
-
-const initialConversations: Conversation[] = [];
+import { useEffect, useState } from "react";
+import { auth } from "@/lib/firebase";
+import { getConversations, type ConversationSummary } from "@/services/chatService";
+import { formatDistanceToNow } from 'date-fns';
 
 export default function ChatListPage() {
-    const [conversations, setConversations] = useState(initialConversations);
+    const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [currentUser, setCurrentUser] = useState(auth.currentUser);
+
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged(user => {
+            setCurrentUser(user);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    useEffect(() => {
+        if (!currentUser) {
+            setIsLoading(false);
+            return;
+        }
+
+        const unsubscribeConversations = getConversations(currentUser.uid, (newConversations) => {
+            setConversations(newConversations);
+            setIsLoading(false);
+        });
+
+        return () => unsubscribeConversations();
+    }, [currentUser]);
 
     return (
         <AppLayout>
@@ -36,26 +50,34 @@ export default function ChatListPage() {
                 </header>
 
                 <div className="flex-1 overflow-y-auto -mx-4 px-4">
-                    {conversations.length > 0 ? (
+                    {isLoading ? (
+                        <div className="flex justify-center items-center h-full">
+                            <Loader2 className="w-10 h-10 animate-spin text-primary" />
+                        </div>
+                    ) : conversations.length > 0 ? (
                         <div className="space-y-1">
                             {conversations.map((chat) => (
                                <Link href={`/chat/${chat.id}`} key={chat.id} className="block">
                                  <Card className="bg-card/50 hover:bg-card/80 transition-colors border-transparent hover:border-primary/20">
                                      <CardContent className="p-3 flex items-center gap-4">
                                          <Avatar className="h-12 w-12 border-2 border-primary/50">
-                                            <AvatarImage src={chat.avatar} alt={chat.author} />
-                                            <AvatarFallback>{chat.author.charAt(0)}</AvatarFallback>
+                                            <AvatarImage src={chat.partnerAvatar} alt={chat.partnerName} />
+                                            <AvatarFallback>{chat.partnerName.charAt(0)}</AvatarFallback>
                                         </Avatar>
                                         <div className="flex-1 overflow-hidden">
                                             <div className="flex justify-between items-center">
-                                                <p className="font-semibold truncate">{chat.author}</p>
-                                                <p className="text-xs text-muted-foreground">{chat.timestamp}</p>
+                                                <p className="font-semibold truncate">{chat.partnerName}</p>
+                                                {chat.lastMessageTimestamp && (
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {formatDistanceToNow(new Date(chat.lastMessageTimestamp.seconds * 1000), { addSuffix: true })}
+                                                    </p>
+                                                )}
                                             </div>
                                             <div className="flex justify-between items-start mt-1">
-                                                <p className="text-sm text-muted-foreground truncate">{chat.text}</p>
-                                                 {chat.unread > 0 && (
+                                                <p className="text-sm text-muted-foreground truncate">{chat.lastMessage}</p>
+                                                 {chat.unreadCount > 0 && (
                                                     <span className="flex items-center justify-center bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 ml-2">
-                                                        {chat.unread}
+                                                        {chat.unreadCount}
                                                     </span>
                                                 )}
                                             </div>

@@ -5,10 +5,9 @@ import { useState, useEffect, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Paperclip, Send, ArrowLeft, Mic, MoreVertical, Film, Gift, Video, UserX, Trash2, BellOff, MessageCircle } from "lucide-react";
+import { Paperclip, Send, ArrowLeft, Mic, MoreVertical, Film, Gift, Video, UserX, Trash2, BellOff, MessageCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter, useParams } from "next/navigation";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,19 +15,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast";
+import { listenToMessages, sendMessage, type ChatMessage, getConversationPartner, type ConversationPartner } from "@/services/chatService";
+import { auth } from "@/lib/firebase";
+import { User } from "firebase/auth";
 
-type Message = {
-    id: number;
-    author: string;
-    avatar: string;
-    type: "text" | "voice";
-    text?: string;
-    duration?: string;
-    isSender: boolean;
-    timestamp: string;
-};
-
-const createInitialMessages = (contactName: string): Message[] => [];
 
 const PlayIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} viewBox="0 0 24 24" fill="currentColor">
@@ -41,46 +31,88 @@ export default function ChatRoomPage() {
     const router = useRouter();
     const params = useParams();
     const { toast } = useToast();
-    const id = typeof params.id === 'string' ? params.id : '';
+    const conversationId = params.id as string;
     
-    const contactName = id.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-    
-    const [messages, setMessages] = useState(() => createInitialMessages(contactName));
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState("");
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [partner, setPartner] = useState<ConversationPartner | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        const unsubscribeAuth = auth.onAuthStateChanged(user => {
+            setCurrentUser(user);
+            if (!user) {
+                router.push('/');
+            }
+        });
+        return () => unsubscribeAuth();
+    }, [router]);
+
+    useEffect(() => {
+        if (!currentUser || !conversationId) return;
+
+        const fetchPartner = async () => {
+            const partnerData = await getConversationPartner(conversationId, currentUser.uid);
+            setPartner(partnerData);
+            setIsLoading(false);
+        };
+
+        fetchPartner();
+
+        const unsubscribeMessages = listenToMessages(conversationId, setMessages);
+        return () => unsubscribeMessages();
+
+    }, [currentUser, conversationId]);
 
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
         if (!chatContainer) return;
 
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        // Scroll to bottom whenever messages change
+        setTimeout(() => {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }, 100);
     }, [messages]);
 
-    const handleSendMessage = (e: React.FormEvent) => {
+    const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (newMessage.trim()) {
-            const newMsg: Message = {
-                id: messages.length + 1,
-                author: "You",
-                type: "text",
-                text: newMessage,
-                isSender: true,
-                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
-                avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png",
-            };
-            setMessages(prev => [...prev, newMsg]);
-            setNewMessage("");
+        if (newMessage.trim() && currentUser) {
+            const messageToSend = newMessage;
+            setNewMessage(""); 
             inputRef.current?.blur();
+            
+            await sendMessage(conversationId, currentUser.uid, messageToSend);
         }
     };
     
     const handleClearChat = () => {
-        setMessages([]);
+        // This is a complex operation (deleting subcollections) and is not implemented for this demo.
         toast({
-            title: "Chat Cleared",
-            description: "All messages have been removed from this conversation.",
+            title: "Action Not Available",
+            description: "Clearing chat history is not available in this demo.",
         });
+    }
+
+    if (isLoading || !partner || !currentUser) {
+        return (
+            <div className="flex flex-col h-screen bg-gradient-to-br from-background via-primary/10 to-background text-foreground">
+                <header className="p-4 border-b flex items-center justify-between gap-4 bg-card">
+                    <div className="flex items-center gap-4">
+                        <Button variant="ghost" size="icon" onClick={() => router.back()}>
+                            <ArrowLeft />
+                        </Button>
+                        <Loader2 className="animate-spin" />
+                    </div>
+                </header>
+                 <div className="flex-1 flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary"/>
+                 </div>
+            </div>
+        )
     }
 
     return (
@@ -91,11 +123,11 @@ export default function ChatRoomPage() {
                         <ArrowLeft />
                     </Button>
                      <Avatar className="h-10 w-10">
-                        <AvatarImage src="https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png" alt={contactName} data-ai-hint="person face" />
-                        <AvatarFallback>{contactName.charAt(0)}</AvatarFallback>
+                        <AvatarImage src={partner.avatar} alt={partner.name} data-ai-hint="person face" />
+                        <AvatarFallback>{partner.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
-                        <h1 className="text-xl font-bold font-headline">{contactName}</h1>
+                        <h1 className="text-xl font-bold font-headline">{partner.name}</h1>
                         <p className="text-sm text-green-400">Online</p>
                     </div>
                 </div>
@@ -128,19 +160,19 @@ export default function ChatRoomPage() {
                         key={msg.id}
                         className={cn(
                             "flex items-end gap-2",
-                            msg.isSender ? "justify-end" : "justify-start"
+                            msg.senderId === currentUser.uid ? "justify-end" : "justify-start"
                         )}
                     >
-                        {!msg.isSender && (
+                        {msg.senderId !== currentUser.uid && (
                             <Avatar className="h-8 w-8">
-                                <AvatarImage src={msg.avatar} alt={msg.author} />
-                                <AvatarFallback>{msg.author?.charAt(0)}</AvatarFallback>
+                                <AvatarImage src={partner.avatar} alt={partner.name} />
+                                <AvatarFallback>{partner.name?.charAt(0)}</AvatarFallback>
                             </Avatar>
                         )}
                         <div
                             className={cn(
                                 "rounded-lg px-3 py-2 max-w-xs lg:max-w-md",
-                                msg.isSender
+                                msg.senderId === currentUser.uid
                                     ? "bg-primary text-primary-foreground"
                                     : "bg-muted"
                             )}
@@ -149,8 +181,8 @@ export default function ChatRoomPage() {
                                 <p className="text-sm">{msg.text}</p>
                             ) : (
                                 <div className="flex items-center gap-2">
-                                    <Button variant="ghost" size="icon" className={cn("w-8 h-8 rounded-full", msg.isSender ? "bg-primary/50 hover:bg-primary/70" : "bg-muted-foreground/20 hover:bg-muted-foreground/40")}>
-                                        <PlayIcon className={cn("w-4 h-4", msg.isSender ? "text-primary-foreground" : "text-foreground")} />
+                                    <Button variant="ghost" size="icon" className={cn("w-8 h-8 rounded-full", msg.senderId === currentUser.uid ? "bg-primary/50 hover:bg-primary/70" : "bg-muted-foreground/20 hover:bg-muted-foreground/40")}>
+                                        <PlayIcon className={cn("w-4 h-4", msg.senderId === currentUser.uid ? "text-primary-foreground" : "text-foreground")} />
                                     </Button>
                                     <div className="w-32 h-1 bg-white/20 rounded-full">
                                         <div className="w-[70%] h-full bg-white/40 rounded-full"></div>
@@ -158,8 +190,8 @@ export default function ChatRoomPage() {
                                     <span className="text-xs w-10">{msg.duration}</span>
                                 </div>
                             )}
-                            <p className={cn("text-xs mt-1 text-right", msg.isSender ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
-                                {msg.timestamp}
+                            <p className={cn("text-xs mt-1 text-right", msg.senderId === currentUser.uid ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
+                                {new Date(msg.timestamp?.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                             </p>
                         </div>
                     </div>
@@ -167,41 +199,17 @@ export default function ChatRoomPage() {
                     <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
                         <MessageCircle className="w-16 h-16 mb-4" />
                         <h2 className="text-xl font-semibold">No Messages</h2>
-                        <p className="text-sm">Send a message to start the conversation.</p>
+                        <p className="text-sm">Send a message to start the conversation with {partner.name}.</p>
                     </div>
                 )}
             </div>
 
             <footer className="p-4 border-t bg-background/50">
                 <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="ghost" size="icon" type="button">
-                                <Paperclip />
-                                <span className="sr-only">Attach file</span>
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-56 p-2 mb-2">
-                            <div className="grid gap-1">
-                                <Button variant="ghost" className="justify-start">
-                                    <Video className="mr-2 h-4 w-4" />
-                                    Photo/Video
-                                </Button>
-                                 <Button variant="ghost" className="justify-start">
-                                    <Film className="mr-2 h-4 w-4" />
-                                    Share Video Room
-                                </Button>
-                                <Button variant="ghost" className="justify-start">
-                                    <Mic className="mr-2 h-4 w-4" />
-                                    Share Audio Room
-                                </Button>
-                                <Button variant="ghost" className="justify-start">
-                                    <Gift className="mr-2 h-4 w-4 text-yellow-500" />
-                                    Send Gift
-                                </Button>
-                            </div>
-                        </PopoverContent>
-                    </Popover>
+                     <Button variant="ghost" size="icon" type="button" disabled>
+                        <Paperclip />
+                        <span className="sr-only">Attach file</span>
+                    </Button>
                     <Input
                         ref={inputRef}
                         autoComplete="off"
@@ -216,7 +224,7 @@ export default function ChatRoomPage() {
                             <span className="sr-only">Send message</span>
                         </Button>
                     ) : (
-                         <Button type="button" size="icon">
+                         <Button type="button" size="icon" disabled>
                             <Mic />
                             <span className="sr-only">Record voice message</span>
                         </Button>
