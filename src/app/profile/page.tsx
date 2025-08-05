@@ -24,11 +24,11 @@ import { Label } from "@/components/ui/label";
 
 
 export default function ProfilePage() {
-    const [idLevel, setIdLevel] = useState(10);
-    const [sendingLevel, setSendingLevel] = useState(10);
-    const [name, setName] = useState("associate Official Ds");
+    const [idLevel, setIdLevel] = useState(0);
+    const [sendingLevel, setSendingLevel] = useState(0);
+    const [name, setName] = useState("Your Name");
     const [tempName, setTempName] = useState(name);
-    const [avatar, setAvatar] = useState("https://em-content.zobj.net/source/apple/391/letter-a_1f170-fe0f.png");
+    const [avatar, setAvatar] = useState("https://placehold.co/100x100.png");
     const [coins, setCoins] = useState(0);
     const [diamonds, setDiamonds] = useState(0);
     
@@ -112,8 +112,8 @@ export default function ProfilePage() {
                                 </DialogContent>
                             </Dialog>
 
-                            <p className="text-sm text-white/70">@user1754000546251</p>
-                            <p className="text-sm mt-2 max-w-sm">Welcome to Devika!</p>
+                            <p className="text-sm text-white/70">@username</p>
+                            <p className="text-sm mt-2 max-w-sm">Welcome to my profile!</p>
                              <div className="flex justify-around text-center mt-4 w-full max-w-xs">
                                 <div>
                                     <p className="font-bold text-lg">{following.toLocaleString()}</p>

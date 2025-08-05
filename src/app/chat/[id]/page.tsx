@@ -28,44 +28,7 @@ type Message = {
     timestamp: string;
 };
 
-const createInitialMessages = (contactName: string): Message[] => [
-  {
-    id: 1,
-    author: contactName,
-    avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png",
-    type: "text",
-    text: "Hey, are you joining the live set tonight?",
-    isSender: false,
-    timestamp: "5:01 PM",
-  },
-  {
-    id: 2,
-    author: "You",
-    avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png",
-    type: "text",
-    text: "For sure! Wouldn't miss it. Who's playing?",
-    isSender: true,
-    timestamp: "5:02 PM",
-  },
-  {
-    id: 3,
-    author: contactName,
-    avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png",
-    type: "text",
-    text: "It's a surprise guest, but I heard it's going to be epic!",
-    isSender: false,
-    timestamp: "5:02 PM",
-  },
-  {
-    id: 4,
-    author: "You",
-    avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png",
-    type: "voice",
-    duration: "0:15",
-    isSender: true,
-    timestamp: "5:03 PM",
-  },
-];
+const createInitialMessages = (contactName: string): Message[] => [];
 
 const PlayIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} viewBox="0 0 24 24" fill="currentColor">

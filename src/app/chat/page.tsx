@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Search, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 type Conversation = {
     id: string;
@@ -18,26 +19,11 @@ type Conversation = {
     unread: number;
 };
 
-const conversations: Conversation[] = [
-    {
-        id: "jodie-kay",
-        avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png",
-        author: "Jodie Kay",
-        timestamp: "5:02 PM",
-        text: "It's a surprise guest, but I heard it's going to be epic!",
-        unread: 2,
-    },
-    {
-        id: "koko-loco",
-        avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png",
-        author: "Koko Loco",
-        timestamp: "Yesterday",
-        text: "Yeah, let's link up there.",
-        unread: 0,
-    },
-];
+const initialConversations: Conversation[] = [];
 
 export default function ChatListPage() {
+    const [conversations, setConversations] = useState(initialConversations);
+
     return (
         <AppLayout>
             <div className="flex flex-col h-[calc(100vh-10rem)]">

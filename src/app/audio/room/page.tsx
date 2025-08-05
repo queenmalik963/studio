@@ -22,23 +22,19 @@ import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 
 
 const initialMessages = [
-  { id: 1, type: 'system', text: 'Welcome Jodie, saba, and Koko to the room!' },
-  { id: 2, type: 'gift', author: 'Jodie', text: 'Sent a RedRose', giftIcon: 'https://em-content.zobj.net/source/apple/391/rose_1f339.png', avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png" },
-  { id: 3, type: 'game', author: 'Jodie', text: 'started playing Fruit!', game: 'Fruit!', avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png" },
-  { id: 4, type: 'text', author: 'saba', text: 'Hi...', avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png"},
-  { id: 5, type: 'system', text: 'Riz has left the room.' },
+  { id: 1, type: 'system', text: 'Welcome to the room!' },
 ];
 
-export const roomSeats = [
-    { id: 1, user: { name: "Jodie", avatar: "https://em-content.zobj.net/source/apple/391/woman-artist_1f469-200d-1f3a8.png", isMuted: false, frame: 'master' }, isOccupied: true, isLocked: false },
-    { id: 2, user: { name: "Koko", avatar: "https://em-content.zobj.net/source/apple/391/man-health-worker_1f468-200d-2695-fe0f.png", isMuted: false, frame: 'gold' }, isOccupied: true, isLocked: false },
-    { id: 3, user: { name: "User 3", avatar: "https://em-content.zobj.net/source/apple/391/woman-wearing-turban_1f473-200d-2640-fe0f.png", isMuted: true, frame: 'platinum' }, isOccupied: true, isLocked: false },
-    { id: 4, user: { name: "Lexa", avatar: "https://em-content.zobj.net/source/apple/391/man-in-tuxedo_1f935.png", isMuted: true, frame: 'blue' }, isOccupied: true, isLocked: false },
-    { id: 5, user: { name: "mhay", avatar: "https://em-content.zobj.net/source/apple/391/woman-with-headscarf_1f9d5.png", isMuted: true, frame: 'green' }, isOccupied: true, isLocked: false },
-    { id: 6, user: { name: "saba", avatar: "https://em-content.zobj.net/source/apple/391/woman-technologist_1f469-200d-1f4bb.png", isMuted: false, frame: 'red' }, isOccupied: true, isLocked: false },
-    { id: 7, user: { name: "MR ISMAIL", avatar: "https://em-content.zobj.net/source/apple/391/man-supervillain_1f9b9-200d-2642-fe0f.png", isMuted: false, frame: 'dragon-fury' }, isOccupied: true, isLocked: false },
-    { id: 8, user: { name: "Riz", avatar: "https://em-content.zobj.net/source/apple/391/ninja_1f977.png", isMuted: false, frame: 'dragon-fury' }, isOccupied: true, isLocked: false },
-    { id: 9, user: { name: "User 9", avatar: "https://em-content.zobj.net/source/apple/391/ghost_1f47b.png", isMuted: true, frame: 'teal' }, isOccupied: true, isLocked: false },
+export const roomSeats: any[] = [
+    { id: 1, user: null, isOccupied: false, isLocked: false },
+    { id: 2, user: null, isOccupied: false, isLocked: false },
+    { id: 3, user: null, isOccupied: false, isLocked: false },
+    { id: 4, user: null, isOccupied: false, isLocked: false },
+    { id: 5, user: null, isOccupied: false, isLocked: false },
+    { id: 6, user: null, isOccupied: false, isLocked: false },
+    { id: 7, user: null, isOccupied: false, isLocked: false },
+    { id: 8, user: null, isOccupied: false, isLocked: false },
+    { id: 9, user: null, isOccupied: false, isLocked: false },
     { id: 10, user: null, isOccupied: false, isLocked: false },
     { id: 11, user: null, isOccupied: false, isLocked: false },
     { id: 12, user: null, isOccupied: false, isLocked: false },

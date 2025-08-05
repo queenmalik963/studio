@@ -11,53 +11,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
-const initialRooms = [
-  {
-    name: "Lofi Beats to Relax/Study to",
-    thumbnail: "https://placehold.co/150x80.png",
-    thumbnailHint: "lofi hip hop",
-    users: [
-      { name: "A", src: "https://placehold.co/40x40.png" },
-      { name: "B", src: "https://placehold.co/40x40.png" },
-      { name: "C", src: "https://placehold.co/40x40.png" },
-    ],
-    isPlaying: true,
-    progress: 75,
-  },
-  {
-    name: "Deep House Mix by Nora En Pure",
-    thumbnail: "https://placehold.co/150x80.png",
-    thumbnailHint: "dj mixing",
-    users: [
-      { name: "D", src: "https://placehold.co/40x40.png" },
-      { name: "E", src: "https://placehold.co/40x40.png" },
-    ],
-    isPlaying: true,
-    progress: 40,
-  },
-    {
-    name: "Techno Bunker Live Set",
-    thumbnail: "https://placehold.co/150x80.png",
-    thumbnailHint: "dark club",
-    users: [
-      { name: "F", src: "https://placehold.co/40x40.png" },
-    ],
-    isPlaying: false,
-    progress: 0,
-  },
-    {
-    name: "Anjunadeep Selections",
-    thumbnail: "https://placehold.co/150x80.png",
-    thumbnailHint: "ocean sunset",
-    users: [
-        { name: "I", src: "https://placehold.co/40x40.png" },
-        { name: "G", src: "https://placehold.co/40x40.png" },
-        { name: "H", src: "https://placehold.co/40x40.png" },
-    ],
-    isPlaying: true,
-    progress: 60,
-  },
-];
+const initialRooms: any[] = [];
 
 
 export default function AudioPage() {
@@ -109,7 +63,7 @@ export default function AudioPage() {
                                   <p className="text-white font-semibold truncate">{room.name}</p>
                                   <div className="flex items-center gap-2 mt-2">
                                       <div className="flex -space-x-2">
-                                          {room.users.map((user, i) => (
+                                          {room.users.map((user: any, i: number) => (
                                               <Avatar key={i} className="w-7 h-7 border-2 border-background/50">
                                                   <AvatarImage src={user.src} alt={user.name} data-ai-hint="person portrait" />
                                                   <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>

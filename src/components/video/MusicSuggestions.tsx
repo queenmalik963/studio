@@ -9,39 +9,35 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export function MusicSuggestions() {
     const [suggestions, setSuggestions] = useState<SuggestUpNextMusicOutput | null>(null);
-    const [isLoading, setIsLoading] = useState(true); // Start with loading true
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchSuggestions = async () => {
+            setIsLoading(true);
+            setError(null);
             try {
-                // To keep the initial state without calling the API, we can simulate a successful call with dummy data
-                // When you are ready to enable the real API call, uncomment the lines below and remove the dummy data part.
-                
-                // START: DUMMY DATA SIMULATION (Remove when enabling API)
-                await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
-                const dummySuggestions: SuggestUpNextMusicOutput = {
-                    suggestedTracks: [
-                        "Lane 8 - Summer 2021 Mixtape",
-                        "Ben Böhmer - Breathing (Live from Printworks)",
-                        "Tinlicker - Children",
-                    ]
-                };
-                setSuggestions(dummySuggestions);
-                // END: DUMMY DATA SIMULATION
-
-                /*
-                // UNCOMMENT THIS BLOCK TO ENABLE REAL API CALLS
-                setError(null);
-                // In a real app, you'd get this from user data
+                // In a real app, you'd get this from user data or browsing history
                 const recentlyWatched = [
-                    "Psytrance festival aftermovie 2023",
-                    "Boiler Room: Fred again.. in London",
-                    "How to mix techno like a pro DJ"
+                    "Live from Tomorrowland",
+                    "Techno Bunker Set",
+                    "Boiler Room: London",
                 ];
-                const result = await suggestUpNextMusic({ recentlyWatchedVideos: recentlyWatched });
+                
+                // To prevent API errors on first load, we can disable this call.
+                // When you have a valid API key in .env, you can uncomment the next line.
+                // const result = await suggestUpNextMusic({ recentlyWatchedVideos: recentlyWatched });
+                
+                // For demonstration, we'll use a timeout and dummy data.
+                // You can REMOVE THIS BLOCK when you enable the API call above.
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                const result: SuggestUpNextMusicOutput = {
+                     suggestedTracks: [] // Initially empty, will be populated by AI
+                };
+                 // END of demonstration block
+                
                 setSuggestions(result);
-                */
+
             } catch (e: any) {
                  if (e.message.includes("API key not valid")) {
                     setError("Your Gemini API key is not valid. Please check your .env file.");
@@ -58,8 +54,9 @@ export function MusicSuggestions() {
         };
 
         fetchSuggestions();
-
     }, []);
+
+    const hasSuggestions = suggestions && suggestions.suggestedTracks.length > 0;
 
     return (
         <Card className="bg-card/50 border-primary/20 backdrop-blur-sm">
@@ -93,7 +90,13 @@ export function MusicSuggestions() {
                         </AlertDescription>
                     </Alert>
                 )}
-                {suggestions && !isLoading && !error && (
+                {!isLoading && !error && !hasSuggestions && (
+                     <div className="text-center text-muted-foreground py-10">
+                        <p>No suggestions available right now.</p>
+                        <p className="text-xs">Watch some videos to get started!</p>
+                    </div>
+                )}
+                {hasSuggestions && (
                     <ul className="space-y-3">
                         {suggestions.suggestedTracks.map((track, index) => (
                             <li key={index} className="flex items-center gap-4 p-2 rounded-md transition-colors hover:bg-accent/10">

@@ -16,75 +16,8 @@ import {
 } from "@/components/ui/select";
 import { MusicSuggestions } from "@/components/video/MusicSuggestions";
 
-const initialTrendingVideos = [
-  {
-    title: "Live from Tomorrowland",
-    creator: "Anyma",
-    viewers: "15.2k",
-    image: "https://i.ytimg.com/vi/1_M6g_OKc6w/hq720.jpg",
-    hint: "concert crowd",
-    href: "/video/room?id=1_M6g_OKc6w"
-  },
-  {
-    title: "Techno Bunker Set",
-    creator: "Charlotte de Witte",
-    viewers: "12.8k",
-    image: "https://i.ytimg.com/vi/slGaB-aFpIE/hq720.jpg",
-    hint: "dj turntables",
-    href: "/video/room?id=slGaB-aFpIE"
-  },
-  {
-    title: "Boiler Room: London",
-    creator: "Fred Again..",
-    viewers: "25.1k",
-    image: "https://i.ytimg.com/vi/c0-hvjV2A5Y/hq720.jpg",
-    hint: "dj crowd",
-    href: "/video/room?id=c0-hvjV2A5Y"
-  },
-  {
-    title: "Deep House Mix",
-    creator: "Nora En Pure",
-    viewers: "8.9k",
-    image: "https://i.ytimg.com/vi/b4Y8pOU-N5M/hq720.jpg",
-    hint: "beach sunset",
-    href: "/video/room?id=b4Y8pOU-N5M"
-  },
-];
-
-const initialTrendingAudio = [
-    {
-        title: "Lofi Beats to Relax/Study to",
-        creator: "Lofi Girl",
-        listeners: "32.5k",
-        image: "https://i.imgur.com/P5n9G2b.jpeg",
-        hint: "lofi hip hop",
-        href: "/audio/room"
-    },
-    {
-        title: "Deep House Mix by Nora En Pure",
-        creator: "Nora En Pure",
-        listeners: "18.2k",
-        image: "https://i.imgur.com/h5TLLvX.jpeg",
-        hint: "dj mixing",
-        href: "/audio/room"
-    },
-    {
-        title: "Techno Bunker Live Set",
-        creator: "Amelie Lens",
-        listeners: "21.7k",
-        image: "https://i.imgur.com/BQMwI4Y.jpeg",
-        hint: "dark club",
-        href: "/audio/room"
-    },
-    {
-        title: "Anjunadeep Selections",
-        creator: "Anjunadeep",
-        listeners: "11.4k",
-        image: "https://i.imgur.com/5l3zL02.png",
-        hint: "ocean sunset",
-        href: "/audio/room"
-    }
-];
+const initialTrendingVideos: any[] = [];
+const initialTrendingAudio: any[] = [];
 
 const TrendingCard = ({ href, image, hint, title, creator, viewers, icon: Icon }: { href: string, image: string, hint: string, title: string, creator: string, viewers: string, icon: React.ElementType }) => (
     <Link href={href} className="block">
