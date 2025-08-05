@@ -79,6 +79,15 @@ export default function AudioRoomPage() {
 
     const owner = { name: "op_2", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true };
     const currentUserIsOwner = true; // For simulation
+
+    useEffect(() => {
+        const newTrackUrl = localStorage.getItem('newlySelectedTrack');
+        if (newTrackUrl) {
+            setAudioSrc(newTrackUrl);
+            setIsPlaying(true);
+            localStorage.removeItem('newlySelectedTrack'); // Clean up after use
+        }
+    }, []);
     
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
@@ -240,7 +249,7 @@ export default function AudioRoomPage() {
     
      useEffect(() => {
         if (!audioRef.current) return;
-        if (isPlaying) {
+        if (isPlaying && audioSrc) {
             audioRef.current.play().catch(e => console.error("Audio play failed:", e));
         } else {
             audioRef.current.pause();
@@ -380,7 +389,7 @@ export default function AudioRoomPage() {
 
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
-             {audioSrc && <audio ref={audioRef} src={audioSrc} loop />}
+             {audioSrc && <audio ref={audioRef} src={audioSrc} loop onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />}
              {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
              {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">

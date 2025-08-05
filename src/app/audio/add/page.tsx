@@ -46,10 +46,11 @@ export default function AddAudioPage() {
         if (file) {
             toast({
                 title: "Track Selected!",
-                description: `"${file.name}" is ready to be played in a new room.`,
+                description: `"${file.name}" is ready. Creating a new room...`,
             });
-            // Here you would typically upload the file and create a new room
-            router.push('/audio/room'); // Navigate to the room after selection
+            const trackUrl = URL.createObjectURL(file);
+            localStorage.setItem('newlySelectedTrack', trackUrl);
+            router.push('/audio/room');
         }
     };
 
