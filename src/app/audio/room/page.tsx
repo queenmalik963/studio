@@ -62,6 +62,7 @@ export default function AudioRoomPage() {
     const [isPersonalMicMuted, setIsPersonalMicMuted] = useState(true);
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
     const [coins, setCoins] = useState(0);
+    const [owner, setOwner] = useState({ name: "My Audio Room", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true });
 
     // Audio Player State
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -76,11 +77,14 @@ export default function AudioRoomPage() {
     const sendButtonRef = useRef<HTMLButtonElement>(null);
     const lastMessageCount = useRef(messages.length);
 
-    const owner = { name: "op_2", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true };
     const currentUserIsOwner = true; // For simulation
 
      useEffect(() => {
         const seatCount = parseInt(localStorage.getItem('audio_room_seats') || '8', 10);
+        const roomName = localStorage.getItem('audio_room_name') || 'My Audio Room';
+
+        setOwner(prev => ({...prev, name: roomName}));
+
         const initialSeats = Array.from({ length: seatCount }, (_, i) => ({
             id: i + 1,
             isOccupied: false,

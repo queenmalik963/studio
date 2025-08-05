@@ -30,13 +30,15 @@ export default function AddAudioPage() {
     const { toast } = useToast();
     const [open, setOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [numberOfSeats, setNumberOfSeats] = useState("4");
+    const [numberOfSeats, setNumberOfSeats] = useState("8");
+    const [roomName, setRoomName] = useState("");
 
 
     const handleCreateRoom = () => {
         setOpen(false);
         // Pass room settings to the next page
         localStorage.setItem("audio_room_seats", numberOfSeats);
+        localStorage.setItem("audio_room_name", roomName || "My Audio Room");
         toast({
             title: "Room Created!",
             description: "Your new audio room is ready.",
@@ -99,7 +101,7 @@ export default function AddAudioPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="room-name">Room Name</Label>
-                                    <Input id="room-name" placeholder="e.g., Late Night Lofi" />
+                                    <Input id="room-name" placeholder="e.g., Late Night Lofi" value={roomName} onChange={(e) => setRoomName(e.target.value)} />
                                 </div>
                                  <div className="space-y-2">
                                     <Label htmlFor="room-details">Details</Label>
