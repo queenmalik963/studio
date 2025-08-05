@@ -16,26 +16,23 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Card, CardContent } from "@/components/ui/card";
 import { GiftPanel, type Gift as GiftType } from "@/components/room/GiftPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import type { JumpAnimation } from "@/app/audio/room/page";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import YouTube from 'react-youtube';
+import { listenToMessages, sendMessage, type Message } from "@/services/roomService";
 
 
-type Message = {
+export type JumpAnimation = {
     id: number;
-    type: 'text' | 'game' | 'gift' | 'notification' | 'system';
-    author?: string;
-    text: string;
-    avatar?: string;
-    game?: string;
-    giftIcon?: string;
+    gift: GiftType;
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
 };
 
 
-const initialMessages: Message[] = [];
-
-export const videoRoomSeats: any[] = [
+const videoRoomSeats: any[] = [
     { id: 1, isOccupied: true, user: { name: 'RaverX', avatar: 'https://placehold.co/40x40.png', isMuted: false, frame: 'gold' }, isLocked: false },
     { id: 2, isOccupied: true, user: { name: 'Echostage', avatar: 'https://placehold.co/40x40.png', isMuted: true, frame: 'purple' }, isLocked: false },
     { id: 3, isOccupied: false, user: null, isLocked: false },
@@ -55,10 +52,10 @@ const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
 function VideoRoomPageComponent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const videoId = searchParams.get('id');
+    const videoIdParam = searchParams.get('id');
 
     const { toast } = useToast();
-    const [messages, setMessages] = useState(initialMessages);
+    const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const [seats, setSeats] = useState(videoRoomSeats);
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
@@ -81,18 +78,25 @@ function VideoRoomPageComponent() {
     const sendButtonRef = useRef<HTMLButtonElement>(null);
     const lastMessageCount = useRef(messages.length);
 
+    // In a real app, this would come from the URL or state management
+    const roomId = videoIdParam ? `video-${videoIdParam}` : "demo-video-room"; 
+    // This would come from the auth context
+    const currentUserId = "user-123";
+    const currentUserAvatar = "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png";
+    const currentUsername = "You";
+
     const owner = { name: "op_2", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true };
     const currentUserIsOwner = true; // For simulation
 
      const videoRoomControls = [
-        { name: "Gathering", icon: Flag, action: () => {
+        { name: "Gathering", icon: Flag, action: async () => {
             toast({ title: "Gathering Started in Video Room!", description: "Special room effects are now active." });
-            setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'A gathering has been started by the owner!' }]);
+            await sendMessage(roomId, { type: 'system', text: 'A gathering has been started by the owner!' });
             setIsControlsPanelOpen(false);
         }},
-        { name: "Broadcast", icon: Megaphone, action: () => {
+        { name: "Broadcast", icon: Megaphone, action: async () => {
             toast({ title: "Video Room Broadcast Sent!", description: "Your message has been sent to all users." });
-            setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'Broadcast: Welcome to the video room! Enjoy your stay.' }]);
+            await sendMessage(roomId, { type: 'system', text: 'Broadcast: Welcome to the video room! Enjoy your stay.' });
             setIsControlsPanelOpen(false);
         }},
         { name: "Music", icon: Music, action: () => {
@@ -115,7 +119,7 @@ function VideoRoomPageComponent() {
         { name: "Clean", icon: Trash2, action: () => {
             setMessages(prev => prev.filter(m => m.type !== 'text'));
             toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
-            setIsControlsPanelOpen(false);
+             setIsControlsPanelOpen(false);
         }},
         { name: "Mute All", icon: MicOff, ownerOnly: true, action: () => {
             const areAllMuted = seats.every(seat => !seat.isOccupied || (seat.user && seat.user.isMuted));
@@ -145,6 +149,17 @@ function VideoRoomPageComponent() {
     }, [messages]);
 
     useEffect(() => {
+        if (!roomId) return;
+
+        const unsubscribe = listenToMessages(roomId, (newMessages) => {
+            setMessages(newMessages);
+        });
+
+        // Cleanup subscription on unmount
+        return () => unsubscribe();
+    }, [roomId]);
+
+    useEffect(() => {
         const player = playerRef.current;
         if (player && typeof player.playVideo === 'function') {
             if (isPlaying) {
@@ -156,25 +171,33 @@ function VideoRoomPageComponent() {
     }, [isPlaying, playerRef]);
 
     
-    const handleSendMessage = (e: React.FormEvent) => {
+    const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (newMessage.trim()) {
-            setMessages([
-                ...messages,
-                {
-                    id: messages.length + 1,
-                    type: "text",
-                    author: "You",
-                    text: newMessage,
-                    avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png",
-                },
-            ]);
-            setNewMessage("");
+        if (newMessage.trim() && roomId && currentUserId) {
+            const messageToSend = newMessage;
+            setNewMessage(""); // Clear input immediately for better UX
             inputRef.current?.blur();
+            
+            const result = await sendMessage(roomId, {
+                authorId: currentUserId,
+                authorName: currentUsername,
+                authorAvatar: currentUserAvatar,
+                text: messageToSend,
+                type: 'text',
+            });
+            
+            if (!result.success) {
+                toast({
+                    variant: "destructive",
+                    title: "Failed to send message",
+                    description: result.error,
+                });
+                setNewMessage(messageToSend); // Restore message on failure
+            }
         }
     };
 
-    const handleSendGift = (gift: GiftType, quantity: number, recipient: string) => {
+    const handleSendGift = async (gift: GiftType, quantity: number, recipient: string) => {
         const totalCost = gift.price * quantity;
         if (coins < totalCost) {
             toast({
@@ -236,32 +259,30 @@ function VideoRoomPageComponent() {
              handleAnimateGift(gift);
         }
 
-        setMessages(prev => [
-            ...prev,
-            {
-                id: Date.now(),
-                type: 'gift',
-                author: 'You',
-                text: `Sent ${quantity}x ${gift.name} to ${recipient}`,
-                giftIcon: gift.image,
-                avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png"
-            }
-        ]);
+        await sendMessage(roomId, {
+            authorId: currentUserId,
+            authorName: currentUsername,
+            authorAvatar: currentUserAvatar,
+            text: `Sent ${quantity}x ${gift.name} to ${recipient}`,
+            giftIcon: gift.image,
+            type: 'gift',
+        });
     };
 
-    const handleStartGame = (gameName: string) => {
+    const handleStartGame = async (gameName: string) => {
         setIsGamePanelOpen(false);
-        setMessages(prev => [
-            ...prev,
-            {
-                id: Date.now(),
-                type: 'game',
-                author: 'You',
-                text: `started playing ${gameName}!`,
-                game: gameName,
-                avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png"
-            }
-        ]);
+        await sendMessage(roomId, {
+            authorId: currentUserId,
+            authorName: currentUsername,
+            authorAvatar: currentUserAvatar,
+            text: `started playing ${gameName}!`,
+            game: gameName,
+            type: 'game',
+        });
+        toast({
+            title: "Game Started!",
+            description: `You have started playing ${gameName}.`,
+        });
     };
 
      const handleAnimateGift = (gift: GiftType) => {
@@ -399,8 +420,8 @@ function VideoRoomPageComponent() {
             {/* Video Player Section */}
             <div className="relative w-full bg-black h-[45%] flex-shrink-0">
                  <div className="absolute inset-0 bg-black flex items-center justify-center">
-                    {videoId ? (
-                        <YouTube videoId={videoId} opts={youtubeOpts} onReady={onPlayerReady} className="w-full h-full" />
+                    {videoIdParam ? (
+                        <YouTube videoId={videoIdParam} opts={youtubeOpts} onReady={onPlayerReady} className="w-full h-full" />
                     ) : (
                         <p className="text-white/50">No video selected. Go to Add Video to start a room.</p>
                     )}
@@ -408,7 +429,7 @@ function VideoRoomPageComponent() {
 
                 {/* Video Controls Overlay */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                    {currentUserIsOwner && videoId && (
+                    {currentUserIsOwner && videoIdParam && (
                         <Button
                             variant="ghost"
                             size="icon"
@@ -547,7 +568,11 @@ function VideoRoomPageComponent() {
                         <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} roomSeats={seats} giftContext="video" coins={coins} />
                     ) : (
                         <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-3 px-4 pr-2">
-                            {messages.map((msg) => (
+                           {messages.length === 0 ? (
+                                <div className="flex items-center justify-center h-full text-muted-foreground">
+                                    <p>Say hi and start the party!</p>
+                                </div>
+                            ) : messages.map((msg) => (
                                 <Fragment key={msg.id}>
                                     {msg.type === 'system' ? (
                                         <div className="text-center text-xs text-primary font-semibold p-1 bg-primary/10 rounded-full">
@@ -556,11 +581,11 @@ function VideoRoomPageComponent() {
                                     ) : (
                                         <div className="flex items-start gap-3">
                                             <Avatar className="h-8 w-8 shrink-0">
-                                                <AvatarImage src={msg.avatar} />
-                                                <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
+                                                <AvatarImage src={msg.authorAvatar} />
+                                                <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.authorName?.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div className="text-sm">
-                                                <p className="text-white/70 text-xs">{msg.author}</p>
+                                                <p className="text-white/70 text-xs">{msg.authorName}</p>
                                                 {msg.type === 'gift' && (
                                                     <div className="flex items-center gap-2 mt-1">
                                                         <p className="text-xs">{msg.text}</p>
@@ -568,7 +593,7 @@ function VideoRoomPageComponent() {
                                                     </div>
                                                 )}
                                                 {msg.type === 'game' && (
-                                                    <p className="mt-1 text-xs">{msg.author} <span className="font-bold text-yellow-400">{msg.text}</span></p>
+                                                    <p className="mt-1 text-xs">{msg.authorName} <span className="font-bold text-yellow-400">{msg.text}</span></p>
                                                 )}
                                                 {msg.type === 'text' && (
                                                     <div className="bg-black/20 rounded-lg p-2 mt-1">
@@ -710,5 +735,3 @@ export default function VideoRoomPage() {
         </Suspense>
     );
 }
-
-    
