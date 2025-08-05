@@ -191,33 +191,35 @@ export default function AudioRoomPage() {
     };
 
     const handleSendGift = async (gift: GiftType, quantity: number, recipientName: string) => {
-        if (!roomId || !currentUser) return;
+        if (!roomId || !currentUser || !room) return;
+
+        let recipients: { id: string, name: string }[] = [];
         
-        let recipientId: string | null = null;
-        let finalRecipientName = recipientName;
-        
-        if (recipientName === 'All on Mic' || recipientName === 'All in Room') {
-            recipientId = room?.ownerId || null; 
-            finalRecipientName = room?.ownerName || 'the Room';
+        if (recipientName === 'All in Room') {
+            recipients = seats.filter(s => s.user).map(s => ({ id: s.user.id, name: s.user.name }));
+        } else if (recipientName === 'All on Mic') {
+            recipients = seats.filter(s => s.user && !s.user.isMuted).map(s => ({ id: s.user.id, name: s.user.name }));
         } else {
             const targetSeat = seats.find(s => s.user?.name === recipientName);
-            recipientId = targetSeat?.user?.id || null;
+            if (targetSeat?.user) {
+                recipients.push({ id: targetSeat.user.id, name: targetSeat.user.name });
+            }
         }
 
-        if (!recipientId) {
+        if (recipients.length === 0) {
              toast({ title: "Recipient not found.", variant: "destructive" });
              return;
         }
-        
-        const result = await sendGift(roomId, currentUser, recipientId, finalRecipientName, gift, quantity);
 
-        if (!result.success) {
-            toast({
-                variant: "destructive",
-                title: "Failed to send gift",
-                description: result.error,
-            });
-            return;
+        for (const recipient of recipients) {
+            const result = await sendGift(roomId, currentUser, recipient.id, recipient.name, gift, quantity);
+            if (!result.success) {
+                toast({
+                    variant: "destructive",
+                    title: "Failed to send gift",
+                    description: `Could not send to ${recipient.name}: ${result.error}`,
+                });
+            }
         }
 
         if (gift.animation === 'walking') {
@@ -232,22 +234,10 @@ export default function AudioRoomPage() {
             const startRect = sendButtonRef.current?.getBoundingClientRect();
             if (!startRect) return;
 
-            let targetSeats: (typeof seats[0])[] = [];
-
-            if (recipientName === 'All in Room') {
-                targetSeats = seats.filter(s => s.user);
-            } else if (recipientName === 'All on Mic') {
-                targetSeats = seats.filter(s => s.user && !s.user.isMuted);
-            } else {
-                const targetSeat = seats.find(s => s.user?.name === recipientName);
-                if (targetSeat) {
-                    targetSeats.push(targetSeat);
-                }
-            }
-            
             const newAnimations: JumpAnimation[] = [];
-            targetSeats.forEach(seat => {
-                const seatIndex = seats.findIndex(s => s.id === seat.id);
+            recipients.forEach(recipient => {
+                const targetSeat = seats.find(s => s.user?.id === recipient.id);
+                const seatIndex = seats.findIndex(s => s.id === targetSeat?.id);
                 if (seatIndex === -1) return;
 
                 const endRect = seatRefs.current[seatIndex].current?.getBoundingClientRect();
@@ -326,9 +316,6 @@ export default function AudioRoomPage() {
             });
             
             await sendMessage(roomId, {
-                authorId: currentUser.id,
-                authorName: currentUser.name,
-                authorAvatar: currentUser.avatar,
                 type: 'system',
                 text: `Owner selected "${file.name}" to play.`,
             });
