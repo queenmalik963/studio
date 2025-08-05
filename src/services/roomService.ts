@@ -16,9 +16,12 @@ import {
     getDoc,
     updateDoc,
     arrayUnion,
-    arrayRemove
+    arrayRemove,
+    runTransaction,
+    increment
 } from 'firebase/firestore';
 import { User } from 'firebase/auth';
+import { Gift } from '@/components/room/GiftPanel';
 
 export interface Message {
     id?: string;
@@ -267,6 +270,59 @@ export const updatePlaybackState = async (roomId: string, state: Partial<Pick<Ro
         return { success: true };
     } catch (e) {
         console.error("Error updating playback state:", e);
+        return { success: false, error: (e as Error).message };
+    }
+};
+
+
+// Function to send a gift, updating sender and receiver balances atomically.
+export const sendGift = async (
+    roomId: string,
+    sender: SeatUser,
+    recipientId: string,
+    gift: Gift,
+    quantity: number
+): Promise<{ success: boolean; error?: string }> => {
+    const totalCost = gift.price * quantity;
+    const diamondsToAward = totalCost; // 1 Coin = 1 Diamond for receiver
+
+    const senderRef = doc(db, 'users', sender.id);
+    const recipientRef = doc(db, 'users', recipientId);
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const senderDoc = await transaction.get(senderRef);
+            const recipientDoc = await transaction.get(recipientRef);
+
+            if (!senderDoc.exists() || !recipientDoc.exists()) {
+                throw new Error("Sender or recipient not found.");
+            }
+
+            const senderCoins = senderDoc.data().coins || 0;
+            if (senderCoins < totalCost) {
+                throw new Error("Insufficient coins.");
+            }
+
+            // 1. Deduct coins from sender
+            transaction.update(senderRef, { coins: increment(-totalCost) });
+
+            // 2. Award diamonds to recipient
+            transaction.update(recipientRef, { diamonds: increment(diamondsToAward) });
+        });
+        
+        // 3. Send a message to the room chat (outside the transaction)
+         await sendMessage(roomId, {
+            authorId: sender.id,
+            authorName: sender.name,
+            authorAvatar: sender.avatar,
+            text: `Sent ${quantity}x ${gift.name} to ${recipientDoc.data()?.name || 'the Room'}`,
+            giftIcon: gift.image,
+            type: 'gift',
+        });
+
+        return { success: true };
+    } catch (e) {
+        console.error("Send gift transaction failed: ", e);
         return { success: false, error: (e as Error).message };
     }
 };

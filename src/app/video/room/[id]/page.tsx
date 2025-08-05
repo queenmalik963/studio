@@ -19,8 +19,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import YouTube from 'react-youtube';
-import { listenToMessages, sendMessage, type Message, listenToRoom, type Room, takeSeat, leaveSeat, updateSeatAsOwner, type SeatUser, updateSeatUser, updatePlaybackState } from "@/services/roomService";
+import { listenToMessages, sendMessage, type Message, listenToRoom, type Room, takeSeat, leaveSeat, updateSeatAsOwner, type SeatUser, updateSeatUser, updatePlaybackState, sendGift } from "@/services/roomService";
 import { auth } from "@/lib/firebase";
+import { listenToUserProfile } from "@/services/userService";
 
 
 export type JumpAnimation = {
@@ -73,12 +74,19 @@ function VideoRoomPageComponent() {
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             if (user) {
-                setCurrentUser({
-                    id: user.uid,
-                    name: user.displayName || 'User',
-                    avatar: user.photoURL || `https://placehold.co/65x65.png?text=${user.displayName?.charAt(0) || 'U'}`,
-                    isMuted: true,
+                const userProfileSub = listenToUserProfile(user.uid, (profile) => {
+                    if (profile) {
+                         setCurrentUser({
+                            id: user.uid,
+                            name: profile.name,
+                            avatar: profile.avatar,
+                            isMuted: true, // Default mute state on join
+                            frame: profile.currentFrame,
+                        });
+                        setCoins(profile.coins);
+                    }
                 });
+                return () => userProfileSub();
             } else {
                 router.push('/');
             }
@@ -204,19 +212,33 @@ function VideoRoomPageComponent() {
         }
     };
 
-    const handleSendGift = async (gift: GiftType, quantity: number, recipient: string) => {
+    const handleSendGift = async (gift: GiftType, quantity: number, recipientName: string) => {
         if (!roomId || !currentUser) return;
-        const totalCost = gift.price * quantity;
-        if (coins < totalCost) {
+        
+        let recipientId: string | null = null;
+        if (recipientName === 'All on Mic' || recipientName === 'All in Room') {
+            recipientId = room?.ownerId || null; // For now, send to owner
+        } else {
+            const targetSeat = seats.find(s => s.user?.name === recipientName);
+            recipientId = targetSeat?.user?.id || null;
+        }
+
+        if (!recipientId) {
+             toast({ title: "Recipient not found.", variant: "destructive" });
+             return;
+        }
+        
+        const result = await sendGift(roomId, currentUser, recipientId, gift, quantity);
+
+        if (!result.success) {
             toast({
-                title: "Not enough coins",
-                description: "You need more coins to send this gift. Please recharge.",
                 variant: "destructive",
+                title: "Failed to send gift",
+                description: result.error,
             });
             return;
         }
-        setCoins(prev => prev - totalCost);
-        
+
         if (gift.animation === 'walking') {
             setAnimatedWalkingGift(gift.image);
             setTimeout(() => setAnimatedWalkingGift(null), 5000); 
@@ -231,12 +253,12 @@ function VideoRoomPageComponent() {
 
             let targetSeats: (typeof seats[0])[] = [];
 
-            if (recipient === 'All in Room') {
+            if (recipientName === 'All in Room') {
                 targetSeats = seats.filter(s => s.user);
-            } else if (recipient === 'All on Mic') {
+            } else if (recipientName === 'All on Mic') {
                 targetSeats = seats.filter(s => s.user && !s.user.isMuted);
             } else {
-                const targetSeat = seats.find(s => s.user?.name === recipient);
+                const targetSeat = seats.find(s => s.user?.name === recipientName);
                 if (targetSeat) {
                     targetSeats.push(targetSeat);
                 }
@@ -266,15 +288,6 @@ function VideoRoomPageComponent() {
         } else if (gift.animation) {
              handleAnimateGift(gift);
         }
-
-        await sendMessage(roomId, {
-            authorId: currentUser.id,
-            authorName: currentUser.name,
-            authorAvatar: currentUser.avatar,
-            text: `Sent ${quantity}x ${gift.name} to ${recipient}`,
-            giftIcon: gift.image,
-            type: 'gift',
-        });
     };
 
     const handleStartGame = async (gameName: string) => {
