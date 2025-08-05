@@ -1,3 +1,4 @@
+
 import { 
     auth,
     db 
@@ -189,6 +190,13 @@ export const takeSeat = async (roomId: string, seatId: number, user: SeatUser) =
                 seat.id === seatId ? { ...seat, user: { ...user, isMuted: true } } : seat
             );
             await updateDoc(roomDocRef, { seats });
+            
+            // Announce that the user has taken a seat
+            await sendMessage(roomId, {
+                type: 'system',
+                text: `${user.name} has taken a seat.`
+            });
+
             return { success: true };
         }
         return { success: false, error: "Room not found." };
