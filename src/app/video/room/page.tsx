@@ -74,6 +74,7 @@ function VideoRoomPageComponent() {
     const [animatedVideoGift, setAnimatedVideoGift] = useState<string | null>(null);
     const [animatedWalkingGift, setAnimatedWalkingGift] = useState<string | null>(null);
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
+    const [isPersonalMicMuted, setIsPersonalMicMuted] = useState(true);
     
     const [player, setPlayer] = useState<any>(null);
     const [isPlaying, setIsPlaying] = useState(true);
@@ -146,7 +147,6 @@ function VideoRoomPageComponent() {
     // This effect would listen to database changes for play/pause state
     // For now, it just logs the local state
     useEffect(() => {
-        console.log(`Video is now ${isPlaying ? 'playing' : 'paused'}`);
         if (player) {
             if (isPlaying) {
                 player.playVideo();
@@ -175,7 +175,7 @@ function VideoRoomPageComponent() {
         }
     };
 
-    const handleSendGift = (gift: Gift, quantity: number, recipient: string) => {
+    const handleSendGift = (gift: GiftType, quantity: number, recipient: string) => {
         if (gift.animation === 'walking') {
             setAnimatedWalkingGift(gift.image);
             setTimeout(() => setAnimatedWalkingGift(null), 5000); // 5s animation duration
@@ -263,6 +263,10 @@ function VideoRoomPageComponent() {
 
     const handleAnimationComplete = (id: number) => {
         setJumpAnimations(prev => prev.filter(anim => anim.id !== id));
+    };
+
+    const handleTogglePersonalMic = () => {
+        setIsPersonalMicMuted(prev => !prev);
     };
 
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
@@ -586,8 +590,8 @@ function VideoRoomPageComponent() {
                                 <SendIcon />
                             </Button>
                         </div>
-                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0">
-                            <Mic />
+                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={handleTogglePersonalMic}>
+                            {isPersonalMicMuted ? <MicOff /> : <Mic />}
                         </Button>
                          <Button type="button" size="icon" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0" onClick={() => setIsGamePanelOpen(true)}><Gamepad2 /></Button>
                          <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={() => setIsControlsPanelOpen(true)}>

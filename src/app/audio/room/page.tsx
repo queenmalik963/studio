@@ -241,6 +241,10 @@ export default function AudioRoomPage() {
             setIsControlsPanelOpen(false);
         }
     };
+
+    const handleTogglePersonalMic = () => {
+        setIsPersonalMicMuted(prev => !prev);
+    };
     
     const roomControls = [
         { name: "Gathering", icon: Flag },
@@ -697,7 +701,7 @@ export default function AudioRoomPage() {
                                 <SendIcon />
                             </Button>
                         </div>
-                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={() => setIsPersonalMicMuted(prev => !prev)}>
+                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={handleTogglePersonalMic}>
                            {isPersonalMicMuted ? <MicOff /> : <Mic />}
                         </Button>
                          <Button type="button" size="icon" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0" onClick={() => setIsGamePanelOpen(true)}><Gamepad2 /></Button>
