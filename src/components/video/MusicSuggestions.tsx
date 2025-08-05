@@ -24,17 +24,7 @@ export function MusicSuggestions() {
                     "Boiler Room: London",
                 ];
                 
-                // To prevent API errors on first load, we can disable this call.
-                // When you have a valid API key in .env, you can uncomment the next line.
-                // const result = await suggestUpNextMusic({ recentlyWatchedVideos: recentlyWatched });
-                
-                // For demonstration, we'll use a timeout and dummy data.
-                // You can REMOVE THIS BLOCK when you enable the API call above.
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                const result: SuggestUpNextMusicOutput = {
-                     suggestedTracks: [] // Initially empty, will be populated by AI
-                };
-                 // END of demonstration block
+                const result = await suggestUpNextMusic({ recentlyWatchedVideos: recentlyWatched });
                 
                 setSuggestions(result);
 
