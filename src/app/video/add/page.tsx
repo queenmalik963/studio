@@ -13,6 +13,9 @@ import Image from "next/image";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { createRoom } from "@/services/roomService";
+import { searchYoutubeVideos, type YoutubeSearchResult } from "@/ai/flows/search-youtube-videos";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
 
 // Inline Netflix Icon
@@ -28,39 +31,48 @@ const YouTubeIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
-const dummyResults = [
-    {id: 'jfKfPfyJRdk', title: 'lofi hip hop radio 📚 - beats to relax/study to', thumbnail: 'https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault_live.jpg', channel: 'Lofi Girl'},
-    {id: '5qap5aO4i9A', title: 'lofi hip hop radio - sad & sleepy beats', thumbnail: 'https://i.ytimg.com/vi/5qap5aO4i9A/hqdefault_live.jpg', channel: 'the bootleg boy'},
-    {id: '7NOSDKb0HlU', title: '1 A.M Study Session 📚 - [lofi hip hop/chill beats]', thumbnail: 'https://i.ytimg.com/vi/7NOSDKb0HlU/hqdefault.jpg', channel: 'Lofi Girl'},
-    {id: 'rUxyKA_-grg', title: 'Chillhop Radio - jazzy & lofi hip hop beats', thumbnail: 'https://i.ytimg.com/vi/rUxyKA_-grg/hqdefault_live.jpg', channel: 'Chillhop Music'},
-    {id: 'DWcJFNfaw9c', title: 'Coffee Shop Radio ☕ - 24/7 lofi hip-hop beats', thumbnail: 'https://i.ytimg.com/vi/DWcJFNfaw9c/hqdefault_live.jpg', channel: 'STEEZYASFUCK'},
-];
-
-type VideoResult = typeof dummyResults[0];
 
 export default function AddVideoPage() {
     const router = useRouter();
     const { toast } = useToast();
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const [searchResults, setSearchResults] = useState(dummyResults);
+    const [searchResults, setSearchResults] = useState<YoutubeSearchResult[]>([]);
+    const [searchError, setSearchError] = useState<string | null>(null);
 
-    const handleSearch = (e: React.FormEvent) => {
+    const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!searchTerm.trim()) return;
+
+        setIsSearching(true);
+        setSearchError(null);
         toast({
             title: "Searching...",
             description: `Looking for "${searchTerm}" on YouTube.`,
         });
-        if(searchTerm) {
-            const filtered = dummyResults.filter(r => r.title.toLowerCase().includes(searchTerm.toLowerCase()));
-            setSearchResults(filtered);
-        } else {
-            setSearchResults(dummyResults);
+
+        try {
+            const results = await searchYoutubeVideos({ query: searchTerm });
+            if(results && results.videos) {
+                 setSearchResults(results.videos);
+            } else {
+                setSearchResults([]);
+            }
+        } catch (error: any) {
+             if (error.message.includes("API key not valid")) {
+                setSearchError("Your YouTube API key is not valid. Please check your .env file.");
+            } else {
+                setSearchError("An error occurred while searching. Please check your API key and try again.");
+            }
+            console.error(error);
+        } finally {
+            setIsSearching(false);
         }
     };
 
-    const handleVideoSelect = async (video: VideoResult) => {
+    const handleVideoSelect = async (video: YoutubeSearchResult) => {
         setIsLoading(true);
 
         const result = await createRoom({
@@ -91,7 +103,7 @@ export default function AddVideoPage() {
 
     return (
         <AppLayout>
-            {isLoading && (
+            {(isLoading || isSearching) && (
                 <div className="fixed inset-0 bg-background/80 flex items-center justify-center z-50">
                     <Loader2 className="w-16 h-16 animate-spin text-primary" />
                 </div>
@@ -147,24 +159,42 @@ export default function AddVideoPage() {
                         </form>
 
                         <ScrollArea className="flex-1 my-4 -mx-6 px-6">
-                            <div className="space-y-3">
-                                {searchResults.map((video) => (
-                                    <div key={video.id} onClick={() => handleVideoSelect(video)} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 cursor-pointer">
-                                        <div className="relative w-32 h-20 flex-shrink-0">
-                                            <Image 
-                                                src={video.thumbnail}
-                                                alt={video.title}
-                                                fill
-                                                className="rounded-md object-cover"
-                                            />
+                             {searchError && (
+                                <Alert variant="destructive" className="my-4">
+                                    <AlertTriangle className="h-4 w-4" />
+                                    <AlertTitle>Search Error</AlertTitle>
+                                    <AlertDescription>
+                                        {searchError}
+                                        <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="underline font-semibold ml-1">
+                                            Get a key here.
+                                        </a>
+                                    </AlertDescription>
+                                </Alert>
+                            )}
+                            {searchResults.length > 0 ? (
+                                <div className="space-y-3">
+                                    {searchResults.map((video) => (
+                                        <div key={video.id} onClick={() => handleVideoSelect(video)} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 cursor-pointer">
+                                            <div className="relative w-32 h-20 flex-shrink-0">
+                                                <Image 
+                                                    src={video.thumbnail}
+                                                    alt={video.title}
+                                                    fill
+                                                    className="rounded-md object-cover"
+                                                />
+                                            </div>
+                                            <div className="overflow-hidden">
+                                                <p className="font-semibold truncate text-sm">{video.title}</p>
+                                                <p className="text-xs text-white/70">{video.channelTitle}</p>
+                                            </div>
                                         </div>
-                                        <div className="overflow-hidden">
-                                            <p className="font-semibold truncate text-sm">{video.title}</p>
-                                            <p className="text-xs text-white/70">{video.channel}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            ) : !isSearching && !searchError && (
+                                <div className="flex items-center justify-center h-full text-muted-foreground">
+                                    <p>Search for a video to start a room.</p>
+                                </div>
+                            )}
                         </ScrollArea>
                     </div>
                 </SheetContent>
