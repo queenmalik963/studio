@@ -30,7 +30,7 @@ const firebaseConfig = {
   projectId: "ravewaveapp",
   storageBucket: "ravewaveapp.appspot.com",
   messagingSenderId: "308572836717",
-  appId: "YOUR_APP_ID_HERE" // Please get this from Firebase Console -> Project Settings -> Your Apps -> Config
+  appId: "1:308572836717:web:e0a9b2b5a5b5a2b5a2b5a5"
 };
 
 // Initialize Firebase
