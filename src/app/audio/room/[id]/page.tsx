@@ -19,7 +19,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
-import { listenToMessages, sendMessage, type Message, listenToRoom, type Room, takeSeat, leaveSeat, updateSeatAsOwner, type SeatUser, updateSeatUser, updatePlaybackState, sendGift } from "@/services/roomService";
+import { SpinTheWheel } from "@/components/room/SpinTheWheel";
+import { listenToMessages, sendMessage, type Message, listenToRoom, type Room, takeSeat, leaveSeat, updateSeatAsOwner, type SeatUser, updateSeatUser, updatePlaybackState, sendGift, endCurrentGame } from "@/services/roomService";
 import { auth } from "@/lib/firebase";
 import { listenToUserProfile } from "@/services/userService";
 
@@ -79,6 +80,7 @@ export default function AudioRoomPage() {
     const [currentUser, setCurrentUser] = useState<SeatUser | null>(null);
     const currentUserIsOwner = room?.ownerId === currentUser?.id;
     const currentUserSeat = useMemo(() => seats.find(s => s.user?.id === currentUser?.id), [seats, currentUser]);
+    const isGameActive = !!room?.activeGame;
 
     // Audio Player State
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -133,6 +135,9 @@ export default function AudioRoomPage() {
                         audioRef.current.pause();
                     }
                 }
+            } else {
+                 router.push('/audio');
+                 toast({ title: "Room not found", description: "This room may have been closed.", variant: "destructive" });
             }
         });
         const unsubMessages = listenToMessages(roomId, (newMessages) => {
@@ -143,7 +148,7 @@ export default function AudioRoomPage() {
             unsubRoom();
             unsubMessages();
         };
-    }, [roomId, currentUserIsOwner]);
+    }, [roomId, router, toast]);
 
     
     useEffect(() => {
@@ -276,26 +281,16 @@ export default function AudioRoomPage() {
         }
         setIsGamePanelOpen(false);
 
-        // Update the room state to show the active game
-        await updatePlaybackState(roomId, { 
-            activeGame: gameName,
-            gameHostId: currentUser.id,
-        });
+        await updatePlaybackState(roomId, { activeGame: gameName, gameHostId: currentUser.id });
+        await sendMessage(roomId, { type: 'system', text: `${currentUser.name} started playing ${gameName}!` });
 
-        // Send a system message to announce the game
-        await sendMessage(roomId, {
-            authorId: currentUser.id,
-            authorName: currentUser.name,
-            authorAvatar: currentUser.avatar,
-            text: `started playing`,
-            game: gameName,
-            type: 'game',
-        });
+        toast({ title: "Game Started!", description: `You have started playing ${gameName}.` });
+    };
 
-        toast({
-            title: "Game Started!",
-            description: `You have started playing ${gameName}.`,
-        });
+    const handleEndGame = async () => {
+        if (!roomId || !currentUserIsOwner) return;
+        await endCurrentGame(roomId);
+        toast({ title: "Game Ended", description: "The game has been stopped." });
     };
     
     const handleAnimateGift = (gift: GiftType) => {
@@ -667,6 +662,13 @@ export default function AudioRoomPage() {
                 <div className="flex-1 mt-2 relative p-0">
                     {isGiftPanelOpen ? (
                         <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} roomSeats={seats} coins={coins} />
+                    ) : isGameActive ? (
+                        <SpinTheWheel
+                          participants={occupiedSeats.map(s => s.user).filter(Boolean) as SeatUser[]}
+                          onGameEnd={handleEndGame}
+                          isOwner={currentUserIsOwner}
+                          roomId={roomId}
+                        />
                     ) : (
                         <div ref={chatContainerRef} className="absolute inset-0 overflow-y-auto space-y-3 px-4 pr-2">
                             {messages.length === 0 ? (
@@ -735,7 +737,10 @@ export default function AudioRoomPage() {
                         <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={handleTogglePersonalMic} disabled={!currentUserSeat}>
                            {currentUserSeat?.user?.isMuted ? <MicOff /> : <Mic />}
                         </Button>
-                         <Button type="button" size="icon" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0" onClick={() => setIsGamePanelOpen(true)}><Gamepad2 /></Button>
+                         <Button type="button" size="icon" className="relative w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0" onClick={() => setIsGamePanelOpen(true)}>
+                            {isGameActive && <span className="absolute top-0 right-0 w-3 h-3 rounded-full bg-red-500 border-2 border-[#1F0A2E] animate-pulse" />}
+                            <Gamepad2 />
+                        </Button>
                          <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={() => setIsControlsPanelOpen(true)}>
                             <RectangleVertical />
                         </Button>

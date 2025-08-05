@@ -191,7 +191,6 @@ export const takeSeat = async (roomId: string, seatId: number, user: SeatUser) =
             );
             await updateDoc(roomDocRef, { seats });
             
-            // Announce that the user has taken a seat
             await sendMessage(roomId, {
                 type: 'system',
                 text: `${user.name} has taken a seat.`
@@ -281,6 +280,20 @@ export const updatePlaybackState = async (roomId: string, state: Partial<Pick<Ro
         return { success: true };
     } catch (e) {
         console.error("Error updating playback state:", e);
+        return { success: false, error: (e as Error).message };
+    }
+};
+
+export const endCurrentGame = async (roomId: string) => {
+    try {
+        const roomDocRef = doc(db, 'rooms', roomId);
+        await updateDoc(roomDocRef, {
+            activeGame: null,
+            gameHostId: null,
+        });
+        return { success: true };
+    } catch (e) {
+        console.error("Error ending game:", e);
         return { success: false, error: (e as Error).message };
     }
 };
