@@ -80,15 +80,20 @@ export default function AudioRoomPage() {
     const currentUserIsOwner = true; // For simulation
 
      useEffect(() => {
-        const seatCount = 16; // Fixed to 16 seats for 4x4 grid
         const roomName = localStorage.getItem('audio_room_name') || 'My Audio Room';
-
         setOwner(prev => ({...prev, name: roomName}));
 
-        const initialSeats = Array.from({ length: seatCount }, (_, i) => ({
+        const seatFrames = ['gold', 'purple', 'blue', 'green', 'red', 'cyan', 'pink', 'teal', 'orange', 'indigo', 'lime', 'rose', 'emerald', 'sky', 'amber', 'master'];
+        
+        const initialSeats = Array.from({ length: 16 }, (_, i) => ({
             id: i + 1,
-            isOccupied: false,
-            user: null,
+            isOccupied: true,
+            user: { 
+                name: `User ${i + 1}`, 
+                avatar: `https://placehold.co/65x65.png`,
+                isMuted: i % 3 === 0,
+                frame: seatFrames[i],
+            },
             isLocked: false,
         }));
         setSeats(initialSeats);
@@ -419,7 +424,7 @@ export default function AudioRoomPage() {
                                                     )}
                                                     
                                                     <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                        <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                        <AvatarImage src={seat.user.avatar} alt={seat.user.name} data-ai-hint="person portrait"/>
                                                         <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                                     </Avatar>
                                                     <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-1 z-10">
@@ -537,7 +542,7 @@ export default function AudioRoomPage() {
                                                     </>
                                                 )}
                                                 <Avatar className={cn("h-full w-full border-2 bg-background", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                    <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                    <AvatarImage src={seat.user.avatar} alt={seat.user.name} data-ai-hint="person portrait" />
                                                     <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
                                                 </Avatar>
                                             </div>
