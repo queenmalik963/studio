@@ -11,9 +11,21 @@ import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-const frameTiers: any[] = [];
+const frameTiers = [
+    { name: "Gold", price: "1000 Coins", image: "https://i.imgur.com/K1hT0G8.png", animationClass: 'animate-glow-gold' },
+    { name: "Purple", price: "1000 Coins", image: "https://i.imgur.com/qg9gGgC.png", animationClass: 'animate-glow-purple' },
+    { name: "Blue", price: "1000 Coins", image: "https://i.imgur.com/L7iFvH0.png", animationClass: 'animate-glow-blue' },
+    { name: "Green", price: "1000 Coins", image: "https://i.imgur.com/T0bS1Y4.png", animationClass: 'animate-glow-green' },
+    { name: "Red", price: "1000 Coins", image: "https://i.imgur.com/8Q6tB2F.png", animationClass: 'animate-glow-red' },
+    { name: "Cyan", price: "1000 Coins", image: "https://i.imgur.com/7bYnHB4.png", animationClass: 'animate-glow-cyan' },
+];
 
-const animatedFrameTiers: any[] = [];
+const animatedFrameTiers = [
+    { name: "Crimson Danger", price: "5000 Coins", image: "https://i.imgur.com/DADsWdw.gif", animationClass: 'animate-glow-red' },
+    { name: "Master", price: "15000 Coins", image: "https://i.imgur.com/K1hT0G8.png", animationClass: 'animate-glow-purple' },
+    { name: "Dragon Fury", price: "25000 Coins", image: "https://i.imgur.com/RqnqCso.gif", animationClass: 'animate-glow-amber' },
+    { name: "Platinum", price: "10000 Coins", image: "https://i.imgur.com/L7iFvH0.png", animationClass: 'animate-glow-cyan' },
+];
 
 export default function FrameStorePage() {
   const router = useRouter();
