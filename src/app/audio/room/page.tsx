@@ -20,9 +20,8 @@ import { Separator } from "@/components/ui/separator";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import type { JumpAnimation } from "@/app/video/room/page";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
+import { listenToMessages, sendMessage, type Message } from "@/services/roomService";
 
-
-const initialMessages: any[] = [];
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
@@ -49,7 +48,7 @@ RoomControlButton.displayName = 'RoomControlButton';
 
 export default function AudioRoomPage() {
     const router = useRouter();
-    const [messages, setMessages] = useState(initialMessages);
+    const [messages, setMessages] = useState<Message[]>([]);
     const [seats, setSeats] = useState<any[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
@@ -63,6 +62,13 @@ export default function AudioRoomPage() {
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
     const [coins, setCoins] = useState(0);
     const [owner, setOwner] = useState({ name: "My Audio Room", avatar: "https://em-content.zobj.net/source/apple/391/man-superhero_1f9b8-200d-2642-fe0f.png", isOwner: true });
+
+    // In a real app, this would come from the URL or state management
+    const roomId = "demo-audio-room"; 
+    // This would come from the auth context
+    const currentUserId = "user-123";
+    const currentUserAvatar = "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png";
+    const currentUsername = "You";
 
     // Audio Player State
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -113,26 +119,45 @@ export default function AudioRoomPage() {
 
         lastMessageCount.current = messages.length;
     }, [messages]);
+
+     useEffect(() => {
+        if (!roomId) return;
+
+        const unsubscribe = listenToMessages(roomId, (newMessages) => {
+            setMessages(newMessages);
+        });
+
+        // Cleanup subscription on unmount
+        return () => unsubscribe();
+    }, [roomId]);
     
-    const handleSendMessage = (e: React.FormEvent) => {
+    const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (newMessage.trim()) {
-            setMessages(prev => [
-                ...prev,
-                {
-                    id: prev.length + 1,
-                    type: "text",
-                    author: "You",
-                    text: newMessage,
-                    avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png",
-                },
-            ]);
-            setNewMessage("");
+        if (newMessage.trim() && roomId && currentUserId) {
+            const messageToSend = newMessage;
+            setNewMessage(""); // Clear input immediately for better UX
             inputRef.current?.blur();
+            
+            const result = await sendMessage(roomId, {
+                authorId: currentUserId,
+                authorName: currentUsername,
+                authorAvatar: currentUserAvatar,
+                text: messageToSend,
+                type: 'text',
+            });
+            
+            if (!result.success) {
+                toast({
+                    variant: "destructive",
+                    title: "Failed to send message",
+                    description: result.error,
+                });
+                setNewMessage(messageToSend); // Restore message on failure
+            }
         }
     };
 
-    const handleSendGift = (gift: GiftType, quantity: number, recipient: string) => {
+    const handleSendGift = async (gift: GiftType, quantity: number, recipient: string) => {
         const totalCost = gift.price * quantity;
         if (coins < totalCost) {
             toast({
@@ -194,32 +219,26 @@ export default function AudioRoomPage() {
              handleAnimateGift(gift);
         }
 
-        setMessages(prev => [
-            ...prev,
-            {
-                id: Date.now(),
-                type: 'gift',
-                author: 'You',
-                text: `Sent ${quantity}x ${gift.name} to ${recipient}`,
-                giftIcon: gift.image,
-                avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png"
-            }
-        ]);
+        await sendMessage(roomId, {
+            authorId: currentUserId,
+            authorName: currentUsername,
+            authorAvatar: currentUserAvatar,
+            text: `Sent ${quantity}x ${gift.name} to ${recipient}`,
+            giftIcon: gift.image,
+            type: 'gift',
+        });
     };
 
-    const handleStartGame = (gameName: string) => {
+    const handleStartGame = async (gameName: string) => {
         setIsGamePanelOpen(false);
-        setMessages(prev => [
-            ...prev,
-            {
-                id: Date.now(),
-                type: 'game',
-                author: 'You',
-                text: `started playing ${gameName}!`,
-                game: gameName,
-                avatar: "https://em-content.zobj.net/source/apple/391/man-mage_1f9d9-200d-2642-fe0f.png"
-            }
-        ]);
+        await sendMessage(roomId, {
+            authorId: currentUserId,
+            authorName: currentUsername,
+            authorAvatar: currentUserAvatar,
+            text: `started playing ${gameName}!`,
+            game: gameName,
+            type: 'game',
+        });
         toast({
             title: "Game Started!",
             description: `You have started playing ${gameName}.`,
@@ -237,7 +256,7 @@ export default function AudioRoomPage() {
         setJumpAnimations(prev => prev.filter(anim => anim.id !== id));
     };
 
-     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+     const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
             const trackUrl = URL.createObjectURL(file);
@@ -247,14 +266,13 @@ export default function AudioRoomPage() {
                 title: "Track Selected!",
                 description: `"${file.name}" is now playing.`,
             });
-            setMessages(prev => [
-                ...prev,
-                {
-                    id: Date.now(),
-                    type: 'system',
-                    text: `Owner selected "${file.name}" to play.`,
-                }
-            ]);
+            await sendMessage(roomId, {
+                authorId: currentUserId,
+                authorName: currentUsername,
+                authorAvatar: currentUserAvatar,
+                type: 'system',
+                text: `Owner selected "${file.name}" to play.`,
+            });
             setIsControlsPanelOpen(false);
         }
     };
@@ -273,14 +291,14 @@ export default function AudioRoomPage() {
     };
 
     const roomControls = useMemo(() => [
-        { name: "Gathering", icon: Flag, action: () => {
+        { name: "Gathering", icon: Flag, action: async () => {
             toast({ title: "Gathering Started!", description: "Special room effects are now active." });
-            setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'A gathering has been started by the owner!' }]);
+            await sendMessage(roomId, { type: 'system', text: 'A gathering has been started by the owner!' });
             setIsControlsPanelOpen(false);
         }},
-        { name: "Broadcast", icon: Megaphone, action: () => {
+        { name: "Broadcast", icon: Megaphone, action: async () => {
             toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
-            setMessages(prev => [...prev, { id: Date.now(), type: 'system', text: 'Broadcast: Welcome to the room everyone! Enjoy your stay.' }]);
+            await sendMessage(roomId, { type: 'system', text: 'Broadcast: Welcome to the room everyone! Enjoy your stay.' });
             setIsControlsPanelOpen(false);
         }},
         { name: "Play Track", icon: Play, action: () => {
@@ -314,11 +332,12 @@ export default function AudioRoomPage() {
             setIsControlsPanelOpen(false);
         }},
         { name: "Clean", icon: Trash2, action: () => {
+            // This is a local-only action for now. A real implementation would involve a server-side "clear chat" command.
             setMessages(prev => prev.filter(m => m.type !== 'text'));
             toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
              setIsControlsPanelOpen(false);
         }},
-    ], [toast, audioSrc, setAreEffectsEnabled]);
+    ], [toast, audioSrc, setAreEffectsEnabled, roomId, currentUserId, currentUsername, currentUserAvatar]);
 
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
         const targetSeat = seats.find(seat => seat.id === seatId);
@@ -584,11 +603,11 @@ export default function AudioRoomPage() {
                                     ) : (
                                         <div className="flex items-start gap-3">
                                             <Avatar className="h-8 w-8 shrink-0">
-                                                <AvatarImage src={msg.avatar} />
-                                                <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.author?.charAt(0)}</AvatarFallback>
+                                                <AvatarImage src={msg.authorAvatar} />
+                                                <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.authorName?.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div className="text-sm">
-                                                <p className="text-white/70 text-xs">{msg.author}</p>
+                                                <p className="text-white/70 text-xs">{msg.authorName}</p>
                                                 {msg.type === 'gift' && (
                                                     <div className="flex items-center gap-2 mt-1">
                                                         <p className="text-xs">{msg.text}</p>
@@ -596,7 +615,7 @@ export default function AudioRoomPage() {
                                                     </div>
                                                 )}
                                                 {msg.type === 'game' && (
-                                                    <p className="mt-1 text-xs">{msg.author} <span className="font-bold text-yellow-400">{msg.text}</span></p>
+                                                    <p className="mt-1 text-xs">{msg.authorName} <span className="font-bold text-yellow-400">{msg.text}</span></p>
                                                 )}
                                                 {msg.type === 'text' && (
                                                     <div className="bg-black/20 rounded-lg p-2 mt-1">
