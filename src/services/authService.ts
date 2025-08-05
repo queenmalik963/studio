@@ -24,6 +24,7 @@ const createUserProfileDocument = async (user: User) => {
         
         try {
             await setDoc(userDocRef, {
+                uid: user.uid,
                 name: user.displayName || username,
                 username: username,
                 email: email,

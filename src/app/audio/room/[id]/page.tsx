@@ -114,7 +114,7 @@ export default function AudioRoomPage() {
                 setSeats(roomData.seats || []);
 
                 // Sync audio player for all users
-                if (audioRef.current && !currentUserIsOwner) {
+                if (audioRef.current) {
                     if (roomData.currentTrack && audioRef.current.src !== roomData.currentTrack) {
                         audioRef.current.src = roomData.currentTrack;
                         audioRef.current.currentTime = roomData.playbackTime || 0;
@@ -282,14 +282,14 @@ export default function AudioRoomPage() {
         if (!roomId || !currentUser || !currentUserIsOwner) return;
         const file = event.target.files?.[0];
         if (file) {
+            // In a real app, upload this file to a storage bucket and get a public URL
             const trackUrl = URL.createObjectURL(file);
             if (audioRef.current) {
                 audioRef.current.src = trackUrl;
-                audioRef.current.play();
             }
 
             await updatePlaybackState(roomId, {
-                currentTrack: trackUrl,
+                currentTrack: trackUrl, // Use the public URL here in a real app
                 isPlaying: true,
                 playbackTime: 0
             });
@@ -318,7 +318,7 @@ export default function AudioRoomPage() {
     };
 
     const handleTogglePersonalMic = async () => {
-        if (!roomId || !currentUserSeat) return;
+        if (!roomId || !currentUserSeat || !currentUserSeat.user) return;
         const newMuteState = !currentUserSeat.user.isMuted;
         await updateSeatUser(roomId, currentUserSeat.id, { isMuted: newMuteState });
     };
@@ -402,8 +402,8 @@ export default function AudioRoomPage() {
             toast({ title: `User ${targetSeat.user.name} has been kicked from the seat.`});
         } else if (action === 'lock') {
             const isLocked = !targetSeat.isLocked;
-            await updateSeatAsOwner(roomId, seatId, { isLocked });
-            toast({ title: `Seat ${targetSeat.id} has been ${isLocked ? 'unlocked' : 'locked'}.`});
+            await updateSeatAsOwner(roomId, seatId, { isLocked, user: null }); // Also clear user when locking
+            toast({ title: `Seat ${targetSeat.id} has been ${isLocked ? 'locked' : 'unlocked'}.`});
         }
     };
 
@@ -686,7 +686,7 @@ export default function AudioRoomPage() {
                         <div className="flex-grow flex items-center gap-2 bg-black/30 rounded-full h-10 px-2">
                            <Avatar className="h-7 w-7">
                                <AvatarImage src={currentUser.avatar} />
-                               <AvatarFallback>Y</AvatarFallback>
+                               <AvatarFallback>{currentUser.name.charAt(0) || 'U'}</AvatarFallback>
                            </Avatar>
                             <Input
                                 ref={inputRef}
@@ -791,5 +791,3 @@ export default function AudioRoomPage() {
         </div>
     );
 }
-
-    

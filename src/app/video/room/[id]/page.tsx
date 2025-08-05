@@ -89,16 +89,18 @@ function VideoRoomPageComponent() {
     useEffect(() => {
         if (!roomId) return;
         const unsubRoom = listenToRoom(roomId, (roomData) => {
-            setRoom(roomData);
-            setSeats(roomData?.seats || []);
-            
-            // Sync video player for all users
-            const player = playerRef.current;
-            if (player && roomData && typeof player.playVideo === 'function' && !currentUserIsOwner) {
-                if (roomData.isPlaying && player.getPlayerState() !== 1) {
-                     player.playVideo();
-                } else if (!roomData.isPlaying && player.getPlayerState() === 1) {
-                    player.pauseVideo();
+            if (roomData) {
+                setRoom(roomData);
+                setSeats(roomData.seats || []);
+                
+                // Sync video player for all users
+                const player = playerRef.current;
+                if (player && typeof player.playVideo === 'function') {
+                    if (roomData.isPlaying && player.getPlayerState() !== 1) {
+                         player.playVideo();
+                    } else if (!roomData.isPlaying && player.getPlayerState() === 1) {
+                        player.pauseVideo();
+                    }
                 }
             }
         });
@@ -304,7 +306,7 @@ function VideoRoomPageComponent() {
     };
 
     const handleTogglePersonalMic = async () => {
-        if (!roomId || !currentUserSeat) return;
+        if (!roomId || !currentUserSeat || !currentUserSeat.user) return;
         const newMuteState = !currentUserSeat.user.isMuted;
         await updateSeatUser(roomId, currentUserSeat.id, { isMuted: newMuteState });
     };
@@ -337,8 +339,8 @@ function VideoRoomPageComponent() {
             toast({ title: `User ${targetSeat.user.name} has been kicked from the seat.`});
         } else if (action === 'lock') {
             const isLocked = !targetSeat.isLocked;
-            await updateSeatAsOwner(roomId, seatId, { isLocked });
-            toast({ title: `Seat ${targetSeat.id} has been ${isLocked ? 'unlocked' : 'locked'}.`});
+            await updateSeatAsOwner(roomId, seatId, { isLocked, user: null });
+            toast({ title: `Seat ${targetSeat.id} has been ${isLocked ? 'locked' : 'unlocked'}.`});
         }
     };
     
@@ -639,7 +641,7 @@ function VideoRoomPageComponent() {
                         <div className="flex-grow flex items-center gap-2 bg-black/30 rounded-full h-10 px-2">
                            <Avatar className="h-7 w-7">
                                <AvatarImage src={currentUser.avatar} />
-                               <AvatarFallback>Y</AvatarFallback>
+                               <AvatarFallback>{currentUser.name.charAt(0) || 'U'}</AvatarFallback>
                            </Avatar>
                             <Input
                                 ref={inputRef}
