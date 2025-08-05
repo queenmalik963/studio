@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase';
-import { doc, getDoc, onSnapshot, DocumentData, Unsubscribe, runTransaction, writeBatch, increment, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, DocumentData, Unsubscribe, runTransaction, writeBatch, increment, updateDoc, arrayUnion } from 'firebase/firestore';
 
 export interface UserProfile {
     id: string;
@@ -13,6 +13,8 @@ export interface UserProfile {
     following: number;
     idLevel: number;
     sendingLevel: number;
+    frames?: string[];
+    currentFrame?: string;
 }
 
 // Function to update a user's profile
@@ -53,23 +55,12 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
             following: data.following || 0,
             idLevel: data.idLevel || 0,
             sendingLevel: data.sendingLevel || 0,
+            frames: data.frames || [],
+            currentFrame: data.currentFrame || null,
         };
     } else {
         console.log('No such user!');
-        // For demo, we can return a default profile
-        return {
-            id: userId,
-            name: 'Demo User',
-            username: 'demouser',
-            bio: 'This is a demo profile for a user that does not exist in the database yet.',
-            avatar: 'https://placehold.co/100x100.png',
-            coins: 100,
-            diamonds: 50,
-            followers: 120,
-            following: 75,
-            idLevel: 5,
-            sendingLevel: 3,
-        };
+        return null;
     }
 };
 
@@ -92,24 +83,12 @@ export const listenToUserProfile = (userId: string, callback: (profile: UserProf
                 following: data.following || 0,
                 idLevel: data.idLevel || 0,
                 sendingLevel: data.sendingLevel || 0,
+                frames: data.frames || [],
+                currentFrame: data.currentFrame || null,
             };
             callback(profile);
         } else {
-            // For demo purposes, create a default profile if one doesn't exist
-             const profile: UserProfile = {
-                id: userId,
-                name: 'Demo User',
-                username: 'demouser',
-                bio: 'This is a demo profile for a user that does not exist in the database yet.',
-                avatar: 'https://placehold.co/100x100.png',
-                coins: 100,
-                diamonds: 5000,
-                followers: 120,
-                following: 75,
-                idLevel: 5,
-                sendingLevel: 3,
-            };
-            callback(profile);
+            callback(null);
         }
     }, (error) => {
         console.error("Error listening to user profile:", error);
@@ -131,27 +110,6 @@ export const followUser = async (currentUserId: string, targetUserId: string): P
     const followersRef = doc(db, `users/${targetUserId}/followers`, currentUserId);
 
     try {
-        await runTransaction(db, async (transaction) => {
-            const targetUserDoc = await transaction.get(targetUserDocRef);
-            if (!targetUserDoc.exists()) {
-                throw new Error("User to follow does not exist.");
-            }
-            // Use writeBatch inside transaction for non-read operations
-            const batch = writeBatch(db);
-
-            // Increment counts
-            batch.update(currentUserDocRef, { following: increment(1) });
-            batch.update(targetUserDocRef, { followers: increment(1) });
-
-            // Add records to subcollections
-            batch.set(followingRef, { userId: targetUserId, timestamp: new Date() });
-            batch.set(followersRef, { userId: currentUserId, timestamp: new Date() });
-            
-            // This is incorrect. A transaction's callback must be passed the transaction object.
-            // and all writes must be performed on that object. A write batch is not needed.
-            await batch.commit();
-        });
-
         await runTransaction(db, async (transaction) => {
             const targetUserDoc = await transaction.get(targetUserDocRef);
             if (!targetUserDoc.exists()) {
@@ -227,6 +185,40 @@ export const exchangeDiamondsForCoins = async (userId: string, diamondsToExchang
         return { success: true };
     } catch (e) {
         console.error("Exchange transaction failed: ", e);
+        return { success: false, error: (e as Error).message };
+    }
+};
+
+// Function to buy a frame
+export const buyFrame = async (userId: string, frameId: string, framePrice: number): Promise<{ success: boolean, error?: string }> => {
+    const userDocRef = doc(db, 'users', userId);
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const userDoc = await transaction.get(userDocRef);
+            if (!userDoc.exists()) {
+                throw new Error("User not found.");
+            }
+            const userData = userDoc.data();
+            const currentCoins = userData.coins || 0;
+            const ownedFrames = userData.frames || [];
+
+            if (currentCoins < framePrice) {
+                throw new Error("Insufficient coins.");
+            }
+
+            if (ownedFrames.includes(frameId)) {
+                throw new Error("Frame already owned.");
+            }
+
+            transaction.update(userDocRef, {
+                coins: increment(-framePrice),
+                frames: arrayUnion(frameId)
+            });
+        });
+        return { success: true };
+    } catch (e) {
+        console.error("Buy frame transaction failed:", e);
         return { success: false, error: (e as Error).message };
     }
 };
