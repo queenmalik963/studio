@@ -34,13 +34,15 @@ export default function ProfilePage() {
     const { toast } = useToast();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [authLoading, setAuthLoading] = useState(true);
     const [tempName, setTempName] = useState("");
     const [currentUser, setCurrentUser] = useState<User | null>(null);
 
     useEffect(() => {
         const unsubscribeAuth = auth.onAuthStateChanged(user => {
+            setCurrentUser(user);
+            setAuthLoading(false); // Auth check is complete
             if (user) {
-                setCurrentUser(user);
                 const unsubscribeProfile = listenToUserProfile(user.uid, (data) => {
                     setProfile(data);
                     if (data) {
@@ -50,11 +52,18 @@ export default function ProfilePage() {
                 });
                 return () => unsubscribeProfile();
             } else {
-                router.push('/');
+                setIsLoading(false);
             }
         });
         return () => unsubscribeAuth();
-    }, [router]);
+    }, []);
+    
+    useEffect(() => {
+        // Redirect only after auth state is confirmed to be null
+        if (!authLoading && !currentUser) {
+            router.push('/');
+        }
+    }, [authLoading, currentUser, router]);
 
 
     const handleFollow = async () => {
@@ -104,7 +113,7 @@ export default function ProfilePage() {
         }
     }
 
-    if (isLoading) {
+    if (isLoading || authLoading) {
         return (
             <AppLayout>
                 <div className="flex justify-center items-center h-full">
@@ -117,9 +126,9 @@ export default function ProfilePage() {
     if (!profile || !currentUser) {
         return (
             <AppLayout>
-                <div className="flex justify-center items-center h-full">
+                <div className="flex justify-center items-center h-full flex-col gap-2">
                     <Loader2 className="w-16 h-16 animate-spin text-primary" />
-                    <p className="ml-4">Redirecting to login...</p>
+                    <p className="ml-4 text-muted-foreground">Redirecting to login...</p>
                 </div>
             </AppLayout>
         )
