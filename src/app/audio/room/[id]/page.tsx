@@ -21,8 +21,7 @@ import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
 import { listenToMessages, sendMessage, type Message, listenToRoom, type Room, takeSeat, leaveSeat, updateSeatAsOwner, type SeatUser, updateSeatUser, updatePlaybackState, sendGift, endCurrentGame } from "@/services/roomService";
-import { auth } from "@/lib/firebase";
-import { listenToUserProfile } from "@/services/userService";
+import { useAuth } from "@/contexts/AuthContext";
 
 
 type JumpAnimation = {
@@ -63,6 +62,8 @@ export default function AudioRoomPage() {
     const params = useParams();
     const roomId = params.id as string;
     
+    const { currentUser, userProfile, loading: authLoading } = useAuth();
+    
     const [room, setRoom] = useState<Room | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [seats, setSeats] = useState<any[]>([]);
@@ -75,11 +76,9 @@ export default function AudioRoomPage() {
     const [animatedWalkingGift, setAnimatedWalkingGift] = useState<string | null>(null);
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
-    const [coins, setCoins] = useState(0);
 
-    const [currentUser, setCurrentUser] = useState<SeatUser | null>(null);
-    const currentUserIsOwner = room?.ownerId === currentUser?.id;
-    const currentUserSeat = useMemo(() => seats.find(s => s.user?.id === currentUser?.id), [seats, currentUser]);
+    const currentUserIsOwner = room?.ownerId === currentUser?.uid;
+    const currentUserSeat = useMemo(() => seats.find(s => s.user?.id === currentUser?.uid), [seats, currentUser]);
     const isGameActive = !!room?.activeGame;
 
     // Audio Player State
@@ -94,27 +93,10 @@ export default function AudioRoomPage() {
     const lastMessageCount = useRef(messages.length);
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            if (user) {
-                const userProfileSub = listenToUserProfile(user.uid, (profile) => {
-                    if (profile) {
-                         setCurrentUser({
-                            id: user.uid,
-                            name: profile.name,
-                            avatar: profile.avatar,
-                            isMuted: true, // Default mute state on join
-                            frame: profile.currentFrame,
-                        });
-                        setCoins(profile.coins);
-                    }
-                });
-                return () => userProfileSub();
-            } else {
-                router.push('/');
-            }
-        });
-        return () => unsubscribe();
-    }, [router]);
+        if (!authLoading && !currentUser) {
+            router.push('/');
+        }
+    }, [authLoading, currentUser, router]);
 
     useEffect(() => {
         if (!roomId) return;
@@ -166,15 +148,15 @@ export default function AudioRoomPage() {
     
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (newMessage.trim() && roomId && currentUser) {
+        if (newMessage.trim() && roomId && userProfile) {
             const messageToSend = newMessage;
             setNewMessage(""); 
             inputRef.current?.blur();
             
             const result = await sendMessage(roomId, {
-                authorId: currentUser.id,
-                authorName: currentUser.name,
-                authorAvatar: currentUser.avatar,
+                authorId: userProfile.id,
+                authorName: userProfile.name,
+                authorAvatar: userProfile.avatar,
                 text: messageToSend,
                 type: 'text',
             });
@@ -191,7 +173,7 @@ export default function AudioRoomPage() {
     };
 
     const handleSendGift = async (gift: GiftType, quantity: number, recipientName: string) => {
-        if (!roomId || !currentUser || !room) return;
+        if (!roomId || !userProfile || !room) return;
 
         let recipients: { id: string, name: string }[] = [];
         
@@ -210,9 +192,17 @@ export default function AudioRoomPage() {
              toast({ title: "Recipient not found.", variant: "destructive" });
              return;
         }
+        
+        const senderSeatUser: SeatUser = {
+            id: userProfile.id,
+            name: userProfile.name,
+            avatar: userProfile.avatar,
+            isMuted: currentUserSeat?.user?.isMuted ?? true,
+            frame: userProfile.currentFrame
+        };
 
         for (const recipient of recipients) {
-            const result = await sendGift(roomId, currentUser, recipient.id, recipient.name, gift, quantity);
+            const result = await sendGift(roomId, senderSeatUser, recipient.id, recipient.name, gift, quantity);
             if (!result.success) {
                 toast({
                     variant: "destructive",
@@ -262,7 +252,7 @@ export default function AudioRoomPage() {
     };
 
     const handleStartGame = async (gameName: string) => {
-        if (!roomId || !currentUser || !currentUserIsOwner) {
+        if (!roomId || !userProfile || !currentUserIsOwner) {
             toast({
                 title: "Only the room owner can start a game.",
                 variant: "destructive",
@@ -271,8 +261,8 @@ export default function AudioRoomPage() {
         }
         setIsGamePanelOpen(false);
 
-        await updatePlaybackState(roomId, { activeGame: gameName, gameHostId: currentUser.id });
-        await sendMessage(roomId, { type: 'system', text: `${currentUser.name} started playing ${gameName}!` });
+        await updatePlaybackState(roomId, { activeGame: gameName, gameHostId: userProfile.id });
+        await sendMessage(roomId, { type: 'system', text: `${userProfile.name} started playing ${gameName}!` });
 
         toast({ title: "Game Started!", description: `You have started playing ${gameName}.` });
     };
@@ -295,7 +285,7 @@ export default function AudioRoomPage() {
     };
 
      const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (!roomId || !currentUser || !currentUserIsOwner) return;
+        if (!roomId || !userProfile || !currentUserIsOwner) return;
         const file = event.target.files?.[0];
         if (file) {
             // In a real app, upload this file to a storage bucket and get a public URL
@@ -386,17 +376,25 @@ export default function AudioRoomPage() {
 
 
     const handleSeatClick = async (seat: any) => {
-        if (!currentUser || !roomId) return;
+        if (!userProfile || !roomId) return;
+
+        const seatUser: SeatUser = {
+            id: userProfile.id,
+            name: userProfile.name,
+            avatar: userProfile.avatar,
+            isMuted: true, // Always join muted
+            frame: userProfile.currentFrame
+        };
 
         // If user is already on a seat, they leave it first
-        const userSeat = seats.find(s => s.user?.id === currentUser.id);
+        const userSeat = seats.find(s => s.user?.id === userProfile.id);
         if (userSeat) {
             await leaveSeat(roomId, userSeat.id);
         }
 
         // If the clicked seat is not the one they just left, they take the new seat
         if (userSeat?.id !== seat.id && !seat.user && !seat.isLocked) {
-            await takeSeat(roomId, seat.id, currentUser);
+            await takeSeat(roomId, seat.id, seatUser);
         }
     };
     
@@ -544,7 +542,7 @@ export default function AudioRoomPage() {
         return rows;
     };
 
-    if (!room || !currentUser) {
+    if (authLoading || !room || !userProfile) {
         return (
             <div className="flex items-center justify-center h-screen bg-[#2E103F] text-white">
                 <Loader2 className="w-10 h-10 animate-spin" />
@@ -648,7 +646,7 @@ export default function AudioRoomPage() {
 
                 <div className="flex-1 mt-2 relative p-0">
                     {isGiftPanelOpen ? (
-                        <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} roomSeats={seats} coins={coins} />
+                        <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} roomSeats={seats} coins={userProfile.coins} />
                     ) : isGameActive ? (
                         <SpinTheWheel
                           participants={occupiedSeats.map(s => s.user).filter(Boolean) as SeatUser[]}
@@ -705,8 +703,8 @@ export default function AudioRoomPage() {
                      <div className="flex items-center justify-around gap-2">
                         <div className="flex-grow flex items-center gap-2 bg-black/30 rounded-full h-10 px-2">
                            <Avatar className="h-7 w-7">
-                               <AvatarImage src={currentUser.avatar} />
-                               <AvatarFallback>{currentUser.name.charAt(0) || 'U'}</AvatarFallback>
+                               <AvatarImage src={userProfile.avatar} />
+                               <AvatarFallback>{userProfile.name.charAt(0) || 'U'}</AvatarFallback>
                            </Avatar>
                             <Input
                                 ref={inputRef}
@@ -754,7 +752,7 @@ export default function AudioRoomPage() {
                             <SheetTitle className="text-2xl font-headline text-white flex items-center gap-2"><Gamepad2 /> Game Center</SheetTitle>
                             <div className="flex items-center gap-2 bg-black/30 rounded-full px-3 py-1 border border-white/20">
                                 <Coins className="w-5 h-5 text-yellow-400" />
-                                <span className="font-bold text-lg">{coins.toLocaleString()}</span>
+                                <span className="font-bold text-lg">{userProfile.coins.toLocaleString()}</span>
                             </div>
                         </div>
                     </SheetHeader>

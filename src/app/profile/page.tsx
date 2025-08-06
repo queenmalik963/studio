@@ -21,74 +21,52 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { listenToUserProfile, type UserProfile, followUser, unfollowUser, updateUserProfile } from "@/services/userService";
+import { followUser, unfollowUser, updateUserProfile } from "@/services/userService";
 import { Loader2 } from "lucide-react";
-import { auth } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
-import { User } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 
 export default function ProfilePage() {
     const router = useRouter();
     const { toast } = useToast();
-    const [profile, setProfile] = useState<UserProfile | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [authLoading, setAuthLoading] = useState(true);
+    const { currentUser, userProfile, loading } = useAuth();
     const [tempName, setTempName] = useState("");
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
-
-    useEffect(() => {
-        const unsubscribeAuth = auth.onAuthStateChanged(user => {
-            setCurrentUser(user);
-            setAuthLoading(false); // Auth check is complete
-            if (user) {
-                const unsubscribeProfile = listenToUserProfile(user.uid, (data) => {
-                    setProfile(data);
-                    if (data) {
-                        setTempName(data.name);
-                    }
-                    setIsLoading(false);
-                });
-                return () => unsubscribeProfile();
-            } else {
-                setIsLoading(false);
-            }
-        });
-        return () => unsubscribeAuth();
-    }, []);
     
     useEffect(() => {
-        // Redirect only after auth state is confirmed to be null
-        if (!authLoading && !currentUser) {
+        if (!loading && !currentUser) {
             router.push('/');
         }
-    }, [authLoading, currentUser, router]);
+        if (userProfile) {
+            setTempName(userProfile.name);
+        }
+    }, [currentUser, userProfile, loading, router]);
 
 
     const handleFollow = async () => {
-        if (!currentUser || !profile || currentUser.uid === profile.id) return;
-        const result = await followUser(currentUser.uid, profile.id);
+        if (!currentUser || !userProfile || currentUser.uid === userProfile.id) return;
+        const result = await followUser(currentUser.uid, userProfile.id);
         if (result.success) {
-            toast({ title: "Followed!", description: `You are now following ${profile.name}.` });
+            toast({ title: "Followed!", description: `You are now following ${userProfile.name}.` });
         } else {
             toast({ title: "Error", description: result.error, variant: "destructive" });
         }
     };
 
     const handleUnfollow = async () => {
-        if (!currentUser || !profile || currentUser.uid === profile.id) return;
-        const result = await unfollowUser(currentUser.uid, profile.id);
+        if (!currentUser || !userProfile || currentUser.uid === userProfile.id) return;
+        const result = await unfollowUser(currentUser.uid, userProfile.id);
         if (result.success) {
-            toast({ title: "Unfollowed", description: `You are no longer following ${profile.name}.` });
+            toast({ title: "Unfollowed", description: `You are no longer following ${userProfile.name}.` });
         } else {
             toast({ title: "Error", description: result.error, variant: "destructive" });
         }
     };
 
     const handleNameChange = async () => {
-        if (profile && tempName !== profile.name) {
-            const result = await updateUserProfile(profile.id, { name: tempName });
+        if (userProfile && tempName !== userProfile.name) {
+            const result = await updateUserProfile(userProfile.id, { name: tempName });
             if (result.success) {
                 toast({ title: "Name updated successfully!" });
             } else {
@@ -98,13 +76,13 @@ export default function ProfilePage() {
     }
 
     const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0] && profile) {
+        if (e.target.files && e.target.files[0] && userProfile) {
             const newAvatarFile = e.target.files[0];
             // In a real app, you would upload this to Firebase Storage and get a URL
             // For now, we'll just simulate with a local URL.
             const newAvatarUrl = URL.createObjectURL(newAvatarFile);
 
-            const result = await updateUserProfile(profile.id, { avatar: newAvatarUrl });
+            const result = await updateUserProfile(userProfile.id, { avatar: newAvatarUrl });
             if(result.success) {
                 toast({ title: "Avatar updated!" });
             } else {
@@ -113,7 +91,7 @@ export default function ProfilePage() {
         }
     }
 
-    if (isLoading || authLoading) {
+    if (loading) {
         return (
             <AppLayout>
                 <div className="flex justify-center items-center h-full">
@@ -123,7 +101,8 @@ export default function ProfilePage() {
         )
     }
     
-    if (!profile || !currentUser) {
+    if (!userProfile || !currentUser) {
+         // This case is handled by the useEffect redirect, but as a fallback:
         return (
             <AppLayout>
                 <div className="flex justify-center items-center h-full flex-col gap-2">
@@ -134,7 +113,7 @@ export default function ProfilePage() {
         )
     }
 
-    const isOwnProfile = currentUser.uid === profile.id;
+    const isOwnProfile = currentUser.uid === userProfile.id;
 
     return (
         <AppLayout>
@@ -150,10 +129,10 @@ export default function ProfilePage() {
                              <Dialog>
                                 <DialogTrigger asChild disabled={!isOwnProfile}>
                                     <div className={cn("relative group", isOwnProfile && "cursor-pointer")}>
-                                        <Avatar className={cn("w-24 h-24 border-4", profile.currentFrame ? 'border-transparent p-1' : 'border-white')}>
-                                            <div className={cn("absolute rounded-full", profile.currentFrame && "animate-spin-colors" , 'inset-[-4px]')}></div>
-                                            <AvatarImage src={profile.avatar} alt={profile.name} data-ai-hint="person alphabet" />
-                                            <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
+                                        <Avatar className={cn("w-24 h-24 border-4", userProfile.currentFrame ? 'border-transparent p-1' : 'border-white')}>
+                                            <div className={cn("absolute rounded-full", userProfile.currentFrame && "animate-spin-colors" , 'inset-[-4px]')}></div>
+                                            <AvatarImage src={userProfile.avatar} alt={userProfile.name} data-ai-hint="person alphabet" />
+                                            <AvatarFallback>{userProfile.name.charAt(0)}</AvatarFallback>
                                         </Avatar>
                                         {isOwnProfile && (
                                             <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
@@ -177,11 +156,11 @@ export default function ProfilePage() {
                                 </DialogContent>
                             </Dialog>
                             
-                             <Dialog onOpenChange={(open) => !open && setTempName(profile.name)}>
+                             <Dialog onOpenChange={(open) => !open && setTempName(userProfile.name)}>
                                 <DialogTrigger asChild disabled={!isOwnProfile}>
                                     <div className={cn("flex items-center gap-2 mt-4", isOwnProfile && "cursor-pointer")}>
-                                        {profile.vipTier && <Crown className="w-5 h-5 text-yellow-400" />}
-                                        <h1 className="text-2xl font-bold">{profile.name}</h1>
+                                        {userProfile.vipTier && <Crown className="w-5 h-5 text-yellow-400" />}
+                                        <h1 className="text-2xl font-bold">{userProfile.name}</h1>
                                         {isOwnProfile && <Edit2 className="w-5 h-5" />}
                                     </div>
                                 </DialogTrigger>
@@ -200,15 +179,15 @@ export default function ProfilePage() {
                                 </DialogContent>
                             </Dialog>
 
-                            <p className="text-sm text-white/70">@{profile.username}</p>
-                            <p className="text-sm mt-2 max-w-sm">{profile.bio}</p>
+                            <p className="text-sm text-white/70">@{userProfile.username}</p>
+                            <p className="text-sm mt-2 max-w-sm">{userProfile.bio}</p>
                              <div className="flex justify-around text-center mt-4 w-full max-w-xs">
                                 <div>
-                                    <p className="font-bold text-lg">{profile.following.toLocaleString()}</p>
+                                    <p className="font-bold text-lg">{userProfile.following.toLocaleString()}</p>
                                     <p className="text-xs text-white/70">Following</p>
                                 </div>
                                 <div>
-                                    <p className="font-bold text-lg">{profile.followers.toLocaleString()}</p>
+                                    <p className="font-bold text-lg">{userProfile.followers.toLocaleString()}</p>
                                     <p className="text-xs text-white/70">Followers</p>
                                 </div>
                             </div>
@@ -231,14 +210,14 @@ export default function ProfilePage() {
                     <div className="space-y-4">
                         <div className="flex justify-between items-center text-sm font-semibold">
                             <p className="flex items-center"><Star className="w-4 h-4 mr-1 text-yellow-300"/> ID Level (Receiver)</p>
-                            <p>{profile.idLevel}/100</p>
+                            <p>{userProfile.idLevel}/100</p>
                         </div>
-                        <Progress value={profile.idLevel} className="h-2 bg-muted [&>div]:bg-yellow-400" />
+                        <Progress value={userProfile.idLevel} className="h-2 bg-muted [&>div]:bg-yellow-400" />
                         <div className="flex justify-between items-center text-sm font-semibold">
                             <p className="flex items-center"><Send className="w-4 h-4 mr-1 text-sky-300"/> Sending Level (Gifter)</p>
-                            <p>{profile.sendingLevel}/100</p>
+                            <p>{userProfile.sendingLevel}/100</p>
                         </div>
-                        <Progress value={profile.sendingLevel} className="h-2 bg-muted [&>div]:bg-sky-400" />
+                        <Progress value={userProfile.sendingLevel} className="h-2 bg-muted [&>div]:bg-sky-400" />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -252,14 +231,14 @@ export default function ProfilePage() {
                                         <Coins className="w-4 h-4 text-yellow-300" />
                                         <div>
                                             <p className="font-semibold text-xs">Coins</p>
-                                            <p className="font-bold text-sm">{profile.coins.toLocaleString()}</p>
+                                            <p className="font-bold text-sm">{userProfile.coins.toLocaleString()}</p>
                                         </div>
                                     </div>
                                      <div className="flex items-center justify-center bg-white/10 p-1 rounded-lg gap-2 h-12">
                                         <Gem className="w-4 h-4 text-cyan-300" />
                                         <div>
                                             <p className="font-semibold text-xs">Diamonds</p>
-                                            <p className="font-bold text-sm">{profile.diamonds.toLocaleString()}</p>
+                                            <p className="font-bold text-sm">{userProfile.diamonds.toLocaleString()}</p>
                                         </div>
                                     </div>
                                 </div>

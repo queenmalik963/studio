@@ -12,8 +12,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { auth } from "@/lib/firebase";
-import { listenToUserProfile, exchangeDiamondsForCoins, type UserProfile } from "@/services/userService";
+import { useAuth } from "@/contexts/AuthContext";
+import { exchangeDiamondsForCoins } from "@/services/userService";
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -22,7 +22,7 @@ const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 const BankIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 3L2 9l10 6 10-6-10-6z"/>
         <path d="M2 9v12l10 6 10-6V9"/>
         <path d="M22 9l-10 6"/>
@@ -30,7 +30,7 @@ const BankIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 const CryptoIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20z"/>
         <path d="M8 12h8"/>
         <path d="M12 8v8"/>
@@ -47,22 +47,16 @@ const CryptoIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export default function WithdrawPage() {
     const router = useRouter();
     const { toast } = useToast();
+    const { currentUser, userProfile, loading } = useAuth();
     const [exchangeAmount, setExchangeAmount] = useState<number | string>("");
     const [withdrawAmount, setWithdrawAmount] = useState<number | string>("");
-    const [profile, setProfile] = useState<UserProfile | null>(null);
     const [isExchanging, setIsExchanging] = useState(false);
 
     useEffect(() => {
-        const user = auth.currentUser;
-        if (user) {
-            const unsubscribe = listenToUserProfile(user.uid, (profileData) => {
-                setProfile(profileData);
-            });
-            return () => unsubscribe();
-        } else {
-            router.push('/'); // Redirect if not logged in
+        if (!loading && !currentUser) {
+            router.push('/'); 
         }
-    }, [router]);
+    }, [loading, currentUser, router]);
 
     const handleWithdrawAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -82,14 +76,13 @@ export default function WithdrawPage() {
     }
 
     const handleExchange = async () => {
-        const user = auth.currentUser;
         const amount = Number(exchangeAmount);
 
-        if (!user) {
+        if (!currentUser) {
             toast({ title: "Error", description: "You are not logged in.", variant: "destructive" });
             return;
         }
-        if (!profile) {
+        if (!userProfile) {
             toast({ title: "Error", description: "Could not load your profile.", variant: "destructive" });
             return;
         }
@@ -97,13 +90,13 @@ export default function WithdrawPage() {
             toast({ title: "Invalid Amount", description: "Please enter a valid amount of diamonds to exchange.", variant: "destructive" });
             return;
         }
-        if (amount > profile.diamonds) {
-            toast({ title: "Insufficient Diamonds", description: `You only have ${profile.diamonds.toLocaleString()} diamonds.`, variant: "destructive" });
+        if (amount > userProfile.diamonds) {
+            toast({ title: "Insufficient Diamonds", description: `You only have ${userProfile.diamonds.toLocaleString()} diamonds.`, variant: "destructive" });
             return;
         }
 
         setIsExchanging(true);
-        const result = await exchangeDiamondsForCoins(user.uid, amount);
+        const result = await exchangeDiamondsForCoins(currentUser.uid, amount);
         setIsExchanging(false);
 
         if (result.success) {
@@ -121,7 +114,7 @@ export default function WithdrawPage() {
         }
     };
 
-    if (!profile) {
+    if (loading || !userProfile) {
         return (
             <AppLayout>
                 <div className="flex justify-center items-center h-full">
@@ -132,8 +125,8 @@ export default function WithdrawPage() {
     }
 
     const whatsappPhoneNumber = "971564423341";
-    const isWithdrawAmountValid = typeof withdrawAmount === 'number' && withdrawAmount > 0 && withdrawAmount <= profile.diamonds;
-    const whatsappMessage = encodeURIComponent(`I'd like to withdraw ${withdrawAmount} diamonds. My User ID is ${profile.id}.`);
+    const isWithdrawAmountValid = typeof withdrawAmount === 'number' && withdrawAmount > 0 && withdrawAmount <= userProfile.diamonds;
+    const whatsappMessage = encodeURIComponent(`I'd like to withdraw ${withdrawAmount} diamonds. My User ID is ${userProfile.id}.`);
     const whatsappLink = `https://wa.me/${whatsappPhoneNumber}?text=${whatsappMessage}`;
 
     return (
@@ -166,7 +159,7 @@ export default function WithdrawPage() {
                                         onChange={handleWithdrawAmountChange}
                                     />
                                 </div>
-                                <p className="text-xs text-white/70">Available: {profile.diamonds.toLocaleString()}</p>
+                                <p className="text-xs text-white/70">Available: {userProfile.diamonds.toLocaleString()}</p>
                             </div>
                             <p className="text-xs text-center text-white/80">Submit your request via one of the methods below.</p>
                         </CardContent>

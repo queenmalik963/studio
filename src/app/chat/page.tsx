@@ -8,43 +8,34 @@ import { Input } from "@/components/ui/input";
 import { Search, MessageCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { auth } from "@/lib/firebase";
 import { getConversations, type ConversationSummary } from "@/services/chatService";
 import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from "next/navigation";
-import { User } from "firebase/auth";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function ChatListPage() {
     const router = useRouter();
+    const { currentUser, loading: authLoading } = useAuth();
     const [conversations, setConversations] = useState<ConversationSummary[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [dataLoading, setDataLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            if (user) {
-                setCurrentUser(user);
-            } else {
-                router.push('/');
-            }
-        });
-        return () => unsubscribe();
-    }, [router]);
-
-    useEffect(() => {
-        if (!currentUser) {
-            // This case is handled by the auth state listener, but as a fallback:
-            setIsLoading(false);
+        if (!authLoading && !currentUser) {
+            router.push('/');
             return;
         }
 
-        const unsubscribeConversations = getConversations(currentUser.uid, (newConversations) => {
-            setConversations(newConversations);
-            setIsLoading(false);
-        });
+        if (currentUser) {
+            const unsubscribeConversations = getConversations(currentUser.uid, (newConversations) => {
+                setConversations(newConversations);
+                setDataLoading(false);
+            });
+    
+            return () => unsubscribeConversations();
+        }
+    }, [currentUser, authLoading, router]);
 
-        return () => unsubscribeConversations();
-    }, [currentUser]);
+    const isLoading = authLoading || dataLoading;
 
     return (
         <AppLayout>

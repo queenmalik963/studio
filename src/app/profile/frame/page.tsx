@@ -11,8 +11,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { auth } from "@/lib/firebase";
-import { listenToUserProfile, buyFrame, equipFrame, type UserProfile } from "@/services/userService";
+import { useAuth } from "@/contexts/AuthContext";
+import { buyFrame, equipFrame } from "@/services/userService";
 
 const frameTiers = [
     { id: "gold", name: "Gold", price: 1000, image: "https://i.imgur.com/K1hT0G8.png", animationClass: 'animate-glow-gold' },
@@ -35,22 +35,14 @@ type FrameTier = typeof frameTiers[0];
 export default function FrameStorePage() {
     const router = useRouter();
     const { toast } = useToast();
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const { currentUser, userProfile, loading } = useAuth();
     const [isBuying, setIsBuying] = useState<string | null>(null);
-    const [currentUser, setCurrentUser] = useState(auth.currentUser);
 
     useEffect(() => {
-        const unsubscribeAuth = auth.onAuthStateChanged(user => {
-            setCurrentUser(user);
-            if (user) {
-                const unsubscribeProfile = listenToUserProfile(user.uid, setUserProfile);
-                return () => unsubscribeProfile();
-            } else {
-                router.push('/');
-            }
-        });
-        return () => unsubscribeAuth();
-    }, [router]);
+        if (!loading && !currentUser) {
+            router.push('/');
+        }
+    }, [loading, currentUser, router]);
 
     const handleBuyFrame = async (frame: FrameTier) => {
         if (!currentUser || !userProfile) {
@@ -113,6 +105,15 @@ export default function FrameStorePage() {
         }
     };
 
+    if (loading || !userProfile) {
+      return (
+        <AppLayout>
+          <div className="flex justify-center items-center h-full">
+            <Loader2 className="w-16 h-16 animate-spin text-primary" />
+          </div>
+        </AppLayout>
+      );
+    }
 
   return (
     <AppLayout>

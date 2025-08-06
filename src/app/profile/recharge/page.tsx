@@ -13,8 +13,8 @@ import Link from "next/link";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { auth } from "@/lib/firebase";
-import { updateUserProfile, type UserProfile, listenToUserProfile } from "@/services/userService";
+import { useAuth } from "@/contexts/AuthContext";
+import { updateUserProfile } from "@/services/userService";
 
 const rechargePacks = [
   { coins: 100, price: "$0.99", color: "from-gray-500 to-gray-600" },
@@ -65,18 +65,14 @@ type RechargePack = typeof rechargePacks[0];
 export default function RechargePage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { currentUser, userProfile, loading } = useAuth();
   const [selectedPack, setSelectedPack] = useState<RechargePack | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
-    const user = auth.currentUser;
-    if (user) {
-      const unsubscribe = listenToUserProfile(user.uid, setProfile);
-      return () => unsubscribe();
-    } else {
+    if (!loading && !currentUser) {
       router.push('/');
     }
-  }, [router]);
+  }, [loading, currentUser, router]);
 
   const handleRechargeSelect = (pack: RechargePack) => {
     setSelectedPack(pack);
@@ -88,10 +84,20 @@ export default function RechargePage() {
 
   const whatsappPhoneNumber = "971564423341";
   const rechargeMessage = selectedPack
-    ? `I'd like to recharge my account with the pack: ${selectedPack.coins.toLocaleString()} Coins for ${selectedPack.price}. My User ID is ${profile?.id}.`
-    : `I'd like to recharge my account. My User ID is ${profile?.id}.`;
+    ? `I'd like to recharge my account with the pack: ${selectedPack.coins.toLocaleString()} Coins for ${selectedPack.price}. My User ID is ${userProfile?.id}.`
+    : `I'd like to recharge my account. My User ID is ${userProfile?.id}.`;
   
   const whatsappLink = `https://wa.me/${whatsappPhoneNumber}?text=${encodeURIComponent(rechargeMessage)}`;
+
+  if (loading || !userProfile) {
+    return (
+      <AppLayout>
+        <div className="flex justify-center items-center h-full">
+          <Loader2 className="w-16 h-16 animate-spin text-primary" />
+        </div>
+      </AppLayout>
+    )
+  }
 
   return (
     <AppLayout>

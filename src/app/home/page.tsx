@@ -15,10 +15,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MusicSuggestions } from "@/components/video/MusicSuggestions";
-import { auth, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-import { User } from "firebase/auth";
 import { collection, query, where, onSnapshot, DocumentData, limit } from "firebase/firestore";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface TrendingRoom {
   id: string;
@@ -146,24 +146,24 @@ const CAFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function HomePage() {
   const router = useRouter();
+  const { currentUser, loading: authLoading } = useAuth();
   const [trendingVideos, setTrendingVideos] = useState<TrendingRoom[]>([]);
   const [trendingAudio, setTrendingAudio] = useState<TrendingRoom[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribeAuth = auth.onAuthStateChanged(user => {
-        if (user) {
-            setCurrentUser(user);
-        } else {
-            router.push('/');
-        }
-    });
+    if (!authLoading && !currentUser) {
+      router.push('/');
+      return;
+    }
+  }, [currentUser, authLoading, router]);
 
+  useEffect(() => {
     const roomsColRef = collection(db, 'rooms');
     const roomsQuery = query(roomsColRef, where("isLive", "==", true), limit(4));
 
     const unsubscribeRooms = onSnapshot(roomsQuery, (snapshot) => {
+        setDataLoading(true);
         const videos: TrendingRoom[] = [];
         const audios: TrendingRoom[] = [];
 
@@ -190,20 +190,16 @@ export default function HomePage() {
 
         setTrendingVideos(videos);
         setTrendingAudio(audios);
-        setIsLoading(false);
+        setDataLoading(false);
     }, (error) => {
         console.error("Error fetching trending rooms:", error);
-        setIsLoading(false);
+        setDataLoading(false);
     });
 
-    return () => {
-      unsubscribeAuth();
-      unsubscribeRooms();
-    };
-  }, [router]);
+    return () => unsubscribeRooms();
+  }, []);
 
-
-  if (isLoading || !currentUser) {
+  if (authLoading || dataLoading) {
       return (
           <AppLayout>
               <div className="flex justify-center items-center h-full">

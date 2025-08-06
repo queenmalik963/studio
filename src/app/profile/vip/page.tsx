@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -12,7 +12,7 @@ import Autoplay from "embla-carousel-autoplay";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
-import { auth } from "@/lib/firebase";
+import { useAuth } from "@/contexts/AuthContext";
 import { buyVipTier } from "@/services/userService";
 
 const vipTiers = [
@@ -63,17 +63,23 @@ type VipTier = typeof vipTiers[0];
 export default function VipStorePage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { currentUser, userProfile, loading } = useAuth();
   const [isBuying, setIsBuying] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!loading && !currentUser) {
+        router.push('/');
+    }
+  }, [loading, currentUser, router]);
+
   const handlePurchase = async (tier: VipTier) => {
-    const user = auth.currentUser;
-    if (!user) {
+    if (!currentUser || !userProfile) {
         toast({ title: "Please log in", description: "You need to be logged in to purchase a VIP tier.", variant: "destructive" });
         return;
     }
     
     setIsBuying(tier.id);
-    const result = await buyVipTier(user.uid, tier.id, tier.price);
+    const result = await buyVipTier(currentUser.uid, tier.id, tier.price);
     setIsBuying(null);
 
     if (result.success) {
@@ -89,6 +95,16 @@ export default function VipStorePage() {
         });
     }
   };
+
+  if (loading) {
+    return (
+      <AppLayout>
+        <div className="flex justify-center items-center h-full">
+          <Loader2 className="w-16 h-16 animate-spin text-primary" />
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>

@@ -16,8 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast";
 import { listenToMessages, sendMessage, type ChatMessage, getConversationPartner, type ConversationPartner } from "@/services/chatService";
-import { auth } from "@/lib/firebase";
-import { User } from "firebase/auth";
+import { useAuth } from "@/contexts/AuthContext";
 
 
 const PlayIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -35,30 +34,27 @@ export default function ChatRoomPage() {
     
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState("");
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const { currentUser, loading: authLoading } = useAuth();
     const [partner, setPartner] = useState<ConversationPartner | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [dataLoading, setDataLoading] = useState(true);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-
+    
     useEffect(() => {
-        const unsubscribeAuth = auth.onAuthStateChanged(user => {
-            setCurrentUser(user);
-            if (!user) {
-                router.push('/');
-            }
-        });
-        return () => unsubscribeAuth();
-    }, [router]);
+        if (!authLoading && !currentUser) {
+            router.push('/');
+        }
+    }, [authLoading, currentUser, router]);
 
     useEffect(() => {
         if (!currentUser || !conversationId) return;
 
         const fetchPartner = async () => {
+            setDataLoading(true);
             const partnerData = await getConversationPartner(conversationId, currentUser.uid);
             setPartner(partnerData);
-            setIsLoading(false);
+            setDataLoading(false);
         };
 
         fetchPartner();
@@ -96,6 +92,8 @@ export default function ChatRoomPage() {
             description: "Clearing chat history is not available in this demo.",
         });
     }
+
+    const isLoading = authLoading || dataLoading;
 
     if (isLoading || !partner || !currentUser) {
         return (
