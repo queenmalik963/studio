@@ -32,13 +32,16 @@ export default function ProfilePage() {
     const { toast } = useToast();
     const { currentUser, userProfile, loading } = useAuth();
     
-    // Initialize tempName state and update it when userProfile changes.
-    const [tempName, setTempName] = useState(userProfile?.name ?? "");
+    const [tempName, setTempName] = useState("");
+
     useEffect(() => {
+        if (!loading && !currentUser) {
+            router.push('/');
+        }
         if (userProfile?.name) {
             setTempName(userProfile.name);
         }
-    }, [userProfile?.name]);
+    }, [userProfile, loading, currentUser, router]);
 
 
     const handleFollow = async () => {
@@ -88,31 +91,13 @@ export default function ProfilePage() {
         }
     }
 
-    // This is the crucial guard clause. It shows a loader if the auth state is still loading,
-    // OR if we have a logged-in user but their profile data hasn't arrived yet.
-    if (loading || (currentUser && !userProfile)) {
+    if (loading || !userProfile) {
         return (
-            <AppLayout>
-                <div className="flex justify-center items-center h-full">
-                    <Loader2 className="w-16 h-16 animate-spin text-primary" />
-                </div>
-            </AppLayout>
-        )
+            <div className="flex h-screen w-full items-center justify-center bg-background">
+                <Loader2 className="h-16 w-16 animate-spin text-primary" />
+            </div>
+        );
     }
-
-    // If not loading and no user, redirect (although AuthContext should handle this, it's an extra safety layer)
-    if (!currentUser || !userProfile) {
-        // This can be a redirect to login page, or just a message.
-        // Returning a loader here is safe as the parent layout will handle redirects.
-         return (
-            <AppLayout>
-                <div className="flex justify-center items-center h-full">
-                    <Loader2 className="w-16 h-16 animate-spin text-primary" />
-                </div>
-            </AppLayout>
-        )
-    }
-
 
     const isOwnProfile = currentUser?.uid === userProfile.id;
 

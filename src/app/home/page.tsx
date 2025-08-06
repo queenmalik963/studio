@@ -196,13 +196,11 @@ export default function HomePage() {
     return () => unsubscribeRooms();
   }, [currentUser]); // Re-run when currentUser changes
 
-  if (loading || !userProfile) {
+  if (loading || (currentUser && !userProfile)) {
       return (
-          <AppLayout>
-              <div className="flex justify-center items-center h-full">
-                  <Loader2 className="w-16 h-16 animate-spin text-primary" />
-              </div>
-          </AppLayout>
+          <div className="flex h-screen w-full items-center justify-center bg-background">
+              <Loader2 className="h-16 w-16 animate-spin text-primary" />
+          </div>
       );
   }
 
