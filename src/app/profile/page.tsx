@@ -45,7 +45,6 @@ export default function ProfilePage() {
         }
     }, [userProfile]);
 
-
     const handleFollow = async () => {
         if (!currentUser || !userProfile || currentUser.uid === userProfile.id) return;
         const result = await followUser(currentUser.uid, userProfile.id);
