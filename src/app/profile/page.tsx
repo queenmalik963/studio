@@ -31,16 +31,14 @@ export default function ProfilePage() {
     const router = useRouter();
     const { toast } = useToast();
     const { currentUser, userProfile, loading } = useAuth();
-    const [tempName, setTempName] = useState("");
     
-    useEffect(() => {
-        if (!loading && !currentUser) {
-            router.push('/');
-        }
-    }, [currentUser, loading, router]);
+    // This is the critical fix: Initialize tempName directly, avoiding the problematic useEffect.
+    const [tempName, setTempName] = useState(userProfile?.name ?? "");
 
+    // When userProfile loads, this ensures tempName is updated.
+    // This is a safer way to handle this than the previous useEffect.
     useEffect(() => {
-        if (userProfile) {
+        if (userProfile && tempName !== userProfile.name) {
             setTempName(userProfile.name);
         }
     }, [userProfile]);
@@ -92,8 +90,8 @@ export default function ProfilePage() {
         }
     }
 
-    // Definitive Guard Clause: Do not render anything until loading is false AND userProfile is available.
-    if (loading || !userProfile) {
+    // Definitive Guard Clause: Do not render anything until loading is false AND (if there is a user) userProfile is available.
+    if (loading || (auth.currentUser && !userProfile)) {
         return (
             <AppLayout>
                 <div className="flex justify-center items-center h-full">
@@ -101,6 +99,18 @@ export default function ProfilePage() {
                 </div>
             </AppLayout>
         )
+    }
+
+    // This handles the case where the user is not logged in.
+    if (!currentUser || !userProfile) {
+        router.push('/');
+        return (
+            <AppLayout>
+                 <div className="flex justify-center items-center h-full">
+                    <Loader2 className="w-16 h-16 animate-spin text-primary" />
+                </div>
+            </AppLayout>
+        );
     }
 
     const isOwnProfile = currentUser?.uid === userProfile.id;
@@ -279,4 +289,5 @@ export default function ProfilePage() {
             </div>
         </AppLayout>
     );
-}
+
+    
