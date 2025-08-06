@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
             setCurrentUser(user);
+            
             if (user) {
                 // If user is logged in, listen to their profile document
                 const userDocRef = doc(db, 'users', user.uid);
@@ -36,18 +37,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     if (docSnap.exists()) {
                         setUserProfile({ id: docSnap.id, ...docSnap.data() } as UserProfile);
                     } else {
+                        // This case can happen briefly if the user document hasn't been created yet.
                         setUserProfile(null);
                     }
+                    // Only stop loading after we have a definitive answer on the profile
+                    setLoading(false);
+                }, (error) => {
+                    console.error("Error listening to user profile:", error);
+                    setUserProfile(null);
                     setLoading(false);
                 });
+                
+                // Return the profile listener unsubscribe function to be called on cleanup
                 return () => unsubscribeProfile();
             } else {
-                // If user is not logged in, clear profile and stop loading
+                // If user is not logged in, clear profile and stop loading immediately
                 setUserProfile(null);
+                setCurrentUser(null);
                 setLoading(false);
             }
         });
 
+        // Return the auth listener unsubscribe function
         return () => unsubscribeAuth();
     }, []);
 

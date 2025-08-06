@@ -92,6 +92,7 @@ export default function ProfilePage() {
         }
     }
 
+    // Definitive Guard Clause: Do not render anything until loading is false AND userProfile is available.
     if (loading || !userProfile) {
         return (
             <AppLayout>
