@@ -1,6 +1,5 @@
 
 // src/lib/firebase.ts
-
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getAuth, Auth, initializeAuth, indexedDBLocalPersistence } from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
@@ -28,35 +27,38 @@ if (!areKeysValid) {
       "Firebase configuration is missing or incomplete. Please check your .env file."
     );
   }
-  // Provide dummy objects to prevent crashes on the server or client.
+  // Provide dummy objects to prevent crashes.
   app = {} as FirebaseApp;
   auth = {} as Auth;
   db = {} as Firestore;
 } else {
+  // This check prevents re-initialization on the client-side during hot-reloads.
   if (getApps().length === 0) {
     app = initializeApp(firebaseConfig);
-    
+    // Initialize services only on the client-side
     if (typeof window !== 'undefined') {
       // Initialize App Check for client-side FIRST
+      // IMPORTANT: You need to provide a reCAPTCHA v3 site key in your .env file
+      // for this to work. It can be a dummy key for localhost testing.
       if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
         initializeAppCheck(app, {
           provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY),
           isTokenAutoRefreshEnabled: true
         });
       } else {
-        console.warn("reCAPTCHA Site Key is missing. App Check will not be initialized, which may affect authentication security.");
+        console.warn("NEXT_PUBLIC_RECAPTCHA_SITE_KEY is missing from .env. App Check will not be initialized.");
       }
-
-      // THEN, initialize Auth with persistence for client-side
+      
+      // THEN, initialize Auth with persistence for the client-side
       auth = initializeAuth(app, {
         persistence: indexedDBLocalPersistence
       });
-
     } else {
-       // For server-side rendering, just get the auth instance
-       auth = getAuth(app);
+      // For server-side rendering, just get the auth instance without client-side persistence
+      auth = getAuth(app);
     }
   } else {
+    // If the app is already initialized, just get the instances.
     app = getApps()[0];
     auth = getAuth(app);
   }
