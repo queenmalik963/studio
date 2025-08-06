@@ -1,3 +1,6 @@
+// Load environment variables from .env file at the very beginning
+import { config } from 'dotenv';
+config({ path: '.env' });
 
 import type {NextConfig} from 'next';
 

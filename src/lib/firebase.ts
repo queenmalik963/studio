@@ -1,13 +1,10 @@
-
-// IMPORTANT: This line ensures that environment variables are loaded for server-side rendering.
-import '@/ai/dotenv';
-
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApp, getApps, FirebaseApp } from "firebase/app";
 import { getFirestore, Firestore } from "firebase/firestore";
 import { getAuth, Auth } from "firebase/auth";
 
 // Your web app's Firebase configuration is now sourced from environment variables.
+// next.config.js now handles loading the .env file.
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY, 
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -32,7 +29,6 @@ if (areKeysValid) {
 } else {
     console.warn("Firebase configuration is missing or incomplete. Please check your .env file. The app will run in a logged-out state.");
     // Provide dummy objects to prevent crashes when keys are missing.
-    // This part is crucial for preventing the 'invalid-api-key' crash.
     app = {} as FirebaseApp;
     db = {} as Firestore;
     auth = {} as Auth;
