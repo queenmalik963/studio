@@ -1,7 +1,7 @@
 // src/lib/firebase.ts
 
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import { getAuth, Auth } from "firebase/auth";
+import { getAuth, Auth, initializeAuth, indexedDBLocalPersistence } from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -34,9 +34,22 @@ if (
   auth = {} as Auth;
   db = {} as Firestore;
 } else {
-  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-  auth = getAuth(app);
-  db = getFirestore(app);
+    if (getApps().length === 0) {
+        app = initializeApp(firebaseConfig);
+        if (typeof window !== 'undefined') {
+            // This is the key change for the reCAPTCHA error.
+            // We initialize auth with IndexedDB persistence only on the client-side.
+            auth = initializeAuth(app, {
+                persistence: indexedDBLocalPersistence
+            });
+        } else {
+           auth = getAuth(app);
+        }
+    } else {
+        app = getApps()[0];
+        auth = getAuth(app);
+    }
+    db = getFirestore(app);
 }
 
 // A helper to easily check if Firebase was initialized correctly elsewhere in the app.
