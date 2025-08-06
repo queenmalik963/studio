@@ -4,53 +4,48 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if a user is authenticated
+    // Helper functions
     function isSignedIn() {
-      return request.auth != null;
+      return request.auth.uid != null;
     }
 
-    // Rules for the 'users' collection
+    // Users Collection:
+    // - Anyone signed in can read any user's profile (for avatars, names etc.)
+    // - A user can only write to their own profile.
     match /users/{userId} {
-      // Any authenticated user can read any user's profile (needed for chat, profiles, etc.)
       allow read: if isSignedIn();
-      
-      // Only the user themselves can update their own profile
       allow write: if isSignedIn() && request.auth.uid == userId;
 
-      // Rules for user subcollections (e.g., following, followers)
+      // Subcollections like 'followers', 'following' can be managed if signed in.
       match /{subcollection}/{docId} {
         allow read, write: if isSignedIn();
       }
     }
 
-    // Rules for the 'rooms' collection
+    // Rooms Collection:
+    // - Anyone signed in can list and get rooms.
+    // - Only signed in users can create a room.
+    // - Only the room owner can update/delete their room.
     match /rooms/{roomId} {
-      // Any authenticated user can read room data
-      allow read: if isSignedIn();
-      
-      // Any authenticated user can create a room
+      allow list, get: if isSignedIn();
       allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
 
-      // Only the owner of the room can update it (e.g., change title, lock seats)
-      allow update: if isSignedIn() && resource.data.ownerId == request.auth.uid;
-      
-      // By default, disallow deletion of rooms to prevent accidents
-      allow delete: if false;
-
-      // Rules for room subcollections (e.g., messages)
-      match /{subcollection}/{docId} {
+      // Messages subcollection:
+      // - Anyone signed in can read/write messages in any room.
+      match /messages/{messageId} {
         allow read, write: if isSignedIn();
       }
     }
-
-    // Rules for the 'conversations' collection
+    
+    // Conversations Collection:
+    // - Only participants of a conversation can read or write to it.
     match /conversations/{conversationId} {
-      // A user can read/write to a conversation only if they are a participant
       allow read, write: if isSignedIn() && request.auth.uid in resource.data.participants;
-
-      // Rules for conversation subcollections (e.g., messages)
-       match /{subcollection}/{docId} {
-        allow read, write: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+      
+      // Messages subcollection within a conversation
+      match /messages/{messageId} {
+         allow read, write: if isSignedIn() && get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants[0] == request.auth.uid || get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants[1] == request.auth.uid;
       }
     }
   }
