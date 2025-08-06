@@ -27,38 +27,56 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // If Firebase keys are not valid, stop loading and don't attempt to connect.
         if (!areKeysValid) {
+            console.error("Firebase keys are invalid. App cannot connect to Firebase.");
             setLoading(false);
             return;
         }
 
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const authUnsubscribe = onAuthStateChanged(auth, (user) => {
             setCurrentUser(user);
+            
+            let profileUnsubscribe: Unsubscribe | undefined;
+
             if (user) {
+                // If there's a user, set up a listener for their profile.
                 const userDocRef = doc(db, 'users', user.uid);
-                const unsubscribeProfile = onSnapshot(userDocRef, (docSnap) => {
+                profileUnsubscribe = onSnapshot(userDocRef, (docSnap) => {
                     if (docSnap.exists()) {
                         setUserProfile({ id: docSnap.id, ...docSnap.data() } as UserProfile);
                     } else {
+                        // This case can happen briefly when a user is created but the profile doc isn't ready.
                         setUserProfile(null);
                     }
                     setLoading(false);
                 }, (error) => {
-                    console.error("Error fetching user profile:", error);
+                    console.error("Error listening to user profile:", error);
                     setUserProfile(null);
                     setLoading(false);
                 });
-                
-                // This is a safety net to detach the profile listener when the user logs out.
-                // It's part of the cleanup of the onAuthStateChanged listener.
-                return () => unsubscribeProfile();
             } else {
+                // If there's no user, clear profile, stop loading, and ensure no profile listener is active.
                 setUserProfile(null);
                 setLoading(false);
+                if (profileUnsubscribe) {
+                    profileUnsubscribe();
+                }
             }
+            
+            // Return a cleanup function for the profile listener when the auth state changes or component unmounts.
+            return () => {
+                if (profileUnsubscribe) {
+                    profileUnsubscribe();
+                }
+            };
+        }, (error) => {
+            console.error("Auth state error:", error);
+            setLoading(false);
         });
 
-        return () => unsubscribe();
+        // Main cleanup for the auth listener itself.
+        return () => authUnsubscribe();
     }, []);
 
     const value = {

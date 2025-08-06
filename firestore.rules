@@ -1,44 +1,34 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Users can only be created by authenticated users for their own UID.
-    // Any authenticated user can read any other user's profile.
-    // A user can only update their own profile.
+  
+    // Users can only update their own profile, but any logged-in user can read any profile.
     match /users/{userId} {
       allow read: if request.auth != null;
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow update: if request.auth != null && request.auth.uid == userId;
-      allow delete: if false; // Deleting user profiles is not allowed.
+      allow write: if request.auth.uid == userId;
     }
 
-    // Any authenticated user can list/read rooms.
-    // Any authenticated user can create a new room.
-    // Only the room owner can update the room details (e.g., lock seats, change video).
+    // Any authenticated user can see any room, but only the owner can update it.
     match /rooms/{roomId} {
       allow read, create: if request.auth != null;
       allow update: if request.auth != null && resource.data.ownerId == request.auth.uid;
-      allow delete: if request.auth != null && resource.data.ownerId == request.auth.uid; // Only owner can delete.
-
-      // Any authenticated user can read/write messages, game data, etc. within a room.
-      match /{allChildren=**} {
+      
+      // Any authenticated user can read/write to subcollections like messages.
+      match /{subcollection}/{docId=**} {
         allow read, write: if request.auth != null;
       }
     }
 
-    // Conversations can be read by participants.
-    // Any authenticated user can create a new conversation.
+    // Any authenticated user can see any conversation and its messages.
+    // Write access is restricted to participants.
     match /conversations/{conversationId} {
-      allow read, update: if request.auth != null && request.auth.uid in resource.data.participants;
-      allow create: if request.auth != null;
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null && request.auth.uid in resource.data.participants;
       
-      // Messages can be read by conversation participants.
-      // Messages can only be created by a participant.
       match /messages/{messageId} {
-        allow read: if get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants.hasAny([request.auth.uid]);
-        allow create: if request.auth != null && request.resource.data.senderId == request.auth.uid;
+        allow read: if request.auth != null;
+        allow create: if request.auth != null; // Further rules can restrict to participants if needed
       }
     }
   }
