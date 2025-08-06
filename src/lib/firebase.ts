@@ -4,7 +4,7 @@ import { getFirestore, Firestore } from "firebase/firestore";
 import { getAuth, Auth } from "firebase/auth";
 
 // Your web app's Firebase configuration is now sourced from environment variables.
-// next.config.js now handles loading the .env file.
+// next.config.js handles loading the .env file.
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY, 
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -22,13 +22,18 @@ let db: Firestore;
 let auth: Auth;
 
 // Initialize Firebase only if the keys are valid.
-if (areKeysValid) {
-    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+// This prevents the app from crashing if the .env file is not set up.
+if (areKeysValid && getApps().length === 0) {
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+} else if (areKeysValid) {
+    app = getApp();
     db = getFirestore(app);
     auth = getAuth(app);
 } else {
-    console.warn("Firebase configuration is missing or incomplete. Please check your .env file. The app will run in a logged-out state.");
     // Provide dummy objects to prevent crashes when keys are missing.
+    // The app will remain in a "logged out" state.
     app = {} as FirebaseApp;
     db = {} as Firestore;
     auth = {} as Auth;
