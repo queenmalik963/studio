@@ -542,7 +542,7 @@ export default function AudioRoomPage() {
         return rows;
     };
 
-    if (loading || !room || !userProfile) {
+    if (loading || !userProfile || !room) {
         return (
             <div className="flex items-center justify-center h-screen bg-[#2E103F] text-white">
                 <Loader2 className="w-10 h-10 animate-spin" />

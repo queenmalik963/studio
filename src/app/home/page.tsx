@@ -166,19 +166,22 @@ export default function HomePage() {
     const unsubscribeRooms = onSnapshot(roomsQuery, (snapshot) => {
         const videos: TrendingRoom[] = [];
         const audios: TrendingRoom[] = [];
+        let viewersCount = 5.2;
 
         snapshot.forEach((doc: DocumentData) => {
             const data = doc.data();
+            const occupiedSeats = (data.seats || []).filter((s: any) => s.user).length;
             const room: TrendingRoom = {
                 id: doc.id,
                 href: `/${data.type}/room/${doc.id}`,
                 title: data.name,
                 creator: data.ownerName || 'A User',
-                viewers: `${(Math.random() * 5 + 0.5).toFixed(1)}K`, 
+                viewers: `${occupiedSeats + viewersCount.toFixed(1)}K`, 
                 image: data.thumbnail || (data.type === 'video' ? 'https://i.imgur.com/Oz4ud1o.gif' : 'https://i.imgur.com/sCbrK9U.png'),
                 hint: data.type === 'video' ? 'youtube video' : 'podcast microphone',
                 icon: data.type === 'video' ? PlaySquare : Headphones
             };
+            viewersCount -= 0.3;
 
             if (data.type === 'video' && videos.length < 2) {
                 videos.push(room);
@@ -196,7 +199,7 @@ export default function HomePage() {
     return () => unsubscribeRooms();
   }, [currentUser]); // Re-run when currentUser changes
 
-  if (loading || (currentUser && !userProfile)) {
+  if (loading || !userProfile) {
       return (
           <div className="flex h-screen w-full items-center justify-center bg-background">
               <Loader2 className="h-16 w-16 animate-spin text-primary" />

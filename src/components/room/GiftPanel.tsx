@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import type { roomSeats } from "@/app/audio/room/page";
+import type { Seat } from "@/services/roomService";
 
 const gifts = {
   hot: [
@@ -326,7 +326,7 @@ type GiftCategory = keyof typeof gifts;
 type GiftPanelProps = {
     onSendGift: (gift: Gift, quantity: number, recipient: string) => void;
     sendButtonRef: React.RefObject<HTMLButtonElement>;
-    roomSeats: typeof roomSeats | any[];
+    roomSeats: Seat[];
     coins: number;
     giftContext?: 'audio' | 'video';
 }
@@ -358,7 +358,7 @@ export function GiftPanel({ onSendGift, sendButtonRef, roomSeats, coins, giftCon
     }
   }
 
-  const occupiedSeats = roomSeats.filter(seat => seat.isOccupied && seat.user);
+  const occupiedSeats = roomSeats.filter(seat => seat.user);
 
   const videoGiftSet = {
       exclusive: gifts.exclusive,
@@ -447,7 +447,7 @@ export function GiftPanel({ onSendGift, sendButtonRef, roomSeats, coins, giftCon
                     <DropdownMenuItem onClick={() => setRecipient("All on Mic")}>All on Mic</DropdownMenuItem>
                     <DropdownMenuSeparator />
                     {occupiedSeats.map(seat => (
-                        <DropdownMenuItem key={seat.id} onClick={() => setRecipient(seat.user.name)}>
+                       seat.user && <DropdownMenuItem key={seat.id} onClick={() => setRecipient(seat.user.name)}>
                            {seat.user.name}
                         </DropdownMenuItem>
                     ))}
@@ -477,5 +477,3 @@ export function GiftPanel({ onSendGift, sendButtonRef, roomSeats, coins, giftCon
     </div>
   );
 }
-
-    

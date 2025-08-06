@@ -20,6 +20,7 @@ interface Room {
     isPlaying: boolean;
     progress: number;
     users: any[];
+    seats: any[];
 }
 
 export default function VideoPage() {
@@ -33,14 +34,17 @@ export default function VideoPage() {
             const fetchedRooms: Room[] = [];
             querySnapshot.forEach((doc: DocumentData) => {
                 const data = doc.data();
+                const occupiedSeats = (data.seats || []).filter((s: any) => s.user);
+
                 fetchedRooms.push({
                     id: doc.id,
                     name: data.name,
                     thumbnail: data.thumbnail || "https://i.imgur.com/Oz4ud1o.gif",
                     thumbnailHint: data.youtubeVideoId ? "youtube video" : "animated space battle",
-                    isPlaying: true, // Placeholder
-                    progress: Math.floor(Math.random() * 100), // Placeholder
-                    users: Array.from({ length: data.seats > 0 ? Math.min(data.seats, 3) : 1 }, () => ({ name: "User", src: "https://placehold.co/40x40.png" })), // Placeholder users
+                    isPlaying: data.isPlaying || false,
+                    progress: data.playbackTime ? (data.playbackTime / (data.trackDuration || 1)) * 100 : 0,
+                    users: occupiedSeats.slice(0, 3).map((s: any) => s.user),
+                    seats: data.seats || [],
                 });
             });
             setRooms(fetchedRooms);
@@ -106,7 +110,7 @@ export default function VideoPage() {
                                           <div className="flex -space-x-2">
                                               {room.users.map((user: any, i: number) => (
                                                   <Avatar key={i} className="w-7 h-7 border-2 border-background/50">
-                                                      <AvatarImage src={user.src} alt={user.name} data-ai-hint="person portrait" />
+                                                      <AvatarImage src={user.avatar} alt={user.name} data-ai-hint="person portrait" />
                                                       <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                                                   </Avatar>
                                               ))}

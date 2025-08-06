@@ -93,7 +93,7 @@ export const getRoomDetails = async (roomId: string): Promise<Room | null> => {
 
 
 // Function to create a new room in Firestore
-export const createRoom = async (roomDetails: Partial<Omit<Room, 'createdAt' | 'isLive' | 'ownerId' | 'ownerName' | 'id' | 'seats'>> & { seats: number }): Promise<{ success: boolean; roomId: string | null; error: string | null; }> => {
+export const createRoom = async (roomDetails: Partial<Omit<Room, 'createdAt' | 'isLive' | 'ownerId' | 'ownerName' | 'ownerAvatar' | 'id' | 'seats'>> & { seats: number }): Promise<{ success: boolean; roomId: string | null; error: string | null; }> => {
     const user = auth.currentUser;
     if (!user) {
         return { success: false, roomId: null, error: "You must be logged in to create a room." };
@@ -324,8 +324,9 @@ export const sendGift = async (
     try {
         await runTransaction(db, async (transaction) => {
             const senderDoc = await transaction.get(senderRef);
+            const recipientDoc = await transaction.get(recipientRef);
 
-            if (!senderDoc.exists()) {
+            if (!senderDoc.exists() || !recipientDoc.exists()) {
                 throw new Error("Sender or recipient not found.");
             }
 
@@ -335,10 +336,10 @@ export const sendGift = async (
             }
 
             // 1. Deduct coins from sender
-            transaction.update(senderRef, { coins: increment(-totalCost) });
+            transaction.update(senderRef, { coins: increment(-totalCost), sendingLevel: increment(totalCost / 100) });
 
             // 2. Award diamonds to recipient
-            transaction.update(recipientRef, { diamonds: increment(diamondsToAward) });
+            transaction.update(recipientRef, { diamonds: increment(diamondsToAward), idLevel: increment(diamondsToAward / 100) });
         });
         
         // 3. Send a message to the room chat (outside the transaction)
