@@ -146,7 +146,7 @@ const CAFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function HomePage() {
   const router = useRouter();
-  const { currentUser, loading } = useAuth();
+  const { currentUser, userProfile, loading } = useAuth();
   const [trendingVideos, setTrendingVideos] = useState<TrendingRoom[]>([]);
   const [trendingAudio, setTrendingAudio] = useState<TrendingRoom[]>([]);
 
@@ -157,6 +157,9 @@ export default function HomePage() {
   }, [currentUser, loading, router]);
 
   useEffect(() => {
+    // Only fetch data if the user is logged in
+    if (!currentUser) return;
+
     const roomsColRef = collection(db, 'rooms');
     const roomsQuery = query(roomsColRef, where("isLive", "==", true), limit(4));
 
@@ -191,9 +194,9 @@ export default function HomePage() {
     });
 
     return () => unsubscribeRooms();
-  }, []);
+  }, [currentUser]); // Re-run when currentUser changes
 
-  if (loading) {
+  if (loading || !userProfile) {
       return (
           <AppLayout>
               <div className="flex justify-center items-center h-full">

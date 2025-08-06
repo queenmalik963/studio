@@ -32,13 +32,14 @@ export default function ProfilePage() {
     const { toast } = useToast();
     const { currentUser, userProfile, loading } = useAuth();
     
+    // Initialize tempName state and update it when userProfile changes.
     const [tempName, setTempName] = useState(userProfile?.name ?? "");
-
     useEffect(() => {
-        if (userProfile && tempName !== userProfile.name) {
+        if (userProfile?.name) {
             setTempName(userProfile.name);
         }
-    }, [userProfile]);
+    }, [userProfile?.name]);
+
 
     const handleFollow = async () => {
         if (!currentUser || !userProfile || currentUser.uid === userProfile.id) return;
@@ -87,7 +88,9 @@ export default function ProfilePage() {
         }
     }
 
-    if (loading || !currentUser || !userProfile) {
+    // This is the crucial guard clause. It shows a loader if the auth state is still loading,
+    // OR if we have a logged-in user but their profile data hasn't arrived yet.
+    if (loading || (currentUser && !userProfile)) {
         return (
             <AppLayout>
                 <div className="flex justify-center items-center h-full">
@@ -96,6 +99,20 @@ export default function ProfilePage() {
             </AppLayout>
         )
     }
+
+    // If not loading and no user, redirect (although AuthContext should handle this, it's an extra safety layer)
+    if (!currentUser || !userProfile) {
+        // This can be a redirect to login page, or just a message.
+        // Returning a loader here is safe as the parent layout will handle redirects.
+         return (
+            <AppLayout>
+                <div className="flex justify-center items-center h-full">
+                    <Loader2 className="w-16 h-16 animate-spin text-primary" />
+                </div>
+            </AppLayout>
+        )
+    }
+
 
     const isOwnProfile = currentUser?.uid === userProfile.id;
 

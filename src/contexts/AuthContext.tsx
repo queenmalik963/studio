@@ -27,7 +27,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // If firebase keys are not valid, we can't do anything. Stop loading.
         if (!areKeysValid || !auth || !db) {
             setLoading(false);
             return;
@@ -36,11 +35,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
             setCurrentUser(user);
             if (user) {
-                // User is signed in. Listen for their profile document.
                 const unsubscribeProfile = onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
                     if (docSnap.exists()) {
                         setUserProfile({ id: docSnap.id, ...docSnap.data() } as UserProfile);
                     } else {
+                        // This case can happen briefly if the user document hasn't been created yet after signup.
                         setUserProfile(null);
                     }
                     // Crucially, only set loading to false AFTER we have a definitive answer on the profile.
@@ -48,10 +47,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 }, (error) => {
                     console.error("Error listening to user profile:", error);
                     setUserProfile(null);
-                    setLoading(false); // Also stop loading on error.
+                    setLoading(false);
                 });
 
-                // This will be called when the user logs out.
                 return () => unsubscribeProfile();
             } else {
                 // User is signed out. Clear everything and stop loading.
@@ -61,7 +59,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             }
         });
 
-        // This will be called on component unmount.
         return () => unsubscribeAuth();
     }, []);
 
