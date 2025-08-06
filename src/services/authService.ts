@@ -100,6 +100,6 @@ export const signOutUser = async () => {
         return { success: true, error: null };
     } catch (error: any) {
         console.error("Signout error:", error.code, error.message);
-        return { success: false, error: error.message };
+        return { success: false, error: (error as Error).message };
     }
 };
