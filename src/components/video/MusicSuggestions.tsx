@@ -25,13 +25,17 @@ export function MusicSuggestions() {
             }
 
             try {
-                // In a real app, you'd get this from user data or browsing history
-                const recentlyWatched = [
-                    "Live from Tomorrowland",
-                    "Techno Bunker Set",
-                    "Boiler Room: London",
-                ];
+                // In a real app, this would be populated from user data or browsing history.
+                // It is left empty for now to avoid dummy data.
+                const recentlyWatched: string[] = [];
                 
+                // The AI will not produce good results with an empty list, but we avoid dummy data.
+                if (recentlyWatched.length === 0) {
+                    setSuggestions({ suggestedTracks: [] });
+                    setIsLoading(false);
+                    return;
+                }
+
                 const result = await suggestUpNextMusic({ recentlyWatchedVideos: recentlyWatched });
                 
                 setSuggestions(result);

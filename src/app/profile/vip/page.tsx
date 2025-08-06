@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -23,7 +22,7 @@ const vipTiers = [
         color: 'from-gray-700 to-gray-900',
         frameClass: 'border-2 border-gray-400 animate-glow-silver',
         features: ['VIP Badge', 'Special Welcome Message', 'No Ads'],
-        specialFrameUrl: 'https://i.imgur.com/K1hT0G8.png', // Using Gold Frame for demo
+        specialFrameUrl: 'https://i.imgur.com/K1hT0G8.png', 
         tagImage: 'https://i.imgur.com/eB3sY3d.png',
     },
     {
@@ -154,7 +153,7 @@ export default function VipStorePage() {
                                 src={tier.specialFrameUrl}
                                 alt={`${tier.name} Frame`}
                                 layout="fill"
-                                className={cn("absolute pointer-events-none", tier.frameClass, tier.name === 'Shogun' ? '-inset-2' : '-inset-1')}
+                                className={cn("absolute pointer-events-none object-contain", tier.frameClass, tier.name === 'Shogun' ? '-inset-2' : '-inset-1')}
                             />
                         </div>
                         <CardTitle className="flex items-center gap-2 text-2xl">

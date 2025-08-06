@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -35,6 +34,12 @@ export default function ProfilePage() {
     // Initialize tempName directly, it will update when userProfile becomes available
     const [tempName, setTempName] = useState(userProfile?.name ?? "");
 
+    useEffect(() => {
+        if (!loading && userProfile && tempName !== userProfile.name) {
+            setTempName(userProfile.name);
+        }
+    }, [userProfile, loading, tempName]);
+
     if (loading || !userProfile) {
         return (
             <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -43,11 +48,6 @@ export default function ProfilePage() {
         );
     }
     
-    // Sync tempName when userProfile loads or changes, only if the dialog is not open
-    if (tempName !== userProfile.name) {
-        setTempName(userProfile.name);
-    }
-
     const handleFollow = async () => {
         if (!currentUser || !userProfile || currentUser.uid === userProfile.id) return;
         const result = await followUser(currentUser.uid, userProfile.id);
