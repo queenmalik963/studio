@@ -30,7 +30,7 @@ const firebaseConfig = {
   projectId: "ravewaveapp",
   storageBucket: "ravewaveapp.appspot.com",
   messagingSenderId: "308572836717",
-  appId: "1:308572836717:web:e0a9b2b5a5b5a2b5a2b5a5"
+  appId: "1:308572836717:web:b8d502f682522a466a9c79"
 };
 
 // Initialize Firebase
