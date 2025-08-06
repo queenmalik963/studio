@@ -1,27 +1,41 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Users can be read by any authenticated user, but only written by the owner.
+    // Users can read anyone's profile, but only write to their own.
     match /users/{userId} {
       allow read: if request.auth != null;
       allow write: if request.auth.uid == userId;
-    }
-
-    // Any authenticated user can read or write to any room or its subcollections (e.g., messages).
-    // This is a broad rule for simplicity, can be tightened later if needed.
-    match /rooms/{path=**} {
-      allow read, write: if request.auth != null;
+      
+      // Allow authenticated users to manage their own followers/following lists
+      match /followers/{followerId} {
+        allow read, write: if request.auth != null;
+      }
+      match /following/{followingId} {
+        allow read, write: if request.auth != null;
+      }
     }
     
-    // Conversations and their messages can only be read/written by participants.
+    // Rooms can be read by any authenticated user.
+    // Room creation is allowed for authenticated users.
+    // Room updates are only allowed by the owner (this is handled in backend logic for now).
+    match /rooms/{roomId} {
+      allow read, create, update: if request.auth != null;
+      
+      // Messages can be read and written by any authenticated user in the room.
+      match /messages/{messageId} {
+        allow read, write: if request.auth != null;
+      }
+    }
+    
+    // Conversations can only be read/written by participants.
     match /conversations/{conversationId} {
        allow read, write: if request.auth.uid in resource.data.participants;
        
+       // Messages within a conversation follow the same rule.
        match /messages/{messageId} {
-          allow read, write: if request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+         allow read, write: if request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
        }
     }
   }

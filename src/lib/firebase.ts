@@ -15,28 +15,28 @@ const firebaseConfig = {
 };
 
 // Defensive check for keys. If they are not present, we can't initialize.
-const areKeysValid = !!firebaseConfig.apiKey && !!firebaseConfig.projectId;
+export const areKeysValid = !!firebaseConfig.apiKey && !!firebaseConfig.projectId;
 
 let app: FirebaseApp;
 let db: Firestore;
 let auth: Auth;
 
-// Initialize Firebase only if the keys are valid.
-// This prevents the app from crashing if the .env file is not set up.
-if (areKeysValid && getApps().length === 0) {
+// Initialize Firebase only if the keys are valid and it's not already initialized.
+if (areKeysValid) {
+  if (getApps().length === 0) {
     app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
-    auth = getAuth(app);
-} else if (areKeysValid) {
+  } else {
     app = getApp();
-    db = getFirestore(app);
-    auth = getAuth(app);
+  }
+  db = getFirestore(app);
+  auth = getAuth(app);
 } else {
-    // Provide dummy objects to prevent crashes when keys are missing.
-    // The app will remain in a "logged out" state.
-    app = {} as FirebaseApp;
-    db = {} as Firestore;
-    auth = {} as Auth;
+  // Provide dummy objects to prevent crashes when keys are missing.
+  // The app will remain in a "logged out" state.
+  console.error("Firebase configuration is missing or incomplete. Please check your .env file. The app will run in a logged-out state.");
+  app = {} as FirebaseApp;
+  db = {} as Firestore;
+  auth = {} as Auth;
 }
 
-export { app, db, auth, areKeysValid };
+export { app, db, auth };
