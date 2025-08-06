@@ -62,7 +62,7 @@ export default function AudioRoomPage() {
     const params = useParams();
     const roomId = params.id as string;
     
-    const { currentUser, userProfile, loading: authLoading } = useAuth();
+    const { currentUser, userProfile, loading } = useAuth();
     
     const [room, setRoom] = useState<Room | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
@@ -93,10 +93,10 @@ export default function AudioRoomPage() {
     const lastMessageCount = useRef(messages.length);
 
     useEffect(() => {
-        if (!authLoading && !currentUser) {
+        if (!loading && !currentUser) {
             router.push('/');
         }
-    }, [authLoading, currentUser, router]);
+    }, [loading, currentUser, router]);
 
     useEffect(() => {
         if (!roomId) return;
@@ -542,7 +542,7 @@ export default function AudioRoomPage() {
         return rows;
     };
 
-    if (authLoading || !room || !userProfile) {
+    if (loading || !room || !userProfile) {
         return (
             <div className="flex items-center justify-center h-screen bg-[#2E103F] text-white">
                 <Loader2 className="w-10 h-10 animate-spin" />

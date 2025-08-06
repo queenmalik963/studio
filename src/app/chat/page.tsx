@@ -15,12 +15,12 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function ChatListPage() {
     const router = useRouter();
-    const { currentUser, loading: authLoading } = useAuth();
+    const { currentUser, loading } = useAuth();
     const [conversations, setConversations] = useState<ConversationSummary[]>([]);
-    const [dataLoading, setDataLoading] = useState(true);
+    const [conversationsLoading, setConversationsLoading] = useState(true);
 
     useEffect(() => {
-        if (!authLoading && !currentUser) {
+        if (!loading && !currentUser) {
             router.push('/');
             return;
         }
@@ -28,14 +28,22 @@ export default function ChatListPage() {
         if (currentUser) {
             const unsubscribeConversations = getConversations(currentUser.uid, (newConversations) => {
                 setConversations(newConversations);
-                setDataLoading(false);
+                setConversationsLoading(false);
             });
     
             return () => unsubscribeConversations();
         }
-    }, [currentUser, authLoading, router]);
+    }, [currentUser, loading, router]);
 
-    const isLoading = authLoading || dataLoading;
+    if (loading || conversationsLoading) {
+        return (
+            <AppLayout>
+                <div className="flex justify-center items-center h-full">
+                    <Loader2 className="w-10 h-10 animate-spin text-primary" />
+                </div>
+            </AppLayout>
+        );
+    }
 
     return (
         <AppLayout>
@@ -49,11 +57,7 @@ export default function ChatListPage() {
                 </header>
 
                 <div className="flex-1 overflow-y-auto -mx-4 px-4">
-                    {isLoading ? (
-                        <div className="flex justify-center items-center h-full">
-                            <Loader2 className="w-10 h-10 animate-spin text-primary" />
-                        </div>
-                    ) : conversations.length > 0 ? (
+                    {conversations.length > 0 ? (
                         <div className="space-y-1">
                             {conversations.map((chat) => (
                                <Link href={`/chat/${chat.id}`} key={chat.id} className="block">

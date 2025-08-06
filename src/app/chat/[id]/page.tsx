@@ -34,27 +34,27 @@ export default function ChatRoomPage() {
     
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState("");
-    const { currentUser, loading: authLoading } = useAuth();
+    const { currentUser, loading } = useAuth();
     const [partner, setPartner] = useState<ConversationPartner | null>(null);
-    const [dataLoading, setDataLoading] = useState(true);
+    const [partnerLoading, setPartnerLoading] = useState(true);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     
     useEffect(() => {
-        if (!authLoading && !currentUser) {
+        if (!loading && !currentUser) {
             router.push('/');
         }
-    }, [authLoading, currentUser, router]);
+    }, [loading, currentUser, router]);
 
     useEffect(() => {
         if (!currentUser || !conversationId) return;
 
         const fetchPartner = async () => {
-            setDataLoading(true);
+            setPartnerLoading(true);
             const partnerData = await getConversationPartner(conversationId, currentUser.uid);
             setPartner(partnerData);
-            setDataLoading(false);
+            setPartnerLoading(false);
         };
 
         fetchPartner();
@@ -93,9 +93,7 @@ export default function ChatRoomPage() {
         });
     }
 
-    const isLoading = authLoading || dataLoading;
-
-    if (isLoading || !partner || !currentUser) {
+    if (loading || partnerLoading || !partner || !currentUser) {
         return (
             <div className="flex flex-col h-screen bg-gradient-to-br from-background via-primary/10 to-background text-foreground">
                 <header className="p-4 border-b flex items-center justify-between gap-4 bg-card">

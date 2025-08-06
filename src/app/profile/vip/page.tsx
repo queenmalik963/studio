@@ -96,7 +96,7 @@ export default function VipStorePage() {
     }
   };
 
-  if (loading) {
+  if (loading || !userProfile) {
     return (
       <AppLayout>
         <div className="flex justify-center items-center h-full">

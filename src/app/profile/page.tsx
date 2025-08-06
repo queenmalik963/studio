@@ -91,7 +91,7 @@ export default function ProfilePage() {
         }
     }
 
-    if (loading) {
+    if (loading || !userProfile) {
         return (
             <AppLayout>
                 <div className="flex justify-center items-center h-full">
@@ -100,20 +100,8 @@ export default function ProfilePage() {
             </AppLayout>
         )
     }
-    
-    if (!userProfile || !currentUser) {
-         // This case is handled by the useEffect redirect, but as a fallback:
-        return (
-            <AppLayout>
-                <div className="flex justify-center items-center h-full flex-col gap-2">
-                    <Loader2 className="w-16 h-16 animate-spin text-primary" />
-                    <p className="ml-4 text-muted-foreground">Redirecting to login...</p>
-                </div>
-            </AppLayout>
-        )
-    }
 
-    const isOwnProfile = currentUser.uid === userProfile.id;
+    const isOwnProfile = currentUser?.uid === userProfile.id;
 
     return (
         <AppLayout>

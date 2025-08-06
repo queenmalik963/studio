@@ -146,24 +146,22 @@ const CAFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function HomePage() {
   const router = useRouter();
-  const { currentUser, loading: authLoading } = useAuth();
+  const { currentUser, loading } = useAuth();
   const [trendingVideos, setTrendingVideos] = useState<TrendingRoom[]>([]);
   const [trendingAudio, setTrendingAudio] = useState<TrendingRoom[]>([]);
-  const [dataLoading, setDataLoading] = useState(true);
+  const [roomsLoading, setRoomsLoading] = useState(true);
 
   useEffect(() => {
-    if (!authLoading && !currentUser) {
+    if (!loading && !currentUser) {
       router.push('/');
-      return;
     }
-  }, [currentUser, authLoading, router]);
+  }, [currentUser, loading, router]);
 
   useEffect(() => {
     const roomsColRef = collection(db, 'rooms');
     const roomsQuery = query(roomsColRef, where("isLive", "==", true), limit(4));
 
     const unsubscribeRooms = onSnapshot(roomsQuery, (snapshot) => {
-        setDataLoading(true);
         const videos: TrendingRoom[] = [];
         const audios: TrendingRoom[] = [];
 
@@ -174,7 +172,6 @@ export default function HomePage() {
                 href: `/${data.type}/room/${doc.id}`,
                 title: data.name,
                 creator: data.ownerName || 'A User',
-                // For demonstration, we'll generate a random viewer count
                 viewers: `${(Math.random() * 5 + 0.5).toFixed(1)}K`, 
                 image: data.thumbnail || (data.type === 'video' ? 'https://i.imgur.com/Oz4ud1o.gif' : 'https://i.imgur.com/sCbrK9U.png'),
                 hint: data.type === 'video' ? 'youtube video' : 'podcast microphone',
@@ -190,16 +187,16 @@ export default function HomePage() {
 
         setTrendingVideos(videos);
         setTrendingAudio(audios);
-        setDataLoading(false);
+        setRoomsLoading(false);
     }, (error) => {
         console.error("Error fetching trending rooms:", error);
-        setDataLoading(false);
+        setRoomsLoading(false);
     });
 
     return () => unsubscribeRooms();
   }, []);
 
-  if (authLoading || dataLoading) {
+  if (loading || roomsLoading) {
       return (
           <AppLayout>
               <div className="flex justify-center items-center h-full">

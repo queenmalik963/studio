@@ -21,8 +21,7 @@ import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
 import YouTube from 'react-youtube';
 import { listenToMessages, sendMessage, type Message, listenToRoom, type Room, takeSeat, leaveSeat, updateSeatAsOwner, type SeatUser, updateSeatUser, updatePlaybackState, sendGift, endCurrentGame } from "@/services/roomService";
-import { auth } from "@/lib/firebase";
-import { listenToUserProfile } from "@/services/userService";
+import { useAuth } from "@/contexts/AuthContext";
 
 
 export type JumpAnimation = {
@@ -45,6 +44,8 @@ function VideoRoomPageComponent() {
     const roomId = params.id as string;
 
     const { toast } = useToast();
+    const { currentUser, userProfile, loading } = useAuth();
+
     const [room, setRoom] = useState<Room | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState("");
@@ -57,7 +58,6 @@ function VideoRoomPageComponent() {
     const [animatedWalkingGift, setAnimatedWalkingGift] = useState<string | null>(null);
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
-    const [coins, setCoins] = useState(0);
     
     const playerRef = useRef<any>(null);
 
@@ -67,34 +67,16 @@ function VideoRoomPageComponent() {
     const sendButtonRef = useRef<HTMLButtonElement>(null);
     const lastMessageCount = useRef(messages.length);
 
-    const [currentUser, setCurrentUser] = useState<SeatUser | null>(null);
-    const currentUserIsOwner = room?.ownerId === currentUser?.id;
-    const currentUserSeat = useMemo(() => seats.find(s => s.user?.id === currentUser?.id), [seats, currentUser]);
+    const currentUserIsOwner = room?.ownerId === currentUser?.uid;
+    const currentUserSeat = useMemo(() => seats.find(s => s.user?.id === currentUser?.uid), [seats, currentUser]);
     const isGameActive = !!room?.activeGame;
 
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            if (user) {
-                const userProfileSub = listenToUserProfile(user.uid, (profile) => {
-                    if (profile) {
-                         setCurrentUser({
-                            id: user.uid,
-                            name: profile.name,
-                            avatar: profile.avatar,
-                            isMuted: true, // Default mute state on join
-                            frame: profile.currentFrame,
-                        });
-                        setCoins(profile.coins);
-                    }
-                });
-                return () => userProfileSub();
-            } else {
-                router.push('/');
-            }
-        });
-        return () => unsubscribe();
-    }, [router]);
+        if (!loading && !currentUser) {
+            router.push('/');
+        }
+    }, [loading, currentUser, router]);
 
     useEffect(() => {
         if (!roomId) return;
@@ -193,15 +175,15 @@ function VideoRoomPageComponent() {
     
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (newMessage.trim() && roomId && currentUser) {
+        if (newMessage.trim() && roomId && userProfile) {
             const messageToSend = newMessage;
             setNewMessage(""); // Clear input immediately for better UX
             inputRef.current?.blur();
             
             const result = await sendMessage(roomId, {
-                authorId: currentUser.id,
-                authorName: currentUser.name,
-                authorAvatar: currentUser.avatar,
+                authorId: userProfile.id,
+                authorName: userProfile.name,
+                authorAvatar: userProfile.avatar,
                 text: messageToSend,
                 type: 'text',
             });
@@ -218,10 +200,18 @@ function VideoRoomPageComponent() {
     };
 
     const handleSendGift = async (gift: GiftType, quantity: number, recipientName: string) => {
-        if (!roomId || !currentUser || !room) return;
+        if (!roomId || !userProfile || !room) return;
 
         let recipients: { id: string, name: string }[] = [];
         
+        const senderSeatUser: SeatUser = {
+            id: userProfile.id,
+            name: userProfile.name,
+            avatar: userProfile.avatar,
+            isMuted: currentUserSeat?.user?.isMuted ?? true,
+            frame: userProfile.currentFrame
+        };
+
         if (recipientName === 'All in Room') {
             recipients = seats.filter(s => s.user).map(s => ({ id: s.user.id, name: s.user.name }));
         } else if (recipientName === 'All on Mic') {
@@ -239,7 +229,7 @@ function VideoRoomPageComponent() {
         }
 
         for (const recipient of recipients) {
-            const result = await sendGift(roomId, currentUser, recipient.id, recipient.name, gift, quantity);
+            const result = await sendGift(roomId, senderSeatUser, recipient.id, recipient.name, gift, quantity);
             if (!result.success) {
                 toast({
                     variant: "destructive",
@@ -289,7 +279,7 @@ function VideoRoomPageComponent() {
     };
 
     const handleStartGame = async (gameName: string) => {
-        if (!roomId || !currentUser || !currentUserIsOwner) {
+        if (!roomId || !userProfile || !currentUserIsOwner) {
              toast({
                 title: "Only the room owner can start a game.",
                 variant: "destructive",
@@ -298,8 +288,8 @@ function VideoRoomPageComponent() {
         }
         setIsGamePanelOpen(false);
 
-        await updatePlaybackState(roomId, { activeGame: gameName, gameHostId: currentUser.id });
-        await sendMessage(roomId, { type: 'system', text: `${currentUser.name} started playing ${gameName}!` });
+        await updatePlaybackState(roomId, { activeGame: gameName, gameHostId: userProfile.id });
+        await sendMessage(roomId, { type: 'system', text: `${userProfile.name} started playing ${gameName}!` });
         
         toast({
             title: "Game Started!",
@@ -331,15 +321,23 @@ function VideoRoomPageComponent() {
     };
 
     const handleSeatClick = async (seat: any) => {
-        if (!currentUser || !roomId) return;
+        if (!userProfile || !roomId) return;
+        
+        const seatUser: SeatUser = {
+            id: userProfile.id,
+            name: userProfile.name,
+            avatar: userProfile.avatar,
+            isMuted: true, // Always join muted
+            frame: userProfile.currentFrame
+        };
 
-        const userSeat = seats.find(s => s.user?.id === currentUser.id);
+        const userSeat = seats.find(s => s.user?.id === userProfile.id);
         if (userSeat) {
             await leaveSeat(roomId, userSeat.id);
         }
 
         if (userSeat?.id !== seat.id && !seat.user && !seat.isLocked) {
-            await takeSeat(roomId, seat.id, currentUser);
+            await takeSeat(roomId, seat.id, seatUser);
         }
     };
 
@@ -420,7 +418,7 @@ function VideoRoomPageComponent() {
         },
     };
     
-    if (!room || !currentUser) {
+    if (loading || !room || !userProfile) {
         return (
             <div className="flex items-center justify-center h-screen bg-[#180828] text-white">
                 <Loader2 className="w-10 h-10 animate-spin" />
@@ -609,7 +607,7 @@ function VideoRoomPageComponent() {
                 {/* Chat Panel */}
                  <div className="flex-1 mt-2 relative p-0">
                     {isGiftPanelOpen ? (
-                        <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} roomSeats={seats} giftContext="video" coins={coins} />
+                        <GiftPanel onSendGift={handleSendGift} sendButtonRef={sendButtonRef} roomSeats={seats} giftContext="video" coins={userProfile.coins} />
                     ) : isGameActive ? (
                          <SpinTheWheel
                           participants={occupiedSeats.map(s => s.user).filter(Boolean) as SeatUser[]}
@@ -666,8 +664,8 @@ function VideoRoomPageComponent() {
                     <div className="flex items-center justify-around gap-2">
                         <div className="flex-grow flex items-center gap-2 bg-black/30 rounded-full h-10 px-2">
                            <Avatar className="h-7 w-7">
-                               <AvatarImage src={currentUser.avatar} />
-                               <AvatarFallback>{currentUser.name.charAt(0) || 'U'}</AvatarFallback>
+                               <AvatarImage src={userProfile.avatar} />
+                               <AvatarFallback>{userProfile.name.charAt(0) || 'U'}</AvatarFallback>
                            </Avatar>
                             <Input
                                 ref={inputRef}
@@ -715,7 +713,7 @@ function VideoRoomPageComponent() {
                             <SheetTitle className="text-2xl font-headline text-white flex items-center gap-2"><Gamepad2 /> Game Center</SheetTitle>
                             <div className="flex items-center gap-2 bg-black/30 rounded-full px-3 py-1 border border-white/20">
                                 <Coins className="w-5 h-5 text-yellow-400" />
-                                <span className="font-bold text-lg">{coins.toLocaleString()}</span>
+                                <span className="font-bold text-lg">{userProfile.coins.toLocaleString()}</span>
                             </div>
                         </div>
                     </SheetHeader>
