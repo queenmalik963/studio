@@ -37,20 +37,20 @@ if (!areKeysValid) {
     app = initializeApp(firebaseConfig);
     
     if (typeof window !== 'undefined') {
-      // Initialize Auth with persistence for client-side
-      auth = initializeAuth(app, {
-        persistence: indexedDBLocalPersistence
-      });
-      
-      // Initialize App Check for client-side
+      // Initialize App Check for client-side FIRST
       if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
         initializeAppCheck(app, {
           provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY),
           isTokenAutoRefreshEnabled: true
         });
       } else {
-        console.warn("reCAPTCHA Site Key is missing. App Check will not be initialized.");
+        console.warn("reCAPTCHA Site Key is missing. App Check will not be initialized, which may affect authentication.");
       }
+
+      // THEN, initialize Auth with persistence for client-side
+      auth = initializeAuth(app, {
+        persistence: indexedDBLocalPersistence
+      });
 
     } else {
        // For server-side rendering, just get the auth instance
