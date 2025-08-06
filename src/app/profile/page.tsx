@@ -32,11 +32,8 @@ export default function ProfilePage() {
     const { toast } = useToast();
     const { currentUser, userProfile, loading } = useAuth();
     
-    // This is the critical fix: Initialize tempName directly, avoiding the problematic useEffect.
     const [tempName, setTempName] = useState(userProfile?.name ?? "");
 
-    // When userProfile loads, this ensures tempName is updated.
-    // This is a safer way to handle this than the previous useEffect.
     useEffect(() => {
         if (userProfile && tempName !== userProfile.name) {
             setTempName(userProfile.name);
@@ -90,8 +87,7 @@ export default function ProfilePage() {
         }
     }
 
-    // Definitive Guard Clause: Do not render anything until loading is false AND (if there is a user) userProfile is available.
-    if (loading || (auth.currentUser && !userProfile)) {
+    if (loading || (currentUser && !userProfile)) {
         return (
             <AppLayout>
                 <div className="flex justify-center items-center h-full">
@@ -101,7 +97,6 @@ export default function ProfilePage() {
         )
     }
 
-    // This handles the case where the user is not logged in.
     if (!currentUser || !userProfile) {
         router.push('/');
         return (
@@ -289,5 +284,4 @@ export default function ProfilePage() {
             </div>
         </AppLayout>
     );
-
-    
+}
