@@ -27,8 +27,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!areKeysValid || !auth || !db) {
-            console.error("Firebase is not configured. AuthProvider cannot proceed.");
+        // If Firebase keys are not valid, we can't do anything. 
+        // Set loading to false and let the app show the login page.
+        if (!areKeysValid) {
             setLoading(false);
             return;
         }

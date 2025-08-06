@@ -14,14 +14,16 @@ export function MusicSuggestions() {
 
     useEffect(() => {
         const fetchSuggestions = async () => {
+            setIsLoading(true);
+            setError(null);
+            
+            // First, check if the API key is present before making any calls.
             if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
-                setError("Gemini API key not found. Please add it to your .env file.");
+                setError("Gemini API key not found. Please add it to your .env file to enable AI features.");
                 setIsLoading(false);
                 return;
             }
 
-            setIsLoading(true);
-            setError(null);
             try {
                 // In a real app, you'd get this from user data or browsing history
                 const recentlyWatched = [

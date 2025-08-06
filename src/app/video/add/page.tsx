@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -27,7 +28,7 @@ const NetflixIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 const YouTubeIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red">
-        <path d="M21.582,6.186c-0.23-0.858-0.904-1.532-1.762-1.762C18.256,4,12,4,12,4S5.744,4,4.18,4.424 c-0.858,0.23-1.532,0.904-1.762,1.762C2,7.749,2,12,2,12s0,4.251,0.418,5.814c0.23,0.858,0.904,1.532,1.762,1.762 C5.744,20,12,20,12,20s6.256,0,7.82-0.424c0.858-0.23,1.532,0.904,1.762-1.762C22,16.251,22,12,22,12S22,7.749,21.582,6.186z M10,15.464V8.536L16,12L10,15.464z"/>
+        <path d="M21.582,6.186c-0.23-0.858-0.904-1.532-1.762-1.762C18.256,4,12,4,12,4S5.744,4,4.18,4.424 c-0.858,0.23-1.532,0.904-1.762,1.762C2,7.749,2,12,2,12s0,4.251,0.418,5.814c0.23,0.858,0.904,1.532,1.762,1.762 C5.744,20,12,20,12,20s6.256,0,7.82-0.424c0.858-0.23,1.532-0.904,1.762-1.762C22,16.251,22,12,22,12S22,7.749,21.582,6.186z M10,15.464V8.536L16,12L10,15.464z"/>
     </svg>
 );
 
@@ -41,10 +42,23 @@ export default function AddVideoPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState<YoutubeSearchResult[]>([]);
     const [searchError, setSearchError] = useState<string | null>(null);
+    const [isApiKeyMissing, setIsApiKeyMissing] = useState(false);
+
+    useEffect(() => {
+        // Check for YouTube API key when component mounts
+        if (!process.env.NEXT_PUBLIC_YOUTUBE_API_KEY) {
+            setIsApiKeyMissing(true);
+        }
+    }, []);
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!searchTerm.trim()) return;
+
+        if (isApiKeyMissing) {
+            setSearchError("YOUTUBE_API_KEY is not set. Please add it to your .env file to enable search.");
+            return;
+        }
 
         setIsSearching(true);
         setSearchError(null);
@@ -165,9 +179,11 @@ export default function AddVideoPage() {
                                     <AlertTitle>Search Error</AlertTitle>
                                     <AlertDescription>
                                         {searchError}
-                                        <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="underline font-semibold ml-1">
-                                            Get a key here.
-                                        </a>
+                                        {isApiKeyMissing &&
+                                            <a href="https://console.developers.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="underline font-semibold ml-1">
+                                                Get a key here.
+                                            </a>
+                                        }
                                     </AlertDescription>
                                 </Alert>
                             )}
@@ -192,7 +208,10 @@ export default function AddVideoPage() {
                                 </div>
                             ) : !isSearching && !searchError && (
                                 <div className="flex items-center justify-center h-full text-muted-foreground">
-                                    <p>Search for a video to start a room.</p>
+                                    {isApiKeyMissing 
+                                        ? "YouTube search is disabled. Please add a YOUTUBE_API_KEY to your .env file."
+                                        : "Search for a video to start a room."
+                                    }
                                 </div>
                             )}
                         </ScrollArea>
