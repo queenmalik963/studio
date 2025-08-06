@@ -524,7 +524,6 @@ export default function AudioRoomPage() {
                                                     {seat.user.isMuted ? <Mic /> : <MicOff />} {seat.user.isMuted ? 'Unmute' : 'Mute Mic'}
                                                 </Button>
                                                  <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
-                                                <Button variant="ghost" size="sm" className="justify-start text-destructive hover:text-destructive"><Axe /> Ban User</Button>
                                                 <Separator className="my-1" />
                                             </>
                                         )}
