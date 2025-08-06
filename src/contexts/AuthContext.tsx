@@ -27,60 +27,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // If Firebase keys are not valid, we can't do anything. 
-        // Set loading to false and let the app show the login page.
         if (!areKeysValid) {
             setLoading(false);
             return;
         }
 
-        let unsubscribeProfile: Unsubscribe | undefined;
-
-        const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-            // If a profile listener is active from a previous user, unsubscribe from it first.
-            if (unsubscribeProfile) {
-                unsubscribeProfile();
-                unsubscribeProfile = undefined;
-            }
-            
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
             setCurrentUser(user);
-
             if (user) {
-                // User is signed in, but we are not done loading yet.
-                // We must wait for their profile to be fetched.
-                setLoading(true); 
                 const userDocRef = doc(db, 'users', user.uid);
-                unsubscribeProfile = onSnapshot(userDocRef, (docSnap) => {
+                const unsubscribeProfile = onSnapshot(userDocRef, (docSnap) => {
                     if (docSnap.exists()) {
                         setUserProfile({ id: docSnap.id, ...docSnap.data() } as UserProfile);
                     } else {
-                        // This case can happen briefly if the user document hasn't been created yet after signup.
                         setUserProfile(null);
-                        console.warn(`User document for ${user.uid} not found.`);
                     }
-                    // Crucially, only set loading to false AFTER we have a definitive answer on the profile.
                     setLoading(false);
                 }, (error) => {
-                    console.error("Error listening to user profile:", error);
+                    console.error("Error fetching user profile:", error);
                     setUserProfile(null);
-                    setLoading(false); // Also stop loading on error
+                    setLoading(false);
                 });
-
+                
+                // This is a safety net to detach the profile listener when the user logs out.
+                // It's part of the cleanup of the onAuthStateChanged listener.
+                return () => unsubscribeProfile();
             } else {
-                // User is signed out. Clear everything and stop loading.
-                setCurrentUser(null);
                 setUserProfile(null);
                 setLoading(false);
             }
         });
 
-        // Cleanup function for the main auth subscription
-        return () => {
-            unsubscribeAuth();
-            if (unsubscribeProfile) {
-                unsubscribeProfile();
-            }
-        };
+        return () => unsubscribe();
     }, []);
 
     const value = {
