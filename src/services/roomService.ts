@@ -23,6 +23,7 @@ import {
 } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 import { Gift } from '@/components/room/GiftPanel';
+import { getUserProfile } from './userService';
 
 export interface Message {
     id?: string;
@@ -98,6 +99,12 @@ export const createRoom = async (roomDetails: Partial<Omit<Room, 'createdAt' | '
         return { success: false, roomId: null, error: "You must be logged in to create a room." };
     }
 
+    const userProfile = await getUserProfile(user.uid);
+    if (!userProfile) {
+        return { success: false, roomId: null, error: "Could not find user profile to create room." };
+    }
+
+
     try {
         const roomsColRef = collection(db, 'rooms');
         const initialSeats = Array.from({ length: roomDetails.seats }, (_, i) => ({
@@ -110,8 +117,8 @@ export const createRoom = async (roomDetails: Partial<Omit<Room, 'createdAt' | '
             ...roomDetails,
             seats: initialSeats,
             ownerId: user.uid,
-            ownerName: user.displayName || user.email,
-            ownerAvatar: user.photoURL,
+            ownerName: userProfile.name,
+            ownerAvatar: userProfile.avatar,
             isLive: true,
             createdAt: serverTimestamp(),
             // Initialize playback state for audio rooms

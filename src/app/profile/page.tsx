@@ -87,7 +87,7 @@ export default function ProfilePage() {
         }
     }
 
-    if (loading || (currentUser && !userProfile)) {
+    if (loading || !currentUser || !userProfile) {
         return (
             <AppLayout>
                 <div className="flex justify-center items-center h-full">
@@ -95,17 +95,6 @@ export default function ProfilePage() {
                 </div>
             </AppLayout>
         )
-    }
-
-    if (!currentUser || !userProfile) {
-        router.push('/');
-        return (
-            <AppLayout>
-                 <div className="flex justify-center items-center h-full">
-                    <Loader2 className="w-16 h-16 animate-spin text-primary" />
-                </div>
-            </AppLayout>
-        );
     }
 
     const isOwnProfile = currentUser?.uid === userProfile.id;

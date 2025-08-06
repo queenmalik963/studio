@@ -3,7 +3,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth, db } from '@/lib/firebase';
+import { auth, db, areKeysValid } from '@/lib/firebase';
 import { doc, onSnapshot, DocumentData } from 'firebase/firestore';
 import { UserProfile } from '@/services/userService';
 
@@ -27,16 +27,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // If firebase keys are not valid, we can't do anything. Stop loading.
+        if (!areKeysValid || !auth || !db) {
+            setLoading(false);
+            return;
+        }
+
         const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
             setCurrentUser(user);
             if (user) {
                 // User is signed in. Listen for their profile document.
                 const unsubscribeProfile = onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
                     if (docSnap.exists()) {
-                        // Profile exists, set it.
                         setUserProfile({ id: docSnap.id, ...docSnap.data() } as UserProfile);
                     } else {
-                        // Profile does not exist (this can happen briefly during signup).
                         setUserProfile(null);
                     }
                     // Crucially, only set loading to false AFTER we have a definitive answer on the profile.

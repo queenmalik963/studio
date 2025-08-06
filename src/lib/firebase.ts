@@ -1,11 +1,10 @@
-
 // IMPORTANT: This line ensures that environment variables are loaded for server-side rendering.
 import '@/ai/dotenv';
 
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApp, getApps, FirebaseApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getFirestore, Firestore } from "firebase/firestore";
+import { getAuth, Auth } from "firebase/auth";
 
 // Your web app's Firebase configuration is now sourced from environment variables.
 const firebaseConfig = {
@@ -17,15 +16,23 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-// Initialize Firebase for SSR
-let app: FirebaseApp;
-if (getApps().length === 0) {
-    app = initializeApp(firebaseConfig);
+// Defensive check for keys. If they are not present, we can't initialize.
+const areKeysValid = !!firebaseConfig.apiKey && !!firebaseConfig.projectId;
+
+let app: FirebaseApp | null = null;
+let db: Firestore | null = null;
+let auth: Auth | null = null;
+
+if (areKeysValid) {
+    if (getApps().length === 0) {
+        app = initializeApp(firebaseConfig);
+    } else {
+        app = getApp();
+    }
+    db = getFirestore(app);
+    auth = getAuth(app);
 } else {
-    app = getApp();
+    console.warn("Firebase configuration is missing or incomplete. Please check your .env file. The app will run in a logged-out state.");
 }
 
-const db = getFirestore(app);
-const auth = getAuth(app);
-
-export { app, db, auth };
+export { app, db, auth, areKeysValid };
