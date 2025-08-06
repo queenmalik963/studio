@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Settings, Users, Loader2 } from "lucide-react";
+import { Plus, Search, Settings, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -24,7 +24,6 @@ interface Room {
 
 export default function VideoPage() {
     const [rooms, setRooms] = useState<Room[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const roomsColRef = collection(db, 'rooms');
@@ -45,10 +44,8 @@ export default function VideoPage() {
                 });
             });
             setRooms(fetchedRooms);
-            setIsLoading(false);
         }, (error) => {
             console.error("Error fetching rooms: ", error);
-            setIsLoading(false);
         });
 
         return () => unsubscribe();
@@ -73,11 +70,7 @@ export default function VideoPage() {
                 <Input placeholder="Search" className="bg-white/10 border-0 rounded-full pl-10 text-white placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/50" />
             </div>
 
-            {isLoading ? (
-                <div className="flex justify-center items-center h-64">
-                    <Loader2 className="w-12 h-12 animate-spin text-white" />
-                </div>
-            ) : rooms.length === 0 ? (
+            {rooms.length === 0 ? (
                  <div className="text-center py-20 text-white/70">
                     <p className="text-lg font-semibold">No Live Rooms</p>
                     <p className="text-sm">Why not start one? Click the plus button!</p>

@@ -149,7 +149,6 @@ export default function HomePage() {
   const { currentUser, loading } = useAuth();
   const [trendingVideos, setTrendingVideos] = useState<TrendingRoom[]>([]);
   const [trendingAudio, setTrendingAudio] = useState<TrendingRoom[]>([]);
-  const [roomsLoading, setRoomsLoading] = useState(true);
 
   useEffect(() => {
     if (!loading && !currentUser) {
@@ -187,16 +186,14 @@ export default function HomePage() {
 
         setTrendingVideos(videos);
         setTrendingAudio(audios);
-        setRoomsLoading(false);
     }, (error) => {
         console.error("Error fetching trending rooms:", error);
-        setRoomsLoading(false);
     });
 
     return () => unsubscribeRooms();
   }, []);
 
-  if (loading || roomsLoading) {
+  if (loading) {
       return (
           <AppLayout>
               <div className="flex justify-center items-center h-full">

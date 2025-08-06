@@ -5,7 +5,7 @@ import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, MessageCircle, Loader2 } from "lucide-react";
+import { Search, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getConversations, type ConversationSummary } from "@/services/chatService";
@@ -17,7 +17,6 @@ export default function ChatListPage() {
     const router = useRouter();
     const { currentUser, loading } = useAuth();
     const [conversations, setConversations] = useState<ConversationSummary[]>([]);
-    const [conversationsLoading, setConversationsLoading] = useState(true);
 
     useEffect(() => {
         if (!loading && !currentUser) {
@@ -28,22 +27,11 @@ export default function ChatListPage() {
         if (currentUser) {
             const unsubscribeConversations = getConversations(currentUser.uid, (newConversations) => {
                 setConversations(newConversations);
-                setConversationsLoading(false);
             });
     
             return () => unsubscribeConversations();
         }
     }, [currentUser, loading, router]);
-
-    if (loading || conversationsLoading) {
-        return (
-            <AppLayout>
-                <div className="flex justify-center items-center h-full">
-                    <Loader2 className="w-10 h-10 animate-spin text-primary" />
-                </div>
-            </AppLayout>
-        );
-    }
 
     return (
         <AppLayout>

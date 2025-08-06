@@ -6,7 +6,7 @@ import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Star, Send, Landmark, Gem, Coins, Settings, Edit, Wallet, Edit2, ChevronRight, Camera, UserPlus, UserMinus, Crown } from "lucide-react";
+import { Star, Send, Landmark, Gem, Coins, Settings, Edit, Wallet, Edit2, ChevronRight, Camera, UserPlus, UserMinus, Crown, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -22,7 +22,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { followUser, unfollowUser, updateUserProfile } from "@/services/userService";
-import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
@@ -38,10 +37,13 @@ export default function ProfilePage() {
         if (!loading && !currentUser) {
             router.push('/');
         }
+    }, [currentUser, loading, router]);
+
+    useEffect(() => {
         if (userProfile) {
             setTempName(userProfile.name);
         }
-    }, [currentUser, userProfile, loading, router]);
+    }, [userProfile]);
 
 
     const handleFollow = async () => {
@@ -144,7 +146,7 @@ export default function ProfilePage() {
                                 </DialogContent>
                             </Dialog>
                             
-                             <Dialog onOpenChange={(open) => !open && setTempName(userProfile.name)}>
+                             <Dialog onOpenChange={(open) => !open && userProfile && setTempName(userProfile.name)}>
                                 <DialogTrigger asChild disabled={!isOwnProfile}>
                                     <div className={cn("flex items-center gap-2 mt-4", isOwnProfile && "cursor-pointer")}>
                                         {userProfile.vipTier && <Crown className="w-5 h-5 text-yellow-400" />}
