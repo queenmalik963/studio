@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -32,17 +32,21 @@ export default function ProfilePage() {
     const { toast } = useToast();
     const { currentUser, userProfile, loading } = useAuth();
     
-    const [tempName, setTempName] = useState("");
+    // Initialize tempName directly, it will update when userProfile becomes available
+    const [tempName, setTempName] = useState(userProfile?.name ?? "");
 
-    useEffect(() => {
-        if (!loading && !currentUser) {
-            router.push('/');
-        }
-        if (userProfile?.name) {
-            setTempName(userProfile.name);
-        }
-    }, [userProfile, loading, currentUser, router]);
-
+    if (loading || !userProfile) {
+        return (
+            <div className="flex h-screen w-full items-center justify-center bg-background">
+                <Loader2 className="h-16 w-16 animate-spin text-primary" />
+            </div>
+        );
+    }
+    
+    // Sync tempName when userProfile loads or changes, only if the dialog is not open
+    if (tempName !== userProfile.name) {
+        setTempName(userProfile.name);
+    }
 
     const handleFollow = async () => {
         if (!currentUser || !userProfile || currentUser.uid === userProfile.id) return;
@@ -89,14 +93,6 @@ export default function ProfilePage() {
                 toast({ title: "Error updating avatar", description: result.error, variant: "destructive" });
             }
         }
-    }
-
-    if (loading || !userProfile) {
-        return (
-            <div className="flex h-screen w-full items-center justify-center bg-background">
-                <Loader2 className="h-16 w-16 animate-spin text-primary" />
-            </div>
-        );
     }
 
     const isOwnProfile = currentUser?.uid === userProfile.id;

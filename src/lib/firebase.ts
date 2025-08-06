@@ -32,6 +32,7 @@ if (areKeysValid) {
 } else {
     console.warn("Firebase configuration is missing or incomplete. Please check your .env file. The app will run in a logged-out state.");
     // Provide dummy objects to prevent crashes when keys are missing.
+    // This part is crucial for preventing the 'invalid-api-key' crash.
     app = {} as FirebaseApp;
     db = {} as Firestore;
     auth = {} as Auth;
