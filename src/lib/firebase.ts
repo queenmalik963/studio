@@ -1,4 +1,7 @@
 
+// IMPORTANT: This line ensures that environment variables are loaded for server-side rendering.
+import '@/ai/dotenv';
+
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
@@ -23,14 +26,14 @@ import { getAuth } from "firebase/auth";
 // ====================================================================================
 
 // Your web app's Firebase configuration
-// IMPORTANT: Replace this with your own Firebase project configuration
+// IMPORTANT: This is now configured to use environment variables.
 const firebaseConfig = {
-  apiKey: "AlzaSyDbePWebF5_5k2AN61X0pwr2oyL6yrkqBk",
-  authDomain: "ravewaveapp.firebaseapp.com",
-  projectId: "ravewaveapp",
-  storageBucket: "ravewaveapp.appspot.com",
-  messagingSenderId: "308572836717",
-  appId: "1:308572836717:web:b8d502f682522a466a9c79"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY, 
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
 // Initialize Firebase
