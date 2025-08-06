@@ -28,37 +28,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-            setCurrentUser(user);
-            
             if (user) {
-                // If user is logged in, listen to their profile document
+                // User is signed in, set the user object.
+                setCurrentUser(user);
+
+                // Now, listen for the user's profile document.
                 const userDocRef = doc(db, 'users', user.uid);
                 const unsubscribeProfile = onSnapshot(userDocRef, (docSnap) => {
                     if (docSnap.exists()) {
+                        // Profile exists, set it.
                         setUserProfile({ id: docSnap.id, ...docSnap.data() } as UserProfile);
                     } else {
-                        // This case can happen briefly if the user document hasn't been created yet.
+                        // Profile does not exist (this can happen briefly during signup).
                         setUserProfile(null);
                     }
-                    // Only stop loading after we have a definitive answer on the profile
+                    // Crucially, only set loading to false AFTER we have a definitive answer on the profile.
                     setLoading(false);
                 }, (error) => {
                     console.error("Error listening to user profile:", error);
                     setUserProfile(null);
-                    setLoading(false);
+                    setLoading(false); // Also stop loading on error.
                 });
-                
-                // Return the profile listener unsubscribe function to be called on cleanup
+
+                // Return the profile listener's unsubscribe function.
+                // This will be called when the user logs out.
                 return () => unsubscribeProfile();
             } else {
-                // If user is not logged in, clear profile and stop loading immediately
-                setUserProfile(null);
+                // User is signed out. Clear everything and stop loading.
                 setCurrentUser(null);
+                setUserProfile(null);
                 setLoading(false);
             }
         });
 
-        // Return the auth listener unsubscribe function
+        // Return the auth listener's unsubscribe function to be called on component unmount.
         return () => unsubscribeAuth();
     }, []);
 
