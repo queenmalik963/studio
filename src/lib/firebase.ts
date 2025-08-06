@@ -4,6 +4,7 @@
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getAuth, Auth, initializeAuth, indexedDBLocalPersistence } from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -34,13 +35,25 @@ if (!areKeysValid) {
 } else {
   if (getApps().length === 0) {
     app = initializeApp(firebaseConfig);
-    // This is the key change for the reCAPTCHA error.
-    // We initialize auth with IndexedDB persistence only on the client-side.
+    
     if (typeof window !== 'undefined') {
+      // Initialize Auth with persistence for client-side
       auth = initializeAuth(app, {
         persistence: indexedDBLocalPersistence
       });
+      
+      // Initialize App Check for client-side
+      if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
+        initializeAppCheck(app, {
+          provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY),
+          isTokenAutoRefreshEnabled: true
+        });
+      } else {
+        console.warn("reCAPTCHA Site Key is missing. App Check will not be initialized.");
+      }
+
     } else {
+       // For server-side rendering, just get the auth instance
        auth = getAuth(app);
     }
   } else {
