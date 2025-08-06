@@ -7,26 +7,7 @@ import { initializeApp, getApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
-// ====================================================================================
-// ====================================================================================
-// ====================================================================================
-//
-// ==> AAPKA KAAM YAHAN HAI (YOUR TASK IS HERE) <==
-//
-// Neeche diye gaye `firebaseConfig` object ko apne asal Firebase project ki 
-// configuration se badal dein.
-//
-// Aapko yeh configuration yahan se milegi:
-// Firebase Console -> Project Settings (⚙️ icon) -> General Tab -> Your Apps -> Firebase SDK snippet -> Config
-//
-// Link: https://console.firebase.google.com/
-//
-// ====================================================================================
-// ====================================================================================
-// ====================================================================================
-
-// Your web app's Firebase configuration
-// IMPORTANT: This is now configured to use environment variables.
+// Your web app's Firebase configuration is now sourced from environment variables.
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY, 
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
