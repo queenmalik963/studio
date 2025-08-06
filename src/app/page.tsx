@@ -38,12 +38,18 @@ export default function LoginPage() {
     const handleSignIn = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        const { success, error } = await signInWithEmail(email, password);
+        const { success, error, code } = await signInWithEmail(email, password);
         setIsLoading(false);
 
         if (success) {
             toast({ title: "Login Successful!", description: "Welcome back." });
             router.push("/home");
+        } else if (code === 'auth/user-not-found') {
+             toast({
+                variant: "destructive",
+                title: "User Not Found",
+                description: "No account found with this email. Please sign up first.",
+            });
         } else if (error) {
             toast({
                 variant: "destructive",

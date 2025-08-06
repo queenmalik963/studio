@@ -11,7 +11,7 @@ import {
     signOut,
     User
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 
 // Helper function to create a user profile document in Firestore
 const createUserProfileDocument = async (user: User) => {
@@ -24,19 +24,23 @@ const createUserProfileDocument = async (user: User) => {
         
         try {
             await setDoc(userDocRef, {
-                uid: user.uid,
+                id: user.uid,
                 name: user.displayName || username,
                 username: username,
                 email: email,
                 avatar: user.photoURL || `https://placehold.co/100x100.png?text=${username.charAt(0).toUpperCase()}`,
                 bio: 'Welcome to my RaveWave profile!',
-                coins: 0,
+                coins: 10000, // Starting coins for new users
                 diamonds: 0,
                 followers: 0,
                 following: 0,
                 idLevel: 1,
                 sendingLevel: 1,
-                createdAt: new Date(),
+                createdAt: serverTimestamp(),
+                frames: [],
+                currentFrame: null,
+                vipTier: null,
+                vipExpiry: null,
             });
         } catch (error) {
             console.error("Error creating user profile:", error);
@@ -66,10 +70,10 @@ export const signUpWithEmail = async (email: string, password: string) => {
 export const signInWithEmail = async (email: string, password: string) => {
     try {
         const { user } = await signInWithEmailAndPassword(auth, email, password);
-        return { success: true, user, error: null };
+        return { success: true, user, error: null, code: null };
     } catch (error: any) {
         console.error("Signin error:", error.code, error.message);
-        return { success: false, user: null, error: error.message };
+        return { success: false, user: null, error: error.message, code: error.code };
     }
 };
 
