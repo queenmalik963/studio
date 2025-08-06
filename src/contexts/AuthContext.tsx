@@ -28,13 +28,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+            setCurrentUser(user);
             if (user) {
-                // User is signed in, set the user object.
-                setCurrentUser(user);
-
-                // Now, listen for the user's profile document.
-                const userDocRef = doc(db, 'users', user.uid);
-                const unsubscribeProfile = onSnapshot(userDocRef, (docSnap) => {
+                // User is signed in. Listen for their profile document.
+                const unsubscribeProfile = onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
                     if (docSnap.exists()) {
                         // Profile exists, set it.
                         setUserProfile({ id: docSnap.id, ...docSnap.data() } as UserProfile);
@@ -50,7 +47,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     setLoading(false); // Also stop loading on error.
                 });
 
-                // Return the profile listener's unsubscribe function.
                 // This will be called when the user logs out.
                 return () => unsubscribeProfile();
             } else {
@@ -61,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             }
         });
 
-        // Return the auth listener's unsubscribe function to be called on component unmount.
+        // This will be called on component unmount.
         return () => unsubscribeAuth();
     }, []);
 
