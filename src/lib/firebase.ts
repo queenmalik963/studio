@@ -1,44 +1,45 @@
+// src/lib/firebase.ts
 
-// Import the functions you need from the SDKs you need
-import { initializeApp, getApp, getApps, FirebaseApp } from "firebase/app";
-import { getFirestore, Firestore } from "firebase/firestore";
+import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
+import { getFirestore, Firestore } from "firebase/firestore";
 
-// Your web app's Firebase configuration is now sourced from environment variables.
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY, 
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Defensive check for keys. If they are not present, we can't initialize.
-export const areKeysValid = !!firebaseConfig.apiKey && !!firebaseConfig.projectId;
-
 let app: FirebaseApp;
-let db: Firestore;
 let auth: Auth;
+let db: Firestore;
 
-// Initialize Firebase only if the keys are valid and it's not already initialized.
-if (areKeysValid && typeof window !== 'undefined') {
-  if (getApps().length === 0) {
-    app = initializeApp(firebaseConfig);
-  } else {
-    app = getApp();
-  }
-  db = getFirestore(app);
-  auth = getAuth(app);
-} else {
+// This check is crucial for preventing crashes when keys are missing.
+if (
+  !firebaseConfig.apiKey ||
+  !firebaseConfig.authDomain ||
+  !firebaseConfig.projectId
+) {
   if (typeof window !== 'undefined') {
-    console.error("Firebase configuration is missing or incomplete. Please check your .env file. The app will run in a logged-out state.");
+    console.error(
+      "Firebase configuration is missing or incomplete. Please check your .env file."
+    );
   }
-  // Provide dummy objects to prevent crashes when keys are missing.
-  // The app will remain in a "logged out" state.
+  // Provide dummy objects to prevent crashes on the server or client.
+  // The app will operate in a 'logged-out' or 'config-missing' state.
   app = {} as FirebaseApp;
-  db = {} as Firestore;
   auth = {} as Auth;
+  db = {} as Firestore;
+} else {
+  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+  auth = getAuth(app);
+  db = getFirestore(app);
 }
 
-export { app, db, auth };
+// A helper to easily check if Firebase was initialized correctly elsewhere in the app.
+export const areKeysValid = !!firebaseConfig.apiKey;
+
+export { app, auth, db };
