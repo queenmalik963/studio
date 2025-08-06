@@ -46,7 +46,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setCurrentUser(user);
 
             if (user) {
-                // User is signed in. Set up a real-time listener for their profile.
+                // User is signed in, but we are not done loading yet.
+                // We must wait for their profile to be fetched.
+                setLoading(true); 
                 const userDocRef = doc(db, 'users', user.uid);
                 unsubscribeProfile = onSnapshot(userDocRef, (docSnap) => {
                     if (docSnap.exists()) {
@@ -61,7 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 }, (error) => {
                     console.error("Error listening to user profile:", error);
                     setUserProfile(null);
-                    setLoading(false);
+                    setLoading(false); // Also stop loading on error
                 });
 
             } else {
