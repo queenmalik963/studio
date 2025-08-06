@@ -14,6 +14,12 @@ export function MusicSuggestions() {
 
     useEffect(() => {
         const fetchSuggestions = async () => {
+            if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+                setError("Gemini API key not found. Please add it to your .env file.");
+                setIsLoading(false);
+                return;
+            }
+
             setIsLoading(true);
             setError(null);
             try {
@@ -31,10 +37,7 @@ export function MusicSuggestions() {
             } catch (e: any) {
                  if (e.message.includes("API key not valid")) {
                     setError("Your Gemini API key is not valid. Please check your .env file.");
-                } else if (e.message.includes("API key not found")) {
-                    setError("Gemini API key not found. Please add it to your .env file.");
-                }
-                else {
+                } else {
                     setError('Failed to get music suggestions. Please try again later.');
                 }
                 console.error(e);
