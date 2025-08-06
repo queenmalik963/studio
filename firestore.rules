@@ -1,42 +1,39 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Users can read anyone's profile, but only write to their own.
+    // Users can read any profile, but only write to their own.
     match /users/{userId} {
       allow read: if request.auth != null;
-      allow write: if request.auth.uid == userId;
-      
-      // Allow authenticated users to manage their own followers/following lists
-      match /followers/{followerId} {
-        allow read, write: if request.auth != null;
-      }
-      match /following/{followingId} {
-        allow read, write: if request.auth != null;
-      }
+      allow create, update: if request.auth.uid == userId;
     }
     
     // Rooms can be read by any authenticated user.
-    // Room creation is allowed for authenticated users.
-    // Room updates are only allowed by the owner (this is handled in backend logic for now).
+    // Rooms can only be created or updated by authenticated users.
+    // The room's ownerId must match the user's uid to create.
     match /rooms/{roomId} {
-      allow read, create, update: if request.auth != null;
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+      allow update: if request.auth != null;
       
-      // Messages can be read and written by any authenticated user in the room.
+      // Messages can be read by any authenticated user in the room.
+      // Messages can only be created by authenticated users.
       match /messages/{messageId} {
-        allow read, write: if request.auth != null;
+        allow read: if request.auth != null;
+        allow create: if request.auth != null;
       }
     }
     
-    // Conversations can only be read/written by participants.
+    // Conversations can be read or written to only by participants.
     match /conversations/{conversationId} {
-       allow read, write: if request.auth.uid in resource.data.participants;
-       
-       // Messages within a conversation follow the same rule.
-       match /messages/{messageId} {
-         allow read, write: if request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
-       }
+      allow read, write: if request.auth != null && request.auth.uid in resource.data.participants;
+      
+      // Messages inside a conversation follow the same rule.
+      match /messages/{messageId} {
+        allow read, write: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+      }
     }
   }
 }
