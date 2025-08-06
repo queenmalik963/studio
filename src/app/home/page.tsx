@@ -15,20 +15,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MusicSuggestions } from "@/components/video/MusicSuggestions";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { User } from "firebase/auth";
+import { collection, query, where, onSnapshot, DocumentData, limit } from "firebase/firestore";
 
-const initialTrendingVideos = [
-    { href: "/video/room", image: "https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg", hint: "lofi hip-hop music", title: "Lofi Beats to Relax To", creator: "Chillhop Music", viewers: "1.2K" },
-    { href: "/video/room", image: "https://i.ytimg.com/vi/5qap5aO4i9A/hqdefault.jpg", hint: "techno rave party", title: "Techno Bunker Session", creator: "Hardwell", viewers: "876" },
-];
-const initialTrendingAudio = [
-    { href: "/audio/room", image: "https://i.imgur.com/sCbrK9U.png", hint: "podcast microphone audio", title: "Late Night Conversations", creator: "Alex & Friends", listeners: "2.5K" },
-    { href: "/audio/room", image: "https://i.imgur.com/m4Kmzk3.png", hint: "gaming headphones neon", title: "Gaming Squad Hangout", creator: "GamerX", listeners: "1.8K" },
-];
+interface TrendingRoom {
+  id: string;
+  href: string;
+  image: string;
+  hint: string;
+  title: string;
+  creator: string;
+  viewers: string;
+  icon: React.ElementType;
+}
 
-const TrendingCard = ({ href, image, hint, title, creator, viewers, icon: Icon }: { href: string, image: string, hint: string, title: string, creator: string, viewers: string, icon: React.ElementType }) => (
+const TrendingCard = ({ href, image, hint, title, creator, viewers, icon: Icon }: TrendingRoom) => (
     <Link href={href} className="block">
         <Card className="overflow-hidden group border-transparent hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10 h-full">
             <CardContent className="p-0">
@@ -40,16 +43,17 @@ const TrendingCard = ({ href, image, hint, title, creator, viewers, icon: Icon }
                         height={400}
                         className="aspect-video object-cover group-hover:scale-105 transition-transform duration-300"
                         data-ai-hint={hint}
+                        unoptimized={image.includes('ytimg') || image.endsWith('.gif')}
                     />
                     <div className="absolute top-2 right-2 bg-background/70 backdrop-blur-sm px-2 py-1 rounded-full text-xs flex items-center gap-1">
-                        <Users className="w-3 h-3 text-primary" />
+                        <Icon className="w-3 h-3 text-primary" />
                         <span>{viewers}</span>
                     </div>
                 </div>
                 <div className="p-4">
                     <h3 className="font-semibold font-headline truncate">{title}</h3>
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
-                        <Icon className="w-4 h-4 text-accent" />
+                        <Users className="w-4 h-4 text-accent" />
                         {creator}
                     </p>
                 </div>
@@ -142,22 +146,62 @@ const CAFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function HomePage() {
   const router = useRouter();
-  const [trendingVideos, setTrendingVideos] = useState(initialTrendingVideos);
-  const [trendingAudio, setTrendingAudio] = useState(initialTrendingAudio);
+  const [trendingVideos, setTrendingVideos] = useState<TrendingRoom[]>([]);
+  const [trendingAudio, setTrendingAudio] = useState<TrendingRoom[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(user => {
+    const unsubscribeAuth = auth.onAuthStateChanged(user => {
         if (user) {
             setCurrentUser(user);
         } else {
             router.push('/');
         }
+    });
+
+    const roomsColRef = collection(db, 'rooms');
+    const roomsQuery = query(roomsColRef, where("isLive", "==", true), limit(4));
+
+    const unsubscribeRooms = onSnapshot(roomsQuery, (snapshot) => {
+        const videos: TrendingRoom[] = [];
+        const audios: TrendingRoom[] = [];
+
+        snapshot.forEach((doc: DocumentData) => {
+            const data = doc.data();
+            const room: TrendingRoom = {
+                id: doc.id,
+                href: `/${data.type}/room/${doc.id}`,
+                title: data.name,
+                creator: data.ownerName || 'A User',
+                // For demonstration, we'll generate a random viewer count
+                viewers: `${(Math.random() * 5 + 0.5).toFixed(1)}K`, 
+                image: data.thumbnail || (data.type === 'video' ? 'https://i.imgur.com/Oz4ud1o.gif' : 'https://i.imgur.com/sCbrK9U.png'),
+                hint: data.type === 'video' ? 'youtube video' : 'podcast microphone',
+                icon: data.type === 'video' ? PlaySquare : Headphones
+            };
+
+            if (data.type === 'video' && videos.length < 2) {
+                videos.push(room);
+            } else if (data.type === 'audio' && audios.length < 2) {
+                audios.push(room);
+            }
+        });
+
+        setTrendingVideos(videos);
+        setTrendingAudio(audios);
+        setIsLoading(false);
+    }, (error) => {
+        console.error("Error fetching trending rooms:", error);
         setIsLoading(false);
     });
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribeAuth();
+      unsubscribeRooms();
+    };
   }, [router]);
+
 
   if (isLoading || !currentUser) {
       return (
@@ -230,20 +274,18 @@ export default function HomePage() {
                     <PlaySquare className="w-6 h-6 text-primary" />
                     <h2 className="text-2xl font-bold font-headline">Trending Videos</h2>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {trendingVideos.map((item, index) => (
-                    <TrendingCard 
-                        key={`video-${index}`}
-                        href={item.href}
-                        image={item.image}
-                        hint={item.hint}
-                        title={item.title}
-                        creator={item.creator}
-                        viewers={item.viewers}
-                        icon={PlaySquare}
-                    />
-                  ))}
-                </div>
+                {trendingVideos.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {trendingVideos.map((item) => (
+                      <TrendingCard 
+                          key={item.id}
+                          {...item}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">No live video rooms right now. Why not start one?</p>
+                )}
             </section>
 
             <section className="space-y-4">
@@ -251,20 +293,18 @@ export default function HomePage() {
                     <Mic className="w-6 h-6 text-primary" />
                     <h2 className="text-2xl font-bold font-headline">Trending Audio</h2>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {trendingAudio.map((item, index) => (
-                    <TrendingCard 
-                        key={`audio-${index}`}
-                        href={item.href}
-                        image={item.image}
-                        hint={item.hint}
-                        title={item.title}
-                        creator={item.creator}
-                        viewers={item.listeners}
-                        icon={Headphones}
-                    />
-                  ))}
-                </div>
+                {trendingAudio.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {trendingAudio.map((item) => (
+                      <TrendingCard 
+                          key={item.id}
+                          {...item}
+                      />
+                    ))}
+                  </div>
+                 ) : (
+                  <p className="text-muted-foreground">No live audio rooms right now. Why not start one?</p>
+                )}
             </section>
           </div>
           <div className="lg:col-span-1 space-y-8">
