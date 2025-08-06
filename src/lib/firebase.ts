@@ -44,7 +44,7 @@ if (!areKeysValid) {
           isTokenAutoRefreshEnabled: true
         });
       } else {
-        console.warn("reCAPTCHA Site Key is missing. App Check will not be initialized, which may affect authentication.");
+        console.warn("reCAPTCHA Site Key is missing. App Check will not be initialized, which may affect authentication security.");
       }
 
       // THEN, initialize Auth with persistence for client-side
