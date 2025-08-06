@@ -18,42 +18,36 @@ let app: FirebaseApp;
 let auth: Auth;
 let db: Firestore;
 
-// This check is crucial for preventing crashes when keys are missing.
-if (
-  !firebaseConfig.apiKey ||
-  !firebaseConfig.authDomain ||
-  !firebaseConfig.projectId
-) {
+// A helper to easily check if Firebase was initialized correctly elsewhere in the app.
+export const areKeysValid = !!firebaseConfig.apiKey && !!firebaseConfig.projectId;
+
+if (!areKeysValid) {
   if (typeof window !== 'undefined') {
     console.error(
       "Firebase configuration is missing or incomplete. Please check your .env file."
     );
   }
   // Provide dummy objects to prevent crashes on the server or client.
-  // The app will operate in a 'logged-out' or 'config-missing' state.
   app = {} as FirebaseApp;
   auth = {} as Auth;
   db = {} as Firestore;
 } else {
-    if (getApps().length === 0) {
-        app = initializeApp(firebaseConfig);
-        if (typeof window !== 'undefined') {
-            // This is the key change for the reCAPTCHA error.
-            // We initialize auth with IndexedDB persistence only on the client-side.
-            auth = initializeAuth(app, {
-                persistence: indexedDBLocalPersistence
-            });
-        } else {
-           auth = getAuth(app);
-        }
+  if (getApps().length === 0) {
+    app = initializeApp(firebaseConfig);
+    // This is the key change for the reCAPTCHA error.
+    // We initialize auth with IndexedDB persistence only on the client-side.
+    if (typeof window !== 'undefined') {
+      auth = initializeAuth(app, {
+        persistence: indexedDBLocalPersistence
+      });
     } else {
-        app = getApps()[0];
-        auth = getAuth(app);
+       auth = getAuth(app);
     }
-    db = getFirestore(app);
+  } else {
+    app = getApps()[0];
+    auth = getAuth(app);
+  }
+  db = getFirestore(app);
 }
-
-// A helper to easily check if Firebase was initialized correctly elsewhere in the app.
-export const areKeysValid = !!firebaseConfig.apiKey;
 
 export { app, auth, db };
