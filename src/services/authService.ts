@@ -80,6 +80,7 @@ export const signInWithEmail = async (email: string, password: string) => {
 // Sign in with Google
 export const signInWithGoogleProvider = async () => {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
     try {
         const { user } = await signInWithPopup(auth, provider);
         const profileResult = await createUserProfileDocument(user);
