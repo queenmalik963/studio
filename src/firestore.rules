@@ -1,0 +1,34 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Users can read any profile (to see others in a room),
+    // but can only create their own user document and only update their own.
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth.uid == userId;
+      allow update: if request.auth.uid == userId;
+      // Deleting user profiles is not allowed from the client.
+      allow delete: if false;
+    }
+    
+    // Any authenticated user can read/write to any room or its subcollections.
+    // This allows for joining, chatting, and other interactions.
+    match /rooms/{roomId} {
+      allow read, write: if request.auth != null;
+      
+      match /messages/{messageId} {
+        allow read, write: if request.auth != null;
+      }
+    }
+    
+    // Any authenticated user can read/write to any conversation or its subcollections.
+    match /conversations/{conversationId} {
+      allow read, write: if request.auth != null;
+
+      match /messages/{messageId} {
+        allow read, write: if request.auth != null;
+      }
+    }
+  }
+}
