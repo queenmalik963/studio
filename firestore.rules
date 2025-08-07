@@ -8,33 +8,41 @@ service cloud.firestore {
     function isSignedIn() {
       return request.auth != null;
     }
-
-    // Users can only read their own profile, but can be read by any authenticated user.
+    
+    // USERS
+    // Users can read anyone's profile if they are signed in.
+    // Users can only write to their own profile.
     match /users/{userId} {
       allow read: if isSignedIn();
       allow write: if isSignedIn() && request.auth.uid == userId;
     }
-    
-    // Any authenticated user can read rooms and conversations.
-    // This is necessary for listing rooms/conversations on the home/list pages.
-    match /rooms/{roomId} {
-      allow read, create: if isSignedIn();
-      allow update: if isSignedIn() && resource.data.ownerId == request.auth.uid;
 
-      // Messages can be created by any authenticated user.
+    // ROOMS
+    // Any signed-in user can read a room's details.
+    // Any signed-in user can create a new room.
+    // Only the owner of the room can update or delete it.
+    match /rooms/{roomId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+
+      // MESSAGES Subcollection in ROOMS
+      // Any signed-in user can read and create messages in any room.
       match /messages/{messageId} {
         allow read, create: if isSignedIn();
       }
     }
     
+    // CONVERSATIONS
+    // Participants can read, write, and update their own conversation documents.
     match /conversations/{conversationId} {
-        allow read: if isSignedIn() && request.auth.uid in resource.data.participants;
-        allow create: if isSignedIn();
-
-        // Messages can be created if user is a participant.
-        match /messages/{messageId} {
-            allow read, create: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
-        }
+       allow read, write, update: if isSignedIn() && request.auth.uid in resource.data.participants;
+       
+       // MESSAGES Subcollection in CONVERSATIONS
+       // Participants can create and read messages within their conversation.
+       match /messages/{messageId} {
+          allow read, create: if isSignedIn() && get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants.hasAny([request.auth.uid]);
+       }
     }
   }
 }
