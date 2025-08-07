@@ -18,8 +18,10 @@ const createUserProfileDocument = async (user: User) => {
     const userDocRef = doc(db, 'users', user.uid);
     const userDocSnap = await getDoc(userDocRef);
 
+    // Only create the document if it doesn't already exist.
     if (!userDocSnap.exists()) {
         const { email } = user;
+        // Generate a username from the email or use a default.
         const username = email ? email.split('@')[0] : `user_${user.uid.substring(0, 5)}`;
         
         try {
@@ -44,10 +46,10 @@ const createUserProfileDocument = async (user: User) => {
             });
         } catch (error) {
             console.error("Error creating user profile:", error);
-            return { success: false, error: "Failed to create user profile." };
+            // This will now be caught by the calling function.
+            throw error; 
         }
     }
-    return { success: true, error: null };
 };
 
 
@@ -55,11 +57,7 @@ const createUserProfileDocument = async (user: User) => {
 export const signUpWithEmail = async (email: string, password: string) => {
     try {
         const { user } = await createUserWithEmailAndPassword(auth, email, password);
-        const profileResult = await createUserProfileDocument(user);
-        if (!profileResult.success) {
-            // Pass the profile creation error up.
-            return { ...profileResult, user: null, code: 'profile-creation-failed' };
-        }
+        await createUserProfileDocument(user);
         return { success: true, user, error: null, code: null };
     } catch (error: any) {
         console.error("Signup error:", error.code, error.message);
@@ -86,12 +84,10 @@ export const signInWithGoogleProvider = async () => {
     provider.setCustomParameters({ prompt: 'select_account' });
     try {
         const { user } = await signInWithPopup(auth, provider);
-        const profileResult = await createUserProfileDocument(user);
-        if (!profileResult.success) {
-            return { ...profileResult, user: null, code: 'profile-creation-failed' };
-        }
+        await createUserProfileDocument(user);
         return { success: true, user, error: null, code: null };
-    } catch (error: any) {
+    } catch (error: any)
+        {
         console.error("Google signin error:", error.code, error.message);
         return { success: false, user: null, error: error.message, code: error.code };
     }
