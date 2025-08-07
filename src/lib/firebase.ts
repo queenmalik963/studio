@@ -4,6 +4,7 @@ import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getAuth, Auth, initializeAuth, indexedDBLocalPersistence } from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import { getPerformance } from "firebase/performance";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -41,6 +42,9 @@ if (!areKeysValid) {
       auth = initializeAuth(app, {
         persistence: indexedDBLocalPersistence
       });
+      // Initialize Performance Monitoring
+      getPerformance(app);
+      
       // IMPORTANT: You need to provide a reCAPTCHA v3 site key in your .env file
       // for this to work. It can be a dummy key for localhost testing.
       if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
