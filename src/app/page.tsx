@@ -59,7 +59,14 @@ export default function LoginPage() {
                 title: "Invalid Credentials",
                 description: "The email or password you entered is incorrect.",
             });
-        } else if (error) {
+        } else if (code === 'permission-denied') {
+             toast({
+                variant: "destructive",
+                title: "Login Failed",
+                description: "Missing or insufficient permissions. Please check Firestore rules.",
+            });
+        }
+        else if (error) {
             toast({
                 variant: "destructive",
                 title: "Login Failed",
@@ -87,6 +94,7 @@ export default function LoginPage() {
 
     const isLoading = authLoading || isSigningIn;
 
+    // Don't render anything if auth state is loading and we know a user might exist
     if (authLoading) {
          return (
             <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-background to-primary/10 p-4">
@@ -94,6 +102,9 @@ export default function LoginPage() {
             </main>
         )
     }
+    
+    // If not loading and user is already logged in, this will be handled by useEffect redirect
+    // so we can render the login page until the redirect happens.
 
     return (
         <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-background to-primary/10 p-4">

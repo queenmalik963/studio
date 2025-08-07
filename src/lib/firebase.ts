@@ -29,40 +29,34 @@ if (!areKeysValid) {
       "Firebase configuration is missing or incomplete. Please check your .env file."
     );
   }
-  // Provide dummy objects to prevent crashes.
-  app = {} as FirebaseApp;
-  auth = {} as Auth;
-  db = {} as Firestore;
-} else {
-  // This check prevents re-initialization on the client-side during hot-reloads.
-  if (!getApps().length) {
-    app = initializeApp(firebaseConfig);
-    // Initialize services only on the client-side
-    if (typeof window !== 'undefined') {
-      auth = initializeAuth(app, {
-        persistence: indexedDBLocalPersistence
-      });
-      // Initialize Performance Monitoring
-      getPerformance(app);
-      
-      // IMPORTANT: You need to provide a reCAPTCHA v3 site key in your .env file
-      // for this to work. It can be a dummy key for localhost testing.
-      if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
-        initializeAppCheck(app, {
-          provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY),
-          isTokenAutoRefreshEnabled: true
-        });
-      }
-    } else {
-      // For server-side rendering, just get the auth instance without client-side persistence
-      auth = getAuth(app);
-    }
-  } else {
-    // If the app is already initialized, just get the instances.
-    app = getApps()[0];
-    auth = getAuth(app);
-  }
-  db = getFirestore(app);
 }
+
+// Initialize Firebase
+if (getApps().length) {
+    app = getApps()[0];
+} else {
+    app = initializeApp(firebaseConfig);
+}
+
+// Initialize services
+if (typeof window !== 'undefined') {
+    // Client-side initialization
+    auth = initializeAuth(app, {
+        persistence: indexedDBLocalPersistence,
+    });
+    getPerformance(app);
+
+    if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
+        initializeAppCheck(app, {
+            provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY),
+            isTokenAutoRefreshEnabled: true,
+        });
+    }
+} else {
+    // Server-side initialization
+    auth = getAuth(app);
+}
+
+db = getFirestore(app);
 
 export { app, auth, db };
