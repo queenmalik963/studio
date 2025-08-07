@@ -53,7 +53,7 @@ export default function LoginPage() {
         if (success) {
             toast({ title: "Login Successful!", description: "Welcome back." });
             router.push("/home");
-        } else if (code === 'auth/user-not-found' || code === 'auth/wrong-password') {
+        } else if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
              toast({
                 variant: "destructive",
                 title: "Invalid Credentials",
@@ -94,17 +94,13 @@ export default function LoginPage() {
 
     const isLoading = authLoading || isSigningIn;
 
-    // Don't render anything if auth state is loading and we know a user might exist
-    if (authLoading) {
+    if (authLoading && !isSigningIn) {
          return (
             <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-background to-primary/10 p-4">
                  <Loader2 className="h-16 w-16 animate-spin text-primary" />
             </main>
         )
     }
-    
-    // If not loading and user is already logged in, this will be handled by useEffect redirect
-    // so we can render the login page until the redirect happens.
 
     return (
         <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-background to-primary/10 p-4">

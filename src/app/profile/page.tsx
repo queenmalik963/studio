@@ -165,7 +165,7 @@ export default function ProfilePage() {
                                 </DialogContent>
                             </Dialog>
 
-                            <p className="text-sm text-white/70">ID: {userProfile.id.substring(0, 8)}</p>
+                            <p className="text-sm text-white/70">ID: {userProfile.username}</p>
                             <p className="text-sm mt-2 max-w-sm">{userProfile.bio}</p>
                              <div className="flex justify-around text-center mt-4 w-full max-w-xs">
                                 <div>

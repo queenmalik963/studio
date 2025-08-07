@@ -1,5 +1,4 @@
 
-// src/lib/firebase.ts
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
@@ -18,26 +17,37 @@ const firebaseConfig = {
 // A helper to easily check if Firebase was initialized correctly elsewhere in the app.
 export const areKeysValid = !!firebaseConfig.apiKey && !!firebaseConfig.projectId;
 
-function createFirebaseApp(config: any) {
-  if (!getApps().length) {
-    return initializeApp(config);
-  }
-  return getApp();
-}
+let app: FirebaseApp;
+let auth: Auth;
+let db: Firestore;
 
-const app: FirebaseApp = createFirebaseApp(firebaseConfig);
-const auth: Auth = getAuth(app);
-const db: Firestore = getFirestore(app);
+if (areKeysValid) {
+    if (!getApps().length) {
+        app = initializeApp(firebaseConfig);
+    } else {
+        app = getApp();
+    }
+    auth = getAuth(app);
+    db = getFirestore(app);
 
-// Initialize performance monitoring only on the client
-if (typeof window !== 'undefined') {
-    if (process.env.NODE_ENV === 'production') {
-        try {
-            getPerformance(app);
-        } catch (e) {
-            console.error("Firebase performance monitoring initialization error", e);
+    if (typeof window !== 'undefined') {
+        if (process.env.NODE_ENV === 'production') {
+            try {
+                getPerformance(app);
+            } catch (e) {
+                console.error("Firebase performance monitoring initialization error", e);
+            }
         }
     }
+} else {
+    // Provide mock objects or handle the uninitialized state if keys are not valid
+    console.error("Firebase config keys are missing. Firebase services will not be available.");
+    // This is a simplified fallback. In a real app, you might want a more robust handling
+    // of the uninitialized state, e.g., showing a maintenance page.
+    app = {} as FirebaseApp; 
+    auth = {} as Auth;
+    db = {} as Firestore;
 }
+
 
 export { app, auth, db };
