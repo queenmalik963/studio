@@ -88,8 +88,8 @@ export const signInWithGoogleProvider = async () => {
             return profileResult;
         }
         return { success: true, user, error: null };
-    } catch (error: any) {
-        console.error("Google signin error:", error.code, error.message);
+    } catch (error: any)
+{        console.error("Google signin error:", error.code, error.message);
         return { success: false, user: null, error: error.message };
     }
 };
