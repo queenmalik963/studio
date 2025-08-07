@@ -1,9 +1,8 @@
 
 // src/lib/firebase.ts
-import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import { getAuth, Auth, initializeAuth, indexedDBLocalPersistence } from "firebase/auth";
+import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
+import { getAuth, Auth } from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
-import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import { getPerformance } from "firebase/performance";
 
 const firebaseConfig = {
@@ -16,47 +15,29 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-let app: FirebaseApp;
-let auth: Auth;
-let db: Firestore;
-
 // A helper to easily check if Firebase was initialized correctly elsewhere in the app.
 export const areKeysValid = !!firebaseConfig.apiKey && !!firebaseConfig.projectId;
 
-if (!areKeysValid) {
-  if (typeof window !== 'undefined') {
-    console.error(
-      "Firebase configuration is missing or incomplete. Please check your .env file."
-    );
+function createFirebaseApp(config: any) {
+  if (!getApps().length) {
+    return initializeApp(config);
   }
+  return getApp();
 }
 
-// Initialize Firebase
-if (getApps().length) {
-    app = getApps()[0];
-} else {
-    app = initializeApp(firebaseConfig);
-}
+const app: FirebaseApp = createFirebaseApp(firebaseConfig);
+const auth: Auth = getAuth(app);
+const db: Firestore = getFirestore(app);
 
-// Initialize services
+// Initialize performance monitoring only on the client
 if (typeof window !== 'undefined') {
-    // Client-side initialization
-    auth = initializeAuth(app, {
-        persistence: indexedDBLocalPersistence,
-    });
-    getPerformance(app);
-
-    if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
-        initializeAppCheck(app, {
-            provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY),
-            isTokenAutoRefreshEnabled: true,
-        });
+    if (process.env.NODE_ENV === 'production') {
+        try {
+            getPerformance(app);
+        } catch (e) {
+            console.error("Firebase performance monitoring initialization error", e);
+        }
     }
-} else {
-    // Server-side initialization
-    auth = getAuth(app);
 }
-
-db = getFirestore(app);
 
 export { app, auth, db };

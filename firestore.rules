@@ -1,36 +1,28 @@
-
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // Users can read their own profile, create a profile on signup,
-    // and update their own profile. They cannot delete their profile or read all users.
+    
+    // Users can only read and write their own profile
     match /users/{userId} {
-      allow read, update, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Rules for rooms and their subcollections
+    // Authenticated users can read/write rooms and conversations
     match /rooms/{roomId} {
-      // Any authenticated user can read or create a room.
-      allow read, create: if request.auth != null;
-      // Only the owner of the room can update or delete it.
-      allow update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow read, write: if request.auth != null;
 
-      // Any authenticated user in a room can send and read messages.
+      // Messages within a room can be read/written by authenticated users
       match /messages/{messageId} {
         allow read, write: if request.auth != null;
       }
     }
-    
-    // Rules for private chats (conversations)
+
     match /conversations/{conversationId} {
-      // Users can only read/write conversations they are a part of.
       allow read, write: if request.auth != null && request.auth.uid in resource.data.participants;
       
-      // Messages within a conversation follow the same rule.
+      // Messages within a conversation can be read/written by participants
       match /messages/{messageId} {
-        allow read, write: if request.auth != null && get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants.hasAny([request.auth.uid]);
+        allow read, write: if request.auth != null && get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants[0] == request.auth.uid || get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants[1] == request.auth.uid;
       }
     }
   }
