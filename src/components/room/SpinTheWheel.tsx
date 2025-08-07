@@ -20,7 +20,7 @@ export function SpinTheWheel({ participants, onGameEnd, isOwner, roomId }: SpinT
   const [winner, setWinner] = useState<SeatUser | null>(null);
   const [rotation, setRotation] = useState(0);
 
-  const segmentAngle = 360 / participants.length;
+  const segmentAngle = participants.length > 0 ? 360 / participants.length : 360;
 
   useEffect(() => {
     if (winner) {
