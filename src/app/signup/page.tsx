@@ -20,7 +20,7 @@ const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <title>Google Icon</title>
         <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
         <path d="M12 2v10l6 4" />
@@ -48,13 +48,20 @@ export default function SignupPage() {
         }
 
         setIsLoading(true);
-        const { success, error } = await signUpWithEmail(email, password);
+        const { success, error, code } = await signUpWithEmail(email, password);
         setIsLoading(false);
 
         if (success) {
             toast({ title: "Account Created!", description: "You have been successfully signed up." });
             router.push("/home");
-        } else if (error) {
+        } else if (code === 'auth/email-already-in-use') {
+             toast({
+                variant: "destructive",
+                title: "Email Already in Use",
+                description: "This email address is already associated with an account. Please sign in or use a different email.",
+            });
+        }
+        else if (error) {
             toast({
                 variant: "destructive",
                 title: "Signup Failed",

@@ -57,12 +57,12 @@ export const signUpWithEmail = async (email: string, password: string) => {
         const { user } = await createUserWithEmailAndPassword(auth, email, password);
         const profileResult = await createUserProfileDocument(user);
         if (!profileResult.success) {
-            return profileResult;
+            return { ...profileResult, user: null, code: null };
         }
-        return { success: true, user, error: null };
+        return { success: true, user, error: null, code: null };
     } catch (error: any) {
         console.error("Signup error:", error.code, error.message);
-        return { success: false, user: null, error: error.message };
+        return { success: false, user: null, error: error.message, code: error.code };
     }
 };
 
@@ -85,12 +85,12 @@ export const signInWithGoogleProvider = async () => {
         const { user } = await signInWithPopup(auth, provider);
         const profileResult = await createUserProfileDocument(user);
         if (!profileResult.success) {
-            return profileResult;
+            return { ...profileResult, user: null, code: null };
         }
-        return { success: true, user, error: null };
+        return { success: true, user, error: null, code: null };
     } catch (error: any)
 {        console.error("Google signin error:", error.code, error.message);
-        return { success: false, user: null, error: error.message };
+        return { success: false, user: null, error: error.message, code: error.code };
     }
 };
 
