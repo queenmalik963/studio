@@ -57,7 +57,8 @@ export const signUpWithEmail = async (email: string, password: string) => {
         const { user } = await createUserWithEmailAndPassword(auth, email, password);
         const profileResult = await createUserProfileDocument(user);
         if (!profileResult.success) {
-            return { ...profileResult, user: null, code: null };
+            // Pass the profile creation error up.
+            return { ...profileResult, user: null, code: 'profile-creation-failed' };
         }
         return { success: true, user, error: null, code: null };
     } catch (error: any) {
@@ -85,7 +86,7 @@ export const signInWithGoogleProvider = async () => {
         const { user } = await signInWithPopup(auth, provider);
         const profileResult = await createUserProfileDocument(user);
         if (!profileResult.success) {
-            return { ...profileResult, user: null, code: null };
+            return { ...profileResult, user: null, code: 'profile-creation-failed' };
         }
         return { success: true, user, error: null, code: null };
     } catch (error: any) {
