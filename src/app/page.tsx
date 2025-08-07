@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Music, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { signInWithEmail, signInWithGoogleProvider } from "@/services/authService";
+import { useAuth } from "@/contexts/AuthContext";
 
 const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -31,24 +32,32 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export default function LoginPage() {
     const router = useRouter();
     const { toast } = useToast();
+    const { currentUser, loading: authLoading } = useAuth();
+    
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+    const [isSigningIn, setIsSigningIn] = useState(false);
+
+    useEffect(() => {
+        if (!authLoading && currentUser) {
+            router.push("/home");
+        }
+    }, [currentUser, authLoading, router]);
 
     const handleSignIn = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
+        setIsSigningIn(true);
         const { success, error, code } = await signInWithEmail(email, password);
-        setIsLoading(false);
+        setIsSigningIn(false);
 
         if (success) {
             toast({ title: "Login Successful!", description: "Welcome back." });
             router.push("/home");
-        } else if (code === 'auth/user-not-found') {
+        } else if (code === 'auth/user-not-found' || code === 'auth/wrong-password') {
              toast({
                 variant: "destructive",
-                title: "User Not Found",
-                description: "No account found with this email. Please sign up first.",
+                title: "Invalid Credentials",
+                description: "The email or password you entered is incorrect.",
             });
         } else if (error) {
             toast({
@@ -60,9 +69,9 @@ export default function LoginPage() {
     };
 
     const handleGoogleSignIn = async () => {
-        setIsLoading(true);
+        setIsSigningIn(true);
         const { success, error } = await signInWithGoogleProvider();
-        setIsLoading(false);
+        setIsSigningIn(false);
 
         if (success) {
             toast({ title: "Google Sign-In Successful!", description: "Welcome!" });
@@ -75,6 +84,16 @@ export default function LoginPage() {
             });
         }
     };
+
+    const isLoading = authLoading || isSigningIn;
+
+    if (authLoading) {
+         return (
+            <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-background to-primary/10 p-4">
+                 <Loader2 className="h-16 w-16 animate-spin text-primary" />
+            </main>
+        )
+    }
 
     return (
         <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-background to-primary/10 p-4">

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -35,10 +36,13 @@ export default function ProfilePage() {
     const [tempName, setTempName] = useState(userProfile?.name ?? "");
 
     useEffect(() => {
+        if (!loading && !currentUser) {
+            router.push('/');
+        }
         if (!loading && userProfile && tempName !== userProfile.name) {
             setTempName(userProfile.name);
         }
-    }, [userProfile, loading, tempName]);
+    }, [userProfile, loading, currentUser, router, tempName]);
 
     if (loading || !userProfile) {
         return (
@@ -161,7 +165,7 @@ export default function ProfilePage() {
                                 </DialogContent>
                             </Dialog>
 
-                            <p className="text-sm text-white/70">@{userProfile.username}</p>
+                            <p className="text-sm text-white/70">ID: {userProfile.id.substring(0, 8)}</p>
                             <p className="text-sm mt-2 max-w-sm">{userProfile.bio}</p>
                              <div className="flex justify-around text-center mt-4 w-full max-w-xs">
                                 <div>
