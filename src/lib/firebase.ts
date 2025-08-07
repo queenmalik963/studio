@@ -1,3 +1,4 @@
+
 // src/lib/firebase.ts
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getAuth, Auth, initializeAuth, indexedDBLocalPersistence } from "firebase/auth";
@@ -33,11 +34,13 @@ if (!areKeysValid) {
   db = {} as Firestore;
 } else {
   // This check prevents re-initialization on the client-side during hot-reloads.
-  if (getApps().length === 0) {
+  if (!getApps().length) {
     app = initializeApp(firebaseConfig);
     // Initialize services only on the client-side
     if (typeof window !== 'undefined') {
-      // Initialize App Check for client-side FIRST
+      auth = initializeAuth(app, {
+        persistence: indexedDBLocalPersistence
+      });
       // IMPORTANT: You need to provide a reCAPTCHA v3 site key in your .env file
       // for this to work. It can be a dummy key for localhost testing.
       if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
@@ -45,14 +48,7 @@ if (!areKeysValid) {
           provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY),
           isTokenAutoRefreshEnabled: true
         });
-      } else {
-        console.warn("NEXT_PUBLIC_RECAPTCHA_SITE_KEY is missing from .env. App Check will not be initialized.");
       }
-      
-      // THEN, initialize Auth with persistence for the client-side
-      auth = initializeAuth(app, {
-        persistence: indexedDBLocalPersistence
-      });
     } else {
       // For server-side rendering, just get the auth instance without client-side persistence
       auth = getAuth(app);

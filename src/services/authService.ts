@@ -71,6 +71,8 @@ export const signUpWithEmail = async (email: string, password: string) => {
 export const signInWithEmail = async (email: string, password: string) => {
     try {
         const { user } = await signInWithEmailAndPassword(auth, email, password);
+        // Ensure profile exists on login as well
+        await createUserProfileDocument(user);
         return { success: true, user, error: null, code: null };
     } catch (error: any) {
         console.error("Signin error:", error.code, error.message);
