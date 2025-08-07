@@ -316,8 +316,21 @@ export default function AudioRoomPage() {
     const togglePlay = async () => {
         if (!roomId || !currentUserIsOwner || !room?.currentTrack) return;
         const newIsPlaying = !room.isPlaying;
-        await updatePlaybackState(roomId, { isPlaying: newIsPlaying });
-        toast({ title: newIsPlaying ? "Music Resumed" : "Music Paused" });
+        
+        // Update Firestore first
+        const result = await updatePlaybackState(roomId, { isPlaying: newIsPlaying });
+
+        if (result.success) {
+            // Then update local player
+             if (newIsPlaying && audioRef.current?.paused) {
+                audioRef.current.play().catch(e => console.error("Audio play failed:", e));
+            } else if (!newIsPlaying && !audioRef.current?.paused) {
+                audioRef.current?.pause();
+            }
+            toast({ title: newIsPlaying ? "Music Resumed" : "Music Paused" });
+        } else {
+             toast({ title: "Error", description: "Could not update playback state.", variant: "destructive" });
+        }
     };
 
     const handleTogglePersonalMic = async () => {
