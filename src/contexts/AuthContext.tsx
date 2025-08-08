@@ -5,7 +5,7 @@ import { createContext, useContext, ReactNode, useState, useEffect, useCallback 
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '@/services/firebase';
-import { UserProfile, getMockUserProfile } from '@/services/userService';
+import { UserProfile } from '@/services/userService';
 
 interface AuthContextType {
     currentUser: User | null;
@@ -32,17 +32,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
             setCurrentUser(user);
             if (user) {
-                // User is signed in, listen for profile changes
+                // First, get the document once for a fast initial load
                 const profileRef = doc(db, 'users', user.uid);
+                try {
+                    const docSnap = await getDoc(profileRef);
+                    if (docSnap.exists()) {
+                        setUserProfile(docSnap.data() as UserProfile);
+                    } else {
+                        console.log("No such profile document!");
+                        setUserProfile(null);
+                    }
+                } catch (error) {
+                    console.error("Error fetching user profile initially:", error);
+                    setUserProfile(null);
+                } finally {
+                    setLoading(false); // Stop loading after the initial fetch
+                }
+
+                // Then, set up the real-time listener for subsequent updates
                 const unsubscribeProfile = onSnapshot(profileRef, (docSnap) => {
                     if (docSnap.exists()) {
                         setUserProfile(docSnap.data() as UserProfile);
                     } else {
-                        // This case can happen for a newly created user before their profile is set
-                        console.log("No such profile document!");
                         setUserProfile(null);
                     }
-                    setLoading(false);
                 });
                 return () => unsubscribeProfile();
             } else {
