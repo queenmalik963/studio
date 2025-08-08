@@ -322,7 +322,7 @@ export default function AudioRoomPage() {
                                         onClick={() => handleSeatClick(seat)}
                                     >
                                         <div className="relative w-[65px] h-[65px] flex items-center justify-center">
-                                            {areEffectsEnabled && (
+                                            {areEffectsEnabled && seat.user && (
                                                  <Image
                                                     unoptimized
                                                     src={rowFrame}
