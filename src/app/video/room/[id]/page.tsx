@@ -36,6 +36,16 @@ const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
 );
 
+const videoRoomControls = [
+    { name: "Gathering", icon: Flag, action: 'gathering' },
+    { name: "Broadcast", icon: Megaphone, action: 'broadcast' },
+    { name: "Music", icon: Music, action: 'music' },
+    { name: "Invite", icon: UserPlus, action: 'invite' },
+    { name: "Effect", icon: Wand2, action: 'toggleEffects' },
+    { name: "Clean", icon: Trash2, action: 'clean' },
+    { name: "Mute All", icon: MicOff, ownerOnly: true, action: 'muteAll' },
+    { name: "Change Video", icon: Youtube, action: 'changeVideo' },
+];
 
 function VideoRoomPageComponent() {
     const router = useRouter();
@@ -110,8 +120,6 @@ function VideoRoomPageComponent() {
     const handleSendGift = async (gift: GiftType, quantity: number, recipientName: string) => {
         if (!userProfile) return;
 
-        toast({ title: "Gift Sent!", description: `You sent ${quantity}x ${gift.name} to ${recipientName}` });
-        
         const giftMessage: Message = {
             id: Date.now().toString(),
             type: 'gift',
@@ -222,18 +230,42 @@ function VideoRoomPageComponent() {
             toast({ title: "Video Paused" });
         }
     };
+    
+     const handleControlAction = (action: string) => {
+        setIsControlsPanelOpen(false);
+        switch (action) {
+            case 'gathering':
+                toast({ title: "Gathering Started!", description: "Special room effects are now active." });
+                break;
+            case 'broadcast':
+                toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
+                break;
+            case 'music':
+                toast({ title: "Music Playing", description: "Background music has started." });
+                break;
+            case 'invite':
+                navigator.clipboard.writeText(window.location.href);
+                toast({ title: "Invite Link Copied!", description: "Share it with your friends." });
+                break;
+            case 'toggleEffects':
+                setAreEffectsEnabled(prev => !prev);
+                toast({ title: `Room Effects ${!areEffectsEnabled ? 'On' : 'Off'}` });
+                break;
+            case 'clean':
+                setMessages(prev => prev.filter(m => m.type !== 'text'));
+                toast({ title: "Chat Cleared!", description: "Chat history has been cleared." });
+                break;
+            case 'muteAll':
+                toast({ title: "All Muted", description: "All users have been muted." });
+                break;
+            case 'changeVideo':
+                router.push('/video/add');
+                break;
+            default:
+                break;
+        }
+    };
 
-
-    const videoRoomControls = [
-        { name: "Gathering", icon: Flag, action: () => { toast({ title: "Gathering Started in Video Room!", description: "Special room effects are now active." }); setIsControlsPanelOpen(false); } },
-        { name: "Broadcast", icon: Megaphone, action: () => { toast({ title: "Video Room Broadcast Sent!", description: "Your message has been sent to all users." }); setIsControlsPanelOpen(false); } },
-        { name: "Music", icon: Music, action: () => { toast({ title: "Music Playing", description: "Background music has started for the video room." }); setIsControlsPanelOpen(false); } },
-        { name: "Invite", icon: UserPlus, action: () => { navigator.clipboard.writeText(window.location.href); toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." }); setIsControlsPanelOpen(false); } },
-        { name: "Effect", icon: Wand2, action: () => { setAreEffectsEnabled(prev => { const newState = !prev; toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` }); return newState; }); setIsControlsPanelOpen(false); } },
-        { name: "Clean", icon: Trash2, action: () => { setMessages(prev => prev.filter(m => m.type !== 'text')); toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." }); setIsControlsPanelOpen(false); } },
-        { name: "Mute All", icon: MicOff, ownerOnly: true, action: () => { toast({ title: "All Muted", description: "All users have been muted." }); setIsControlsPanelOpen(false); } },
-        { name: "Change Video", icon: Youtube, action: () => router.push('/video/add') },
-    ];
 
     const frameBorderColors: {[key: string]: string} = {
         gold: 'border-yellow-400',
@@ -590,7 +622,7 @@ function VideoRoomPageComponent() {
                                             size="icon"
                                             variant="ghost"
                                             className="w-14 h-14 bg-black/30 rounded-2xl"
-                                            onClick={control.action}
+                                            onClick={() => handleControlAction(control.action)}
                                         >
                                             <control.icon className="w-7 h-7 text-white/80" />
                                         </Button>
