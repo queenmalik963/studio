@@ -248,7 +248,6 @@ function VideoRoomPageComponent() {
 
     const togglePlay = () => {
         if (!videoUrl) {
-            toast({ variant: 'destructive', title: "No video selected", description: "Please change the video first." });
             return;
         }
         setIsPlaying(prev => !prev);
@@ -367,31 +366,30 @@ function VideoRoomPageComponent() {
                             key={videoUrl}
                             ref={playerRef}
                             src={videoUrl}
-                            controls={false}
+                            controls={true}
                             loop
                             className="w-full h-full object-contain"
                             onPlay={() => setIsPlaying(true)}
                             onPause={() => setIsPlaying(false)}
-                            onClick={togglePlay}
                         />
                     ) : (
                         <div className="flex flex-col items-center gap-2 text-white/50">
-                            <Loader2 className="w-10 h-10 animate-spin" />
-                            <p>Loading video...</p>
+                             <Loader2 className="w-10 h-10 animate-spin" />
+                             <p>Waiting for owner to select a video...</p>
                         </div>
                     )}
                 </div>
 
                 {/* Video Controls Overlay */}
                  <div className="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/20 transition-colors pointer-events-none">
-                    {videoUrl && (
+                    {videoUrl && !isPlaying && (
                         <Button
                             variant="ghost"
                             size="icon"
                             className="w-16 h-16 rounded-full bg-black/30 text-white/70 hover:bg-black/50 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto"
                             onClick={togglePlay}
                         >
-                           {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8" />}
+                           <Play className="w-8 h-8" />
                         </Button>
                     )}
                 </div>
