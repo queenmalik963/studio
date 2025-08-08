@@ -10,9 +10,22 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { auth } from '@/services/firebase';
+import { useToast } from "@/hooks/use-toast";
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      toast({ title: "Logged Out", description: "You have been successfully logged out." });
+      router.push('/');
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Logout Failed", description: error.message });
+    }
+  };
 
   return (
     <AppLayout>
@@ -118,7 +131,7 @@ export default function SettingsPage() {
           
           <Separator />
 
-          <Button variant="destructive" className="w-full" onClick={() => router.push('/')}>
+          <Button variant="destructive" className="w-full" onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" /> Log Out
           </Button>
 

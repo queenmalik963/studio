@@ -3,11 +3,15 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Music } from "lucide-react";
+import { Music, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth } from '@/services/firebase';
 
 const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -27,14 +31,45 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function LoginPage() {
     const router = useRouter();
+    const { toast } = useToast();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSignIn = (e: React.FormEvent) => {
+    const handleSignIn = async (e: React.FormEvent) => {
         e.preventDefault();
-        router.push("/home");
+        setIsLoading(true);
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            toast({ title: "Login Successful", description: "Welcome back!" });
+            router.push("/home");
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Login Failed",
+                description: error.message,
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const handleSocialSignIn = () => {
-        router.push("/home");
+    const handleGoogleSignIn = async () => {
+        const provider = new GoogleAuthProvider();
+        setIsLoading(true);
+        try {
+            await signInWithPopup(auth, provider);
+            toast({ title: "Login Successful", description: "Welcome!" });
+            router.push("/home");
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Google Sign-In Failed",
+                description: error.message,
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -51,15 +86,15 @@ export default function LoginPage() {
                 <CardContent>
                     <form onSubmit={handleSignIn} className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="email">Email or Phone</Label>
-                            <Input id="email" type="email" placeholder="you@example.com" required defaultValue="king@ravewave.com" />
+                            <Label htmlFor="email">Email</Label>
+                            <Input id="email" type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="password">Password</Label>
-                            <Input id="password" type="password" required defaultValue="password" />
+                            <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
                         </div>
-                        <Button type="submit" className="w-full font-bold">
-                           Sign In
+                        <Button type="submit" className="w-full font-bold" disabled={isLoading}>
+                           {isLoading ? <Loader2 className="animate-spin" /> : "Sign In"}
                         </Button>
                     </form>
 
@@ -70,11 +105,11 @@ export default function LoginPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <Button variant="outline" className="w-full" onClick={handleSocialSignIn}>
+                        <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading}>
                              <GoogleIcon className="mr-2 h-4 w-4" />
                             Continue with Google
                         </Button>
-                        <Button variant="outline" className="w-full" onClick={handleSocialSignIn}>
+                        <Button variant="outline" className="w-full" disabled>
                             <FacebookIcon className="mr-2 h-4 w-4" />
                             Continue with Facebook
                         </Button>
