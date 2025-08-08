@@ -71,18 +71,6 @@ function VideoRoomPageComponent() {
     const sendButtonRef = useRef<HTMLButtonElement>(null);
 
     const currentUserIsOwner = true; // Assume owner for static display
-    const currentUserSeat = seats.find(s => s.user?.id === userProfile?.id);
-
-    const videoRoomControls = [
-        { name: "Gathering", icon: Flag, action: () => { toast({ title: "Gathering Started in Video Room!", description: "Special room effects are now active." }); setIsControlsPanelOpen(false); } },
-        { name: "Broadcast", icon: Megaphone, action: () => { toast({ title: "Video Room Broadcast Sent!", description: "Your message has been sent to all users." }); setIsControlsPanelOpen(false); } },
-        { name: "Music", icon: Music, action: () => { toast({ title: "Music Playing", description: "Background music has started for the video room." }); setIsControlsPanelOpen(false); } },
-        { name: "Invite", icon: UserPlus, action: () => { navigator.clipboard.writeText(window.location.href); toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." }); setIsControlsPanelOpen(false); } },
-        { name: "Effect", icon: Wand2, action: () => { setAreEffectsEnabled(prev => { const newState = !prev; toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` }); return newState; }); setIsControlsPanelOpen(false); } },
-        { name: "Clean", icon: Trash2, action: () => { setMessages(prev => prev.filter(m => m.type !== 'text')); toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." }); setIsControlsPanelOpen(false); } },
-        { name: "Mute All", icon: MicOff, ownerOnly: true, action: () => { toast({ title: "All Muted", description: "All users have been muted." }); setIsControlsPanelOpen(false); } },
-        { name: "Change Video", icon: Youtube, action: () => router.push('/video/add') },
-    ];
     
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
@@ -93,7 +81,6 @@ function VideoRoomPageComponent() {
         }
     }, [messages]);
 
-    
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newMessage.trim() || !userProfile) return;
@@ -212,21 +199,6 @@ function VideoRoomPageComponent() {
         toast({ title: `Action '${action}' on seat ${seatId}` });
     };
     
-    const frameBorderColors: {[key: string]: string} = {
-        gold: 'border-yellow-400',
-        purple: 'border-fuchsia-500',
-        blue: 'border-blue-400',
-        green: 'border-green-500',
-        red: 'border-red-500',
-        cyan: 'border-cyan-500',
-        pink: 'border-pink-500',
-        teal: 'border-teal-400',
-        orange: 'border-orange-500',
-        indigo: 'border-indigo-500',
-    }
-
-    const occupiedSeats = seats.filter(seat => seat.user);
-
     const onPlayerReady = (event: any) => {
         playerRef.current = event.target;
         if (event.target && typeof event.target.playVideo === 'function') {
@@ -259,6 +231,33 @@ function VideoRoomPageComponent() {
           fs: 0,
         },
     };
+
+    const videoRoomControls = [
+        { name: "Gathering", icon: Flag, action: () => { toast({ title: "Gathering Started in Video Room!", description: "Special room effects are now active." }); setIsControlsPanelOpen(false); } },
+        { name: "Broadcast", icon: Megaphone, action: () => { toast({ title: "Video Room Broadcast Sent!", description: "Your message has been sent to all users." }); setIsControlsPanelOpen(false); } },
+        { name: "Music", icon: Music, action: () => { toast({ title: "Music Playing", description: "Background music has started for the video room." }); setIsControlsPanelOpen(false); } },
+        { name: "Invite", icon: UserPlus, action: () => { navigator.clipboard.writeText(window.location.href); toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." }); setIsControlsPanelOpen(false); } },
+        { name: "Effect", icon: Wand2, action: () => { setAreEffectsEnabled(prev => { const newState = !prev; toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` }); return newState; }); setIsControlsPanelOpen(false); } },
+        { name: "Clean", icon: Trash2, action: () => { setMessages(prev => prev.filter(m => m.type !== 'text')); toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." }); setIsControlsPanelOpen(false); } },
+        { name: "Mute All", icon: MicOff, ownerOnly: true, action: () => { toast({ title: "All Muted", description: "All users have been muted." }); setIsControlsPanelOpen(false); } },
+        { name: "Change Video", icon: Youtube, action: () => router.push('/video/add') },
+    ];
+
+    const frameBorderColors: {[key: string]: string} = {
+        gold: 'border-yellow-400',
+        purple: 'border-fuchsia-500',
+        blue: 'border-blue-400',
+        green: 'border-green-500',
+        red: 'border-red-500',
+        cyan: 'border-cyan-500',
+        pink: 'border-pink-500',
+        teal: 'border-teal-400',
+        orange: 'border-orange-500',
+        indigo: 'border-indigo-500',
+    }
+
+    const occupiedSeats = seats.filter(seat => seat.user);
+    const currentUserSeat = seats.find(s => s.user?.id === userProfile?.id);
     
     if (!userProfile) {
         return (
@@ -267,7 +266,7 @@ function VideoRoomPageComponent() {
             </div>
         );
     }
-
+    
     return (
         <div className="flex flex-col h-screen bg-[#180828] text-white font-sans overflow-hidden">
              {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
