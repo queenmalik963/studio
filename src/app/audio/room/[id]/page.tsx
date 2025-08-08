@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef, useEffect, Fragment, createRef, useMemo, memo } from "react";
+import { useState, useRef, useEffect, Fragment, createRef, memo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,7 +69,7 @@ export default function AudioRoomPage() {
     const params = useParams();
     const roomId = params.id as string;
     
-    const { currentUser, userProfile } = useAuth();
+    const { userProfile } = useAuth();
     
     // State is now managed within the component, not from a mock service
     const [roomName, setRoomName] = useState("My Audio Room");
@@ -88,7 +88,7 @@ export default function AudioRoomPage() {
     const [isGameActive, setIsGameActive] = useState(false);
     
     const currentUserIsOwner = true; // For static view, assume user is owner
-    const currentUserSeat = useMemo(() => seats.find(s => s.user?.id === currentUser?.uid), [seats, currentUser]);
+    const currentUserSeat = seats.find(s => s.user?.id === userProfile?.id);
 
     // Audio Player State
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -125,7 +125,21 @@ export default function AudioRoomPage() {
     };
 
     const handleSendGift = (gift: GiftType, quantity: number, recipientName: string) => {
+        if (!userProfile) return;
+        
         toast({ title: "Gift Sent!", description: `You sent ${quantity}x ${gift.name} to ${recipientName}` });
+        
+        const giftMessage: Message = {
+            id: Date.now().toString(),
+            type: 'gift',
+            authorId: userProfile.id,
+            authorName: userProfile.name,
+            authorAvatar: userProfile.avatar,
+            text: `sent ${quantity}x ${gift.name} to ${recipientName}`,
+            timestamp: new Date(),
+            giftIcon: gift.image
+        };
+        setMessages(prev => [...prev, giftMessage]);
         
         if (gift.animation === 'walking') {
             setAnimatedWalkingGift(gift.image);
@@ -459,9 +473,9 @@ export default function AudioRoomPage() {
                                             <div className="text-sm">
                                                 <p className="text-white/70 text-xs">{msg.authorName}</p>
                                                 {msg.type === 'gift' && (
-                                                    <div className="flex items-center gap-2 mt-1">
+                                                    <div className="flex items-center gap-2 mt-1 bg-black/20 rounded-lg p-2">
                                                         <p className="text-xs">{msg.text}</p>
-                                                        {msg.giftIcon && <Image src={msg.giftIcon} alt="gift" width={16} height={16}/>}
+                                                        {msg.giftIcon && <Image src={msg.giftIcon} alt="gift" width={24} height={24}/>}
                                                     </div>
                                                 )}
                                                 {msg.type === 'game' && msg.game && (

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef, useEffect, Fragment, createRef, Suspense, memo, useMemo } from "react";
+import { useState, useRef, useEffect, Fragment, createRef, Suspense, memo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,7 +44,7 @@ function VideoRoomPageComponent() {
     const roomId = params.id as string;
 
     const { toast } = useToast();
-    const { currentUser, userProfile } = useAuth();
+    const { userProfile } = useAuth();
     
     // State is now managed within the component
     const [roomName, setRoomName] = useState("My Video Room");
@@ -71,7 +71,7 @@ function VideoRoomPageComponent() {
     const sendButtonRef = useRef<HTMLButtonElement>(null);
 
     const currentUserIsOwner = true; // Assume owner for static display
-    const currentUserSeat = useMemo(() => seats.find(s => s.user?.id === currentUser?.uid), [seats, currentUser]);
+    const currentUserSeat = seats.find(s => s.user?.id === userProfile?.id);
 
     const videoRoomControls = [
         { name: "Gathering", icon: Flag, action: () => { toast({ title: "Gathering Started in Video Room!", description: "Special room effects are now active." }); setIsControlsPanelOpen(false); } },
@@ -110,7 +110,21 @@ function VideoRoomPageComponent() {
     };
 
     const handleSendGift = async (gift: GiftType, quantity: number, recipientName: string) => {
+        if (!userProfile) return;
+
         toast({ title: "Gift Sent!", description: `You sent ${quantity}x ${gift.name} to ${recipientName}` });
+        
+        const giftMessage: Message = {
+            id: Date.now().toString(),
+            type: 'gift',
+            authorId: userProfile.id,
+            authorName: userProfile.name,
+            authorAvatar: userProfile.avatar,
+            text: `sent ${quantity}x ${gift.name} to ${recipientName}`,
+            timestamp: new Date(),
+            giftIcon: gift.image
+        };
+        setMessages(prev => [...prev, giftMessage]);
         
         if (gift.animation === 'walking') {
             setAnimatedWalkingGift(gift.image);
@@ -220,7 +234,7 @@ function VideoRoomPageComponent() {
 
     const togglePlay = () => {
         const player = playerRef.current;
-        if (!player) return;
+        if (!player || typeof player.getPlayerState !== 'function') return;
         const playerState = player.getPlayerState();
         if (playerState === 1) { // playing
             player.pauseVideo();
@@ -452,9 +466,9 @@ function VideoRoomPageComponent() {
                                             <div className="text-sm">
                                                 <p className="text-white/70 text-xs">{msg.authorName}</p>
                                                 {msg.type === 'gift' && (
-                                                    <div className="flex items-center gap-2 mt-1">
+                                                    <div className="flex items-center gap-2 mt-1 bg-black/20 rounded-lg p-2">
                                                         <p className="text-xs">{msg.text}</p>
-                                                        {msg.giftIcon && <Image src={msg.giftIcon} alt="gift" width={16} height={16}/>}
+                                                        {msg.giftIcon && <Image src={msg.giftIcon} alt="gift" width={24} height={24}/>}
                                                     </div>
                                                 )}
                                                 {msg.type === 'game' && msg.game && (
