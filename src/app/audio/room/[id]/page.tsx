@@ -20,7 +20,7 @@ import { Separator } from "@/components/ui/separator";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
-import { type Message, type Seat, type SeatUser, getInitialSeats, sendMessage } from "@/services/roomService";
+import { type Message, type Seat, type SeatUser, sendMessage, getInitialSeats, getRoomById, type Room } from "@/services/roomService";
 import { useAuth } from "@/contexts/AuthContext";
 
 
@@ -71,9 +71,9 @@ export default function AudioRoomPage() {
     
     const { userProfile } = useAuth();
     
-    const [roomName, setRoomName] = useState("My Audio Room");
+    const [room, setRoom] = useState<Room | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
-    const [seats, setSeats] = useState<Seat[]>(getInitialSeats(16));
+    const [seats, setSeats] = useState<Seat[]>([]);
     
     const [newMessage, setNewMessage] = useState("");
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
@@ -86,9 +86,6 @@ export default function AudioRoomPage() {
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
     const [isGameActive, setIsGameActive] = useState(false);
     
-    const currentUserIsOwner = true; // For static view, assume user is owner
-    const currentUserSeat = seats.find(s => s.user?.id === userProfile?.id);
-
     // Audio Player State
     const [currentTrackUrl, setCurrentTrackUrl] = useState<string | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -100,7 +97,21 @@ export default function AudioRoomPage() {
     const { toast } = useToast();
     const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
     const sendButtonRef = useRef<HTMLButtonElement>(null);
+
+    useEffect(() => {
+        const roomData = getRoomById(roomId);
+        if (roomData) {
+            setRoom(roomData);
+            setSeats(getInitialSeats(16)); // Static seats with users for now
+        } else {
+            // Handle room not found
+            router.push('/audio');
+        }
+    }, [roomId, router]);
     
+    const currentUserIsOwner = userProfile?.id === room?.ownerId;
+    const currentUserSeat = seats.find(s => s.user?.id === userProfile?.id);
+
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
         if (chatContainer) {
@@ -202,6 +213,10 @@ export default function AudioRoomPage() {
     }
     
     const handleStartGame = (gameName: string) => {
+        if (!currentUserIsOwner) {
+            toast({ variant: 'destructive', title: "Only the host can start a game." });
+            return;
+        }
         setIsGamePanelOpen(false);
         setIsGameActive(true);
         sendMessage(roomId, {
@@ -228,7 +243,7 @@ export default function AudioRoomPage() {
     
     const togglePlay = () => {
         if (!currentTrackUrl) {
-            toast({ variant: 'destructive', title: "No track selected", description: "Please upload a track first." });
+            toast({ variant: 'destructive', title: "No track selected", description: "Owner needs to upload a track first." });
             return;
         }
         setIsPlaying(prev => !prev);
@@ -260,24 +275,33 @@ export default function AudioRoomPage() {
         toast({ title: "Mic Toggled" });
     };
 
-    const handleSeatClick = (seat: any) => {
-        toast({ title: `Seat ${seat.id} Clicked` });
+    const handleSeatClick = (seat: Seat) => {
+        if (!currentUserIsOwner || seat.user?.id === userProfile?.id) {
+             toast({ title: `Seat ${seat.id} Info`, description: seat.user ? `This is ${seat.user.name}` : "This seat is empty." });
+        }
+        // Owner actions are handled in Popover
     };
     
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
         toast({ title: `Action '${action}' on seat ${seatId}` });
     };
 
-    const roomControls = [
+    const commonControls = [
+        { name: "Invite", icon: UserPlus, action: () => { navigator.clipboard.writeText(window.location.href); toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." }); setIsControlsPanelOpen(false); } },
+        { name: "Effect", icon: Wand2, action: () => { setAreEffectsEnabled(prev => { const newState = !prev; toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` }); return newState; }); setIsControlsPanelOpen(false); } },
+    ];
+
+    const ownerControls = [
+        ...commonControls,
         { name: "Gathering", icon: Flag, action: () => { toast({ title: "Gathering Started!", description: "Special room effects are now active." }); setIsControlsPanelOpen(false); } },
         { name: "Broadcast", icon: Megaphone, action: () => { toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." }); setIsControlsPanelOpen(false); } },
         { name: "Play Track", icon: Play, action: () => { togglePlay(); setIsControlsPanelOpen(false); } },
         { name: "Pause Track", icon: Pause, action: () => { togglePlay(); setIsControlsPanelOpen(false); } },
         { name: "Upload", icon: Upload, action: () => { handleUploadClick(); } },
-        { name: "Invite", icon: UserPlus, action: () => { navigator.clipboard.writeText(window.location.href); toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." }); setIsControlsPanelOpen(false); } },
-        { name: "Effect", icon: Wand2, action: () => { setAreEffectsEnabled(prev => { const newState = !prev; toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` }); return newState; }); setIsControlsPanelOpen(false); } },
         { name: "Clean", icon: Trash2, action: () => { setMessages(prev => prev.filter(m => m.type !== 'text')); toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." }); setIsControlsPanelOpen(false); } },
     ];
+
+    const roomControls = currentUserIsOwner ? ownerControls : commonControls;
     
     const frameBorderColors: {[key: string]: string} = {
         gold: 'border-yellow-400',
@@ -311,7 +335,7 @@ export default function AudioRoomPage() {
                         const seatIndex = i * 4 + index;
                         if (!seat) return null;
                         
-                        const isSeatActionable = currentUserIsOwner && seat.user;
+                        const isSeatActionable = currentUserIsOwner && seat.user && seat.user.id !== userProfile?.id;
                         
                         return (
                             <Popover key={seat.id}>
@@ -379,7 +403,7 @@ export default function AudioRoomPage() {
     };
 
 
-    if (!userProfile) {
+    if (!userProfile || !room) {
         return (
             <div className="flex items-center justify-center h-screen bg-[#2E103F] text-white">
                 <Loader2 className="w-10 h-10 animate-spin" />
@@ -422,11 +446,11 @@ export default function AudioRoomPage() {
                     </Button>
                     <div className="flex items-center gap-2">
                          <Avatar className="h-10 w-10 border-2 border-yellow-400">
-                            <AvatarImage src={userProfile.avatar} />
-                            <AvatarFallback>{userProfile.name?.charAt(0)}</AvatarFallback>
+                            <AvatarImage src={room.ownerAvatar} />
+                            <AvatarFallback>{room.ownerName?.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div>
-                            <p className="font-semibold">{roomName}</p>
+                            <p className="font-semibold">{room.name}</p>
                             <p className="text-xs text-white/70">ID: {roomId.substring(0, 6)}</p>
                         </div>
                     </div>
@@ -451,7 +475,7 @@ export default function AudioRoomPage() {
                                                 </Avatar>
                                             </div>
                                             <div>
-                                                <p className="text-sm font-semibold">{seat.user.name}</p>
+                                                <p className={cn("text-sm font-semibold", seat.user.nameColor)}>{seat.user.name}</p>
                                                 {seat.user.frame && frameBorderColors[seat.user.frame] && (
                                                     <div className={cn("h-0.5 w-8 rounded-full", frameBorderColors[seat.user.frame])}></div>
                                                 )}
@@ -477,7 +501,7 @@ export default function AudioRoomPage() {
                         <SpinTheWheel
                           participants={occupiedSeats.map(s => s.user).filter(Boolean) as SeatUser[]}
                           onGameEnd={handleEndGame}
-                          isOwner={currentUserIsOwner}
+                          isOwner={!!currentUserIsOwner}
                           roomId={roomId}
                         />
                     ) : (
@@ -499,7 +523,7 @@ export default function AudioRoomPage() {
                                                 <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.authorName?.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div className="text-sm">
-                                                <p className="text-white/70 text-xs">{msg.authorName}</p>
+                                                <p className={cn("text-white/70 text-xs", msg.authorId === room.ownerId ? "text-yellow-300" : "")}>{msg.authorName}</p>
                                                 {msg.type === 'gift' && (
                                                     <div className="flex items-center gap-2 mt-1 bg-black/20 rounded-lg p-2">
                                                         <p className="text-xs">{msg.text}</p>

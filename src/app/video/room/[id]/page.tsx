@@ -20,7 +20,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
-import { type Message, type Seat, type SeatUser, sendMessage, getInitialSeats } from "@/services/roomService";
+import { type Message, type Seat, type SeatUser, sendMessage, getInitialSeats, getRoomById, type Room } from "@/services/roomService";
 import { useAuth } from "@/contexts/AuthContext";
 
 export type JumpAnimation = {
@@ -36,16 +36,6 @@ const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
 );
 
-const videoRoomControls = [
-    { name: "Gathering", icon: Flag, action: 'gathering' },
-    { name: "Broadcast", icon: Megaphone, action: 'broadcast' },
-    { name: "Music", icon: Music, action: 'music' },
-    { name: "Invite", icon: UserPlus, action: 'invite' },
-    { name: "Effect", icon: Wand2, action: 'toggleEffects' },
-    { name: "Clean", icon: Trash2, action: 'clean' },
-    { name: "Mute All", icon: MicOff, ownerOnly: true, action: 'muteAll' },
-    { name: "Change Video", icon: Youtube, action: 'changeVideo' },
-];
 
 const RoomControlButton = memo(({ control, onClick }: { control: { name: string; icon: React.ElementType, action: string }; onClick: (action: string) => void}) => {
     return (
@@ -74,9 +64,9 @@ function VideoRoomPageComponent() {
     const { userProfile } = useAuth();
     
     // State is now managed within the component
-    const [roomName, setRoomName] = useState("My Video Room");
+    const [room, setRoom] = useState<Room | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
-    const [seats, setSeats] = useState<Seat[]>(getInitialSeats(8));
+    const [seats, setSeats] = useState<Seat[]>([]);
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
     const [newMessage, setNewMessage] = useState("");
@@ -99,16 +89,23 @@ function VideoRoomPageComponent() {
     const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
     const sendButtonRef = useRef<HTMLButtonElement>(null);
 
-    const currentUserIsOwner = true; // Assume owner for static display
-
     useEffect(() => {
-        // This is an illusion for the local user. In a real app, this URL would come from a server after upload.
+        const roomData = getRoomById(roomId);
+        if (roomData) {
+            setRoom(roomData);
+            setSeats(getInitialSeats(8)); // Video rooms have 8 seats
+        } else {
+            router.push('/video');
+        }
+
         const encodedUrl = searchParams.get('videoUrl');
         if (encodedUrl) {
             const decodedUrl = decodeURIComponent(encodedUrl);
             setVideoUrl(decodedUrl);
         }
-    }, [searchParams]);
+    }, [roomId, router, searchParams]);
+
+    const currentUserIsOwner = userProfile?.id === room?.ownerId;
     
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
@@ -210,6 +207,10 @@ function VideoRoomPageComponent() {
     }
 
     const handleStartGame = (gameName: string) => {
+        if (!currentUserIsOwner) {
+            toast({ variant: 'destructive', title: "Only the host can start a game." });
+            return;
+        }
         setIsGamePanelOpen(false);
         setIsGameActive(true);
         sendMessage(roomId, {
@@ -238,19 +239,14 @@ function VideoRoomPageComponent() {
         toast({ title: "Mic Toggled" });
     };
 
-    const handleSeatClick = (seat: any) => {
-        toast({ title: `Seat ${seat.id} Clicked` });
+    const handleSeatClick = (seat: Seat) => {
+        if (!currentUserIsOwner || seat.user?.id === userProfile?.id) {
+             toast({ title: `Seat ${seat.id} Info`, description: seat.user ? `This is ${seat.user.name}` : "This seat is empty." });
+        }
     };
 
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
         toast({ title: `Action '${action}' on seat ${seatId}` });
-    };
-
-    const togglePlay = () => {
-        if (!videoUrl) {
-            return;
-        }
-        setIsPlaying(prev => !prev);
     };
 
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -266,6 +262,23 @@ function VideoRoomPageComponent() {
             setIsControlsPanelOpen(false);
         }
     };
+    
+    const commonControlsList = [
+        { name: "Invite", icon: UserPlus, action: 'invite' },
+        { name: "Effect", icon: Wand2, action: 'toggleEffects' },
+    ];
+    
+    const ownerControlsList = [
+        ...commonControlsList,
+        { name: "Gathering", icon: Flag, action: 'gathering' },
+        { name: "Broadcast", icon: Megaphone, action: 'broadcast' },
+        { name: "Music", icon: Music, action: 'music' },
+        { name: "Clean", icon: Trash2, action: 'clean' },
+        { name: "Mute All", icon: MicOff, action: 'muteAll' },
+        { name: "Change Video", icon: Youtube, action: 'changeVideo' },
+    ];
+
+    const videoRoomControls = currentUserIsOwner ? ownerControlsList : commonControlsList;
     
      const handleControlAction = (action: string) => {
         setIsControlsPanelOpen(false);
@@ -323,7 +336,7 @@ function VideoRoomPageComponent() {
     const occupiedSeats = seats.filter(seat => seat.user);
     const currentUserSeat = seats.find(s => s.user?.id === userProfile?.id);
     
-    if (!userProfile) {
+    if (!userProfile || !room) {
         return (
             <div className="flex items-center justify-center h-screen bg-[#180828] text-white">
                 <Loader2 className="w-10 h-10 animate-spin" />
@@ -380,20 +393,6 @@ function VideoRoomPageComponent() {
                     )}
                 </div>
 
-                {/* Video Controls Overlay */}
-                 <div className="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/20 transition-colors pointer-events-none">
-                    {videoUrl && !isPlaying && (
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="w-16 h-16 rounded-full bg-black/30 text-white/70 hover:bg-black/50 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto"
-                            onClick={togglePlay}
-                        >
-                           <Play className="w-8 h-8" />
-                        </Button>
-                    )}
-                </div>
-
                 <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/50 to-transparent pointer-events-none">
                     <div className="flex items-center justify-between">
                          <div className="flex items-center gap-4 pointer-events-auto">
@@ -403,11 +402,11 @@ function VideoRoomPageComponent() {
                             
                             <div className="flex items-center gap-2">
                                  <Avatar className="h-10 w-10 border-2 border-yellow-400">
-                                    <AvatarImage src={userProfile.avatar} />
-                                    <AvatarFallback>{userProfile.name?.charAt(0)}</AvatarFallback>
+                                    <AvatarImage src={room.ownerAvatar} />
+                                    <AvatarFallback>{room.ownerName?.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <p className="font-semibold">{roomName}</p>
+                                    <p className="font-semibold">{room.name}</p>
                                     <p className="text-xs text-white/70">ID: {roomId.substring(0, 6)}</p>
                                 </div>
                             </div>
@@ -432,7 +431,7 @@ function VideoRoomPageComponent() {
                                                         </Avatar>
                                                     </div>
                                                     <div>
-                                                        <p className="text-sm font-semibold">{seat.user.name}</p>
+                                                        <p className={cn("text-sm font-semibold", seat.user.nameColor)}>{seat.user.name}</p>
                                                         {seat.user.frame && frameBorderColors[seat.user.frame] && (
                                                             <div className={cn("h-0.5 w-8 rounded-full", frameBorderColors[seat.user.frame])}></div>
                                                         )}
@@ -457,9 +456,10 @@ function VideoRoomPageComponent() {
                 <div className="w-full flex-shrink-0 py-2">
                     <div className="grid grid-cols-8 gap-2 justify-items-center px-2">
                         {seats.map((seat, index) => {
+                             const isSeatActionable = currentUserIsOwner && seat.user && seat.user.id !== userProfile?.id;
                              return (
                                 <Popover key={seat.id}>
-                                    <PopoverTrigger asChild disabled={!(currentUserIsOwner && seat.user)}>
+                                    <PopoverTrigger asChild disabled={!isSeatActionable}>
                                         <div 
                                             ref={seatRefs.current[index]}
                                             className="flex flex-col items-center gap-1 w-full text-center cursor-pointer"
@@ -515,7 +515,7 @@ function VideoRoomPageComponent() {
                          <SpinTheWheel
                           participants={occupiedSeats.map(s => s.user).filter(Boolean) as SeatUser[]}
                           onGameEnd={handleEndGame}
-                          isOwner={currentUserIsOwner}
+                          isOwner={!!currentUserIsOwner}
                           roomId={roomId}
                         />
                     ) : (
@@ -537,7 +537,7 @@ function VideoRoomPageComponent() {
                                                 <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.authorName?.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div className="text-sm">
-                                                <p className="text-white/70 text-xs">{msg.authorName}</p>
+                                                <p className={cn("text-white/70 text-xs", msg.authorId === room.ownerId ? "text-yellow-300" : "")}>{msg.authorName}</p>
                                                 {msg.type === 'gift' && (
                                                     <div className="flex items-center gap-2 mt-1 bg-black/20 rounded-lg p-2">
                                                         <p className="text-xs">{msg.text}</p>
@@ -659,12 +659,9 @@ function VideoRoomPageComponent() {
                     </SheetHeader>
                     <div className="py-4">
                         <div className="grid grid-cols-4 gap-4">
-                           {videoRoomControls.map((control) => {
-                                if (control.ownerOnly && !currentUserIsOwner) return null;
-                                return (
-                                   <RoomControlButton key={control.name} control={control} onClick={handleControlAction} />
-                                )
-                           })}
+                           {videoRoomControls.map((control) => (
+                               <RoomControlButton key={control.name} control={control} onClick={handleControlAction} />
+                           ))}
                         </div>
                     </div>
                 </SheetContent>

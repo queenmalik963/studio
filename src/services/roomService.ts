@@ -52,12 +52,10 @@ export interface Room {
 // --- Mock Data Generation ---
 
 const mockUsers: SeatUser[] = [
-    // Boys - First Row
     { id: 'user1', name: 'Qurban', avatar: 'https://i.imgur.com/pULAwYc.jpeg', isMuted: false, frame: 'gold', nameColor: 'text-yellow-300' },
     { id: 'user2', name: 'Relax DS', avatar: 'https://i.imgur.com/UQJVxdD.jpeg', isMuted: true, frame: 'blue', nameColor: 'text-sky-400' },
     { id: 'user3', name: 'Enzo DS', avatar: 'https://i.imgur.com/7F1cQNN.jpeg', isMuted: false, frame: 'red', nameColor: 'text-red-400' },
     { id: 'user4', name: 'Malik DS', avatar: 'https://i.imgur.com/4oX3QKg.jpeg', isMuted: false, frame: 'green', nameColor: 'text-green-400' },
-    // Girls - Second Row
     { id: 'user5', name: 'Queen DS', avatar: 'https://i.imgur.com/HJuL35g.jpeg', isMuted: false, frame: 'purple', nameColor: 'text-fuchsia-400' },
     { id: 'user6', name: 'Stylish', avatar: 'https://i.imgur.com/5rDea4p.jpeg', isMuted: false, frame: 'pink', nameColor: 'text-pink-400' },
     { id: 'user7', name: 'Jannat', avatar: 'https://i.imgur.com/mq7Lhkh.jpeg', isMuted: false, frame: 'cyan', nameColor: 'text-cyan-400' },
@@ -77,8 +75,9 @@ const mockAudioRooms: Room[] = [
         thumbnailHint: 'lofi anime girl',
         isPlaying: true, 
         progress: 70, 
-        ownerId: 'owner1', 
-        ownerName: 'Lofi Girl', 
+        ownerId: 'mock_user_123', 
+        ownerName: 'Rave King', 
+        ownerAvatar: 'https://placehold.co/100x100/8b5cf6/ffffff.png?text=RK',
         isLive: true,
         users: mockUsers.slice(0, 4),
         seats: [],
@@ -108,8 +107,9 @@ const mockVideoRooms: Room[] = [
         thumbnailHint: 'man singing',
         isPlaying: true, 
         progress: 25, 
-        ownerId: 'owner3', 
-        ownerName: 'Meme Lord', 
+        ownerId: 'mock_user_123', 
+        ownerName: 'Rave King',
+        ownerAvatar: 'https://placehold.co/100x100/8b5cf6/ffffff.png?text=RK',
         isLive: true,
         users: mockUsers,
         seats: [],
@@ -134,6 +134,10 @@ const mockVideoRooms: Room[] = [
 export const getMockAudioRooms = () => mockAudioRooms;
 export const getMockVideoRooms = () => mockVideoRooms;
 
+export const getRoomById = (roomId: string): Room | undefined => {
+    return [...mockAudioRooms, ...mockVideoRooms].find(room => room.id === roomId);
+}
+
 export const getInitialSeats = (count: number): Seat[] => {
     const seats = Array.from({ length: count }, (_, i) => ({ id: i + 1, user: null, isLocked: false }));
     
@@ -152,13 +156,14 @@ export const getInitialSeats = (count: number): Seat[] => {
     }
     
     // To ensure girls are on the next row, we can skip seats if needed.
-    // Assuming 4 seats per row for audio, 8 for video. Let's make it flexible.
-    const rowSize = count > 8 ? 4 : 8; // Simple logic for audio/video seat layout
-    if (seatIndex > 0 && seatIndex % rowSize !== 0) {
-        // Find start of the next row
-        seatIndex = Math.floor(seatIndex / rowSize) * rowSize + rowSize;
+    // This logic is simple and might need adjustment for different row sizes.
+    // For now, it will just fill seats sequentially.
+    let girlStartIndex = 4; // Start girls on the 5th seat for Audio room (next row)
+    if (count === 8) { // For video room, start on the 5th seat
+        girlStartIndex = 4;
     }
-
+    
+    seatIndex = girlStartIndex;
 
     // Place girls, up to the seat count
     for (const user of girls) {
