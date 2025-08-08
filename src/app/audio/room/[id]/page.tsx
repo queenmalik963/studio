@@ -20,7 +20,7 @@ import { Separator } from "@/components/ui/separator";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
-import { type Message, type Seat, type SeatUser } from "@/services/roomService";
+import { type Message, type Seat, type SeatUser, getInitialSeats, sendMessage } from "@/services/roomService";
 import { useAuth } from "@/contexts/AuthContext";
 
 
@@ -74,7 +74,7 @@ export default function AudioRoomPage() {
     // State is now managed within the component, not from a mock service
     const [roomName, setRoomName] = useState("My Audio Room");
     const [messages, setMessages] = useState<Message[]>([]);
-    const [seats, setSeats] = useState<Seat[]>(Array.from({ length: 16 }, (_, i) => ({ id: i + 1, user: null, isLocked: false })));
+    const [seats, setSeats] = useState<Seat[]>(getInitialSeats(16));
     
     const [newMessage, setNewMessage] = useState("");
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
@@ -91,6 +91,7 @@ export default function AudioRoomPage() {
     const currentUserSeat = seats.find(s => s.user?.id === userProfile?.id);
 
     // Audio Player State
+    const [currentTrackUrl, setCurrentTrackUrl] = useState("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
     const audioRef = useRef<HTMLAudioElement>(null);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -193,7 +194,10 @@ export default function AudioRoomPage() {
     const handleStartGame = (gameName: string) => {
         setIsGamePanelOpen(false);
         setIsGameActive(true);
-        toast({ title: "Game Started!", description: `You have started playing ${gameName}.` });
+        sendMessage(roomId, {
+            type: 'system',
+            text: `The host has started a game of ${gameName}!`
+        });
     };
 
     const handleEndGame = () => {
@@ -215,8 +219,13 @@ export default function AudioRoomPage() {
      const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            toast({ title: "Track Selected!", description: `"${file.name}" is now playing for everyone.` });
+            const trackUrl = URL.createObjectURL(file);
+            setCurrentTrackUrl(trackUrl);
+            toast({ title: "Track Changed!", description: `"${file.name}" is now playing for everyone.` });
             setIsControlsPanelOpen(false);
+            if(audioRef.current) {
+                audioRef.current.play();
+            }
         }
     };
     
@@ -364,7 +373,7 @@ export default function AudioRoomPage() {
 
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
-             <audio ref={audioRef} loop autoPlay src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"/>
+             <audio ref={audioRef} loop autoPlay src={currentTrackUrl} key={currentTrackUrl}/>
              {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
              {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
@@ -600,6 +609,7 @@ export default function AudioRoomPage() {
                             onChange={handleFileSelect}
                             accept="audio/mp3,audio/wav,audio/ogg"
                             className="hidden"
+                            disabled={!currentUserIsOwner}
                         />
                         <div className="grid grid-cols-4 gap-4">
                            {roomControls.map((control) => (
