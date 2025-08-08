@@ -19,7 +19,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
-import YouTube from 'react-youtube';
 import { type Message, type Seat, type SeatUser } from "@/services/roomService";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -281,7 +280,7 @@ function VideoRoomPageComponent() {
             <div className="relative w-full bg-black h-[45%] flex-shrink-0">
                  <div className="absolute inset-0 bg-black flex items-center justify-center">
                     {youtubeVideoId ? (
-                        <YouTube videoId={youtubeVideoId} opts={youtubeOpts} onReady={onPlayerReady} className="w-full h-full" />
+                        <p>Video player would be here for ID: {youtubeVideoId}</p>
                     ) : (
                         <p className="text-white/50">No video selected. Go to Add Video to start a room.</p>
                     )}
@@ -391,7 +390,6 @@ function VideoRoomPageComponent() {
                                                         {seat.isLocked ? <Lock className="w-4 h-4 text-white/50"/> : <span className="text-sm font-bold text-white/50">{seat.id}</span>}
                                                     </div>
                                                 )}
-                                            </div>
                                              {seat.user && <p className="text-[10px] truncate w-full">{seat.user.name}</p>}
                                         </div>
                                     </PopoverTrigger>
