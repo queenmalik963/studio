@@ -51,11 +51,20 @@ export interface Room {
 // --- Mock Data Generation ---
 
 const mockUsers: SeatUser[] = [
-    { id: 'user1', name: 'Amara', avatar: 'https://placehold.co/100x100/f472b6/ffffff.png?text=A', isMuted: false, frame: 'pink' },
-    { id: 'user2', name: 'Bilal', avatar: 'https://placehold.co/100x100/60a5fa/ffffff.png?text=B', isMuted: true, frame: 'blue' },
-    { id: 'user3', name: 'Fatima', avatar: 'https://placehold.co/100x100/34d399/ffffff.png?text=F', isMuted: false, frame: 'green' },
-    { id: 'user4', name: 'Daniyal', avatar: 'https://placehold.co/100x100/f97316/ffffff.png?text=D', isMuted: false, frame: 'orange' },
-    { id: 'user5', name: 'Sana', avatar: 'https://placehold.co/100x100/8b5cf6/ffffff.png?text=S', isMuted: false, frame: 'purple' },
+    // Boys - First Row
+    { id: 'user1', name: 'Qurban', avatar: 'https://i.imgur.com/pULAwYc.jpeg', isMuted: false, frame: 'gold' },
+    { id: 'user2', name: 'Relax DS', avatar: 'https://i.imgur.com/UQJVxdD.jpeg', isMuted: true, frame: 'blue' },
+    { id: 'user3', name: 'Enzo DS', avatar: 'https://i.imgur.com/7F1cQNN.jpeg', isMuted: false, frame: 'red' },
+    { id: 'user4', name: 'Malik DS', avatar: 'https://i.imgur.com/4oX3QKg.jpeg', isMuted: false, frame: 'green' },
+    // Girls - Second Row
+    { id: 'user5', name: 'Queen DS', avatar: 'https://i.imgur.com/HJuL35g.jpeg', isMuted: false, frame: 'purple' },
+    { id: 'user6', name: 'Stylish', avatar: 'https://i.imgur.com/5rDea4p.jpeg', isMuted: false, frame: 'pink' },
+    { id: 'user7', name: 'Jannat', avatar: 'https://i.imgur.com/mq7Lhkh.jpeg', isMuted: false, frame: 'cyan' },
+    { id: 'user8', name: 'Alphabet', avatar: 'https://i.imgur.com/49YdWPX.jpeg', isMuted: false, frame: 'teal' },
+    { id: 'user9', name: 'Hania', avatar: 'https://i.imgur.com/gpr9VWo.jpeg', isMuted: false, frame: 'orange' },
+    { id: 'user10', name: 'Angel', avatar: 'https://i.imgur.com/04Gxemy.jpeg', isMuted: false, frame: 'rose' },
+    { id: 'user11', name: 'Bela', avatar: 'https://i.imgur.com/kGVBSwW.jpeg', isMuted: false, frame: 'amber' },
+    { id: 'user12', name: 'Phocki', avatar: 'https://i.imgur.com/pK3YSUK.jpeg', isMuted: false, frame: 'lime' },
 ];
 
 const mockAudioRooms: Room[] = [
@@ -84,7 +93,7 @@ const mockAudioRooms: Room[] = [
         ownerId: 'owner2', 
         ownerName: 'Ghazal Maestro', 
         isLive: true,
-        users: mockUsers.slice(2, 5),
+        users: mockUsers.slice(4, 8),
         seats: [],
     },
 ];
@@ -115,7 +124,7 @@ const mockVideoRooms: Room[] = [
         ownerId: 'owner4', 
         ownerName: 'Cinema Club', 
         isLive: true,
-        users: mockUsers.slice(0, 2),
+        users: mockUsers.slice(0, 5),
         seats: [],
     },
 ];
