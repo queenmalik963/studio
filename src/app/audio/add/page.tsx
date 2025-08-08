@@ -64,7 +64,7 @@ export default function AddAudioPage() {
                 description: "Your new audio room is live (Demo).",
             });
             // In a static version, we can't go to a dynamic room, so let's go back or to a static page.
-            router.push(`/audio`);
+            router.push(`/audio/room/${result.roomId}`);
         } else {
             toast({
                 variant: "destructive",

@@ -80,7 +80,7 @@ export default function AudioPage() {
             ) : (
                 <div className="space-y-3">
                     {rooms.map((room) => (
-                        <Link href={`/audio/add`} key={room.id}>
+                        <Link href={`/audio/room/mock-room`} key={room.id}>
                           <Card className="bg-white/5 border-0 rounded-2xl overflow-hidden backdrop-blur-md">
                               <CardContent className="p-2 flex items-center gap-3">
                                   <div className="relative w-28 h-20 flex-shrink-0">

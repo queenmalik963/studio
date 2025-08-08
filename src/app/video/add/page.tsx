@@ -137,7 +137,7 @@ export default function AddVideoPage() {
                             <span className="font-semibold text-lg">YouTube</span>
                         </div>
                     </Card>
-                    <Link href="/video/room">
+                    <Link href="/video/room/mock-room">
                         <Card className="aspect-square flex items-center justify-center p-6 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer">
                              <div className="flex flex-col items-center gap-4">
                                 <NetflixIcon className="w-16 h-16 text-red-600" />
