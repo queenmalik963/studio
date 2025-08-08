@@ -265,7 +265,7 @@ function VideoRoomPageComponent() {
             <div className="flex items-center justify-center h-screen bg-[#180828] text-white">
                 <Loader2 className="w-10 h-10 animate-spin" />
             </div>
-        )
+        );
     }
 
     return (
