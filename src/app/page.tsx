@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -32,19 +32,11 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export default function LoginPage() {
     const router = useRouter();
     const { toast } = useToast();
-    const { currentUser, loading: authLoading } = useAuth();
+    const { loading: authLoading } = useAuth();
     
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isSigningIn, setIsSigningIn] = useState(false);
-
-    useEffect(() => {
-        // In this static version, we can redirect immediately if we want to simulate auto-login.
-        // For now, we'll leave the login page accessible.
-        // if (!authLoading && currentUser) {
-        //     router.push("/home");
-        // }
-    }, [currentUser, authLoading, router]);
 
     const handleSignIn = async (e: React.FormEvent) => {
         e.preventDefault();
