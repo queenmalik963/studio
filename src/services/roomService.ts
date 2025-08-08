@@ -53,6 +53,8 @@ export interface Room {
 // Mock function to create a new room
 export const createRoom = async (roomDetails: Partial<Omit<Room, 'createdAt' | 'isLive' | 'ownerId' | 'ownerName' | 'ownerAvatar' | 'id' | 'seats'>> & { seats: number }): Promise<{ success: boolean; roomId: string | null; error: string | null; }> => {
     console.log("Mock creating room:", roomDetails);
+    // Store seat count in local storage to pass to the room page
+    localStorage.setItem('ravewave-room-seats', String(roomDetails.seats));
     return { success: true, roomId: `mock_room_${Date.now()}`, error: null };
 }
 
@@ -78,23 +80,35 @@ export const listenToMessages = (roomId: string, callback: (messages: Message[])
 // Mock function to listen to the room document
 export const listenToRoom = (roomId: string, callback: (room: Room | null) => void) => {
     console.log(`Mock listening to room ${roomId}`);
+    
+    // Retrieve seat count from local storage, default to 8 if not found
+    const numberOfSeats = parseInt(localStorage.getItem('ravewave-room-seats') || '8', 10);
+    
     const mockRoom: Room = {
         id: roomId,
-        name: 'Mock Video Room',
-        type: 'video',
+        name: 'Mock Audio Room',
+        type: 'audio',
         ownerId: 'mock_owner',
         ownerName: 'The Owner',
         ownerAvatar: 'https://placehold.co/100x100/3b82f6/ffffff.png?text=O',
         isLive: true,
         createdAt: new Date(),
-        youtubeVideoId: 'jfKfPfyJRdk', // Lofi Girl video
-        thumbnail: 'https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg',
+        currentTrack: 'https://placehold.co/1x1', // Placeholder to enable controls
         isPlaying: true,
-        seats: Array.from({ length: 8 }, (_, i) => ({ id: i + 1, user: null, isLocked: false })),
+        seats: Array.from({ length: numberOfSeats }, (_, i) => ({ id: i + 1, user: null, isLocked: false })),
     };
-    mockRoom.seats[0].user = { id: 'user1', name: 'Alice', avatar: 'https://placehold.co/50x50/F87171/ffffff.png?text=A', isMuted: true, frame: 'gold' };
-    mockRoom.seats[1].user = { id: 'user2', name: 'Bob', avatar: 'https://placehold.co/50x50/34D399/ffffff.png?text=B', isMuted: false, frame: 'purple' };
-    mockRoom.seats[4].isLocked = true;
+    
+    // Populate some seats for demonstration
+    if (mockRoom.seats.length > 0) {
+      mockRoom.seats[0].user = { id: 'user1', name: 'Alice', avatar: 'https://placehold.co/50x50/F87171/ffffff.png?text=A', isMuted: true, frame: 'gold' };
+    }
+    if (mockRoom.seats.length > 1) {
+      mockRoom.seats[1].user = { id: 'user2', name: 'Bob', avatar: 'https://placehold.co/50x50/34D399/ffffff.png?text=B', isMuted: false, frame: 'purple' };
+    }
+    if (mockRoom.seats.length > 4) {
+      mockRoom.seats[4].isLocked = true;
+    }
+    
     callback(mockRoom);
     return () => console.log(`Stopped listening to room ${roomId}`);
 };

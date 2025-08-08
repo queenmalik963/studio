@@ -497,16 +497,14 @@ export default function AudioRoomPage() {
                                         className="flex flex-col items-center gap-1.5 w-[65px] text-center cursor-pointer"
                                         onClick={() => handleSeatClick(seat)}
                                     >
-                                        {seat.user ? (
-                                            <>
-                                                <div className="relative w-[65px] h-[65px] flex items-center justify-center">
+                                        <div className="relative w-[65px] h-[65px] flex items-center justify-center">
+                                            {areEffectsEnabled && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
+                                            {seat.user ? (
+                                                <>
                                                     {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
                                                         <div className="absolute inset-[-4px] pointer-events-none">
                                                             <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
                                                         </div>
-                                                    )}
-                                                    {areEffectsEnabled && seat.user.frame && !specialFrames[seat.user.frame] && (
-                                                        <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
                                                     )}
                                                     
                                                     <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
@@ -519,14 +517,14 @@ export default function AudioRoomPage() {
                                                             <Mic className="w-3 h-3 text-green-400" />
                                                         }
                                                     </div>
+                                                    <p className="absolute -bottom-5 text-xs truncate w-full">{seat.user.name}</p>
+                                                </>
+                                            ) : (
+                                                <div className="w-[65px] h-[65px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                                    {seat.isLocked ? <Lock className="w-6 h-6 text-white/50" /> : <span className="text-xl font-bold text-white/50">{seat.id}</span>}
                                                 </div>
-                                                <p className="text-xs truncate w-full">{seat.user.name}</p>
-                                            </>
-                                        ) : (
-                                            <div className="w-[65px] h-[65px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                                {seat.isLocked ? <Lock className="w-6 h-6 text-white/50" /> : <span className="text-xl font-bold text-white/50">{seat.id}</span>}
-                                            </div>
-                                        )}
+                                            )}
+                                        </div>
                                     </div>
                                 </PopoverTrigger>
                                  <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
@@ -553,6 +551,7 @@ export default function AudioRoomPage() {
         }
         return rows;
     };
+
 
     if (loading || !userProfile || !room) {
         return (
@@ -652,7 +651,7 @@ export default function AudioRoomPage() {
             </header>
 
             <main className="flex-1 flex flex-col pt-0 overflow-hidden gap-2">
-                 <div className="flex-shrink-0 space-y-4 px-4">
+                 <div className="flex-shrink-0 space-y-4 px-4 pt-4">
                     {renderSeats()}
                 </div>
 
