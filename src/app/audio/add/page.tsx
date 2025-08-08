@@ -63,7 +63,6 @@ export default function AddAudioPage() {
                 title: "Room Created!",
                 description: "Your new audio room is live.",
             });
-            // In a static version, we can't go to a dynamic room, so let's go back or to a static page.
             router.push(`/audio/room/${result.roomId}`);
         } else {
             toast({
@@ -85,7 +84,6 @@ export default function AddAudioPage() {
                 title: "Track Ready!",
                 description: `"${file.name}" is selected. You can now create a room and play it from the controls.`,
             });
-            // In a real app, you might upload this file or store its reference
         }
     };
 

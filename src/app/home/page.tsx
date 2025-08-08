@@ -27,51 +27,9 @@ interface TrendingRoom {
   icon: React.ElementType;
 }
 
-const mockTrendingVideos: TrendingRoom[] = [
-    {
-        id: 'vid-1',
-        href: '/video/room/vid-1',
-        image: 'https://i.imgur.com/Oz4ud1o.gif',
-        hint: 'animated space battle',
-        title: 'Epic Space Battle Live!',
-        creator: 'GalaxyExplorer',
-        viewers: '1.2k',
-        icon: PlaySquare,
-    },
-    {
-        id: 'vid-2',
-        href: '/video/room/vid-2',
-        image: 'https://i.ytimg.com/vi/jfKfPfyJRdk/maxresdefault.jpg',
-        hint: 'lofi music stream',
-        title: 'Lofi Hip Hop Radio 24/7',
-        creator: 'Lofi Girl',
-        viewers: '25k',
-        icon: PlaySquare,
-    },
-];
-
-const mockTrendingAudio: TrendingRoom[] = [
-     {
-        id: 'aud-1',
-        href: '/audio/room/aud-1',
-        image: 'https://i.imgur.com/sCbrK9U.png',
-        hint: 'podcast microphone',
-        title: 'Late Night Tech Talk',
-        creator: 'TechGuru',
-        viewers: '850',
-        icon: Headphones,
-    },
-    {
-        id: 'aud-2',
-        href: '/audio/room/aud-2',
-        image: 'https://placehold.co/600x400/1e293b/ffffff.png',
-        hint: 'standup comedy stage',
-        title: 'Comedy Hour Live',
-        creator: 'FunnyBone',
-        viewers: '2.1k',
-        icon: Headphones,
-    },
-]
+// Data is now empty. It should be populated dynamically in a real app.
+const mockTrendingVideos: TrendingRoom[] = [];
+const mockTrendingAudio: TrendingRoom[] = [];
 
 
 const TrendingCard = ({ href, image, hint, title, creator, viewers, icon: Icon }: TrendingRoom) => (

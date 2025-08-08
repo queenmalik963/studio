@@ -9,10 +9,10 @@ import { Search, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { formatDistanceToNow } from 'date-fns';
-import { getMockConversations, type ConversationSummary } from "@/services/chatService";
+import { type ConversationSummary } from "@/services/chatService";
 
 export default function ChatListPage() {
-    const [conversations] = useState<ConversationSummary[]>(getMockConversations());
+    const [conversations] = useState<ConversationSummary[]>([]);
 
     return (
         <AppLayout>

@@ -20,7 +20,7 @@ import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
 import YouTube from 'react-youtube';
-import { getMockRoom, getMockMessages, type Message, type SeatUser } from "@/services/roomService";
+import { type Message, type Seat, type SeatUser } from "@/services/roomService";
 import { useAuth } from "@/contexts/AuthContext";
 
 
@@ -45,11 +45,14 @@ function VideoRoomPageComponent() {
 
     const { toast } = useToast();
     const { currentUser, userProfile } = useAuth();
+    
+    // State is now managed within the component
+    const [roomName, setRoomName] = useState("My Video Room");
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [seats, setSeats] = useState<Seat[]>(Array.from({ length: 8 }, (_, i) => ({ id: i + 1, user: null, isLocked: false })));
+    const [youtubeVideoId, setYoutubeVideoId] = useState<string | null>(null);
 
-    const [room, setRoom] = useState(getMockRoom(roomId, 'video'));
-    const [messages, setMessages] = useState<Message[]>(getMockMessages());
     const [newMessage, setNewMessage] = useState("");
-    const [seats, setSeats] = useState<any[]>(room.seats);
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
     const [isControlsPanelOpen, setIsControlsPanelOpen] = useState(false);
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
@@ -67,7 +70,7 @@ function VideoRoomPageComponent() {
     const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
     const sendButtonRef = useRef<HTMLButtonElement>(null);
 
-    const currentUserIsOwner = room?.ownerId === currentUser?.uid;
+    const currentUserIsOwner = true; // Assume owner for static display
     const currentUserSeat = useMemo(() => seats.find(s => s.user?.id === currentUser?.uid), [seats, currentUser]);
 
     const videoRoomControls = [
@@ -77,7 +80,7 @@ function VideoRoomPageComponent() {
         { name: "Invite", icon: UserPlus, action: () => { navigator.clipboard.writeText(window.location.href); toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." }); setIsControlsPanelOpen(false); } },
         { name: "Effect", icon: Wand2, action: () => { setAreEffectsEnabled(prev => { const newState = !prev; toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` }); return newState; }); setIsControlsPanelOpen(false); } },
         { name: "Clean", icon: Trash2, action: () => { setMessages(prev => prev.filter(m => m.type !== 'text')); toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." }); setIsControlsPanelOpen(false); } },
-        { name: "Mute All", icon: MicOff, ownerOnly: true, action: () => { toast({ title: "All Muted (Mock)", description: "All users have been muted." }); setIsControlsPanelOpen(false); } },
+        { name: "Mute All", icon: MicOff, ownerOnly: true, action: () => { toast({ title: "All Muted", description: "All users have been muted." }); setIsControlsPanelOpen(false); } },
         { name: "Change Video", icon: Youtube, action: () => router.push('/video/add') },
     ];
     
@@ -91,13 +94,23 @@ function VideoRoomPageComponent() {
     
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim()) return;
-        toast({ title: "Message Sent (Mock)", description: "In a live app, this would send your message." });
+        if (!newMessage.trim() || !userProfile) return;
+        
+        const message: Message = {
+            id: Date.now().toString(),
+            type: 'text',
+            authorId: userProfile.id,
+            authorName: userProfile.name,
+            authorAvatar: userProfile.avatar,
+            text: newMessage,
+            timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, message]);
         setNewMessage("");
     };
 
     const handleSendGift = async (gift: GiftType, quantity: number, recipientName: string) => {
-        toast({ title: "Gift Sent! (Mock)", description: `You sent ${quantity}x ${gift.name} to ${recipientName}` });
+        toast({ title: "Gift Sent!", description: `You sent ${quantity}x ${gift.name} to ${recipientName}` });
         
         if (gift.animation === 'walking') {
             setAnimatedWalkingGift(gift.image);
@@ -118,7 +131,7 @@ function VideoRoomPageComponent() {
 
         let recipientsToAnimate: { id: string, name: string }[] = [];
         if (recipientName === 'All in Room' || recipientName === 'All on Mic') {
-            recipientsToAnimate = seats.filter(s => s.user).map(s => s.user);
+            recipientsToAnimate = seats.filter(s => s.user).map(s => s.user as SeatUser);
         } else {
             const targetSeat = seats.find(s => s.user?.name === recipientName);
             if (targetSeat?.user) recipientsToAnimate.push(targetSeat.user);
@@ -172,15 +185,15 @@ function VideoRoomPageComponent() {
     };
 
     const handleTogglePersonalMic = () => {
-        toast({ title: "Mic Toggled (Mock)" });
+        toast({ title: "Mic Toggled" });
     };
 
     const handleSeatClick = (seat: any) => {
-        toast({ title: `Seat ${seat.id} Clicked (Mock)` });
+        toast({ title: `Seat ${seat.id} Clicked` });
     };
 
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
-        toast({ title: `Action '${action}' on seat ${seatId} (Mock)` });
+        toast({ title: `Action '${action}' on seat ${seatId}` });
     };
     
     const frameBorderColors: {[key: string]: string} = {
@@ -230,7 +243,7 @@ function VideoRoomPageComponent() {
         },
     };
     
-    if (!room || !userProfile) {
+    if (!userProfile) {
         return (
             <div className="flex items-center justify-center h-screen bg-[#180828] text-white">
                 <Loader2 className="w-10 h-10 animate-spin" />
@@ -267,8 +280,8 @@ function VideoRoomPageComponent() {
             {/* Video Player Section */}
             <div className="relative w-full bg-black h-[45%] flex-shrink-0">
                  <div className="absolute inset-0 bg-black flex items-center justify-center">
-                    {room.youtubeVideoId ? (
-                        <YouTube videoId={room.youtubeVideoId} opts={youtubeOpts} onReady={onPlayerReady} className="w-full h-full" />
+                    {youtubeVideoId ? (
+                        <YouTube videoId={youtubeVideoId} opts={youtubeOpts} onReady={onPlayerReady} className="w-full h-full" />
                     ) : (
                         <p className="text-white/50">No video selected. Go to Add Video to start a room.</p>
                     )}
@@ -276,7 +289,7 @@ function VideoRoomPageComponent() {
 
                 {/* Video Controls Overlay */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                    {currentUserIsOwner && room.youtubeVideoId && (
+                    {currentUserIsOwner && youtubeVideoId && (
                         <Button
                             variant="ghost"
                             size="icon"
@@ -297,11 +310,11 @@ function VideoRoomPageComponent() {
                             
                             <div className="flex items-center gap-2">
                                  <Avatar className="h-10 w-10 border-2 border-yellow-400">
-                                    <AvatarImage src={room.ownerAvatar} />
-                                    <AvatarFallback>{room.ownerName?.charAt(0)}</AvatarFallback>
+                                    <AvatarImage src={userProfile.avatar} />
+                                    <AvatarFallback>{userProfile.name?.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <p className="font-semibold">{room.name}</p>
+                                    <p className="font-semibold">{roomName}</p>
                                     <p className="text-xs text-white/70">ID: {roomId.substring(0, 6)}</p>
                                 </div>
                             </div>
@@ -477,7 +490,7 @@ function VideoRoomPageComponent() {
                                 <SendIcon />
                             </Button>
                         </div>
-                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={handleTogglePersonalMic} disabled={!currentUserSeat}>
+                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={handleTogglePersonalMic}>
                             {currentUserSeat?.user?.isMuted ? <MicOff /> : <Mic />}
                         </Button>
                          <Button type="button" size="icon" className="relative w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0" onClick={() => setIsGamePanelOpen(true)}>

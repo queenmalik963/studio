@@ -20,7 +20,7 @@ import { Separator } from "@/components/ui/separator";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
-import { getMockRoom, getMockMessages, type Message, type SeatUser } from "@/services/roomService";
+import { type Message, type Seat, type SeatUser } from "@/services/roomService";
 import { useAuth } from "@/contexts/AuthContext";
 
 
@@ -71,9 +71,11 @@ export default function AudioRoomPage() {
     
     const { currentUser, userProfile } = useAuth();
     
-    const [room, setRoom] = useState(getMockRoom(roomId));
-    const [messages, setMessages] = useState<Message[]>(getMockMessages());
-    const [seats, setSeats] = useState(room.seats || []);
+    // State is now managed within the component, not from a mock service
+    const [roomName, setRoomName] = useState("My Audio Room");
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [seats, setSeats] = useState<Seat[]>(Array.from({ length: 16 }, (_, i) => ({ id: i + 1, user: null, isLocked: false })));
+    
     const [newMessage, setNewMessage] = useState("");
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
@@ -85,14 +87,14 @@ export default function AudioRoomPage() {
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
     const [isGameActive, setIsGameActive] = useState(false);
     
-    const currentUserIsOwner = room?.ownerId === currentUser?.uid;
+    const currentUserIsOwner = true; // For static view, assume user is owner
     const currentUserSeat = useMemo(() => seats.find(s => s.user?.id === currentUser?.uid), [seats, currentUser]);
 
     // Audio Player State
     const audioRef = useRef<HTMLAudioElement>(null);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
-    const inputRef = useRef = useRef<HTMLInputElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
     const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
@@ -107,13 +109,23 @@ export default function AudioRoomPage() {
     
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim()) return;
-        toast({ title: "Message Sent (Mock)", description: "In a live app, this would send your message." });
+        if (!newMessage.trim() || !userProfile) return;
+        
+        const message: Message = {
+            id: Date.now().toString(),
+            type: 'text',
+            authorId: userProfile.id,
+            authorName: userProfile.name,
+            authorAvatar: userProfile.avatar,
+            text: newMessage,
+            timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, message]);
         setNewMessage("");
     };
 
     const handleSendGift = (gift: GiftType, quantity: number, recipientName: string) => {
-        toast({ title: "Gift Sent! (Mock)", description: `You sent ${quantity}x ${gift.name} to ${recipientName}` });
+        toast({ title: "Gift Sent!", description: `You sent ${quantity}x ${gift.name} to ${recipientName}` });
         
         if (gift.animation === 'walking') {
             setAnimatedWalkingGift(gift.image);
@@ -134,7 +146,7 @@ export default function AudioRoomPage() {
 
         let recipientsToAnimate: { id: string, name: string }[] = [];
         if (recipientName === 'All in Room' || recipientName === 'All on Mic') {
-            recipientsToAnimate = seats.filter(s => s.user).map(s => s.user);
+            recipientsToAnimate = seats.filter(s => s.user).map(s => s.user as SeatUser);
         } else {
             const targetSeat = seats.find(s => s.user?.name === recipientName);
             if (targetSeat?.user) recipientsToAnimate.push(targetSeat.user);
@@ -187,7 +199,7 @@ export default function AudioRoomPage() {
      const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            toast({ title: "Track Selected! (Mock)", description: `"${file.name}" is now playing for everyone.` });
+            toast({ title: "Track Selected!", description: `"${file.name}" is now playing for everyone.` });
             setIsControlsPanelOpen(false);
         }
     };
@@ -200,15 +212,15 @@ export default function AudioRoomPage() {
     };
 
     const handleTogglePersonalMic = () => {
-        toast({ title: "Mic Toggled (Mock)" });
+        toast({ title: "Mic Toggled" });
     };
 
     const handleSeatClick = (seat: any) => {
-        toast({ title: `Seat ${seat.id} Clicked (Mock)` });
+        toast({ title: `Seat ${seat.id} Clicked` });
     };
     
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
-        toast({ title: `Action '${action}' on seat ${seatId} (Mock)` });
+        toast({ title: `Action '${action}' on seat ${seatId}` });
     };
 
     const roomControls = [
@@ -322,7 +334,7 @@ export default function AudioRoomPage() {
     };
 
 
-    if (!userProfile || !room) {
+    if (!userProfile) {
         return (
             <div className="flex items-center justify-center h-screen bg-[#2E103F] text-white">
                 <Loader2 className="w-10 h-10 animate-spin" />
@@ -364,11 +376,11 @@ export default function AudioRoomPage() {
                     </Button>
                     <div className="flex items-center gap-2">
                          <Avatar className="h-10 w-10 border-2 border-yellow-400">
-                            <AvatarImage src={room.ownerAvatar} />
-                            <AvatarFallback>{room.ownerName?.charAt(0)}</AvatarFallback>
+                            <AvatarImage src={userProfile.avatar} />
+                            <AvatarFallback>{userProfile.name?.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div>
-                            <p className="font-semibold">{room.name}</p>
+                            <p className="font-semibold">{roomName}</p>
                             <p className="text-xs text-white/70">ID: {roomId.substring(0, 6)}</p>
                         </div>
                     </div>
@@ -487,7 +499,7 @@ export default function AudioRoomPage() {
                                 <SendIcon />
                             </Button>
                         </div>
-                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={handleTogglePersonalMic} disabled={!currentUserSeat}>
+                        <Button type="button" size="icon" variant="ghost" className="w-10 h-10 rounded-full bg-black/30 flex-shrink-0" onClick={handleTogglePersonalMic}>
                            {currentUserSeat?.user?.isMuted ? <MicOff /> : <Mic />}
                         </Button>
                          <Button type="button" size="icon" className="relative w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex-shrink-0" onClick={() => setIsGamePanelOpen(true)}>

@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast";
-import { getMockMessages, getMockPartner, type ChatMessage, type ConversationPartner } from "@/services/chatService";
+import { type ChatMessage, type ConversationPartner } from "@/services/chatService";
 import { useAuth } from "@/contexts/AuthContext";
 
 
@@ -33,12 +33,21 @@ export default function ChatRoomPage() {
     const conversationId = params.id as string;
     
     const { currentUser } = useAuth();
-    const [messages, setMessages] = useState<ChatMessage[]>(getMockMessages(conversationId));
-    const [partner, setPartner] = useState<ConversationPartner>(getMockPartner(conversationId));
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [partner, setPartner] = useState<ConversationPartner | null>(null);
     const [newMessage, setNewMessage] = useState("");
     
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        // In a real app, you'd fetch the partner's data based on conversationId
+        setPartner({
+            id: 'partner-id',
+            name: 'Ayesha',
+            avatar: 'https://placehold.co/100x100/f87171/ffffff.png?text=A'
+        });
+    }, [conversationId]);
     
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
@@ -51,15 +60,24 @@ export default function ChatRoomPage() {
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim()) return;
-        toast({ title: "Message Sent (Mock)", description: "In a live app, this would send your message." });
+        if (!newMessage.trim() || !currentUser) return;
+        
+        const message: ChatMessage = {
+            id: Date.now().toString(),
+            senderId: currentUser.uid,
+            text: newMessage,
+            type: 'text',
+            timestamp: new Date()
+        };
+
+        setMessages(prev => [...prev, message]);
         setNewMessage("");
     };
     
     const handleClearChat = () => {
+        setMessages([]);
         toast({
-            title: "Action Not Available",
-            description: "Clearing chat history is a mock action.",
+            title: "Chat Cleared",
         });
     }
 

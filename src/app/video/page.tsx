@@ -22,35 +22,7 @@ interface Room {
     seats: any[];
 }
 
-const mockVideoRooms: Room[] = [
-    {
-        id: 'vid-1',
-        name: 'Live DJ Set by GalaxyRaver',
-        thumbnail: 'https://i.imgur.com/Oz4ud1o.gif',
-        thumbnailHint: 'animated space battle',
-        isPlaying: true,
-        progress: 75,
-        users: [
-            { name: 'Alex', avatar: 'https://placehold.co/50x50/F87171/ffffff.png?text=A' },
-            { name: 'Beth', avatar: 'https://placehold.co/50x50/34D399/ffffff.png?text=B' },
-            { name: 'Chris', avatar: 'https://placehold.co/50x50/60A5FA/ffffff.png?text=C' },
-        ],
-        seats: [],
-    },
-    {
-        id: 'vid-2',
-        name: 'Watching "The Matrix" with friends',
-        thumbnail: 'https://placehold.co/600x400/059669/ffffff.png',
-        thumbnailHint: 'matrix digital rain',
-        isPlaying: true,
-        progress: 42,
-        users: [
-            { name: 'Neo', avatar: 'https://placehold.co/50x50/000000/ffffff.png?text=N' },
-            { name: 'Morpheus', avatar: 'https://placehold.co/50x50/8B5CF6/ffffff.png?text=M' },
-        ],
-        seats: [],
-    }
-];
+const mockVideoRooms: Room[] = [];
 
 export default function VideoPage() {
     const [rooms] = useState<Room[]>(mockVideoRooms);
@@ -81,7 +53,7 @@ export default function VideoPage() {
             ) : (
                 <div className="space-y-3">
                     {rooms.map((room) => (
-                        <Link href={`/video/room/mock-room`} key={room.id}>
+                        <Link href={`/video/room/${room.id}`} key={room.id}>
                           <Card className="bg-white/5 border-0 rounded-2xl overflow-hidden backdrop-blur-md">
                               <CardContent className="p-2 flex items-center gap-3">
                                   <div className="relative w-28 h-20 flex-shrink-0">

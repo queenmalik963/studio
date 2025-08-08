@@ -21,34 +21,7 @@ interface Room {
     seats: any[];
 }
 
-const mockAudioRooms: Room[] = [
-    {
-        id: 'aud-1',
-        name: 'Chill Lofi Beats',
-        thumbnail: 'https://i.imgur.com/sCbrK9U.png',
-        thumbnailHint: 'podcast microphone audio',
-        isPlaying: true,
-        progress: 60,
-        users: [
-            { name: 'Alex', avatar: 'https://placehold.co/50x50/F87171/ffffff.png?text=A' },
-            { name: 'Beth', avatar: 'https://placehold.co/50x50/34D399/ffffff.png?text=B' },
-            { name: 'Chris', avatar: 'https://placehold.co/50x50/60A5FA/ffffff.png?text=C' },
-        ],
-        seats: [],
-    },
-    {
-        id: 'aud-2',
-        name: 'Deep House Session',
-        thumbnail: 'https://placehold.co/600x400/1e293b/ffffff.png',
-        thumbnailHint: 'dj deck controller',
-        isPlaying: false,
-        progress: 0,
-        users: [
-            { name: 'Dave', avatar: 'https://placehold.co/50x50/FBBF24/ffffff.png?text=D' },
-        ],
-        seats: [],
-    }
-];
+const mockAudioRooms: Room[] = [];
 
 export default function AudioPage() {
     const [rooms] = useState<Room[]>(mockAudioRooms);
@@ -80,7 +53,7 @@ export default function AudioPage() {
             ) : (
                 <div className="space-y-3">
                     {rooms.map((room) => (
-                        <Link href={`/audio/room/mock-room`} key={room.id}>
+                        <Link href={`/audio/room/${room.id}`} key={room.id}>
                           <Card className="bg-white/5 border-0 rounded-2xl overflow-hidden backdrop-blur-md">
                               <CardContent className="p-2 flex items-center gap-3">
                                   <div className="relative w-28 h-20 flex-shrink-0">

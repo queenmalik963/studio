@@ -37,9 +37,11 @@ export default function AddVideoPage() {
             description: `Your new ${type} room is ready.`,
         });
         
+        const newRoomId = `vid-${Date.now()}`;
+        
         // Simulate network delay for UX
         setTimeout(() => {
-            router.push(`/video/room/mock-room-${type}`);
+            router.push(`/video/room/${newRoomId}`);
             setIsLoading(false);
         }, 1000);
     }
