@@ -26,6 +26,7 @@ import { type Message, type Seat, type SeatUser, sendMessage, type Room } from "
 import { useAuth } from "@/contexts/AuthContext";
 import { doc, onSnapshot, collection, query, orderBy, updateDoc, setDoc, getDocs, where } from "firebase/firestore";
 import { db } from "@/services/firebase";
+import RtcEngine from 'agora-rtc-react';
 
 export type JumpAnimation = {
     id: number;
@@ -83,7 +84,6 @@ function VideoRoomPageComponent() {
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
     const [isGameActive, setIsGameActive] = useState(false);
-    const [isPlaying, setIsPlaying] = useState(true);
     
     const playerRef = useRef<HTMLVideoElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -105,8 +105,18 @@ function VideoRoomPageComponent() {
                 setRoom(roomData);
                 const localVideoUrl = searchParams.get('videoUrl');
                 setVideoUrl(roomData.currentTrackUrl || (localVideoUrl ? decodeURIComponent(localVideoUrl) : null));
-                setIsPlaying(roomData.isPlaying || false);
                 setCurrentUserIsOwner(userProfile.id === roomData.ownerId);
+
+                if (playerRef.current) {
+                    if (roomData.isPlaying && playerRef.current.paused) {
+                        playerRef.current.play().catch(e => console.error("Autoplay failed", e));
+                    } else if (!roomData.isPlaying && !playerRef.current.paused) {
+                        playerRef.current.pause();
+                    }
+                    if (Math.abs(playerRef.current.currentTime - (roomData.playbackTime || 0)) > 2) {
+                        playerRef.current.currentTime = roomData.playbackTime || 0;
+                    }
+                }
 
             } else {
                  toast({ variant: 'destructive', title: 'Room not found' });
@@ -142,17 +152,6 @@ function VideoRoomPageComponent() {
             }, 100);
         }
     }, [messages]);
-
-    useEffect(() => {
-        if (playerRef.current) {
-            if (isPlaying) {
-                playerRef.current.play().catch(e => console.error("Video play failed:", e));
-            } else {
-                playerRef.current.pause();
-            }
-        }
-    }, [isPlaying, videoUrl]);
-
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -257,7 +256,7 @@ function VideoRoomPageComponent() {
     };
 
     const handleTogglePersonalMic = () => {
-        toast({ title: "Mic Toggled" });
+        toast({ title: "Live voice chat is not yet implemented." });
     };
     
     const handleSeatClick = (seatUser: SeatUser) => {
@@ -273,10 +272,16 @@ function VideoRoomPageComponent() {
         setSelectedUser(null);
     };
     
-    const togglePlay = async () => {
-        if (!currentUserIsOwner || !room) return;
+    const updatePlaybackState = async (updates: Partial<Room>) => {
+        if (!currentUserIsOwner || !roomId) return;
         const roomRef = doc(db, 'rooms', roomId);
-        await updateDoc(roomRef, { isPlaying: !room.isPlaying });
+        await updateDoc(roomRef, updates);
+    };
+
+    const handleVideoStateChange = (event: React.SyntheticEvent<HTMLVideoElement, Event>) => {
+        if (!currentUserIsOwner) return;
+        const video = event.currentTarget;
+        updatePlaybackState({ isPlaying: !video.paused, playbackTime: video.currentTime });
     };
 
     const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -286,7 +291,8 @@ function VideoRoomPageComponent() {
             const roomRef = doc(db, 'rooms', roomId);
             await updateDoc(roomRef, {
                 currentTrackUrl: newVideoUrl,
-                isPlaying: true
+                isPlaying: true,
+                playbackTime: 0
             });
             toast({
                 title: "Video Changed!",
@@ -305,7 +311,7 @@ function VideoRoomPageComponent() {
         ...commonControlsList,
         { name: "Gathering", icon: Flag, action: 'gathering' },
         { name: "Broadcast", icon: Megaphone, action: 'broadcast' },
-        { name: isPlaying ? "Pause" : "Play", icon: isPlaying ? Pause : Play, action: 'togglePlay' },
+        { name: room?.isPlaying ? "Pause" : "Play", icon: room?.isPlaying ? Pause : Play, action: 'togglePlay' },
         { name: "Clean", icon: Trash2, action: 'clean' },
         { name: "Mute All", icon: MicOff, action: 'muteAll' },
         { name: "Change Video", icon: Youtube, action: 'changeVideo' },
@@ -324,7 +330,9 @@ function VideoRoomPageComponent() {
                 toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
                 break;
             case 'togglePlay':
-                togglePlay();
+                 if (playerRef.current) {
+                    handleVideoStateChange({ currentTarget: playerRef.current } as any);
+                }
                 break;
             case 'invite':
                 navigator.clipboard.writeText(window.location.href);
@@ -413,11 +421,13 @@ function VideoRoomPageComponent() {
                             key={videoUrl}
                             ref={playerRef}
                             src={videoUrl}
-                            controls={true}
+                            controls={currentUserIsOwner}
                             loop
                             className="w-full h-full object-contain"
-                            onPlay={togglePlay}
-                            onPause={togglePlay}
+                            onPlay={handleVideoStateChange}
+                            onPause={handleVideoStateChange}
+                            onSeeked={handleVideoStateChange}
+                            onTimeUpdate={currentUserIsOwner ? handleVideoStateChange : undefined}
                         />
                     ) : (
                         <div className="flex flex-col items-center gap-2 text-white/50">
