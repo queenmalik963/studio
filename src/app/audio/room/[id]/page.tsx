@@ -33,6 +33,14 @@ type JumpAnimation = {
     endY: number;
 };
 
+const gifFrames = [
+    "https://i.imgur.com/mQPDgwU.gif", // Lover's Heart
+    "https://i.imgur.com/AuOpH7h.gif", // Inferno Blaze
+    "https://i.imgur.com/nQPOShX.gif", // Sapphire Wave
+    "https://i.imgur.com/EeLiIvo.gif", // Royal Gold
+    "https://i.imgur.com/VkUd6Ab.gif"  // Galaxy Swirl
+];
+
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
@@ -85,7 +93,7 @@ export default function AudioRoomPage() {
     const audioRef = useRef<HTMLAudioElement>(null);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
+    const inputRef = useRef = useRef<HTMLInputElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
     const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
@@ -455,6 +463,8 @@ export default function AudioRoomPage() {
         const rows = [];
         for (let i = 0; i < 4; i++) {
             const rowSeats = seats.slice(i * 4, i * 4 + 4);
+            const rowFrame = gifFrames[i % gifFrames.length]; // Assign a frame per row
+
             rows.push(
                 <div key={`row-${i}`} className="grid grid-cols-4 gap-y-3 gap-x-3 justify-items-center">
                     {rowSeats.map((seat, index) => {
@@ -472,6 +482,15 @@ export default function AudioRoomPage() {
                                         onClick={() => handleSeatClick(seat)}
                                     >
                                         <div className="relative w-[65px] h-[65px] flex items-center justify-center">
+                                            {areEffectsEnabled && (
+                                                 <Image
+                                                    unoptimized
+                                                    src={rowFrame}
+                                                    alt="Seat Frame"
+                                                    layout="fill"
+                                                    className="absolute inset-[-12px] pointer-events-none"
+                                                />
+                                            )}
                                             {seat.user ? (
                                                 <>
                                                     <Avatar className="w-[55px] h-[55px] bg-[#2E103F]">
@@ -778,3 +797,5 @@ export default function AudioRoomPage() {
         </div>
     );
 }
+
+    
