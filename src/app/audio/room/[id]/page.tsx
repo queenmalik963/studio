@@ -342,34 +342,34 @@ export default function AudioRoomPage() {
     const roomControls = useMemo(() => [
         { name: "Gathering", icon: Flag, action: async () => {
             if (!roomId) return;
-            toast({ title: "Gathering Started!", description: "Special room effects are now active." });
             await sendMessage(roomId, { type: 'system', text: 'A gathering has been started by the owner!' });
+            toast({ title: "Gathering Started!", description: "Special room effects are now active." });
             setIsControlsPanelOpen(false);
         }},
         { name: "Broadcast", icon: Megaphone, action: async () => {
             if (!roomId) return;
-            toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
             await sendMessage(roomId, { type: 'system', text: 'Broadcast: Welcome to the room everyone! Enjoy your stay.' });
+            toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
             setIsControlsPanelOpen(false);
         }},
-        { name: "Play Track", icon: Play, action: () => {
+        { name: "Play Track", icon: Play, action: async () => {
             if (room?.currentTrack) {
-                togglePlay();
+                await togglePlay();
             } else {
                 toast({ title: "No Track", description: "Please upload a track first.", variant: "destructive" });
             }
             setIsControlsPanelOpen(false);
         }},
-        { name: "Pause Track", icon: Pause, action: () => {
+        { name: "Pause Track", icon: Pause, action: async () => {
             if (room?.currentTrack) {
-                togglePlay();
+                await togglePlay();
             }
              setIsControlsPanelOpen(false);
         }},
         { name: "Upload", icon: Upload, action: () => fileInputRef.current?.click() },
         { name: "Invite", icon: UserPlus, action: () => {
-             toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." });
              navigator.clipboard.writeText(window.location.href);
+             toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." });
              setIsControlsPanelOpen(false);
         }},
         { name: "Effect", icon: Wand2, action: () => {
@@ -385,7 +385,7 @@ export default function AudioRoomPage() {
             toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
              setIsControlsPanelOpen(false);
         }},
-    ], [toast, setAreEffectsEnabled, roomId, room, togglePlay]);
+    ], [roomId, room, toast, setAreEffectsEnabled, togglePlay, setMessages]);
 
 
     const handleSeatClick = async (seat: any) => {
