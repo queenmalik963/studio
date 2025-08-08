@@ -46,14 +46,14 @@ const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
 );
 
-const RoomControlButton = memo(({ control }: { control: { name: string; icon: React.ElementType, action: () => void }; }) => {
+const RoomControlButton = memo(({ control, onClick }: { control: { name: string; icon: React.ElementType, action: string }; onClick: (action: string) => void }) => {
     return (
         <div className="flex flex-col items-center gap-2 text-center">
             <Button
                 size="icon"
                 variant="ghost"
                 className="w-14 h-14 bg-black/30 rounded-2xl"
-                onClick={control.action}
+                onClick={() => onClick(control.action)}
             >
                 <control.icon className="w-7 h-7 text-white/80" />
             </Button>
@@ -127,13 +127,13 @@ export default function AudioRoomPage() {
 
     useEffect(() => {
         if (audioRef.current) {
-            if (isPlaying && currentTrackUrl) {
+            if (isPlaying && (currentTrackUrl || room?.currentTrack)) {
                 audioRef.current.play().catch(e => console.error("Audio play failed:", e));
             } else {
                 audioRef.current?.pause();
             }
         }
-    }, [isPlaying, currentTrackUrl]);
+    }, [isPlaying, currentTrackUrl, room?.currentTrack]);
     
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
@@ -266,14 +266,6 @@ export default function AudioRoomPage() {
             setIsControlsPanelOpen(false);
         }
     };
-    
-    const handleUploadClick = () => {
-        if (currentUserIsOwner) {
-            fileInputRef.current?.click();
-        } else {
-            toast({ variant: "destructive", title: "Only the owner can upload music." });
-        }
-    }
 
     const handleTogglePersonalMic = () => {
         toast({ title: "Mic Toggled" });
@@ -290,19 +282,58 @@ export default function AudioRoomPage() {
         toast({ title: `Action '${action}' on seat ${seatId}` });
     };
 
+    const handleControlAction = (action: string) => {
+        setIsControlsPanelOpen(false);
+        switch (action) {
+            case 'invite':
+                navigator.clipboard.writeText(window.location.href);
+                toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." });
+                break;
+            case 'toggleEffects':
+                setAreEffectsEnabled(prev => !prev);
+                toast({ title: `Room Effects ${!areEffectsEnabled ? 'On' : 'Off'}` });
+                break;
+            case 'gathering':
+                 toast({ title: "Gathering Started!", description: "Special room effects are now active." });
+                break;
+            case 'broadcast':
+                toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
+                break;
+            case 'playTrack':
+                togglePlay();
+                break;
+            case 'pauseTrack':
+                togglePlay();
+                break;
+            case 'upload':
+                if (currentUserIsOwner) {
+                    fileInputRef.current?.click();
+                } else {
+                    toast({ variant: "destructive", title: "Only the owner can upload music." });
+                }
+                break;
+            case 'clean':
+                setMessages(prev => prev.filter(m => m.type !== 'text'));
+                toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
+                break;
+            default:
+                break;
+        }
+    }
+
     const commonControls = [
-        { name: "Invite", icon: UserPlus, action: () => { navigator.clipboard.writeText(window.location.href); toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." }); setIsControlsPanelOpen(false); } },
-        { name: "Effect", icon: Wand2, action: () => { setAreEffectsEnabled(prev => { const newState = !prev; toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` }); return newState; }); setIsControlsPanelOpen(false); } },
+        { name: "Invite", icon: UserPlus, action: "invite" },
+        { name: "Effect", icon: Wand2, action: "toggleEffects" },
     ];
 
     const ownerControls = [
         ...commonControls,
-        { name: "Gathering", icon: Flag, action: () => { toast({ title: "Gathering Started!", description: "Special room effects are now active." }); setIsControlsPanelOpen(false); } },
-        { name: "Broadcast", icon: Megaphone, action: () => { toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." }); setIsControlsPanelOpen(false); } },
-        { name: "Play Track", icon: Play, action: () => { togglePlay(); setIsControlsPanelOpen(false); } },
-        { name: "Pause Track", icon: Pause, action: () => { togglePlay(); setIsControlsPanelOpen(false); } },
-        { name: "Upload", icon: Upload, action: () => { handleUploadClick(); } },
-        { name: "Clean", icon: Trash2, action: () => { setMessages(prev => prev.filter(m => m.type !== 'text')); toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." }); setIsControlsPanelOpen(false); } },
+        { name: "Gathering", icon: Flag, action: 'gathering' },
+        { name: "Broadcast", icon: Megaphone, action: 'broadcast' },
+        { name: "Play", icon: Play, action: 'playTrack' },
+        { name: "Pause", icon: Pause, action: 'pauseTrack' },
+        { name: "Upload", icon: Upload, action: 'upload' },
+        { name: "Clean", icon: Trash2, action: 'clean' },
     ];
 
     const roomControls = currentUserIsOwner ? ownerControls : commonControls;
@@ -418,7 +449,7 @@ export default function AudioRoomPage() {
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
              <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="audio/*" className="hidden" />
-             <audio ref={audioRef} loop src={currentTrackUrl || room.currentTrack || ''} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
+             <audio ref={audioRef} loop src={currentTrackUrl || room.currentTrack || undefined} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
              {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
              {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
@@ -650,7 +681,7 @@ export default function AudioRoomPage() {
                     <div className="py-4">
                         <div className="grid grid-cols-4 gap-4">
                            {roomControls.map((control) => (
-                                <RoomControlButton key={control.name} control={control} />
+                                <RoomControlButton key={control.name} control={control} onClick={handleControlAction} />
                            ))}
                         </div>
                     </div>
@@ -659,4 +690,5 @@ export default function AudioRoomPage() {
         </div>
     );
 }
+
 
