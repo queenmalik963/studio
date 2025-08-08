@@ -1,7 +1,7 @@
 
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 import { UserProfile } from '@/services/userService';
 
 // Mock User and UserProfile for a non-Firebase app
@@ -12,6 +12,7 @@ type MockUser = {
     photoURL: string;
 };
 
+// This is the single source of truth for our mock user data.
 const mockUserProfile: UserProfile = {
     id: "mock_user_123",
     name: "Rave King",
@@ -24,8 +25,8 @@ const mockUserProfile: UserProfile = {
     following: 150,
     idLevel: 45,
     sendingLevel: 60,
-    frames: ["gold", "purple", "master"],
-    currentFrame: "master",
+    frames: ["gold", "purple"],
+    currentFrame: "gold",
     vipTier: "shogun",
     vipExpiry: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
 };
@@ -46,31 +47,18 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
     currentUser: null,
     userProfile: null,
-    loading: true,
+    loading: false, // Set to false as data is available immediately
 });
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    // We'll simulate a logged-in state. In a real non-Firebase app,
-    // this would be determined by a token, session, etc.
-    const [currentUser] = useState<MockUser | null>(mockUser);
-    const [userProfile] = useState<UserProfile | null>(mockUserProfile);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        // Simulate loading delay
-        const timer = setTimeout(() => {
-            setLoading(false);
-        }, 500);
-
-        return () => clearTimeout(timer);
-    }, []);
-
+    // Since this is a static demo, we provide the user and profile data directly.
+    // There's no loading state needed as we aren't fetching anything.
     const value = {
-        currentUser,
-        userProfile,
-        loading,
+        currentUser: mockUser,
+        userProfile: mockUserProfile,
+        loading: false,
     };
 
     return (
