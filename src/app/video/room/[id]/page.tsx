@@ -21,6 +21,7 @@ import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
 import { type Message, type Seat, type SeatUser } from "@/services/roomService";
 import { useAuth } from "@/contexts/AuthContext";
+import YouTube from 'react-youtube';
 
 
 export type JumpAnimation = {
@@ -49,7 +50,7 @@ function VideoRoomPageComponent() {
     const [roomName, setRoomName] = useState("My Video Room");
     const [messages, setMessages] = useState<Message[]>([]);
     const [seats, setSeats] = useState<Seat[]>(Array.from({ length: 8 }, (_, i) => ({ id: i + 1, user: null, isLocked: false })));
-    const [youtubeVideoId, setYoutubeVideoId] = useState<string | null>(null);
+    const [youtubeVideoId, setYoutubeVideoId] = useState<string | null>('5qap5aO4i9A'); // Lofi Girl
 
     const [newMessage, setNewMessage] = useState("");
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
@@ -239,6 +240,7 @@ function VideoRoomPageComponent() {
           rel: 0,
           showinfo: 0,
           modestbranding: 1,
+          fs: 0,
         },
     };
     
@@ -280,7 +282,13 @@ function VideoRoomPageComponent() {
             <div className="relative w-full bg-black h-[45%] flex-shrink-0">
                  <div className="absolute inset-0 bg-black flex items-center justify-center">
                     {youtubeVideoId ? (
-                        <p>Video player would be here for ID: {youtubeVideoId}</p>
+                        <YouTube
+                            videoId={youtubeVideoId}
+                            opts={youtubeOpts}
+                            onReady={onPlayerReady}
+                            className="w-full h-full"
+                            iframeClassName="w-full h-full"
+                        />
                     ) : (
                         <p className="text-white/50">No video selected. Go to Add Video to start a room.</p>
                     )}
@@ -599,5 +607,3 @@ export default function VideoRoomPage() {
         </Suspense>
     );
 }
-
-    

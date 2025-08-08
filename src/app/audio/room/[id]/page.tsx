@@ -205,10 +205,14 @@ export default function AudioRoomPage() {
     };
     
     const togglePlay = () => {
-        const isPlaying = audioRef.current?.paused;
-        if(isPlaying) audioRef.current?.play();
-        else audioRef.current?.pause();
-        toast({ title: isPlaying ? "Music Resumed" : "Music Paused" });
+        if (!audioRef.current) return;
+        if(audioRef.current.paused) {
+            audioRef.current.play();
+            toast({ title: "Music Resumed" });
+        } else {
+            audioRef.current.pause();
+            toast({ title: "Music Paused" });
+        }
     };
 
     const handleTogglePersonalMic = () => {
@@ -344,7 +348,7 @@ export default function AudioRoomPage() {
 
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
-             <audio ref={audioRef} loop src="https://placehold.co/1x1.mp3"/>
+             <audio ref={audioRef} loop autoPlay src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"/>
              {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
              {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">

@@ -1,3 +1,4 @@
+
 {
   "name": "nextn",
   "version": "0.1.0",
@@ -41,6 +42,7 @@
     "next": "15.3.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-youtube": "^10.1.0",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7"
   },
