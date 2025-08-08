@@ -33,6 +33,24 @@ export type JumpAnimation = {
     endY: number;
 };
 
+const newGifFrames = [
+  "https://i.imgur.com/EeLiIvo.gif",
+  "https://i.imgur.com/dadW7mL.gif",
+  "https://i.imgur.com/nQPOShX.gif",
+  "https://i.imgur.com/5nC2D3l.gif",
+  "https://i.imgur.com/AuOpH7h.gif",
+  "https://i.imgur.com/wGAEm5U.gif",
+  "https://i.imgur.com/mQPDgwU.gif",
+  "https://i.imgur.com/FTdqu3H.gif",
+  "https://i.imgur.com/pXg7gf3.gif",
+  "https://i.imgur.com/At3QgQ7.gif",
+  "https://i.imgur.com/VkUd6Ab.gif",
+  "https://i.imgur.com/UHWrghE.gif",
+  "https://i.imgur.com/PZhRHH1.gif",
+  "https://i.imgur.com/D9xf0es.gif",
+  "https://i.imgur.com/jw5SszE.gif",
+];
+
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
 );
@@ -361,23 +379,6 @@ function VideoRoomPageComponent() {
         }
     };
     
-    const specialFrames: {[key: string]: {img: string}} = {
-        'crimson-danger': { img: 'https://i.imgur.com/DADsWdw.gif' },
-    }
-
-    const frameColors: {[key: string]: string} = {
-        gold: 'border-yellow-400 animate-glow-gold',
-        purple: 'border-fuchsia-500 animate-glow-purple',
-        blue: 'border-blue-400 animate-glow-blue',
-        green: 'border-green-500 animate-glow-green',
-        red: 'border-red-500 animate-glow-red',
-        cyan: 'border-cyan-500 animate-glow-cyan',
-        pink: 'border-pink-500 animate-glow-pink',
-        teal: 'border-teal-400 animate-glow-teal',
-        orange: 'border-orange-500 animate-glow-orange',
-        indigo: 'border-indigo-500 animate-glow-indigo',
-    }
-    
     const frameBorderColors: {[key: string]: string} = {
         gold: 'border-yellow-400',
         purple: 'border-fuchsia-500',
@@ -505,30 +506,28 @@ function VideoRoomPageComponent() {
                                 <PopoverContent className="w-48 p-2 bg-black/50 backdrop-blur-md border-white/20 text-white">
                                     <ScrollArea className="h-48">
                                         <div className="space-y-2">
-                                            {occupiedSeats.map((seat) => (
-                                                seat.user && <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
+                                            {occupiedSeats.map((seat) => {
+                                                const frameUrl = seat.user.frame ? newGifFrames[seats.findIndex(s => s.id === seat.id) % newGifFrames.length] : null;
+                                                return seat.user && <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
                                                     <div className="relative w-9 h-9 flex items-center justify-center">
-                                                        {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
-                                                            <div className="absolute inset-[-3px] pointer-events-none">
-                                                                <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
+                                                        {areEffectsEnabled && frameUrl && (
+                                                            <div className="absolute inset-[-6px] pointer-events-none">
+                                                                <Image unoptimized src={frameUrl} alt="User Frame" layout="fill" />
                                                             </div>
                                                         )}
-                                                        {areEffectsEnabled && seat.user.frame && !specialFrames[seat.user.frame] && (
-                                                          <div className="absolute inset-[-1px] spinning-border animate-spin-colors rounded-full"></div>
-                                                        )}
-                                                        <Avatar className={cn("h-full w-full border-2", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                        <Avatar className={cn("h-full w-full border-2", areEffectsEnabled && seat.user.frame && frameBorderColors[seat.user.frame] ? frameBorderColors[seat.user.frame] : 'border-transparent' )}>
                                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                             <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
                                                         </Avatar>
                                                     </div>
                                                     <div>
                                                         <p className="text-sm font-semibold">{seat.user.name}</p>
-                                                        {areEffectsEnabled && seat.user.frame && frameBorderColors[seat.user.frame] && !specialFrames[seat.user.frame] && (
+                                                        {areEffectsEnabled && seat.user.frame && frameBorderColors[seat.user.frame] && (
                                                             <div className={cn("h-0.5 w-8 rounded-full", frameBorderColors[seat.user.frame])}></div>
                                                         )}
                                                     </div>
                                                 </div>
-                                            ))}
+                                            })}
                                         </div>
                                     </ScrollArea>
                                 </PopoverContent>
@@ -546,60 +545,60 @@ function VideoRoomPageComponent() {
                  {/* Seats */}
                 <div className="w-full flex-shrink-0 py-2">
                     <div className="grid grid-cols-8 gap-2 justify-items-center px-2">
-                        {seats.map((seat, index) => (
-                            <Popover key={seat.id}>
-                                <PopoverTrigger asChild disabled={!(currentUserIsOwner && seat.user)}>
-                                    <div 
-                                        ref={seatRefs.current[index]}
-                                        className="flex flex-col items-center gap-1 w-full text-center cursor-pointer"
-                                        onClick={() => handleSeatClick(seat)}
-                                    >
-                                        {seat.user ? (
-                                            <>
-                                                <div className="relative w-9 h-9 flex items-center justify-center">
-                                                    {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
-                                                        <div className="absolute inset-[-3px] pointer-events-none">
-                                                            <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
-                                                        </div>
-                                                    )}
-                                                    {areEffectsEnabled && seat.user.frame && !specialFrames[seat.user.frame] && (
-                                                      <div className={cn("absolute inset-[-1px] spinning-border animate-spin-colors rounded-full")}></div>
-                                                    )}
-                                                    <Avatar className={cn("w-full h-full border-2", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
-                                                        <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
-                                                        <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
-                                                    </Avatar>
-                                                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-0.5 z-10">
-                                                        {seat.user.isMuted ? 
-                                                            <MicOff className="w-2.5 h-2.5 text-red-500" /> :
-                                                            <Mic className="w-2.5 h-2.5 text-green-400" />
-                                                        }
+                        {seats.map((seat, index) => {
+                             const frameUrl = newGifFrames[index % newGifFrames.length];
+                             return (
+                                <Popover key={seat.id}>
+                                    <PopoverTrigger asChild disabled={!(currentUserIsOwner && seat.user)}>
+                                        <div 
+                                            ref={seatRefs.current[index]}
+                                            className="flex flex-col items-center gap-1 w-full text-center cursor-pointer"
+                                            onClick={() => handleSeatClick(seat)}
+                                        >
+                                            <div className="relative w-10 h-10 flex items-center justify-center">
+                                                {areEffectsEnabled && (
+                                                    <div className="absolute inset-[-8px] pointer-events-none">
+                                                        <Image unoptimized src={frameUrl} alt="Seat Frame" layout="fill" className="object-contain" />
                                                     </div>
-                                                </div>
-                                                <p className="text-[10px] truncate w-full">{seat.user.name}</p>
-                                            </>
-                                        ) : (
-                                            <div className="w-9 h-9 rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
-                                                {seat.isLocked ? <Lock className="w-4 h-4 text-white/50"/> : <span className="text-sm font-bold text-white/50">{seat.id}</span>}
+                                                )}
+                                                {seat.user ? (
+                                                    <>
+                                                        <Avatar className="w-8 h-8">
+                                                            <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
+                                                            <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
+                                                        </Avatar>
+                                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 rounded-full p-0.5 z-10">
+                                                            {seat.user.isMuted ? 
+                                                                <MicOff className="w-2.5 h-2.5 text-red-500" /> :
+                                                                <Mic className="w-2.5 h-2.5 text-green-400" />
+                                                            }
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <div className="w-8 h-8 rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                                        {seat.isLocked ? <Lock className="w-4 h-4 text-white/50"/> : <span className="text-sm font-bold text-white/50">{seat.id}</span>}
+                                                    </div>
+                                                )}
                                             </div>
-                                        )}
-                                    </div>
-                                </PopoverTrigger>
-                                 <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
-                                    <div className="flex flex-col gap-1">
-                                        {seat.user && (
-                                          <>
-                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
-                                                {seat.user?.isMuted ? <Mic /> : <MicOff />} {seat.user?.isMuted ? 'Unmute' : 'Mute Mic'}
-                                            </Button>
-                                             <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
-                                          </>
-                                        )}
-                                        <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}><Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}</Button>
-                                    </div>
-                                </PopoverContent>
-                            </Popover>
-                        ))}
+                                             {seat.user && <p className="text-[10px] truncate w-full">{seat.user.name}</p>}
+                                        </div>
+                                    </PopoverTrigger>
+                                     <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
+                                        <div className="flex flex-col gap-1">
+                                            {seat.user && (
+                                              <>
+                                                <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
+                                                    {seat.user?.isMuted ? <Mic /> : <MicOff />} {seat.user?.isMuted ? 'Unmute' : 'Mute Mic'}
+                                                </Button>
+                                                 <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
+                                              </>
+                                            )}
+                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}><Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}</Button>
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
+                            )
+                        })}
                     </div>
                 </div>
                 

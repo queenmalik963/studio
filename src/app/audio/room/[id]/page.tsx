@@ -33,6 +33,24 @@ type JumpAnimation = {
     endY: number;
 };
 
+const newGifFrames = [
+  "https://i.imgur.com/EeLiIvo.gif",
+  "https://i.imgur.com/dadW7mL.gif",
+  "https://i.imgur.com/nQPOShX.gif",
+  "https://i.imgur.com/5nC2D3l.gif",
+  "https://i.imgur.com/AuOpH7h.gif",
+  "https://i.imgur.com/wGAEm5U.gif",
+  "https://i.imgur.com/mQPDgwU.gif",
+  "https://i.imgur.com/FTdqu3H.gif",
+  "https://i.imgur.com/pXg7gf3.gif",
+  "https://i.imgur.com/At3QgQ7.gif",
+  "https://i.imgur.com/VkUd6Ab.gif",
+  "https://i.imgur.com/UHWrghE.gif",
+  "https://i.imgur.com/PZhRHH1.gif",
+  "https://i.imgur.com/D9xf0es.gif",
+  "https://i.imgur.com/jw5SszE.gif",
+];
+
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
@@ -339,7 +357,7 @@ export default function AudioRoomPage() {
         await updateSeatUser(roomId, currentUserSeat.id, { isMuted: newMuteState });
     };
 
-    const roomControls = useMemo(() => [
+    const roomControls = [
         { name: "Gathering", icon: Flag, action: async () => {
             if (!roomId) return;
             await sendMessage(roomId, { type: 'system', text: 'A gathering has been started by the owner!' });
@@ -385,7 +403,7 @@ export default function AudioRoomPage() {
             toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
              setIsControlsPanelOpen(false);
         }},
-    ], [roomId, room, toast, setAreEffectsEnabled, togglePlay, setMessages]);
+    ];
 
 
     const handleSeatClick = async (seat: any) => {
@@ -430,32 +448,6 @@ export default function AudioRoomPage() {
             toast({ title: `Seat ${targetSeat.id} has been ${isLocked ? 'locked' : 'unlocked'}.`});
         }
     };
-
-    const specialFrames: {[key: string]: {img: string}} = {
-        'master': { img: 'https://i.imgur.com/DADsWdw.gif' },
-        'dragon-fury': { img: 'https://i.imgur.com/DADsWdw.gif' },
-    }
-
-    const frameColors: {[key: string]: string} = {
-        gold: 'border-yellow-400 animate-glow-gold',
-        purple: 'border-fuchsia-500 animate-glow-purple',
-        blue: 'border-blue-400 animate-glow-blue',
-        green: 'border-green-500 animate-glow-green',
-        red: 'border-red-500 animate-glow-red',
-        cyan: 'border-cyan-500 animate-glow-cyan',
-        pink: 'border-pink-500 animate-glow-pink',
-        teal: 'border-teal-400 animate-glow-teal',
-        orange: 'border-orange-500 animate-glow-orange',
-        indigo: 'border-indigo-500 animate-glow-indigo',
-        lime: 'border-lime-400 animate-glow-lime',
-        rose: 'border-rose-400 animate-glow-rose',
-        emerald: 'border-emerald-400 animate-glow-emerald',
-        sky: 'border-sky-400 animate-glow-sky',
-        amber: 'border-amber-400 animate-glow-amber',
-        master: 'border-purple-400 animate-glow-purple',
-        platinum: 'border-cyan-300 animate-glow-cyan',
-        'dragon-fury': 'border-red-500 animate-glow-red',
-    }
     
     const frameBorderColors: {[key: string]: string} = {
         gold: 'border-yellow-400',
@@ -488,6 +480,7 @@ export default function AudioRoomPage() {
                         if (!seat) return null;
                         
                         const isSeatActionable = currentUserIsOwner && seat.user;
+                        const frameUrl = newGifFrames[seatIndex % newGifFrames.length];
                         
                         return (
                             <Popover key={seat.id}>
@@ -498,16 +491,14 @@ export default function AudioRoomPage() {
                                         onClick={() => handleSeatClick(seat)}
                                     >
                                         <div className="relative w-[65px] h-[65px] flex items-center justify-center">
-                                            {areEffectsEnabled && <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>}
+                                            {areEffectsEnabled && (
+                                                <div className="absolute inset-[-12px] pointer-events-none">
+                                                    <Image unoptimized src={frameUrl} alt="Seat Frame" layout="fill" className="object-contain" />
+                                                </div>
+                                            )}
                                             {seat.user ? (
                                                 <>
-                                                    {areEffectsEnabled && seat.user.frame && specialFrames[seat.user.frame] && (
-                                                        <div className="absolute inset-[-4px] pointer-events-none">
-                                                            <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
-                                                        </div>
-                                                    )}
-                                                    
-                                                    <Avatar className={cn("w-full h-full border-2 bg-[#2E103F]", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                    <Avatar className="w-[55px] h-[55px] bg-[#2E103F]">
                                                         <AvatarImage src={seat.user.avatar} alt={seat.user.name} data-ai-hint="person portrait"/>
                                                         <AvatarFallback>{seat.user.name?.charAt(0)}</AvatarFallback>
                                                     </Avatar>
@@ -520,7 +511,7 @@ export default function AudioRoomPage() {
                                                     <p className="absolute -bottom-5 text-xs truncate w-full">{seat.user.name}</p>
                                                 </>
                                             ) : (
-                                                <div className="w-[65px] h-[65px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                                <div className="w-[55px] h-[55px] rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
                                                     {seat.isLocked ? <Lock className="w-6 h-6 text-white/50" /> : <span className="text-xl font-bold text-white/50">{seat.id}</span>}
                                                 </div>
                                             )}
@@ -615,22 +606,16 @@ export default function AudioRoomPage() {
                         <PopoverContent className="w-48 p-2 bg-black/50 backdrop-blur-md border-white/20 text-white">
                             <ScrollArea className="h-48">
                                 <div className="space-y-2">
-                                    {occupiedSeats.map((seat) => (
-                                       seat.user && <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
+                                    {occupiedSeats.map((seat) => {
+                                        const frameUrl = seat.user.frame ? newGifFrames[seats.findIndex(s => s.id === seat.id) % newGifFrames.length] : null;
+                                        return seat.user && <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
                                             <div className="relative w-9 h-9 flex items-center justify-center">
-                                                {areEffectsEnabled && (
-                                                    <>
-                                                        {seat.user.frame && specialFrames[seat.user.frame] && (
-                                                            <div className="absolute inset-[-3px] pointer-events-none">
-                                                                <Image unoptimized src={specialFrames[seat.user.frame].img} alt={seat.user.frame} layout="fill" className="animate-pulse-luxury" />
-                                                            </div>
-                                                        )}
-                                                        {seat.user.frame && !specialFrames[seat.user.frame] && (
-                                                            <div className="absolute inset-[-2px] spinning-border animate-spin-colors rounded-full"></div>
-                                                        )}
-                                                    </>
+                                                {areEffectsEnabled && frameUrl && (
+                                                     <div className="absolute inset-[-6px] pointer-events-none">
+                                                        <Image unoptimized src={frameUrl} alt="User Frame" layout="fill" />
+                                                    </div>
                                                 )}
-                                                <Avatar className={cn("h-full w-full border-2 bg-background", areEffectsEnabled && seat.user.frame && frameColors[seat.user.frame] ? frameColors[seat.user.frame] : 'border-transparent' )}>
+                                                <Avatar className={cn("h-full w-full border-2 bg-background", areEffectsEnabled && seat.user.frame && frameBorderColors[seat.user.frame] ? frameBorderColors[seat.user.frame] : 'border-transparent' )}>
                                                     <AvatarImage src={seat.user.avatar} alt={seat.user.name} data-ai-hint="person portrait" />
                                                     <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
                                                 </Avatar>
@@ -642,7 +627,7 @@ export default function AudioRoomPage() {
                                                 )}
                                             </div>
                                         </div>
-                                    ))}
+                                    })}
                                 </div>
                             </ScrollArea>
                         </PopoverContent>
