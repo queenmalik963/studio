@@ -103,7 +103,9 @@ export default function AudioRoomPage() {
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
         if (chatContainer) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            setTimeout(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 100);
         }
     }, [messages]);
     
