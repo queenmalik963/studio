@@ -15,12 +15,13 @@ import { Label } from "@/components/ui/label";
 import { GiftPanel, type Gift as GiftType } from "@/components/room/GiftPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
-import { type Message, type Seat, type SeatUser, sendMessage, getInitialSeats, getRoomById, type Room } from "@/services/roomService";
+import { type Message, type Seat, type SeatUser, sendMessage, getRoomById, type Room, getInitialSeats } from "@/services/roomService";
 import { useAuth } from "@/contexts/AuthContext";
 
 
@@ -74,6 +75,7 @@ export default function AudioRoomPage() {
     const [room, setRoom] = useState<Room | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [seats, setSeats] = useState<Seat[]>([]);
+    const [selectedUser, setSelectedUser] = useState<SeatUser | null>(null);
     
     const [newMessage, setNewMessage] = useState("");
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
@@ -86,7 +88,6 @@ export default function AudioRoomPage() {
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
     const [isGameActive, setIsGameActive] = useState(false);
     
-    // Audio Player State
     const [currentTrackUrl, setCurrentTrackUrl] = useState<string | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -109,7 +110,6 @@ export default function AudioRoomPage() {
                 setCurrentUserIsOwner(userProfile.id === roomData.ownerId);
             }
         } else {
-            // Handle room not found
             router.push('/audio');
         }
     }, [roomId, router, userProfile]);
@@ -127,13 +127,13 @@ export default function AudioRoomPage() {
 
     useEffect(() => {
         if (audioRef.current) {
-            if (isPlaying && (currentTrackUrl || room?.currentTrack)) {
+            if (isPlaying && currentTrackUrl) {
                 audioRef.current.play().catch(e => console.error("Audio play failed:", e));
             } else {
                 audioRef.current?.pause();
             }
         }
-    }, [isPlaying, currentTrackUrl, room?.currentTrack]);
+    }, [isPlaying, currentTrackUrl]);
     
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
@@ -246,7 +246,7 @@ export default function AudioRoomPage() {
     };
     
     const togglePlay = () => {
-        if (!currentTrackUrl && !room?.currentTrack) {
+        if (!currentTrackUrl) {
             toast({ variant: 'destructive', title: "No track selected", description: "Owner needs to upload a track first." });
             return;
         }
@@ -255,7 +255,7 @@ export default function AudioRoomPage() {
     
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (file) {
+        if (file && currentUserIsOwner) {
             const trackUrl = URL.createObjectURL(file);
             setCurrentTrackUrl(trackUrl);
             setIsPlaying(true);
@@ -271,15 +271,19 @@ export default function AudioRoomPage() {
         toast({ title: "Mic Toggled" });
     };
 
-    const handleSeatClick = (seat: Seat) => {
-        if (!currentUserIsOwner || seat.user?.id === userProfile?.id) {
-             toast({ title: `Seat ${seat.id} Info`, description: seat.user ? `This is ${seat.user.name}` : "This seat is empty." });
+    const handleSeatClick = (seatUser: SeatUser) => {
+        if (seatUser) {
+            setSelectedUser(seatUser);
         }
-        // Owner actions are handled in Popover
     };
     
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
         toast({ title: `Action '${action}' on seat ${seatId}` });
+    };
+    
+    const handleFollowUser = (userName: string) => {
+        toast({ title: "Followed!", description: `You are now following ${userName}.` });
+        setSelectedUser(null);
     };
 
     const handleControlAction = (action: string) => {
@@ -370,18 +374,18 @@ export default function AudioRoomPage() {
                         const seatIndex = i * 4 + index;
                         if (!seat) return null;
                         
-                        const isSeatActionable = currentUserIsOwner && seat.user && seat.user.id !== userProfile?.id;
+                        const isActionableByOwner = currentUserIsOwner && seat.user && seat.user.id !== userProfile?.id;
                         
                         return (
                             <Popover key={seat.id}>
-                                <PopoverTrigger asChild disabled={!isSeatActionable}>
+                                <PopoverTrigger asChild disabled={!isActionableByOwner}>
                                     <div 
                                         ref={seatRefs.current[seatIndex]} 
                                         className="flex flex-col items-center gap-1.5 w-[65px] text-center cursor-pointer"
-                                        onClick={() => handleSeatClick(seat)}
+                                        onClick={() => !isActionableByOwner && seat.user && handleSeatClick(seat.user)}
                                     >
                                         <div className="relative w-[65px] h-[65px] flex items-center justify-center">
-                                            {areEffectsEnabled && seat.user && (
+                                             {areEffectsEnabled && seat.user && (
                                                  <Image
                                                     unoptimized
                                                     src={rowFrame}
@@ -412,21 +416,21 @@ export default function AudioRoomPage() {
                                         </div>
                                     </div>
                                 </PopoverTrigger>
-                                 <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
-                                    <div className="flex flex-col gap-1">
-                                        {seat.user && (
-                                            <>
-                                                <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
-                                                    {seat.user.isMuted ? <Mic /> : <MicOff />} {seat.user.isMuted ? 'Unmute' : 'Mute Mic'}
-                                                </Button>
-                                                 <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
-                                                <Separator className="my-1" />
-                                            </>
-                                        )}
-                                        <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}>
-                                            <Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}
-                                        </Button>
-                                    </div>
+                                 <PopoverContent className="w-48 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
+                                    {seat.user && (
+                                        <>
+                                            <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => handleSeatClick(seat.user!)}>View Profile</Button>
+                                            <Separator className="my-1" />
+                                            <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
+                                                {seat.user.isMuted ? <Mic /> : <MicOff />} {seat.user.isMuted ? 'Unmute' : 'Mute Mic'}
+                                            </Button>
+                                            <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
+                                            <Separator className="my-1" />
+                                        </>
+                                    )}
+                                    <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => handleSeatAction('lock', seat.id)}>
+                                        <Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}
+                                    </Button>
                                 </PopoverContent>
                             </Popover>
                         )
@@ -449,7 +453,7 @@ export default function AudioRoomPage() {
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
              <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="audio/*" className="hidden" />
-             <audio ref={audioRef} loop src={currentTrackUrl || room.currentTrack || undefined} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
+             <audio ref={audioRef} loop src={currentTrackUrl || undefined} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
              {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
              {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
@@ -630,6 +634,30 @@ export default function AudioRoomPage() {
                 </form>
             </footer>
 
+            <Dialog open={!!selectedUser} onOpenChange={(open) => !open && setSelectedUser(null)}>
+                <DialogContent>
+                    {selectedUser && (
+                        <>
+                            <DialogHeader className="items-center">
+                                <Avatar className="h-24 w-24 border-4 border-primary">
+                                    <AvatarImage src={selectedUser.avatar} alt={selectedUser.name} />
+                                    <AvatarFallback>{selectedUser.name.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <DialogTitle className={cn("text-2xl", selectedUser.nameColor)}>{selectedUser.name}</DialogTitle>
+                            </DialogHeader>
+                            <div className="py-4">
+                                {userProfile.id !== selectedUser.id && (
+                                     <Button className="w-full" onClick={() => handleFollowUser(selectedUser.name)}>
+                                        <UserPlus className="mr-2 h-4 w-4" />
+                                        Follow
+                                    </Button>
+                                )}
+                            </div>
+                        </>
+                    )}
+                </DialogContent>
+            </Dialog>
+
             <Sheet open={isGamePanelOpen} onOpenChange={setIsGamePanelOpen}>
                 <SheetContent side="bottom" className="bg-[#1F0A2E] border-t-2 border-primary/50 text-white rounded-t-2xl" style={{ height: '45vh' }}>
                     <SheetHeader>
@@ -690,5 +718,6 @@ export default function AudioRoomPage() {
         </div>
     );
 }
+
 
 

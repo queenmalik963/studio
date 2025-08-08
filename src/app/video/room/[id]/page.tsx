@@ -14,7 +14,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { GiftPanel, type Gift as GiftType } from "@/components/room/GiftPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
@@ -63,11 +65,11 @@ function VideoRoomPageComponent() {
     const { toast } = useToast();
     const { userProfile } = useAuth();
     
-    // State is now managed within the component
     const [room, setRoom] = useState<Room | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [seats, setSeats] = useState<Seat[]>([]);
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
+    const [selectedUser, setSelectedUser] = useState<SeatUser | null>(null);
 
     const [newMessage, setNewMessage] = useState("");
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
@@ -88,12 +90,17 @@ function VideoRoomPageComponent() {
     const inputRef = useRef<HTMLInputElement>(null);
     const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
     const sendButtonRef = useRef<HTMLButtonElement>(null);
+    
+    const [currentUserIsOwner, setCurrentUserIsOwner] = useState(false);
 
     useEffect(() => {
         const roomData = getRoomById(roomId);
         if (roomData) {
             setRoom(roomData);
-            setSeats(getInitialSeats(8)); // Video rooms have 8 seats
+            setSeats(getInitialSeats(8));
+             if(userProfile) {
+                setCurrentUserIsOwner(userProfile.id === roomData.ownerId);
+            }
         } else {
             router.push('/video');
         }
@@ -103,9 +110,7 @@ function VideoRoomPageComponent() {
             const decodedUrl = decodeURIComponent(encodedUrl);
             setVideoUrl(decodedUrl);
         }
-    }, [roomId, router, searchParams]);
-
-    const currentUserIsOwner = userProfile?.id === room?.ownerId;
+    }, [roomId, router, searchParams, userProfile]);
     
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
@@ -238,20 +243,25 @@ function VideoRoomPageComponent() {
     const handleTogglePersonalMic = () => {
         toast({ title: "Mic Toggled" });
     };
-
-    const handleSeatClick = (seat: Seat) => {
-        if (!currentUserIsOwner || seat.user?.id === userProfile?.id) {
-             toast({ title: `Seat ${seat.id} Info`, description: seat.user ? `This is ${seat.user.name}` : "This seat is empty." });
+    
+    const handleSeatClick = (seatUser: SeatUser) => {
+        if (seatUser) {
+            setSelectedUser(seatUser);
         }
     };
 
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
         toast({ title: `Action '${action}' on seat ${seatId}` });
     };
+    
+    const handleFollowUser = (userName: string) => {
+        toast({ title: "Followed!", description: `You are now following ${userName}.` });
+        setSelectedUser(null);
+    };
 
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (file) {
+        if (file && currentUserIsOwner) {
             const newVideoUrl = URL.createObjectURL(file);
             setVideoUrl(newVideoUrl);
             setIsPlaying(true);
@@ -456,14 +466,14 @@ function VideoRoomPageComponent() {
                 <div className="w-full flex-shrink-0 py-2">
                     <div className="grid grid-cols-8 gap-2 justify-items-center px-2">
                         {seats.map((seat, index) => {
-                             const isSeatActionable = currentUserIsOwner && seat.user && seat.user.id !== userProfile?.id;
+                             const isActionableByOwner = currentUserIsOwner && seat.user && seat.user.id !== userProfile?.id;
                              return (
                                 <Popover key={seat.id}>
-                                    <PopoverTrigger asChild disabled={!isSeatActionable}>
+                                    <PopoverTrigger asChild disabled={!isActionableByOwner}>
                                         <div 
                                             ref={seatRefs.current[index]}
                                             className="flex flex-col items-center gap-1 w-full text-center cursor-pointer"
-                                            onClick={() => handleSeatClick(seat)}
+                                            onClick={() => !isActionableByOwner && seat.user && handleSeatClick(seat.user)}
                                         >
                                             <div className="relative w-10 h-10 flex items-center justify-center">
                                                 {seat.user ? (
@@ -488,18 +498,21 @@ function VideoRoomPageComponent() {
                                              {seat.user && <p className={cn("text-[10px] truncate w-full", seat.user.nameColor)}>{seat.user.name}</p>}
                                         </div>
                                     </PopoverTrigger>
-                                     <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
-                                        <div className="flex flex-col gap-1">
-                                            {seat.user && (
-                                              <>
-                                                <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
-                                                    {seat.user?.isMuted ? <Mic /> : <MicOff />} {seat.user?.isMuted ? 'Unmute' : 'Mute Mic'}
+                                    <PopoverContent className="w-48 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
+                                        {seat.user && (
+                                            <>
+                                                <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => handleSeatClick(seat.user!)}>View Profile</Button>
+                                                <Separator className="my-1" />
+                                                <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
+                                                    {seat.user.isMuted ? <Mic /> : <MicOff />} {seat.user.isMuted ? 'Unmute' : 'Mute Mic'}
                                                 </Button>
-                                                 <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
-                                              </>
-                                            )}
-                                            <Button variant="ghost" size="sm" className="justify-start" onClick={() => handleSeatAction('lock', seat.id)}><Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}</Button>
-                                        </div>
+                                                <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
+                                                <Separator className="my-1" />
+                                            </>
+                                        )}
+                                        <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => handleSeatAction('lock', seat.id)}>
+                                            <Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}
+                                        </Button>
                                     </PopoverContent>
                                 </Popover>
                             )
@@ -608,6 +621,30 @@ function VideoRoomPageComponent() {
                     </div>
                 </form>
             </footer>
+            
+            <Dialog open={!!selectedUser} onOpenChange={(open) => !open && setSelectedUser(null)}>
+                <DialogContent>
+                    {selectedUser && (
+                        <>
+                            <DialogHeader className="items-center">
+                                <Avatar className="h-24 w-24 border-4 border-primary">
+                                    <AvatarImage src={selectedUser.avatar} alt={selectedUser.name} />
+                                    <AvatarFallback>{selectedUser.name.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <DialogTitle className={cn("text-2xl", selectedUser.nameColor)}>{selectedUser.name}</DialogTitle>
+                            </DialogHeader>
+                            <div className="py-4">
+                                {userProfile.id !== selectedUser.id && (
+                                     <Button className="w-full" onClick={() => handleFollowUser(selectedUser.name)}>
+                                        <UserPlus className="mr-2 h-4 w-4" />
+                                        Follow
+                                    </Button>
+                                )}
+                            </div>
+                        </>
+                    )}
+                </DialogContent>
+            </Dialog>
 
             <Sheet open={isGamePanelOpen} onOpenChange={setIsGamePanelOpen}>
                 <SheetContent side="bottom" className="bg-[#1F0A2E] border-t-2 border-primary/50 text-white rounded-t-2xl" style={{ height: '45vh' }}>
