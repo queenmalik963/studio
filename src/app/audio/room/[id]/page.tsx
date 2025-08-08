@@ -97,19 +97,23 @@ export default function AudioRoomPage() {
     const { toast } = useToast();
     const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
     const sendButtonRef = useRef<HTMLButtonElement>(null);
+    
+    const [currentUserIsOwner, setCurrentUserIsOwner] = useState(false);
 
     useEffect(() => {
         const roomData = getRoomById(roomId);
         if (roomData) {
             setRoom(roomData);
             setSeats(getInitialSeats(16)); // Static seats with users for now
+            if(userProfile) {
+                setCurrentUserIsOwner(userProfile.id === roomData.ownerId);
+            }
         } else {
             // Handle room not found
             router.push('/audio');
         }
-    }, [roomId, router]);
+    }, [roomId, router, userProfile]);
     
-    const currentUserIsOwner = userProfile?.id === room?.ownerId;
     const currentUserSeat = seats.find(s => s.user?.id === userProfile?.id);
 
     useEffect(() => {
@@ -126,7 +130,7 @@ export default function AudioRoomPage() {
             if (isPlaying && currentTrackUrl) {
                 audioRef.current.play().catch(e => console.error("Audio play failed:", e));
             } else {
-                audioRef.current.pause();
+                audio_ref.current.pause();
             }
         }
     }, [isPlaying, currentTrackUrl]);
