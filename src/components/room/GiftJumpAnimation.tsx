@@ -1,9 +1,9 @@
 
 "use client";
 
-import { motion } from "framer-motion";
 import Image from "next/image";
 import { type Gift as GiftType } from "./GiftPanel";
+import { useEffect, useState } from "react";
 
 type GiftJumpAnimationProps = {
   gift: GiftType;
@@ -14,6 +14,7 @@ type GiftJumpAnimationProps = {
   onComplete: () => void;
 };
 
+// This is now a simple, non-animated component to prevent errors from framer-motion.
 export function GiftJumpAnimation({
   gift,
   startX,
@@ -22,38 +23,38 @@ export function GiftJumpAnimation({
   endY,
   onComplete,
 }: GiftJumpAnimationProps) {
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+        setVisible(false);
+        onComplete();
+    }, 1200); // Mimics the duration of the old animation
+
+    return () => clearTimeout(timer);
+  }, [onComplete]);
+  
+  if (!visible) {
+    return null;
+  }
+
   return (
-    <motion.div
+    <div
       style={{
         position: "fixed",
-        left: startX,
-        top: startY,
-        translateX: "-50%",
-        translateY: "-50%",
+        left: endX,
+        top: endY,
+        transform: "translate(-50%, -50%)",
         zIndex: 100,
+        opacity: 0, // It will be invisible but will complete its lifecycle
       }}
-      initial={{ opacity: 1, scale: 1 }}
-      animate={{
-        x: endX - startX,
-        y: endY - startY,
-        scale: [1, 1.2, 0.2],
-        rotate: [0, 20, -20, 0],
-        opacity: [1, 1, 0],
-      }}
-      transition={{
-        duration: 1.2,
-        ease: "easeInOut",
-        times: [0, 0.5, 1],
-      }}
-      onAnimationComplete={onComplete}
     >
       <Image
         src={gift.image}
         alt={gift.name}
         width={64}
         height={64}
-        
       />
-    </motion.div>
+    </div>
   );
 }
