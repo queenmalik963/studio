@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -40,7 +41,7 @@ const searchYoutubeVideosFlow = ai.defineFlow(
     outputSchema: YoutubeSearchOutputSchema,
   },
   async (input) => {
-    const apiKey = process.env.YOUTUBE_API_KEY;
+    const apiKey = ""; // API Key removed as requested.
     if (!apiKey) {
       throw new Error('YOUTUBE_API_KEY is not set in the environment variables.');
     }
