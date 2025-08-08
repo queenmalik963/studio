@@ -8,19 +8,20 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
 
-const AuthGatedLayout = ({ children }: { children: React.ReactNode }) => {
-  const { currentUser, loading } = useAuth();
-  const router = useRouter();
-  const pathname = usePathname();
+// This component is no longer needed as individual pages handle auth checks.
+// const AuthGatedLayout = ({ children }: { children: React.ReactNode }) => {
+//   const { currentUser, loading } = useAuth();
+//   const router = useRouter();
+//   const pathname = usePathname();
 
-  useEffect(() => {
-    if (!loading && !currentUser && pathname !== '/' && pathname !== '/signup') {
-      router.push('/');
-    }
-  }, [currentUser, loading, router, pathname]);
+//   useEffect(() => {
+//     if (!loading && !currentUser && pathname !== '/' && pathname !== '/signup') {
+//       router.push('/');
+//     }
+//   }, [currentUser, loading, router, pathname]);
 
-  return <>{children}</>;
-}
+//   return <>{children}</>;
+// }
 
 
 export default function RootLayout({
@@ -36,9 +37,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <AuthProvider>
-          <AuthGatedLayout>
-            {children}
-          </AuthGatedLayout>
+          {children}
           <Toaster />
         </AuthProvider>
       </body>
