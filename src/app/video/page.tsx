@@ -8,9 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Plus, Search, Settings, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { db } from "@/lib/firebase";
-import { collection, query, where, onSnapshot, DocumentData } from "firebase/firestore";
+import { useState } from "react";
+
 
 interface Room {
     id: string;
@@ -23,38 +22,38 @@ interface Room {
     seats: any[];
 }
 
+const mockVideoRooms: Room[] = [
+    {
+        id: 'vid-1',
+        name: 'Live DJ Set by GalaxyRaver',
+        thumbnail: 'https://i.imgur.com/Oz4ud1o.gif',
+        thumbnailHint: 'animated space battle',
+        isPlaying: true,
+        progress: 75,
+        users: [
+            { name: 'Alex', avatar: 'https://placehold.co/50x50/F87171/ffffff.png?text=A' },
+            { name: 'Beth', avatar: 'https://placehold.co/50x50/34D399/ffffff.png?text=B' },
+            { name: 'Chris', avatar: 'https://placehold.co/50x50/60A5FA/ffffff.png?text=C' },
+        ],
+        seats: [],
+    },
+    {
+        id: 'vid-2',
+        name: 'Watching "The Matrix" with friends',
+        thumbnail: 'https://placehold.co/600x400/059669/ffffff.png',
+        thumbnailHint: 'matrix digital rain',
+        isPlaying: true,
+        progress: 42,
+        users: [
+            { name: 'Neo', avatar: 'https://placehold.co/50x50/000000/ffffff.png?text=N' },
+            { name: 'Morpheus', avatar: 'https://placehold.co/50x50/8B5CF6/ffffff.png?text=M' },
+        ],
+        seats: [],
+    }
+];
+
 export default function VideoPage() {
-    const [rooms, setRooms] = useState<Room[]>([]);
-
-    useEffect(() => {
-        const roomsColRef = collection(db, 'rooms');
-        const q = query(roomsColRef, where("type", "==", "video"), where("isLive", "==", true));
-
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            const fetchedRooms: Room[] = [];
-            querySnapshot.forEach((doc: DocumentData) => {
-                const data = doc.data();
-                const occupiedSeats = (data.seats || []).filter((s: any) => s.user);
-
-                fetchedRooms.push({
-                    id: doc.id,
-                    name: data.name,
-                    thumbnail: data.thumbnail || "https://i.imgur.com/Oz4ud1o.gif",
-                    thumbnailHint: data.youtubeVideoId ? "youtube video" : "animated space battle",
-                    isPlaying: data.isPlaying || false,
-                    progress: data.playbackTime ? (data.playbackTime / (data.trackDuration || 1)) * 100 : 0,
-                    users: occupiedSeats.slice(0, 3).map((s: any) => s.user),
-                    seats: data.seats || [],
-                });
-            });
-            setRooms(fetchedRooms);
-        }, (error) => {
-            console.error("Error fetching rooms: ", error);
-        });
-
-        return () => unsubscribe();
-    }, []);
-
+    const [rooms] = useState<Room[]>(mockVideoRooms);
 
   return (
     <div className="bg-gradient-to-b from-slate-900 via-purple-900 to-slate-900 min-h-screen">
@@ -82,7 +81,7 @@ export default function VideoPage() {
             ) : (
                 <div className="space-y-3">
                     {rooms.map((room) => (
-                        <Link href={`/video/room/${room.id}`} key={room.id}>
+                        <Link href={`/video/add`} key={room.id}>
                           <Card className="bg-white/5 border-0 rounded-2xl overflow-hidden backdrop-blur-md">
                               <CardContent className="p-2 flex items-center gap-3">
                                   <div className="relative w-28 h-20 flex-shrink-0">

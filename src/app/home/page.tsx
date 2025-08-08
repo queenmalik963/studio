@@ -15,9 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MusicSuggestions } from "@/components/video/MusicSuggestions";
-import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-import { collection, query, where, onSnapshot, DocumentData, limit } from "firebase/firestore";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface TrendingRoom {
@@ -30,6 +28,53 @@ interface TrendingRoom {
   viewers: string;
   icon: React.ElementType;
 }
+
+const mockTrendingVideos: TrendingRoom[] = [
+    {
+        id: 'vid-1',
+        href: '#',
+        image: 'https://i.imgur.com/Oz4ud1o.gif',
+        hint: 'animated space battle',
+        title: 'Epic Space Battle Live!',
+        creator: 'GalaxyExplorer',
+        viewers: '1.2k',
+        icon: PlaySquare,
+    },
+    {
+        id: 'vid-2',
+        href: '#',
+        image: 'https://i.ytimg.com/vi/jfKfPfyJRdk/maxresdefault.jpg',
+        hint: 'lofi music stream',
+        title: 'Lofi Hip Hop Radio 24/7',
+        creator: 'Lofi Girl',
+        viewers: '25k',
+        icon: PlaySquare,
+    },
+];
+
+const mockTrendingAudio: TrendingRoom[] = [
+     {
+        id: 'aud-1',
+        href: '#',
+        image: 'https://i.imgur.com/sCbrK9U.png',
+        hint: 'podcast microphone',
+        title: 'Late Night Tech Talk',
+        creator: 'TechGuru',
+        viewers: '850',
+        icon: Headphones,
+    },
+    {
+        id: 'aud-2',
+        href: '#',
+        image: 'https://placehold.co/600x400/1e293b/ffffff.png',
+        hint: 'standup comedy stage',
+        title: 'Comedy Hour Live',
+        creator: 'FunnyBone',
+        viewers: '2.1k',
+        icon: Headphones,
+    },
+]
+
 
 const TrendingCard = ({ href, image, hint, title, creator, viewers, icon: Icon }: TrendingRoom) => (
     <Link href={href} className="block">
@@ -147,55 +192,16 @@ const CAFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export default function HomePage() {
   const router = useRouter();
   const { currentUser, userProfile, loading } = useAuth();
-  const [trendingVideos, setTrendingVideos] = useState<TrendingRoom[]>([]);
-  const [trendingAudio, setTrendingAudio] = useState<TrendingRoom[]>([]);
+  const [trendingVideos] = useState<TrendingRoom[]>(mockTrendingVideos);
+  const [trendingAudio] = useState<TrendingRoom[]>(mockTrendingAudio);
 
   useEffect(() => {
+    // In a static app, we don't need to push back to login if there's no user
+    // because auth is mocked.
     if (!loading && !currentUser) {
-      router.push('/');
+      // router.push('/');
     }
   }, [currentUser, loading, router]);
-
-  useEffect(() => {
-    // Only fetch data if the user is logged in
-    if (!currentUser) return;
-
-    const roomsColRef = collection(db, 'rooms');
-    const roomsQuery = query(roomsColRef, where("isLive", "==", true), limit(4));
-
-    const unsubscribeRooms = onSnapshot(roomsQuery, (snapshot) => {
-        const videos: TrendingRoom[] = [];
-        const audios: TrendingRoom[] = [];
-
-        snapshot.forEach((doc: DocumentData) => {
-            const data = doc.data();
-            const occupiedSeats = (data.seats || []).filter((s: any) => s.user).length;
-            const room: TrendingRoom = {
-                id: doc.id,
-                href: `/${data.type}/room/${doc.id}`,
-                title: data.name,
-                creator: data.ownerName || 'A User',
-                viewers: `${occupiedSeats}`, 
-                image: data.thumbnail || (data.type === 'video' ? 'https://i.imgur.com/Oz4ud1o.gif' : 'https://i.imgur.com/sCbrK9U.png'),
-                hint: data.type === 'video' ? 'youtube video' : 'podcast microphone',
-                icon: data.type === 'video' ? PlaySquare : Headphones
-            };
-
-            if (data.type === 'video' && videos.length < 2) {
-                videos.push(room);
-            } else if (data.type === 'audio' && audios.length < 2) {
-                audios.push(room);
-            }
-        });
-
-        setTrendingVideos(videos);
-        setTrendingAudio(audios);
-    }, (error) => {
-        console.error("Error fetching trending rooms:", error);
-    });
-
-    return () => unsubscribeRooms();
-  }, [currentUser]); // Re-run when currentUser changes
 
   if (loading || !userProfile) {
       return (

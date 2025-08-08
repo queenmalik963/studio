@@ -7,31 +7,51 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Search, MessageCircle } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { getConversations, type ConversationSummary } from "@/services/chatService";
+import { useState } from "react";
 import { formatDistanceToNow } from 'date-fns';
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
+
+interface ConversationSummary {
+    id: string;
+    partnerId: string;
+    partnerName: string;
+    partnerAvatar: string;
+    lastMessage: string;
+    lastMessageTimestamp: Date;
+    unreadCount: number;
+}
+
+const mockConversations: ConversationSummary[] = [
+    {
+        id: "chat-1",
+        partnerId: "user-2",
+        partnerName: "Ayesha",
+        partnerAvatar: "https://placehold.co/100x100/f87171/ffffff.png?text=A",
+        lastMessage: "Haha, that's hilarious! See you there.",
+        lastMessageTimestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+        unreadCount: 2,
+    },
+    {
+        id: "chat-2",
+        partnerId: "user-3",
+        partnerName: "DJ Spark",
+        partnerAvatar: "https://placehold.co/100x100/fbbf24/ffffff.png?text=S",
+        lastMessage: "Yeah, I can play that track next. No problem.",
+        lastMessageTimestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+        unreadCount: 0,
+    },
+    {
+        id: "chat-3",
+        partnerId: "user-4",
+        partnerName: "Zara",
+        partnerAvatar: "https://placehold.co/100x100/34d399/ffffff.png?text=Z",
+        lastMessage: "Are you going to the event tonight?",
+        lastMessageTimestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+        unreadCount: 0,
+    }
+];
 
 export default function ChatListPage() {
-    const router = useRouter();
-    const { currentUser, loading } = useAuth();
-    const [conversations, setConversations] = useState<ConversationSummary[]>([]);
-
-    useEffect(() => {
-        if (!loading && !currentUser) {
-            router.push('/');
-            return;
-        }
-
-        if (currentUser) {
-            const unsubscribeConversations = getConversations(currentUser.uid, (newConversations) => {
-                setConversations(newConversations);
-            });
-    
-            return () => unsubscribeConversations();
-        }
-    }, [currentUser, loading, router]);
+    const [conversations] = useState<ConversationSummary[]>(mockConversations);
 
     return (
         <AppLayout>
@@ -60,7 +80,7 @@ export default function ChatListPage() {
                                                 <p className="font-semibold truncate">{chat.partnerName}</p>
                                                 {chat.lastMessageTimestamp && (
                                                     <p className="text-xs text-muted-foreground">
-                                                        {formatDistanceToNow(new Date(chat.lastMessageTimestamp.seconds * 1000), { addSuffix: true })}
+                                                        {formatDistanceToNow(chat.lastMessageTimestamp, { addSuffix: true })}
                                                     </p>
                                                 )}
                                             </div>

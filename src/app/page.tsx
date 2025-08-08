@@ -39,55 +39,44 @@ export default function LoginPage() {
     const [isSigningIn, setIsSigningIn] = useState(false);
 
     useEffect(() => {
-        if (!authLoading && currentUser) {
-            router.push("/home");
-        }
+        // In this static version, we can redirect immediately if we want to simulate auto-login.
+        // For now, we'll leave the login page accessible.
+        // if (!authLoading && currentUser) {
+        //     router.push("/home");
+        // }
     }, [currentUser, authLoading, router]);
 
     const handleSignIn = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSigningIn(true);
-        const { success, error, code } = await signInWithEmail(email, password);
+        const { success } = await signInWithEmail(email, password);
         setIsSigningIn(false);
 
         if (success) {
             toast({ title: "Login Successful!", description: "Welcome back." });
             router.push("/home");
-        } else if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
-             toast({
-                variant: "destructive",
-                title: "Invalid Credentials",
-                description: "The email or password you entered is incorrect.",
-            });
-        } else if (code === 'permission-denied') {
+        } else {
              toast({
                 variant: "destructive",
                 title: "Login Failed",
-                description: "Missing or insufficient permissions. Please check Firestore rules.",
-            });
-        }
-        else if (error) {
-            toast({
-                variant: "destructive",
-                title: "Login Failed",
-                description: error,
+                description: "This is a static demo. Login will always succeed.",
             });
         }
     };
 
     const handleGoogleSignIn = async () => {
         setIsSigningIn(true);
-        const { success, error } = await signInWithGoogleProvider();
+        const { success } = await signInWithGoogleProvider();
         setIsSigningIn(false);
 
         if (success) {
             toast({ title: "Google Sign-In Successful!", description: "Welcome!" });
             router.push("/home");
-        } else if (error) {
+        } else {
              toast({
                 variant: "destructive",
                 title: "Google Sign-In Failed",
-                description: error,
+                description: "This is a static demo. Login will always succeed.",
             });
         }
     };

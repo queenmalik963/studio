@@ -8,9 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Plus, Search, Settings, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { db } from "@/lib/firebase";
-import { collection, query, where, onSnapshot, DocumentData } from "firebase/firestore";
+import { useState } from "react";
 
 interface Room {
     id: string;
@@ -23,37 +21,37 @@ interface Room {
     seats: any[];
 }
 
+const mockAudioRooms: Room[] = [
+    {
+        id: 'aud-1',
+        name: 'Chill Lofi Beats',
+        thumbnail: 'https://i.imgur.com/sCbrK9U.png',
+        thumbnailHint: 'podcast microphone audio',
+        isPlaying: true,
+        progress: 60,
+        users: [
+            { name: 'Alex', avatar: 'https://placehold.co/50x50/F87171/ffffff.png?text=A' },
+            { name: 'Beth', avatar: 'https://placehold.co/50x50/34D399/ffffff.png?text=B' },
+            { name: 'Chris', avatar: 'https://placehold.co/50x50/60A5FA/ffffff.png?text=C' },
+        ],
+        seats: [],
+    },
+    {
+        id: 'aud-2',
+        name: 'Deep House Session',
+        thumbnail: 'https://placehold.co/600x400/1e293b/ffffff.png',
+        thumbnailHint: 'dj deck controller',
+        isPlaying: false,
+        progress: 0,
+        users: [
+            { name: 'Dave', avatar: 'https://placehold.co/50x50/FBBF24/ffffff.png?text=D' },
+        ],
+        seats: [],
+    }
+];
+
 export default function AudioPage() {
-    const [rooms, setRooms] = useState<Room[]>([]);
-
-    useEffect(() => {
-        const roomsColRef = collection(db, 'rooms');
-        const q = query(roomsColRef, where("type", "==", "audio"), where("isLive", "==", true));
-
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            const fetchedRooms: Room[] = [];
-            querySnapshot.forEach((doc: DocumentData) => {
-                const data = doc.data();
-                const occupiedSeats = (data.seats || []).filter((s: any) => s.user);
-                
-                fetchedRooms.push({
-                    id: doc.id,
-                    name: data.name,
-                    thumbnail: data.thumbnail || "https://i.imgur.com/sCbrK9U.png",
-                    thumbnailHint: "podcast microphone audio",
-                    isPlaying: data.isPlaying || false,
-                    progress: data.playbackTime ? (data.playbackTime / (data.trackDuration || 1)) * 100 : 0,
-                    users: occupiedSeats.slice(0, 3).map((s: any) => s.user),
-                    seats: data.seats || [],
-                });
-            });
-            setRooms(fetchedRooms);
-        }, (error) => {
-            console.error("Error fetching rooms: ", error);
-        });
-
-        return () => unsubscribe();
-    }, []);
+    const [rooms] = useState<Room[]>(mockAudioRooms);
 
   return (
     <div className="bg-gradient-to-b from-slate-900 via-indigo-900 to-slate-900 min-h-screen">
@@ -82,7 +80,7 @@ export default function AudioPage() {
             ) : (
                 <div className="space-y-3">
                     {rooms.map((room) => (
-                        <Link href={`/audio/room/${room.id}`} key={room.id}>
+                        <Link href={`/audio/add`} key={room.id}>
                           <Card className="bg-white/5 border-0 rounded-2xl overflow-hidden backdrop-blur-md">
                               <CardContent className="p-2 flex items-center gap-3">
                                   <div className="relative w-28 h-20 flex-shrink-0">

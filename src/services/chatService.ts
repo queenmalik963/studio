@@ -1,29 +1,15 @@
 
-import { 
-    db 
-} from '@/lib/firebase';
-import { 
-    collection,
-    addDoc,
-    serverTimestamp,
-    onSnapshot,
-    query,
-    orderBy,
-    limit,
-    where,
-    getDocs,
-    doc,
-    getDoc,
-    writeBatch
-} from 'firebase/firestore';
-import type { Unsubscribe, Timestamp } from 'firebase/firestore';
+// This file has been modified to remove all Firebase dependencies.
+// The functions now return mocked success states or data to allow UI flow.
+
+import { formatDistanceToNow } from 'date-fns';
 
 export interface ChatMessage {
     id: string;
     text: string;
     type: "text" | "voice";
     senderId: string;
-    timestamp: Timestamp;
+    timestamp: Date;
     duration?: string;
 }
 
@@ -33,7 +19,7 @@ export interface ConversationSummary {
     partnerName: string;
     partnerAvatar: string;
     lastMessage: string;
-    lastMessageTimestamp: Timestamp;
+    lastMessageTimestamp: Date;
     unreadCount: number;
 }
 
@@ -43,106 +29,56 @@ export interface ConversationPartner {
     avatar: string;
 }
 
-// Listen to all conversations for a user
-export const getConversations = (userId: string, callback: (conversations: ConversationSummary[]) => void): Unsubscribe => {
-    const conversationsRef = collection(db, 'conversations');
-    const q = query(conversationsRef, where('participants', 'array-contains', userId));
-
-    return onSnapshot(q, async (querySnapshot) => {
-        const conversations: ConversationSummary[] = [];
-
-        for (const doc of querySnapshot.docs) {
-            const data = doc.data();
-            const partnerId = data.participants.find((p: string) => p !== userId);
-            
-            if (partnerId) {
-                const userDocRef = doc(db, 'users', partnerId);
-                const userDocSnap = await getDoc(userDocRef);
-                const partnerData = userDocSnap.data();
-
-                conversations.push({
-                    id: doc.id,
-                    partnerId: partnerId,
-                    partnerName: partnerData?.name || 'User',
-                    partnerAvatar: partnerData?.avatar || 'https://placehold.co/100x100.png',
-                    lastMessage: data.lastMessage?.text || 'No messages yet...',
-                    lastMessageTimestamp: data.lastMessage?.timestamp,
-                    unreadCount: data.unreadCounts?.[userId] || 0,
-                });
-            }
-        }
-        
-        // Sort by most recent message
-        conversations.sort((a, b) => {
-            const timeA = a.lastMessageTimestamp?.toMillis() || 0;
-            const timeB = b.lastMessageTimestamp?.toMillis() || 0;
-            return timeB - timeA;
-        });
-
-        callback(conversations);
-    });
+// Mock function to get conversations
+export const getConversations = (userId: string, callback: (conversations: ConversationSummary[]) => void) => {
+    const mockConversations: ConversationSummary[] = [
+        {
+            id: "chat-1",
+            partnerId: "user-2",
+            partnerName: "Ayesha",
+            partnerAvatar: "https://placehold.co/100x100/f87171/ffffff.png?text=A",
+            lastMessage: "Haha, that's hilarious! See you there.",
+            lastMessageTimestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+            unreadCount: 2,
+        },
+        {
+            id: "chat-2",
+            partnerId: "user-3",
+            partnerName: "DJ Spark",
+            partnerAvatar: "https://placehold.co/100x100/fbbf24/ffffff.png?text=S",
+            lastMessage: "Yeah, I can play that track next. No problem.",
+            lastMessageTimestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+            unreadCount: 0,
+        },
+    ];
+    callback(mockConversations);
+    return () => console.log('Stopped listening to mock conversations');
 };
 
-// Listen to messages in a specific conversation
-export const listenToMessages = (conversationId: string, callback: (messages: ChatMessage[]) => void): Unsubscribe => {
-    const messagesRef = collection(db, 'conversations', conversationId, 'messages');
-    const q = query(messagesRef, orderBy('timestamp', 'asc'));
-
-    return onSnapshot(q, (querySnapshot) => {
-        const messages: ChatMessage[] = [];
-        querySnapshot.forEach((doc) => {
-            messages.push({ id: doc.id, ...doc.data() } as ChatMessage);
-        });
-        callback(messages);
-    });
+// Mock function to listen to messages in a specific conversation
+export const listenToMessages = (conversationId: string, callback: (messages: ChatMessage[]) => void) => {
+    const mockMessages: ChatMessage[] = [
+        { id: '1', senderId: 'partner-id', text: 'Hey, how are you?', type: 'text', timestamp: new Date(Date.now() - 5 * 60000) },
+        { id: '2', senderId: 'mock_user_123', text: 'I am good, thanks for asking!', type: 'text', timestamp: new Date(Date.now() - 4 * 60000) },
+        { id: '3', senderId: 'partner-id', text: 'Are you coming to the event tonight?', type: 'text', timestamp: new Date(Date.now() - 3 * 60000) },
+        { id: '4', senderId: 'mock_user_123', text: 'Yes, definitely! Can\'t wait. It\'s going to be epic.', type: 'text', timestamp: new Date(Date.now() - 2 * 60000) },
+    ];
+    callback(mockMessages);
+    return () => console.log(`Stopped listening to mock messages for ${conversationId}`);
 };
 
-
-// Send a message
+// Mock function to send a message
 export const sendMessage = async (conversationId: string, senderId: string, text: string) => {
-    const conversationRef = doc(db, 'conversations', conversationId);
-    const messagesRef = collection(conversationRef, 'messages');
-    const partnerId = (await getDoc(conversationRef)).data()?.participants.find((p: string) => p !== senderId);
-
-    const batch = writeBatch(db);
-
-    // Add new message
-    const newMessageRef = doc(messagesRef); // create a new doc ref to get ID
-    const messageData = {
-        text: text,
-        senderId: senderId,
-        timestamp: serverTimestamp(),
-        type: 'text'
-    };
-    batch.set(newMessageRef, messageData);
-
-    // Update conversation summary
-    batch.update(conversationRef, {
-        lastMessage: messageData,
-        [`unreadCounts.${partnerId}`]: 1 // A more robust implementation would use increment
-    });
-
-    await batch.commit();
+    console.log(`Mock sending message to conversation ${conversationId}: ${text}`);
+    return { success: true };
 };
 
-// Get the other user in the conversation
+// Mock function to get the other user in the conversation
 export const getConversationPartner = async (conversationId: string, currentUserId: string): Promise<ConversationPartner | null> => {
-    const conversationRef = doc(db, 'conversations', conversationId);
-    const conversationSnap = await getDoc(conversationRef);
-
-    if (!conversationSnap.exists()) return null;
-
-    const partnerId = conversationSnap.data().participants.find((p: string) => p !== currentUserId);
-    if (!partnerId) return null;
-
-    const userRef = doc(db, 'users', partnerId);
-    const userSnap = await getDoc(userRef);
-
-    if (!userSnap.exists()) return null;
-
-    return {
-        id: userSnap.id,
-        name: userSnap.data().name || 'User',
-        avatar: userSnap.data().avatar || 'https://placehold.co/100x100.png'
+     const mockPartner: ConversationPartner = {
+        id: 'partner-id',
+        name: 'Ayesha',
+        avatar: 'https://placehold.co/100x100/f87171/ffffff.png?text=A'
     };
+    return mockPartner;
 };

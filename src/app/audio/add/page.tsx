@@ -51,15 +51,20 @@ export default function AddAudioPage() {
             type: 'audio',
             seats: parseInt(numberOfSeats, 10),
         });
+        
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
         setIsLoading(false);
         setOpen(false);
 
         if (result.success && result.roomId) {
             toast({
                 title: "Room Created!",
-                description: "Your new audio room is live.",
+                description: "Your new audio room is live (Demo).",
             });
-            router.push(`/audio/room/${result.roomId}`);
+            // In a static version, we can't go to a dynamic room, so let's go back or to a static page.
+            router.push(`/audio`);
         } else {
             toast({
                 variant: "destructive",

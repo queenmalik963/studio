@@ -2,13 +2,43 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth, db, areKeysValid } from '@/lib/firebase';
-import { doc, onSnapshot, DocumentData, Unsubscribe } from 'firebase/firestore';
 import { UserProfile } from '@/services/userService';
 
+// Mock User and UserProfile for a non-Firebase app
+type MockUser = {
+    uid: string;
+    email: string;
+    displayName: string;
+    photoURL: string;
+};
+
+const mockUserProfile: UserProfile = {
+    id: "mock_user_123",
+    name: "Rave King",
+    username: "raveking",
+    bio: "Welcome to my kingdom! Enjoy the rave.",
+    avatar: "https://placehold.co/100x100/8b5cf6/ffffff.png?text=RK",
+    coins: 99999,
+    diamonds: 8888,
+    followers: 1200,
+    following: 150,
+    idLevel: 45,
+    sendingLevel: 60,
+    frames: ["gold", "purple", "master"],
+    currentFrame: "master",
+    vipTier: "shogun",
+    vipExpiry: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+};
+
+const mockUser: MockUser = {
+    uid: mockUserProfile.id,
+    email: 'king@ravewave.com',
+    displayName: mockUserProfile.name,
+    photoURL: mockUserProfile.avatar,
+}
+
 interface AuthContextType {
-    currentUser: User | null;
+    currentUser: MockUser | null;
     userProfile: UserProfile | null;
     loading: boolean;
 }
@@ -22,61 +52,19 @@ const AuthContext = createContext<AuthContextType>({
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    // We'll simulate a logged-in state. In a real non-Firebase app,
+    // this would be determined by a token, session, etc.
+    const [currentUser] = useState<MockUser | null>(mockUser);
+    const [userProfile] = useState<UserProfile | null>(mockUserProfile);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // If Firebase keys are not valid, stop loading and don't attempt to connect.
-        if (!areKeysValid) {
-            console.error("Firebase keys are invalid. App cannot connect to Firebase.");
+        // Simulate loading delay
+        const timer = setTimeout(() => {
             setLoading(false);
-            return;
-        }
+        }, 500);
 
-        const authUnsubscribe = onAuthStateChanged(auth, (user) => {
-            setCurrentUser(user);
-            
-            let profileUnsubscribe: Unsubscribe | undefined;
-
-            if (user) {
-                // If there's a user, set up a listener for their profile.
-                const userDocRef = doc(db, 'users', user.uid);
-                profileUnsubscribe = onSnapshot(userDocRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        setUserProfile({ id: docSnap.id, ...docSnap.data() } as UserProfile);
-                    } else {
-                        // This case can happen briefly when a user is created but the profile doc isn't ready.
-                        setUserProfile(null);
-                    }
-                    setLoading(false);
-                }, (error) => {
-                    console.error("Error listening to user profile:", error);
-                    setUserProfile(null);
-                    setLoading(false);
-                });
-            } else {
-                // If there's no user, clear profile, stop loading, and ensure no profile listener is active.
-                setUserProfile(null);
-                setLoading(false);
-                if (profileUnsubscribe) {
-                    profileUnsubscribe();
-                }
-            }
-            
-            // Return a cleanup function for the profile listener when the auth state changes or component unmounts.
-            return () => {
-                if (profileUnsubscribe) {
-                    profileUnsubscribe();
-                }
-            };
-        }, (error) => {
-            console.error("Auth state error:", error);
-            setLoading(false);
-        });
-
-        // Main cleanup for the auth listener itself.
-        return () => authUnsubscribe();
+        return () => clearTimeout(timer);
     }, []);
 
     const value = {
