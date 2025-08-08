@@ -23,7 +23,7 @@ import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
 import { type Message, type Seat, type SeatUser, sendMessage, getRoomById, type Room, getInitialSeats, getMockUsers } from "@/services/roomService";
 import { useAuth } from "@/contexts/AuthContext";
-import { doc, onSnapshot, collection, query, orderBy, updateDoc, setDoc } from "firebase/firestore";
+import { doc, onSnapshot, collection, query, orderBy, updateDoc, setDoc, getDocs } from "firebase/firestore";
 import { db } from "@/services/firebase";
 
 
@@ -90,7 +90,6 @@ export default function AudioRoomPage() {
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
     const [isGameActive, setIsGameActive] = useState(false);
     
-    const [currentTrackUrl, setCurrentTrackUrl] = useState<string | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -111,7 +110,6 @@ export default function AudioRoomPage() {
             if (docSnap.exists()) {
                 const roomData = { id: docSnap.id, ...docSnap.data() } as Room;
                 setRoom(roomData);
-                setCurrentTrackUrl(roomData.currentTrackUrl || null);
                 setIsPlaying(roomData.isPlaying || false);
                 setCurrentUserIsOwner(userProfile.id === roomData.ownerId);
 
@@ -174,14 +172,14 @@ export default function AudioRoomPage() {
     }, [messages]);
 
     useEffect(() => {
-        if (audioRef.current) {
-            if (isPlaying && currentTrackUrl) {
+        if (audioRef.current && room?.currentTrackUrl) {
+            if (isPlaying) {
                 audioRef.current.play().catch(e => console.error("Audio play failed:", e));
             } else {
                 audioRef.current?.pause();
             }
         }
-    }, [isPlaying, currentTrackUrl]);
+    }, [isPlaying, room?.currentTrackUrl]);
     
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
@@ -306,7 +304,6 @@ export default function AudioRoomPage() {
             
             // In a real app, you would upload the file to a storage service (like Firebase Storage)
             // and get a public URL. For this prototype, we'll just set it locally and update Firestore.
-            setCurrentTrackUrl(trackUrl); // Set local state for immediate playback
             
             const roomRef = doc(db, 'rooms', roomId);
             await updateDoc(roomRef, {
@@ -508,7 +505,7 @@ export default function AudioRoomPage() {
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
              <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="audio/*" className="hidden" />
-             <audio ref={audioRef} loop src={currentTrackUrl || ''} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
+             <audio ref={audioRef} loop src={room.currentTrackUrl || ''} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
              {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
              {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
