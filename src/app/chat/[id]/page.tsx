@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast";
-import { type ChatMessage, type ConversationPartner } from "@/services/chatService";
+import { getMockMessages, getMockPartner, type ChatMessage, type ConversationPartner } from "@/services/chatService";
 import { useAuth } from "@/contexts/AuthContext";
 
 
@@ -41,12 +41,10 @@ export default function ChatRoomPage() {
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        // In a real app, you'd fetch the partner's data based on conversationId
-        setPartner({
-            id: 'partner-id',
-            name: 'Ayesha',
-            avatar: 'https://placehold.co/100x100/f87171/ffffff.png?text=A'
-        });
+        if (conversationId) {
+            setPartner(getMockPartner(conversationId));
+            setMessages(getMockMessages(conversationId));
+        }
     }, [conversationId]);
     
     useEffect(() => {
