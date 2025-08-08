@@ -24,11 +24,23 @@ const frameTiers = [
 ];
 
 const animatedFrameTiers = [
-    { id: "crimson-danger", name: "Crimson Danger", price: 5000, image: "https://i.imgur.com/DADsWdw.gif", animationClass: 'animate-glow-red' },
-    { id: "master", name: "Master", price: 15000, image: "https://i.imgur.com/DADsWdw.gif", animationClass: 'animate-glow-purple' },
-    { id: "dragon-fury", name: "Dragon Fury", price: 25000, image: "https://i.imgur.com/RqnqCso.gif", animationClass: 'animate-glow-amber' },
-    { id: "platinum", name: "Platinum", price: 10000, image: "https://i.imgur.com/L7iFvH0.png", animationClass: 'animate-glow-cyan' },
+    { id: "EeLiIvo", name: "Neon Vortex", price: 5000, image: "https://i.imgur.com/EeLiIvo.gif", animationClass: 'animate-glow-purple' },
+    { id: "dadW7mL", name: "Cosmic Ring", price: 5000, image: "https://i.imgur.com/dadW7mL.gif", animationClass: 'animate-glow-cyan' },
+    { id: "nQPOShX", name: "Fire Sparks", price: 5000, image: "https://i.imgur.com/nQPOShX.gif", animationClass: 'animate-glow-red' },
+    { id: "5nC2D3l", name: "Aqua Flame", price: 5000, image: "https://i.imgur.com/5nC2D3l.gif", animationClass: 'animate-glow-blue' },
+    { id: "AuOpH7h", name: "Star Portal", price: 5000, image: "https://i.imgur.com/AuOpH7h.gif", animationClass: 'animate-glow-gold' },
+    { id: "wGAEm5U", name: "Electric Petals", price: 7500, image: "https://i.imgur.com/wGAEm5U.gif", animationClass: 'animate-glow-green' },
+    { id: "mQPDgwU", name: "Rainbow Orb", price: 7500, image: "https://i.imgur.com/mQPDgwU.gif", animationClass: 'animate-glow-pink' },
+    { id: "FTdqu3H", name: "Frost Nova", price: 7500, image: "https://i.imgur.com/FTdqu3H.gif", animationClass: 'animate-glow-sky' },
+    { id: "pXg7gf3", name: "Solar Flare", price: 7500, image: "https://i.imgur.com/pXg7gf3.gif", animationClass: 'animate-glow-orange' },
+    { id: "At3QgQ7", name: "Magic Circle", price: 10000, image: "https://i.imgur.com/At3QgQ7.gif", animationClass: 'animate-glow-teal' },
+    { id: "VkUd6Ab", name: "Galaxy Swirl", price: 10000, image: "https://i.imgur.com/VkUd6Ab.gif", animationClass: 'animate-glow-indigo' },
+    { id: "UHWrghE", name: "Digital Eye", price: 10000, image: "https://i.imgur.com/UHWrghE.gif", animationClass: 'animate-glow-lime' },
+    { id: "PZhRHH1", name: "Phoenix Aura", price: 15000, image: "https://i.imgur.com/PZhRHH1.gif", animationClass: 'animate-glow-amber' },
+    { id: "D9xf0es", name: "Emerald Light", price: 15000, image: "https://i.imgur.com/D9xf0es.gif', animationClass: 'animate-glow-emerald' },
+    { id: "jw5SszE", name: "Rose Nebula", price: 15000, image: "https://i.imgur.com/jw5SszE.gif", animationClass: 'animate-glow-rose' },
 ];
+
 
 type FrameTier = typeof frameTiers[0];
 
