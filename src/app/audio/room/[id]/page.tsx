@@ -71,7 +71,6 @@ export default function AudioRoomPage() {
     
     const { userProfile } = useAuth();
     
-    // State is now managed within the component, not from a mock service
     const [roomName, setRoomName] = useState("My Audio Room");
     const [messages, setMessages] = useState<Message[]>([]);
     const [seats, setSeats] = useState<Seat[]>(getInitialSeats(16));
@@ -91,9 +90,10 @@ export default function AudioRoomPage() {
     const currentUserSeat = seats.find(s => s.user?.id === userProfile?.id);
 
     // Audio Player State
-    const [currentTrackUrl, setCurrentTrackUrl] = useState("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
-    const [isPlaying, setIsPlaying] = useState(true);
+    const [currentTrackUrl, setCurrentTrackUrl] = useState<string | null>(null);
+    const [isPlaying, setIsPlaying] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -118,7 +118,7 @@ export default function AudioRoomPage() {
                 audioRef.current.pause();
             }
         }
-    }, [isPlaying]);
+    }, [isPlaying, currentTrackUrl]);
     
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
@@ -227,12 +227,30 @@ export default function AudioRoomPage() {
     };
     
     const togglePlay = () => {
-        setIsPlaying(prev => {
-            const newState = !prev;
-            toast({ title: `Music ${newState ? 'Resumed' : 'Paused'}` });
-            return newState;
-        });
+        if (!currentTrackUrl) {
+            toast({ variant: 'destructive', title: "No track selected", description: "Please upload a track first." });
+            return;
+        }
+        setIsPlaying(prev => !prev);
     };
+    
+    const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const trackUrl = URL.createObjectURL(file);
+            setCurrentTrackUrl(trackUrl);
+            setIsPlaying(true);
+            toast({
+                title: "Track Changed!",
+                description: `Now playing: ${file.name}.`,
+            });
+            setIsControlsPanelOpen(false);
+        }
+    };
+    
+    const handleUploadClick = () => {
+        fileInputRef.current?.click();
+    }
 
     const handleTogglePersonalMic = () => {
         toast({ title: "Mic Toggled" });
@@ -251,7 +269,7 @@ export default function AudioRoomPage() {
         { name: "Broadcast", icon: Megaphone, action: () => { toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." }); setIsControlsPanelOpen(false); } },
         { name: "Play Track", icon: Play, action: () => { togglePlay(); setIsControlsPanelOpen(false); } },
         { name: "Pause Track", icon: Pause, action: () => { togglePlay(); setIsControlsPanelOpen(false); } },
-        { name: "Upload", icon: Upload, action: () => { router.push('/audio/add'); toast({title: "Redirecting...", description: "Create a new room to play another track."});} },
+        { name: "Upload", icon: Upload, action: () => { handleUploadClick(); } },
         { name: "Invite", icon: UserPlus, action: () => { navigator.clipboard.writeText(window.location.href); toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." }); setIsControlsPanelOpen(false); } },
         { name: "Effect", icon: Wand2, action: () => { setAreEffectsEnabled(prev => { const newState = !prev; toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` }); return newState; }); setIsControlsPanelOpen(false); } },
         { name: "Clean", icon: Trash2, action: () => { setMessages(prev => prev.filter(m => m.type !== 'text')); toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." }); setIsControlsPanelOpen(false); } },
@@ -367,7 +385,8 @@ export default function AudioRoomPage() {
 
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
-             <audio ref={audioRef} loop src={currentTrackUrl} />
+             <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="audio/*" className="hidden" />
+             {currentTrackUrl && <audio ref={audioRef} loop src={currentTrackUrl} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />}
              {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
              {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">

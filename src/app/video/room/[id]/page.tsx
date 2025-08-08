@@ -75,6 +75,7 @@ function VideoRoomPageComponent() {
     const [isPlaying, setIsPlaying] = useState(true);
     
     const playerRef = useRef<HTMLVideoElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -84,13 +85,11 @@ function VideoRoomPageComponent() {
     const currentUserIsOwner = true; // Assume owner for static display
 
     useEffect(() => {
+        // This is an illusion for the local user. In a real app, this URL would come from a server after upload.
         const encodedUrl = searchParams.get('videoUrl');
         if (encodedUrl) {
             const decodedUrl = decodeURIComponent(encodedUrl);
             setVideoUrl(decodedUrl);
-        } else {
-             // Fallback for direct navigation
-            setVideoUrl("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
         }
     }, [searchParams]);
     
@@ -231,7 +230,25 @@ function VideoRoomPageComponent() {
     };
 
     const togglePlay = () => {
+        if (!videoUrl) {
+            toast({ variant: 'destructive', title: "No video selected", description: "Please change the video first." });
+            return;
+        }
         setIsPlaying(prev => !prev);
+    };
+
+    const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const newVideoUrl = URL.createObjectURL(file);
+            setVideoUrl(newVideoUrl);
+            setIsPlaying(true);
+            toast({
+                title: "Video Changed!",
+                description: `Now playing: ${file.name}.`,
+            });
+            setIsControlsPanelOpen(false);
+        }
     };
     
      const handleControlAction = (action: string) => {
@@ -262,7 +279,7 @@ function VideoRoomPageComponent() {
                 toast({ title: "All Muted", description: "All users have been muted." });
                 break;
             case 'changeVideo':
-                router.push('/video/add');
+                fileInputRef.current?.click();
                 break;
             default:
                 break;
@@ -296,6 +313,7 @@ function VideoRoomPageComponent() {
     
     return (
         <div className="flex flex-col h-screen bg-[#180828] text-white font-sans overflow-hidden">
+             <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="video/*" className="hidden" />
              {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
              {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
@@ -321,7 +339,7 @@ function VideoRoomPageComponent() {
             ))}
 
             {/* Video Player Section */}
-            <div className="relative w-full bg-black h-[45%] flex-shrink-0">
+            <div className="relative w-full bg-black h-[45%] flex-shrink-0 group">
                  <div className="absolute inset-0 bg-black flex items-center justify-center">
                     {videoUrl ? (
                         <video
@@ -333,6 +351,7 @@ function VideoRoomPageComponent() {
                             className="w-full h-full object-contain"
                             onPlay={() => setIsPlaying(true)}
                             onPause={() => setIsPlaying(false)}
+                            onClick={togglePlay}
                         />
                     ) : (
                         <div className="flex flex-col items-center gap-2 text-white/50">
@@ -343,12 +362,13 @@ function VideoRoomPageComponent() {
                 </div>
 
                 {/* Video Controls Overlay */}
-                 <div className="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/20 transition-colors" onClick={togglePlay}>
+                 <div className="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/20 transition-colors pointer-events-none">
                     {videoUrl && (
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="w-16 h-16 rounded-full bg-black/30 text-white/70 hover:bg-black/50 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="w-16 h-16 rounded-full bg-black/30 text-white/70 hover:bg-black/50 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto"
+                            onClick={togglePlay}
                         >
                            {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8" />}
                         </Button>
