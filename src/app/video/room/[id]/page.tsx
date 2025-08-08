@@ -20,7 +20,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
-import { type Message, type Seat, type SeatUser, sendMessage } from "@/services/roomService";
+import { type Message, type Seat, type SeatUser, sendMessage, getInitialSeats } from "@/services/roomService";
 import { useAuth } from "@/contexts/AuthContext";
 
 export type JumpAnimation = {
@@ -59,7 +59,7 @@ function VideoRoomPageComponent() {
     // State is now managed within the component
     const [roomName, setRoomName] = useState("My Video Room");
     const [messages, setMessages] = useState<Message[]>([]);
-    const [seats, setSeats] = useState<Seat[]>(Array.from({ length: 8 }, (_, i) => ({ id: i + 1, user: null, isLocked: false })));
+    const [seats, setSeats] = useState<Seat[]>(getInitialSeats(8));
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
     const [newMessage, setNewMessage] = useState("");
@@ -88,6 +88,9 @@ function VideoRoomPageComponent() {
         if (encodedUrl) {
             const decodedUrl = decodeURIComponent(encodedUrl);
             setVideoUrl(decodedUrl);
+        } else {
+             // Fallback for direct navigation
+            setVideoUrl("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
         }
     }, [searchParams]);
     
@@ -99,6 +102,17 @@ function VideoRoomPageComponent() {
             }, 100);
         }
     }, [messages]);
+
+    useEffect(() => {
+        if (playerRef.current) {
+            if (isPlaying) {
+                playerRef.current.play().catch(e => console.error("Video play failed:", e));
+            } else {
+                playerRef.current.pause();
+            }
+        }
+    }, [isPlaying, videoUrl]);
+
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -217,18 +231,7 @@ function VideoRoomPageComponent() {
     };
 
     const togglePlay = () => {
-        const player = playerRef.current;
-        if (!player) return;
-        
-        if (player.paused) {
-            player.play();
-            setIsPlaying(true);
-            toast({ title: "Video Resumed" });
-        } else {
-            player.pause();
-            setIsPlaying(false);
-            toast({ title: "Video Paused" });
-        }
+        setIsPlaying(prev => !prev);
     };
     
      const handleControlAction = (action: string) => {
@@ -322,12 +325,14 @@ function VideoRoomPageComponent() {
                  <div className="absolute inset-0 bg-black flex items-center justify-center">
                     {videoUrl ? (
                         <video
+                            key={videoUrl}
                             ref={playerRef}
                             src={videoUrl}
-                            autoPlay
                             controls={false}
                             loop
                             className="w-full h-full object-contain"
+                            onPlay={() => setIsPlaying(true)}
+                            onPause={() => setIsPlaying(false)}
                         />
                     ) : (
                         <div className="flex flex-col items-center gap-2 text-white/50">
@@ -338,14 +343,14 @@ function VideoRoomPageComponent() {
                 </div>
 
                 {/* Video Controls Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center" onClick={togglePlay}>
-                    {currentUserIsOwner && videoUrl && !isPlaying && (
+                 <div className="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/20 transition-colors" onClick={togglePlay}>
+                    {videoUrl && (
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="w-16 h-16 rounded-full bg-black/30 text-white/70 hover:bg-black/50 hover:text-white"
+                            className="w-16 h-16 rounded-full bg-black/30 text-white/70 hover:bg-black/50 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                           <Play className="w-8 h-8" />
+                           {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8" />}
                         </Button>
                     )}
                 </div>
