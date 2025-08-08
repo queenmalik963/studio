@@ -33,24 +33,6 @@ export type JumpAnimation = {
     endY: number;
 };
 
-const newGifFrames = [
-  "https://i.imgur.com/EeLiIvo.gif",
-  "https://i.imgur.com/dadW7mL.gif",
-  "https://i.imgur.com/nQPOShX.gif",
-  "https://i.imgur.com/5nC2D3l.gif",
-  "https://i.imgur.com/AuOpH7h.gif",
-  "https://i.imgur.com/wGAEm5U.gif",
-  "https://i.imgur.com/mQPDgwU.gif",
-  "https://i.imgur.com/FTdqu3H.gif",
-  "https://i.imgur.com/pXg7gf3.gif",
-  "https://i.imgur.com/At3QgQ7.gif",
-  "https://i.imgur.com/VkUd6Ab.gif",
-  "https://i.imgur.com/UHWrghE.gif",
-  "https://i.imgur.com/PZhRHH1.gif",
-  "https://i.imgur.com/D9xf0es.gif",
-  "https://i.imgur.com/jw5SszE.gif",
-];
-
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
 );
@@ -507,22 +489,16 @@ function VideoRoomPageComponent() {
                                     <ScrollArea className="h-48">
                                         <div className="space-y-2">
                                             {occupiedSeats.map((seat) => {
-                                                const frameUrl = seat.user.frame ? newGifFrames[seats.findIndex(s => s.id === seat.id) % newGifFrames.length] : null;
                                                 return seat.user && <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
                                                     <div className="relative w-9 h-9 flex items-center justify-center">
-                                                        {areEffectsEnabled && frameUrl && (
-                                                            <div className="absolute inset-[-6px] pointer-events-none">
-                                                                <Image unoptimized src={frameUrl} alt="User Frame" layout="fill" />
-                                                            </div>
-                                                        )}
-                                                        <Avatar className={cn("h-full w-full border-2", areEffectsEnabled && seat.user.frame && frameBorderColors[seat.user.frame] ? frameBorderColors[seat.user.frame] : 'border-transparent' )}>
+                                                        <Avatar className={cn("h-full w-full border-2", seat.user.frame && frameBorderColors[seat.user.frame] ? frameBorderColors[seat.user.frame] : 'border-transparent' )}>
                                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
                                                             <AvatarFallback>{seat.user.name.charAt(0)}</AvatarFallback>
                                                         </Avatar>
                                                     </div>
                                                     <div>
                                                         <p className="text-sm font-semibold">{seat.user.name}</p>
-                                                        {areEffectsEnabled && seat.user.frame && frameBorderColors[seat.user.frame] && (
+                                                        {seat.user.frame && frameBorderColors[seat.user.frame] && (
                                                             <div className={cn("h-0.5 w-8 rounded-full", frameBorderColors[seat.user.frame])}></div>
                                                         )}
                                                     </div>
@@ -546,7 +522,6 @@ function VideoRoomPageComponent() {
                 <div className="w-full flex-shrink-0 py-2">
                     <div className="grid grid-cols-8 gap-2 justify-items-center px-2">
                         {seats.map((seat, index) => {
-                             const frameUrl = newGifFrames[index % newGifFrames.length];
                              return (
                                 <Popover key={seat.id}>
                                     <PopoverTrigger asChild disabled={!(currentUserIsOwner && seat.user)}>
@@ -556,11 +531,6 @@ function VideoRoomPageComponent() {
                                             onClick={() => handleSeatClick(seat)}
                                         >
                                             <div className="relative w-10 h-10 flex items-center justify-center">
-                                                {areEffectsEnabled && (
-                                                    <div className="absolute inset-[-8px] pointer-events-none">
-                                                        <Image unoptimized src={frameUrl} alt="Seat Frame" layout="fill" className="object-contain" />
-                                                    </div>
-                                                )}
                                                 {seat.user ? (
                                                     <>
                                                         <Avatar className="w-8 h-8">
@@ -575,7 +545,7 @@ function VideoRoomPageComponent() {
                                                         </div>
                                                     </>
                                                 ) : (
-                                                    <div className="w-8 h-8 rounded-full bg-black/20 flex items-center justify-center border-2 border-transparent">
+                                                    <div className="w-8 h-8 rounded-full bg-black/20 flex items-center justify-center border-2 border-dashed border-white/20">
                                                         {seat.isLocked ? <Lock className="w-4 h-4 text-white/50"/> : <span className="text-sm font-bold text-white/50">{seat.id}</span>}
                                                     </div>
                                                 )}

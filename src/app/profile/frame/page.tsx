@@ -24,25 +24,25 @@ const frameTiers = [
 ];
 
 const animatedFrameTiers = [
-    { id: "EeLiIvo", name: "Neon Vortex", price: 5000, image: "https://i.imgur.com/EeLiIvo.gif", animationClass: 'animate-glow-purple' },
-    { id: "dadW7mL", name: "Cosmic Ring", price: 5000, image: "https://i.imgur.com/dadW7mL.gif", animationClass: 'animate-glow-cyan' },
-    { id: "nQPOShX", name: "Fire Sparks", price: 5000, image: "https://i.imgur.com/nQPOShX.gif", animationClass: 'animate-glow-red' },
-    { id: "5nC2D3l", name: "Aqua Flame", price: 5000, image: "https://i.imgur.com/5nC2D3l.gif", animationClass: 'animate-glow-blue' },
-    { id: "AuOpH7h", name: "Star Portal", price: 5000, image: "https://i.imgur.com/AuOpH7h.gif", animationClass: 'animate-glow-gold' },
-    { id: "wGAEm5U", name: "Electric Petals", price: 7500, image: "https://i.imgur.com/wGAEm5U.gif", animationClass: 'animate-glow-green' },
-    { id: "mQPDgwU", name: "Rainbow Orb", price: 7500, image: "https://i.imgur.com/mQPDgwU.gif", animationClass: 'animate-glow-pink' },
-    { id: "FTdqu3H", name: "Frost Nova", price: 7500, image: "https://i.imgur.com/FTdqu3H.gif", animationClass: 'animate-glow-sky' },
-    { id: "pXg7gf3", name: "Solar Flare", price: 7500, image: "https://i.imgur.com/pXg7gf3.gif", animationClass: 'animate-glow-orange' },
-    { id: "At3QgQ7", name: "Magic Circle", price: 10000, image: "https://i.imgur.com/At3QgQ7.gif", animationClass: 'animate-glow-teal' },
+    { id: "EeLiIvo", name: "Royal Gold", price: 5000, image: "https://i.imgur.com/EeLiIvo.gif", animationClass: 'animate-glow-gold' },
+    { id: "dadW7mL", name: "Mystic Purple", price: 5000, image: "https://i.imgur.com/dadW7mL.gif", animationClass: 'animate-glow-purple' },
+    { id: "nQPOShX", name: "Sapphire Wave", price: 5000, image: "https://i.imgur.com/nQPOShX.gif", animationClass: 'animate-glow-blue' },
+    { id: "5nC2D3l", name: "Forest Spirit", price: 5000, image: "https://i.imgur.com/5nC2D3l.gif", animationClass: 'animate-glow-green' },
+    { id: "AuOpH7h", name: "Inferno Blaze", price: 5000, image: "https://i.imgur.com/AuOpH7h.gif", animationClass: 'animate-glow-red' },
+    { id: "wGAEm5U", name: "Cyber Circuit", price: 7500, image: "https://i.imgur.com/wGAEm5U.gif", animationClass: 'animate-glow-cyan' },
+    { id: "mQPDgwU", name: "Lover's Heart", price: 7500, image: "https://i.imgur.com/mQPDgwU.gif", animationClass: 'animate-glow-pink' },
+    { id: "FTdqu3H", name: "Teal Pulse", price: 7500, image: "https://i.imgur.com/FTdqu3H.gif", animationClass: 'animate-glow-teal' },
+    { id: "pXg7gf3", name: "Sunburst", price: 7500, image: "https://i.imgur.com/pXg7gf3.gif", animationClass: 'animate-glow-orange' },
+    { id: "At3QgQ7", name: "Neon Beast", price: 10000, image: "https://i.imgur.com/At3QgQ7.gif", animationClass: 'animate-glow-sky' },
     { id: "VkUd6Ab", name: "Galaxy Swirl", price: 10000, image: "https://i.imgur.com/VkUd6Ab.gif", animationClass: 'animate-glow-indigo' },
     { id: "UHWrghE", name: "Digital Eye", price: 10000, image: "https://i.imgur.com/UHWrghE.gif", animationClass: 'animate-glow-lime' },
     { id: "PZhRHH1", name: "Phoenix Aura", price: 15000, image: "https://i.imgur.com/PZhRHH1.gif", animationClass: 'animate-glow-amber' },
-    { id: "D9xf0es", name: "Emerald Light", price: 15000, image: "https://i.imgur.com/D9xf0es.gif', animationClass: 'animate-glow-emerald' },
+    { id: "D9xf0es", name: "Emerald Light", price: 15000, image: "https://i.imgur.com/D9xf0es.gif", animationClass: 'animate-glow-emerald' },
     { id: "jw5SszE", name: "Rose Nebula", price: 15000, image: "https://i.imgur.com/jw5SszE.gif", animationClass: 'animate-glow-rose' },
 ];
 
 
-type FrameTier = typeof frameTiers[0];
+type FrameTier = typeof frameTiers[0] | typeof animatedFrameTiers[0];
 
 export default function FrameStorePage() {
     const router = useRouter();
@@ -191,9 +191,9 @@ export default function FrameStorePage() {
             )}
         </div>
 
-        <div>
-            <h2 className="text-xl font-bold font-headline flex items-center gap-2 mb-4"><Film className="text-primary"/> Animated Frames</h2>
-            {animatedFrameTiers.length > 0 ? (
+         {animatedFrameTiers.length > 0 && (
+            <div>
+                <h2 className="text-xl font-bold font-headline flex items-center gap-2 mb-4"><Film className="text-primary"/> Animated Frames</h2>
                 <Carousel
                 opts={{
                     align: "start",
@@ -238,14 +238,8 @@ export default function FrameStorePage() {
                     })}
                 </CarouselContent>
                 </Carousel>
-             ) : (
-                <Card className="flex flex-col items-center justify-center py-12 bg-card/50">
-                    <Inbox className="w-16 h-16 text-muted-foreground mb-4" />
-                    <h3 className="text-xl font-semibold">Animated Frames Coming Soon</h3>
-                    <p className="text-muted-foreground">New and exciting animated frames will be available shortly.</p>
-                </Card>
-            )}
-        </div>
+             </div>
+        )}
       </div>
     </AppLayout>
   );
