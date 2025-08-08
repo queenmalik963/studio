@@ -1,29 +1,13 @@
 
-// This file is now fully static. It does not perform any real operations.
-// It's kept for structural consistency.
+// This file provides types and mock functions for user-related actions.
+// All mock data has been removed to prevent client-side errors and allow for dynamic content.
 
-export interface UserProfile {
-    id: string;
-    name: string;
-    username: string;
-    bio: string;
-    avatar: string;
-    coins: number;
-    diamonds: number;
-    followers: number;
-    following: number;
-    idLevel: number;
-    sendingLevel: number;
-    frames?: string[];
-    currentFrame?: string;
-    vipTier?: 'baron' | 'duke' | 'prince' | 'shogun' | null;
-    vipExpiry?: any;
-}
+// NOTE: The primary UserProfile type is now defined and managed in AuthContext.
 
 // All functions below are mocks and do not perform any real action.
 // They simply log to the console and return a success state.
 
-export const updateUserProfile = async (userId: string, data: Partial<UserProfile>) => {
+export const updateUserProfile = async (userId: string, data: any) => {
     console.log(`Mock: Updating profile for ${userId} with`, data);
     return { success: true };
 };
