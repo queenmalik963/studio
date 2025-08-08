@@ -22,9 +22,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
-import { type Message, type Seat, type SeatUser, sendMessage, getInitialSeats, getRoomById, type Room, getMockUsers } from "@/services/roomService";
+import { type Message, type Seat, type SeatUser, sendMessage, type Room } from "@/services/roomService";
 import { useAuth } from "@/contexts/AuthContext";
-import { doc, onSnapshot, collection, query, orderBy, updateDoc, setDoc, getDocs } from "firebase/firestore";
+import { doc, onSnapshot, collection, query, orderBy, updateDoc, setDoc, getDocs, where } from "firebase/firestore";
 import { db } from "@/services/firebase";
 
 export type JumpAnimation = {
@@ -90,7 +90,7 @@ function VideoRoomPageComponent() {
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
+    const seatRefs = useRef<React.RefObject<HTMLDivElement>[]>([]);
     const sendButtonRef = useRef<HTMLButtonElement>(null);
     
     const [currentUserIsOwner, setCurrentUserIsOwner] = useState(false);
@@ -98,50 +98,33 @@ function VideoRoomPageComponent() {
     useEffect(() => {
         if (!roomId || !userProfile) return;
 
-        // Subscribe to room data
         const roomRef = doc(db, 'rooms', roomId);
         const unsubscribeRoom = onSnapshot(roomRef, (docSnap) => {
             if (docSnap.exists()) {
                 const roomData = { id: docSnap.id, ...docSnap.data() } as Room;
                 setRoom(roomData);
-                setVideoUrl(roomData.currentTrackUrl || searchParams.get('videoUrl') || null);
+                const localVideoUrl = searchParams.get('videoUrl');
+                setVideoUrl(roomData.currentTrackUrl || (localVideoUrl ? decodeURIComponent(localVideoUrl) : null));
                 setIsPlaying(roomData.isPlaying || false);
                 setCurrentUserIsOwner(userProfile.id === roomData.ownerId);
 
-                // Initialize seats if not present
-                 const seatsCollectionRef = collection(db, 'rooms', roomId, 'seats');
-                getDocs(seatsCollectionRef).then(seatSnapshot => {
-                    if (seatSnapshot.empty) {
-                        const mockUsers = getMockUsers();
-                        const initialSeats = Array.from({ length: 8 }, (_, i) => ({ id: i + 1, user: null, isLocked: false }));
-                        
-                        mockUsers.slice(0, 8).forEach((user, index) => {
-                            initialSeats[index].user = user;
-                        });
-                        
-                        initialSeats.forEach(async (seat) => {
-                            await setDoc(doc(db, 'rooms', roomId, 'seats', String(seat.id)), seat);
-                        });
-                    }
-                });
-
             } else {
+                 toast({ variant: 'destructive', title: 'Room not found' });
                 router.push('/video');
             }
         });
 
-        // Subscribe to messages
         const messagesRef = query(collection(db, 'rooms', roomId, 'messages'), orderBy('timestamp', 'asc'));
         const unsubscribeMessages = onSnapshot(messagesRef, (snapshot) => {
             const newMessages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Message));
             setMessages(newMessages);
         });
 
-        // Subscribe to seats
         const seatsRef = query(collection(db, 'rooms', roomId, 'seats'), orderBy('id', 'asc'));
         const unsubscribeSeats = onSnapshot(seatsRef, (snapshot) => {
             const newSeats = snapshot.docs.map(doc => doc.data() as Seat);
             setSeats(newSeats);
+            seatRefs.current = newSeats.map((_, i) => seatRefs.current[i] || createRef());
         });
 
         return () => {
@@ -149,7 +132,7 @@ function VideoRoomPageComponent() {
             unsubscribeMessages();
             unsubscribeSeats();
         };
-    }, [roomId, router, searchParams, userProfile]);
+    }, [roomId, router, searchParams, userProfile, toast]);
     
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
@@ -168,36 +151,34 @@ function VideoRoomPageComponent() {
                 playerRef.current.pause();
             }
         }
-    }, [isPlaying]);
+    }, [isPlaying, videoUrl]);
 
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newMessage.trim() || !userProfile || !roomId) return;
         
-        const message: Omit<Message, 'id' | 'timestamp'> = {
+        sendMessage(roomId, {
             type: 'text',
             authorId: userProfile.id,
             authorName: userProfile.name,
             authorAvatar: userProfile.avatar,
             text: newMessage,
-        };
-        sendMessage(roomId, message);
+        });
         setNewMessage("");
     };
 
     const handleSendGift = async (gift: GiftType, quantity: number, recipientName: string) => {
         if (!userProfile || !roomId) return;
 
-        const giftMessage: Omit<Message, 'id' | 'timestamp'> = {
+        sendMessage(roomId, {
             type: 'gift',
             authorId: userProfile.id,
             authorName: userProfile.name,
             authorAvatar: userProfile.avatar,
             text: `sent ${quantity}x ${gift.name} to ${recipientName}`,
             giftIcon: gift.image
-        };
-        sendMessage(roomId, giftMessage);
+        });
         
         if (gift.animation === 'walking') {
             setAnimatedWalkingGift(gift.image);
@@ -229,7 +210,7 @@ function VideoRoomPageComponent() {
             const seatIndex = seats.findIndex(s => s.user?.id === recipient.id);
             if (seatIndex === -1) return;
 
-            const endRect = seatRefs.current[seatIndex].current?.getBoundingClientRect();
+            const endRect = seatRefs.current[seatIndex]?.current?.getBoundingClientRect();
             if (endRect) {
                 for (let i = 0; i < quantity; i++) {
                      newAnimations.push({
@@ -291,15 +272,20 @@ function VideoRoomPageComponent() {
         toast({ title: "Followed!", description: `You are now following ${userName}.` });
         setSelectedUser(null);
     };
+    
+    const togglePlay = async () => {
+        if (!currentUserIsOwner || !room) return;
+        const roomRef = doc(db, 'rooms', roomId);
+        await updateDoc(roomRef, { isPlaying: !room.isPlaying });
+    };
 
     const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file && currentUserIsOwner && roomId) {
-             // In a real app, upload this to a storage service and get a public URL.
             const newVideoUrl = URL.createObjectURL(file);
             const roomRef = doc(db, 'rooms', roomId);
             await updateDoc(roomRef, {
-                currentTrackUrl: newVideoUrl, // This will only work on the owner's browser
+                currentTrackUrl: newVideoUrl,
                 isPlaying: true
             });
             toast({
@@ -319,7 +305,7 @@ function VideoRoomPageComponent() {
         ...commonControlsList,
         { name: "Gathering", icon: Flag, action: 'gathering' },
         { name: "Broadcast", icon: Megaphone, action: 'broadcast' },
-        { name: "Music", icon: Music, action: 'music' },
+        { name: isPlaying ? "Pause" : "Play", icon: isPlaying ? Pause : Play, action: 'togglePlay' },
         { name: "Clean", icon: Trash2, action: 'clean' },
         { name: "Mute All", icon: MicOff, action: 'muteAll' },
         { name: "Change Video", icon: Youtube, action: 'changeVideo' },
@@ -337,8 +323,8 @@ function VideoRoomPageComponent() {
                 sendMessage(roomId, {type: 'system', text: 'Important announcement from the host!'});
                 toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
                 break;
-            case 'music':
-                toast({ title: "Music Playing", description: "Background music has started." });
+            case 'togglePlay':
+                togglePlay();
                 break;
             case 'invite':
                 navigator.clipboard.writeText(window.location.href);
@@ -430,8 +416,8 @@ function VideoRoomPageComponent() {
                             controls={true}
                             loop
                             className="w-full h-full object-contain"
-                            onPlay={() => setIsPlaying(true)}
-                            onPause={() => setIsPlaying(false)}
+                            onPlay={togglePlay}
+                            onPause={togglePlay}
                         />
                     ) : (
                         <div className="flex flex-col items-center gap-2 text-white/50">
@@ -471,7 +457,7 @@ function VideoRoomPageComponent() {
                                     <ScrollArea className="h-48">
                                         <div className="space-y-2">
                                             {occupiedSeats.map((seat) => {
-                                                return seat.user && <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
+                                                return seat.user && <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10" onClick={() => handleSeatClick(seat.user!)}>
                                                     <div className="relative w-9 h-9 flex items-center justify-center">
                                                         <Avatar className={cn("h-full w-full border-2", seat.user.frame && frameBorderColors[seat.user.frame] ? frameBorderColors[seat.user.frame] : 'border-transparent' )}>
                                                             <AvatarImage src={seat.user.avatar} alt={seat.user.name} />
@@ -507,7 +493,7 @@ function VideoRoomPageComponent() {
                              const isActionableByOwner = currentUserIsOwner && seat.user && seat.user.id !== userProfile?.id;
                              return (
                                 <Popover key={seat.id}>
-                                    <PopoverTrigger asChild disabled={!isActionableByOwner}>
+                                    <PopoverTrigger asChild>
                                         <div 
                                             ref={seatRefs.current[index]}
                                             className="flex flex-col items-center gap-1 w-full text-center cursor-pointer"
@@ -537,20 +523,27 @@ function VideoRoomPageComponent() {
                                         </div>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-48 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
-                                        {seat.user && (
+                                        {isActionableByOwner ? (
                                             <>
                                                 <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => handleSeatClick(seat.user!)}>View Profile</Button>
                                                 <Separator className="my-1" />
                                                 <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => handleSeatAction('mute', seat.id)}>
-                                                    {seat.user.isMuted ? <Mic /> : <MicOff />} {seat.user.isMuted ? 'Unmute' : 'Mute Mic'}
+                                                    {seat.user?.isMuted ? <Mic /> : <MicOff />} {seat.user?.isMuted ? 'Unmute' : 'Mute Mic'}
                                                 </Button>
                                                 <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => handleSeatAction('kick', seat.id)}><UserX /> Kick User</Button>
                                                 <Separator className="my-1" />
+                                                <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => handleSeatAction('lock', seat.id)}>
+                                                    <Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}
+                                                </Button>
                                             </>
+                                        ) : seat.user && (
+                                            <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => handleSeatClick(seat.user!)}>View Profile</Button>
                                         )}
-                                        <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => handleSeatAction('lock', seat.id)}>
-                                            <Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}
-                                        </Button>
+                                        {!seat.user && currentUserIsOwner && (
+                                            <Button variant="ghost" size="sm" className="w-full justify-start" onClick={() => handleSeatAction('lock', seat.id)}>
+                                                <Lock /> {seat.isLocked ? 'Unlock Seat' : 'Lock Seat'}
+                                            </Button>
+                                        )}
                                     </PopoverContent>
                                 </Popover>
                             )
@@ -583,7 +576,7 @@ function VideoRoomPageComponent() {
                                         </div>
                                     ) : (
                                         <div className="flex items-start gap-3">
-                                            <Avatar className="h-8 w-8 shrink-0">
+                                            <Avatar className="h-8 w-8 shrink-0 cursor-pointer" onClick={() => msg.authorId && msg.authorName && msg.authorAvatar && setSelectedUser({id: msg.authorId, name: msg.authorName, avatar: msg.authorAvatar, isMuted: false})}>
                                                 <AvatarImage src={msg.authorAvatar} />
                                                 <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.authorName?.charAt(0)}</AvatarFallback>
                                             </Avatar>

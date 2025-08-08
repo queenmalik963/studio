@@ -21,9 +21,9 @@ import { Separator } from "@/components/ui/separator";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
-import { type Message, type Seat, type SeatUser, sendMessage, getRoomById, type Room, getInitialSeats, getMockUsers } from "@/services/roomService";
+import { type Message, type Seat, type SeatUser, sendMessage, type Room } from "@/services/roomService";
 import { useAuth } from "@/contexts/AuthContext";
-import { doc, onSnapshot, collection, query, orderBy, updateDoc, setDoc, getDocs } from "firebase/firestore";
+import { doc, onSnapshot, collection, query, orderBy, updateDoc, setDoc, getDocs, where } from "firebase/firestore";
 import { db } from "@/services/firebase";
 
 
@@ -97,7 +97,7 @@ export default function AudioRoomPage() {
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
-    const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
+    const seatRefs = useRef<React.RefObject<HTMLDivElement>[]>([]);
     const sendButtonRef = useRef<HTMLButtonElement>(null);
     
     const [currentUserIsOwner, setCurrentUserIsOwner] = useState(false);
@@ -112,29 +112,8 @@ export default function AudioRoomPage() {
                 setRoom(roomData);
                 setIsPlaying(roomData.isPlaying || false);
                 setCurrentUserIsOwner(userProfile.id === roomData.ownerId);
-
-                // Initialize seats if not present
-                const seatsCollectionRef = collection(db, 'rooms', roomId, 'seats');
-                getDocs(seatsCollectionRef).then(seatSnapshot => {
-                    if (seatSnapshot.empty) {
-                        const mockUsers = getMockUsers();
-                        const initialSeats = Array.from({ length: 16 }, (_, i) => ({ id: i + 1, user: null, isLocked: false }));
-                        
-                        const boys = mockUsers.filter(u => ['Qurban', 'Relax DS', 'Enzo DS', 'Malik DS'].includes(u.name));
-                        const girls = mockUsers.filter(u => !boys.some(b => b.id === u.id));
-                        
-                        let seatIndex = 0;
-                        for (const user of boys) { if (seatIndex < 16) { initialSeats[seatIndex].user = user; seatIndex++; } }
-                        seatIndex = 4;
-                        for (const user of girls) { if (seatIndex < 16) { initialSeats[seatIndex].user = user; seatIndex++; } }
-
-                        initialSeats.forEach(async (seat) => {
-                            await setDoc(doc(db, 'rooms', roomId, 'seats', String(seat.id)), seat);
-                        });
-                    }
-                });
-
             } else {
+                toast({ variant: 'destructive', title: 'Room not found' });
                 router.push('/audio');
             }
         });
@@ -149,8 +128,8 @@ export default function AudioRoomPage() {
         const unsubscribeSeats = onSnapshot(seatsRef, (snapshot) => {
             const newSeats = snapshot.docs.map(doc => doc.data() as Seat);
             setSeats(newSeats);
+            seatRefs.current = newSeats.map((_, i) => seatRefs.current[i] || createRef());
         });
-
 
         return () => {
             unsubscribeRoom();
@@ -158,7 +137,7 @@ export default function AudioRoomPage() {
             unsubscribeSeats();
         };
 
-    }, [roomId, router, userProfile]);
+    }, [roomId, router, userProfile, toast]);
     
     const currentUserSeat = seats.find(s => s.user?.id === userProfile?.id);
 
@@ -172,11 +151,11 @@ export default function AudioRoomPage() {
     }, [messages]);
 
     useEffect(() => {
-        if (audioRef.current && room?.currentTrackUrl) {
+        if (audioRef.current) {
             if (isPlaying) {
                 audioRef.current.play().catch(e => console.error("Audio play failed:", e));
             } else {
-                audioRef.current?.pause();
+                audioRef.current.pause();
             }
         }
     }, [isPlaying, room?.currentTrackUrl]);
@@ -185,14 +164,13 @@ export default function AudioRoomPage() {
         e.preventDefault();
         if (!newMessage.trim() || !userProfile || !roomId) return;
         
-        const message: Omit<Message, 'id' | 'timestamp'> = {
+        sendMessage(roomId, {
             type: 'text',
             authorId: userProfile.id,
             authorName: userProfile.name,
             authorAvatar: userProfile.avatar,
             text: newMessage,
-        };
-        sendMessage(roomId, message);
+        });
         setNewMessage("");
     };
 
@@ -201,15 +179,14 @@ export default function AudioRoomPage() {
         
         toast({ title: "Gift Sent!", description: `You sent ${quantity}x ${gift.name} to ${recipientName}` });
         
-        const giftMessage: Omit<Message, 'id' | 'timestamp'> = {
+        sendMessage(roomId, {
             type: 'gift',
             authorId: userProfile.id,
             authorName: userProfile.name,
             authorAvatar: userProfile.avatar,
             text: `sent ${quantity}x ${gift.name} to ${recipientName}`,
             giftIcon: gift.image
-        };
-        sendMessage(roomId, giftMessage);
+        });
         
         if (gift.animation === 'walking') {
             setAnimatedWalkingGift(gift.image);
@@ -241,7 +218,7 @@ export default function AudioRoomPage() {
             const seatIndex = seats.findIndex(s => s.user?.id === recipient.id);
             if (seatIndex === -1) return;
 
-            const endRect = seatRefs.current[seatIndex].current?.getBoundingClientRect();
+            const endRect = seatRefs.current[seatIndex]?.current?.getBoundingClientRect();
             if (endRect) {
                 for (let i = 0; i < quantity; i++) {
                      newAnimations.push({
@@ -288,7 +265,7 @@ export default function AudioRoomPage() {
     };
     
     const togglePlay = async () => {
-        if (!room) return;
+        if (!currentUserIsOwner || !room) return;
         if (!room.currentTrackUrl) {
             toast({ variant: 'destructive', title: "No track selected", description: "Owner needs to upload a track first." });
             return;
@@ -302,12 +279,9 @@ export default function AudioRoomPage() {
         if (file && currentUserIsOwner && roomId) {
             const trackUrl = URL.createObjectURL(file); // This URL is local to the browser
             
-            // In a real app, you would upload the file to a storage service (like Firebase Storage)
-            // and get a public URL. For this prototype, we'll just set it locally and update Firestore.
-            
             const roomRef = doc(db, 'rooms', roomId);
             await updateDoc(roomRef, {
-                currentTrackUrl: trackUrl, // WARNING: This blob URL will only work on the owner's browser.
+                currentTrackUrl: trackUrl,
                 isPlaying: true
             });
 
@@ -353,6 +327,7 @@ export default function AudioRoomPage() {
                  toast({ title: "Gathering Started!", description: "Special room effects are now active." });
                 break;
             case 'broadcast':
+                sendMessage(roomId, {type: 'system', text: 'Important announcement from the host!'});
                 toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
                 break;
             case 'playTrack':
@@ -369,7 +344,6 @@ export default function AudioRoomPage() {
                 }
                 break;
             case 'clean':
-                // In a real app, this would be a more complex operation
                 sendMessage(roomId, {type: 'system', text: 'Chat has been cleared by the owner.'});
                 toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
                 break;
@@ -505,7 +479,7 @@ export default function AudioRoomPage() {
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
              <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="audio/*" className="hidden" />
-             <audio ref={audioRef} loop src={room.currentTrackUrl || ''} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
+             <audio ref={audioRef} loop src={room.currentTrackUrl || undefined} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
              {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
              {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
@@ -558,7 +532,7 @@ export default function AudioRoomPage() {
                             <ScrollArea className="h-48">
                                 <div className="space-y-2">
                                     {occupiedSeats.map((seat) => {
-                                        return seat.user && <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10">
+                                        return seat.user && <div key={seat.id} className="flex items-center gap-3 p-1 rounded-md hover:bg-white/10" onClick={() => handleSeatClick(seat.user!)}>
                                             <div className="relative w-9 h-9 flex items-center justify-center">
                                                 <Avatar className={cn("h-full w-full border-2 bg-background", seat.user.frame && frameBorderColors[seat.user.frame] ? frameBorderColors[seat.user.frame] : 'border-transparent' )}>
                                                     <AvatarImage src={seat.user.avatar} alt={seat.user.name} data-ai-hint="person portrait" />
@@ -609,7 +583,7 @@ export default function AudioRoomPage() {
                                         </div>
                                     ) : (
                                         <div className="flex items-start gap-3">
-                                            <Avatar className="h-8 w-8 shrink-0">
+                                            <Avatar className="h-8 w-8 shrink-0 cursor-pointer" onClick={() => msg.authorId && msg.authorName && msg.authorAvatar && setSelectedUser({id: msg.authorId, name: msg.authorName, avatar: msg.authorAvatar, isMuted: false})}>
                                                 <AvatarImage src={msg.authorAvatar} />
                                                 <AvatarFallback className="bg-primary/50 text-primary-foreground text-xs">{msg.authorName?.charAt(0)}</AvatarFallback>
                                             </Avatar>
