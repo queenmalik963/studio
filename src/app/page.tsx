@@ -59,7 +59,7 @@ export default function LoginPage() {
              toast({
                 variant: "destructive",
                 title: "Login Failed",
-                description: "This is a static demo. Login will always succeed.",
+                description: "Invalid credentials provided. Please try again.",
             });
         }
     };
@@ -76,7 +76,7 @@ export default function LoginPage() {
              toast({
                 variant: "destructive",
                 title: "Google Sign-In Failed",
-                description: "This is a static demo. Login will always succeed.",
+                description: "Could not sign in with Google. Please try again.",
             });
         }
     };

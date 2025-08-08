@@ -61,7 +61,7 @@ export default function AddAudioPage() {
         if (result.success && result.roomId) {
             toast({
                 title: "Room Created!",
-                description: "Your new audio room is live (Demo).",
+                description: "Your new audio room is live.",
             });
             // In a static version, we can't go to a dynamic room, so let's go back or to a static page.
             router.push(`/audio/room/${result.roomId}`);
