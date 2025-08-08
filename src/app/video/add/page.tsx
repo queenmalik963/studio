@@ -1,22 +1,14 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, History, Search as SearchIcon, X, Loader2 } from "lucide-react";
+import { ArrowLeft, History, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Input } from "@/components/ui/input";
-import Image from "next/image";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { createRoom } from "@/services/roomService";
-import { searchYoutubeVideos, type YoutubeSearchResult } from "@/ai/flows/search-youtube-videos";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
 
 
 // Inline Netflix Icon
@@ -36,88 +28,26 @@ const YouTubeIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export default function AddVideoPage() {
     const router = useRouter();
     const { toast } = useToast();
-    const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [isSearching, setIsSearching] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [searchResults, setSearchResults] = useState<YoutubeSearchResult[]>([]);
-    const [searchError, setSearchError] = useState<string | null>(null);
-    const [isApiKeyMissing, setIsApiKeyMissing] = useState(false);
 
-    useEffect(() => {
-        // Check for YouTube API key when component mounts
-        if (!process.env.NEXT_PUBLIC_YOUTUBE_API_KEY) {
-            setIsApiKeyMissing(true);
-        }
-    }, []);
-
-    const handleSearch = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!searchTerm.trim()) return;
-
-        if (isApiKeyMissing) {
-            setSearchError("YOUTUBE_API_KEY is not set. Please add it to your .env file to enable search.");
-            return;
-        }
-
-        setIsSearching(true);
-        setSearchError(null);
-        toast({
-            title: "Searching...",
-            description: `Looking for "${searchTerm}" on YouTube.`,
-        });
-
-        try {
-            const results = await searchYoutubeVideos({ query: searchTerm });
-            if(results && results.videos) {
-                 setSearchResults(results.videos);
-            } else {
-                setSearchResults([]);
-            }
-        } catch (error: any) {
-             if (error.message.includes("API key not valid")) {
-                setSearchError("Your YouTube API key is not valid. Please check your .env file.");
-            } else {
-                setSearchError("An error occurred while searching. Please check your API key and try again.");
-            }
-            console.error(error);
-        } finally {
-            setIsSearching(false);
-        }
-    };
-
-    const handleVideoSelect = async (video: YoutubeSearchResult) => {
+    const handleCreateRoom = (type: 'youtube' | 'netflix') => {
         setIsLoading(true);
-
-        const result = await createRoom({
-            name: video.title,
-            type: 'video',
-            seats: 8, // Default seats for a video room
-            youtubeVideoId: video.id,
-            thumbnail: video.thumbnail,
+        toast({
+            title: "Room Created!",
+            description: `Your new ${type} room is ready.`,
         });
-
-        setIsLoading(false);
-        setIsSheetOpen(false);
-
-        if (result.success && result.roomId) {
-            toast({
-                title: "Room Created!",
-                description: "Your new video room is live.",
-            });
-            router.push(`/video/room/${result.roomId}`);
-        } else {
-             toast({
-                variant: "destructive",
-                title: "Failed to create room",
-                description: result.error || "An unknown error occurred.",
-            });
-        }
+        
+        // Simulate network delay for UX
+        setTimeout(() => {
+            router.push(`/video/room/mock-room-${type}`);
+            setIsLoading(false);
+        }, 1000);
     }
+
 
     return (
         <AppLayout>
-            {(isLoading || isSearching) && (
+            {isLoading && (
                 <div className="fixed inset-0 bg-background/80 flex items-center justify-center z-50">
                     <Loader2 className="w-16 h-16 animate-spin text-primary" />
                 </div>
@@ -131,93 +61,25 @@ export default function AddVideoPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <Card onClick={() => setIsSheetOpen(true)} className="aspect-square flex items-center justify-center p-6 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer">
+                    <Card onClick={() => handleCreateRoom('youtube')} className="aspect-square flex items-center justify-center p-6 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer">
                         <div className="flex flex-col items-center gap-4">
                             <YouTubeIcon className="w-20 h-20" />
                             <span className="font-semibold text-lg">YouTube</span>
                         </div>
                     </Card>
-                    <Link href="/video/room/mock-room">
-                        <Card className="aspect-square flex items-center justify-center p-6 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer">
-                             <div className="flex flex-col items-center gap-4">
-                                <NetflixIcon className="w-16 h-16 text-red-600" />
-                                 <span className="font-semibold text-lg mt-4">Netflix</span>
-                            </div>
-                        </Card>
-                    </Link>
+                    <Card onClick={() => handleCreateRoom('netflix')} className="aspect-square flex items-center justify-center p-6 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer">
+                         <div className="flex flex-col items-center gap-4">
+                            <NetflixIcon className="w-16 h-16 text-red-600" />
+                             <span className="font-semibold text-lg mt-4">Netflix</span>
+                        </div>
+                    </Card>
                 </div>
                 
-                <Button variant="outline" size="lg" className="w-full justify-center gap-2">
+                <Button variant="outline" size="lg" className="w-full justify-center gap-2" onClick={() => toast({ title: "Coming Soon!", description: "This feature is not yet available."})}>
                     <History />
                     Recently Watched
                 </Button>
             </div>
-
-            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                <SheetContent side="bottom" className="bg-[#1F0A2E] border-t-2 border-primary/50 text-white rounded-t-2xl h-[85vh]">
-                    <SheetHeader>
-                        <SheetTitle className="text-2xl font-headline text-white flex items-center gap-2"><YouTubeIcon className="w-8 h-8" /> Find a Video</SheetTitle>
-                    </SheetHeader>
-                    <div className="flex flex-col h-full pt-4">
-                        <form onSubmit={handleSearch}>
-                            <div className="relative">
-                                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                                <Input 
-                                    placeholder="Search YouTube..." 
-                                    className="bg-black/30 border-white/20 rounded-full pl-10 text-white placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/50" 
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                                {searchTerm && <Button size="icon" variant="ghost" className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full" onClick={() => setSearchTerm('')}><X className="w-4 h-4" /></Button>}
-                            </div>
-                        </form>
-
-                        <ScrollArea className="flex-1 my-4 -mx-6 px-6">
-                             {searchError && (
-                                <Alert variant="destructive" className="my-4">
-                                    <AlertTriangle className="h-4 w-4" />
-                                    <AlertTitle>Search Error</AlertTitle>
-                                    <AlertDescription>
-                                        {searchError}
-                                        {isApiKeyMissing &&
-                                            <a href="https://console.developers.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="underline font-semibold ml-1">
-                                                Get a key here.
-                                            </a>
-                                        }
-                                    </AlertDescription>
-                                </Alert>
-                            )}
-                            {searchResults.length > 0 ? (
-                                <div className="space-y-3">
-                                    {searchResults.map((video) => (
-                                        <div key={video.id} onClick={() => handleVideoSelect(video)} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 cursor-pointer">
-                                            <div className="relative w-32 h-20 flex-shrink-0">
-                                                <Image 
-                                                    src={video.thumbnail}
-                                                    alt={video.title}
-                                                    fill
-                                                    className="rounded-md object-cover"
-                                                />
-                                            </div>
-                                            <div className="overflow-hidden">
-                                                <p className="font-semibold truncate text-sm">{video.title}</p>
-                                                <p className="text-xs text-white/70">{video.channelTitle}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : !isSearching && !searchError && (
-                                <div className="flex items-center justify-center h-full text-muted-foreground">
-                                    {isApiKeyMissing 
-                                        ? "YouTube search is disabled. Please add a YOUTUBE_API_KEY to your .env file."
-                                        : "Search for a video to start a room."
-                                    }
-                                </div>
-                            )}
-                        </ScrollArea>
-                    </div>
-                </SheetContent>
-            </Sheet>
         </AppLayout>
     );
 }

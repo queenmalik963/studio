@@ -2,9 +2,28 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from 'react';
-import { UserProfile } from '@/services/userService';
 
-// Mock User and UserProfile for a non-Firebase app
+// This is the single source of truth for our mock user data.
+// It is now static and available immediately to all components.
+
+export type UserProfile = {
+    id: string;
+    name: string;
+    username: string;
+    bio: string;
+    avatar: string;
+    coins: number;
+    diamonds: number;
+    followers: number;
+    following: number;
+    idLevel: number;
+    sendingLevel: number;
+    frames?: string[];
+    currentFrame?: string;
+    vipTier?: 'baron' | 'duke' | 'prince' | 'shogun' | null;
+    vipExpiry?: Date;
+};
+
 type MockUser = {
     uid: string;
     email: string;
@@ -12,7 +31,6 @@ type MockUser = {
     photoURL: string;
 };
 
-// This is the single source of truth for our mock user data.
 const mockUserProfile: UserProfile = {
     id: "mock_user_123",
     name: "Rave King",
@@ -39,26 +57,22 @@ const mockUser: MockUser = {
 }
 
 interface AuthContextType {
-    currentUser: MockUser | null;
-    userProfile: UserProfile | null;
-    loading: boolean;
+    currentUser: MockUser;
+    userProfile: UserProfile;
 }
 
 const AuthContext = createContext<AuthContextType>({
-    currentUser: null,
-    userProfile: null,
-    loading: false, // Set to false as data is available immediately
+    currentUser: mockUser,
+    userProfile: mockUserProfile,
 });
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    // Since this is a static demo, we provide the user and profile data directly.
-    // There's no loading state needed as we aren't fetching anything.
+    // The value is now static and constant, ensuring no re-renders or loading states.
     const value = {
         currentUser: mockUser,
         userProfile: mockUserProfile,
-        loading: false,
     };
 
     return (

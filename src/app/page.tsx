@@ -1,7 +1,6 @@
 
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -9,9 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Music, Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { signInWithEmail, signInWithGoogleProvider } from "@/services/authService";
-import { useAuth } from "@/contexts/AuthContext";
 
 const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -31,57 +27,15 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function LoginPage() {
     const router = useRouter();
-    const { toast } = useToast();
-    const { loading: authLoading } = useAuth();
-    
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [isSigningIn, setIsSigningIn] = useState(false);
 
-    const handleSignIn = async (e: React.FormEvent) => {
+    const handleSignIn = (e: React.FormEvent) => {
         e.preventDefault();
-        setIsSigningIn(true);
-        const { success } = await signInWithEmail(email, password);
-        setIsSigningIn(false);
-
-        if (success) {
-            toast({ title: "Login Successful!", description: "Welcome back." });
-            router.push("/home");
-        } else {
-             toast({
-                variant: "destructive",
-                title: "Login Failed",
-                description: "Invalid credentials provided. Please try again.",
-            });
-        }
+        router.push("/home");
     };
 
-    const handleGoogleSignIn = async () => {
-        setIsSigningIn(true);
-        const { success } = await signInWithGoogleProvider();
-        setIsSigningIn(false);
-
-        if (success) {
-            toast({ title: "Google Sign-In Successful!", description: "Welcome!" });
-            router.push("/home");
-        } else {
-             toast({
-                variant: "destructive",
-                title: "Google Sign-In Failed",
-                description: "Could not sign in with Google. Please try again.",
-            });
-        }
+    const handleSocialSignIn = () => {
+        router.push("/home");
     };
-
-    const isLoading = authLoading || isSigningIn;
-
-    if (authLoading && !isSigningIn) {
-         return (
-            <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-background to-primary/10 p-4">
-                 <Loader2 className="h-16 w-16 animate-spin text-primary" />
-            </main>
-        )
-    }
 
     return (
         <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-background to-primary/10 p-4">
@@ -98,14 +52,14 @@ export default function LoginPage() {
                     <form onSubmit={handleSignIn} className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="email">Email or Phone</Label>
-                            <Input id="email" type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                            <Input id="email" type="email" placeholder="you@example.com" required />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="password">Password</Label>
-                            <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+                            <Input id="password" type="password" required />
                         </div>
-                        <Button type="submit" className="w-full font-bold" disabled={isLoading}>
-                            {isLoading ? <Loader2 className="animate-spin" /> : "Sign In"}
+                        <Button type="submit" className="w-full font-bold">
+                           Sign In
                         </Button>
                     </form>
 
@@ -116,11 +70,11 @@ export default function LoginPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading}>
-                             {isLoading ? <Loader2 className="animate-spin mr-2" /> : <GoogleIcon className="mr-2 h-4 w-4" />}
+                        <Button variant="outline" className="w-full" onClick={handleSocialSignIn}>
+                             <GoogleIcon className="mr-2 h-4 w-4" />
                             Continue with Google
                         </Button>
-                        <Button variant="outline" className="w-full" disabled>
+                        <Button variant="outline" className="w-full" onClick={handleSocialSignIn}>
                             <FacebookIcon className="mr-2 h-4 w-4" />
                             Continue with Facebook
                         </Button>

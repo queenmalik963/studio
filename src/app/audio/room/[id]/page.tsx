@@ -20,7 +20,7 @@ import { Separator } from "@/components/ui/separator";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
-import { listenToMessages, sendMessage, type Message, listenToRoom, type Room, takeSeat, leaveSeat, updateSeatAsOwner, type SeatUser, updateSeatUser, updatePlaybackState, sendGift, endCurrentGame } from "@/services/roomService";
+import { getMockRoom, getMockMessages, type Message, type SeatUser } from "@/services/roomService";
 import { useAuth } from "@/contexts/AuthContext";
 
 
@@ -46,7 +46,6 @@ const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
 );
 
-// Extracted and memoized RoomControlButton to prevent re-rendering issues with toasts
 const RoomControlButton = memo(({ control }: { control: { name: string; icon: React.ElementType, action: () => void }; }) => {
     return (
         <div className="flex flex-col items-center gap-2 text-center">
@@ -70,11 +69,11 @@ export default function AudioRoomPage() {
     const params = useParams();
     const roomId = params.id as string;
     
-    const { currentUser, userProfile, loading } = useAuth();
+    const { currentUser, userProfile } = useAuth();
     
-    const [room, setRoom] = useState<Room | null>(null);
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [seats, setSeats] = useState<any[]>([]);
+    const [room, setRoom] = useState(getMockRoom(roomId));
+    const [messages, setMessages] = useState<Message[]>(getMockMessages());
+    const [seats, setSeats] = useState(room.seats || []);
     const [newMessage, setNewMessage] = useState("");
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
@@ -84,10 +83,10 @@ export default function AudioRoomPage() {
     const [animatedWalkingGift, setAnimatedWalkingGift] = useState<string | null>(null);
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
-
+    const [isGameActive, setIsGameActive] = useState(false);
+    
     const currentUserIsOwner = room?.ownerId === currentUser?.uid;
     const currentUserSeat = useMemo(() => seats.find(s => s.user?.id === currentUser?.uid), [seats, currentUser]);
-    const isGameActive = !!room?.activeGame;
 
     // Audio Player State
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -98,186 +97,79 @@ export default function AudioRoomPage() {
     const { toast } = useToast();
     const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
     const sendButtonRef = useRef<HTMLButtonElement>(null);
-    const lastMessageCount = useRef(messages.length);
-
-    useEffect(() => {
-        if (!loading && !currentUser) {
-            router.push('/');
-        }
-    }, [loading, currentUser, router]);
-
-    useEffect(() => {
-        if (!roomId) return;
-        const unsubRoom = listenToRoom(roomId, (roomData) => {
-            if (roomData) {
-                setRoom(roomData);
-                setSeats(roomData.seats || []);
-
-                // Sync audio player for all users
-                if (audioRef.current) {
-                    if (roomData.currentTrack && audioRef.current.src !== roomData.currentTrack) {
-                        audioRef.current.src = roomData.currentTrack;
-                        audioRef.current.currentTime = roomData.playbackTime || 0;
-                    }
-                    if (roomData.isPlaying && audioRef.current.paused) {
-                        audioRef.current.play().catch(e => console.error("Audio sync play failed:", e));
-                    } else if (!roomData.isPlaying && !audioRef.current.paused) {
-                        audioRef.current.pause();
-                    }
-                }
-            } else {
-                 router.push('/audio');
-                 toast({ title: "Room not found", description: "This room may have been closed.", variant: "destructive" });
-            }
-        });
-        const unsubMessages = listenToMessages(roomId, (newMessages) => {
-            setMessages(newMessages);
-        });
-
-        return () => {
-            unsubRoom();
-            unsubMessages();
-        };
-    }, [roomId, router, toast]);
-
     
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
-        if (!chatContainer) return;
-
-        const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 100;
-
-        if (messages.length > lastMessageCount.current && isScrolledToBottom) {
+        if (chatContainer) {
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
-
-        lastMessageCount.current = messages.length;
     }, [messages]);
     
-    const handleSendMessage = async (e: React.FormEvent) => {
+    const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
-        if (newMessage.trim() && roomId && userProfile) {
-            const messageToSend = newMessage;
-            setNewMessage(""); 
-            inputRef.current?.blur();
-            
-            const result = await sendMessage(roomId, {
-                authorId: userProfile.id,
-                authorName: userProfile.name,
-                authorAvatar: userProfile.avatar,
-                text: messageToSend,
-                type: 'text',
-            });
-            
-            if (!result.success) {
-                toast({
-                    variant: "destructive",
-                    title: "Failed to send message",
-                    description: result.error,
-                });
-                setNewMessage(messageToSend);
-            }
-        }
+        if (!newMessage.trim()) return;
+        toast({ title: "Message Sent (Mock)", description: "In a live app, this would send your message." });
+        setNewMessage("");
     };
 
-    const handleSendGift = async (gift: GiftType, quantity: number, recipientName: string) => {
-        if (!roomId || !userProfile || !room) return;
-
-        let recipients: { id: string, name: string }[] = [];
+    const handleSendGift = (gift: GiftType, quantity: number, recipientName: string) => {
+        toast({ title: "Gift Sent! (Mock)", description: `You sent ${quantity}x ${gift.name} to ${recipientName}` });
         
-        if (recipientName === 'All in Room') {
-            recipients = seats.filter(s => s.user).map(s => ({ id: s.user.id, name: s.user.name }));
-        } else if (recipientName === 'All on Mic') {
-            recipients = seats.filter(s => s.user && !s.user.isMuted).map(s => ({ id: s.user.id, name: s.user.name }));
-        } else {
-            const targetSeat = seats.find(s => s.user?.name === recipientName);
-            if (targetSeat?.user) {
-                recipients.push({ id: targetSeat.user.id, name: targetSeat.user.name });
-            }
-        }
-
-        if (recipients.length === 0) {
-             toast({ title: "Recipient not found.", variant: "destructive" });
-             return;
-        }
-        
-        const senderSeatUser: SeatUser = {
-            id: userProfile.id,
-            name: userProfile.name,
-            avatar: userProfile.avatar,
-            isMuted: currentUserSeat?.user?.isMuted ?? true,
-            frame: userProfile.currentFrame
-        };
-
-        for (const recipient of recipients) {
-            const result = await sendGift(roomId, senderSeatUser, recipient.id, recipient.name, gift, quantity);
-            if (!result.success) {
-                toast({
-                    variant: "destructive",
-                    title: "Failed to send gift",
-                    description: `Could not send to ${recipient.name}: ${result.error}`,
-                });
-            }
-        }
-
         if (gift.animation === 'walking') {
             setAnimatedWalkingGift(gift.image);
             setTimeout(() => setAnimatedWalkingGift(null), 5000); 
         } else if (gift.animation === 'fullscreen-video' && gift.videoUrl) {
             setAnimatedVideoGift(gift.videoUrl);
-            setTimeout(() => {
-                setAnimatedVideoGift(null);
-            }, 5000); 
+            setTimeout(() => { setAnimatedVideoGift(null); }, 5000); 
         } else if (gift.animation === 'jump-to-seat') {
-            const startRect = sendButtonRef.current?.getBoundingClientRect();
-            if (!startRect) return;
-
-            const newAnimations: JumpAnimation[] = [];
-            recipients.forEach(recipient => {
-                const targetSeat = seats.find(s => s.user?.id === recipient.id);
-                const seatIndex = seats.findIndex(s => s.id === targetSeat?.id);
-                if (seatIndex === -1) return;
-
-                const endRect = seatRefs.current[seatIndex].current?.getBoundingClientRect();
-                if (endRect) {
-                    for (let i = 0; i < quantity; i++) {
-                         newAnimations.push({
-                            id: Date.now() + Math.random(),
-                            gift,
-                            startX: startRect.x + startRect.width / 2,
-                            startY: startRect.y + startRect.height / 2,
-                            endX: endRect.x + endRect.width / 2,
-                            endY: endRect.y + endRect.height / 2,
-                        });
-                    }
-                }
-            });
-            setJumpAnimations(prev => [...prev, ...newAnimations]);
-
+            handleAnimateJump(gift, quantity, recipientName);
         } else if (gift.animation) {
              handleAnimateGift(gift);
         }
     };
+    
+    const handleAnimateJump = (gift: GiftType, quantity: number, recipientName: string) => {
+        const startRect = sendButtonRef.current?.getBoundingClientRect();
+        if (!startRect) return;
 
-    const handleStartGame = async (gameName: string) => {
-        if (!roomId || !userProfile || !currentUserIsOwner) {
-            toast({
-                title: "Only the room owner can start a game.",
-                variant: "destructive",
-            });
-            return;
+        let recipientsToAnimate: { id: string, name: string }[] = [];
+        if (recipientName === 'All in Room' || recipientName === 'All on Mic') {
+            recipientsToAnimate = seats.filter(s => s.user).map(s => s.user);
+        } else {
+            const targetSeat = seats.find(s => s.user?.name === recipientName);
+            if (targetSeat?.user) recipientsToAnimate.push(targetSeat.user);
         }
+
+        const newAnimations: JumpAnimation[] = [];
+        recipientsToAnimate.forEach(recipient => {
+            const seatIndex = seats.findIndex(s => s.user?.id === recipient.id);
+            if (seatIndex === -1) return;
+
+            const endRect = seatRefs.current[seatIndex].current?.getBoundingClientRect();
+            if (endRect) {
+                for (let i = 0; i < quantity; i++) {
+                     newAnimations.push({
+                        id: Date.now() + Math.random(),
+                        gift,
+                        startX: startRect.x + startRect.width / 2,
+                        startY: startRect.y + startRect.height / 2,
+                        endX: endRect.x + endRect.width / 2,
+                        endY: endRect.y + endRect.height / 2,
+                    });
+                }
+            }
+        });
+        setJumpAnimations(prev => [...prev, ...newAnimations]);
+    }
+    
+    const handleStartGame = (gameName: string) => {
         setIsGamePanelOpen(false);
-
-        await updatePlaybackState(roomId, { activeGame: gameName, gameHostId: userProfile.id });
-        await sendMessage(roomId, { type: 'system', text: `${userProfile.name} started playing ${gameName}!` });
-
+        setIsGameActive(true);
         toast({ title: "Game Started!", description: `You have started playing ${gameName}.` });
     };
 
-    const handleEndGame = async () => {
-        if (!roomId || !currentUserIsOwner) return;
-        await endCurrentGame(roomId);
+    const handleEndGame = () => {
+        setIsGameActive(false);
         toast({ title: "Game Ended", description: "The game has been stopped." });
     };
     
@@ -292,152 +184,43 @@ export default function AudioRoomPage() {
         setJumpAnimations(prev => prev.filter(anim => anim.id !== id));
     };
 
-     const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (!roomId || !userProfile || !currentUserIsOwner) return;
+     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            // In a real app, upload this file to a storage bucket and get a public URL
-            const trackUrl = URL.createObjectURL(file);
-            if (audioRef.current) {
-                audioRef.current.src = trackUrl;
-            }
-
-            await updatePlaybackState(roomId, {
-                currentTrack: trackUrl, // Use the public URL here in a real app
-                isPlaying: true,
-                playbackTime: 0
-            });
-            
-            toast({
-                title: "Track Selected!",
-                description: `"${file.name}" is now playing for everyone.`,
-            });
-            
-            await sendMessage(roomId, {
-                type: 'system',
-                text: `Owner selected "${file.name}" to play.`,
-            });
+            toast({ title: "Track Selected! (Mock)", description: `"${file.name}" is now playing for everyone.` });
             setIsControlsPanelOpen(false);
         }
     };
     
-    const togglePlay = async () => {
-        if (!roomId || !currentUserIsOwner || !room?.currentTrack) return;
-        const newIsPlaying = !room.isPlaying;
-        
-        // Update Firestore first
-        const result = await updatePlaybackState(roomId, { isPlaying: newIsPlaying });
-
-        if (result.success) {
-            // Then update local player
-             if (newIsPlaying && audioRef.current?.paused) {
-                audioRef.current.play().catch(e => console.error("Audio play failed:", e));
-            } else if (!newIsPlaying && !audioRef.current?.paused) {
-                audioRef.current?.pause();
-            }
-            toast({ title: newIsPlaying ? "Music Resumed" : "Music Paused" });
-        } else {
-             toast({ title: "Error", description: "Could not update playback state.", variant: "destructive" });
-        }
+    const togglePlay = () => {
+        const isPlaying = audioRef.current?.paused;
+        if(isPlaying) audioRef.current?.play();
+        else audioRef.current?.pause();
+        toast({ title: isPlaying ? "Music Resumed" : "Music Paused" });
     };
 
-    const handleTogglePersonalMic = async () => {
-        if (!roomId || !currentUserSeat || !currentUserSeat.user) return;
-        const newMuteState = !currentUserSeat.user.isMuted;
-        await updateSeatUser(roomId, currentUserSeat.id, { isMuted: newMuteState });
+    const handleTogglePersonalMic = () => {
+        toast({ title: "Mic Toggled (Mock)" });
+    };
+
+    const handleSeatClick = (seat: any) => {
+        toast({ title: `Seat ${seat.id} Clicked (Mock)` });
+    };
+    
+    const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
+        toast({ title: `Action '${action}' on seat ${seatId} (Mock)` });
     };
 
     const roomControls = [
-        { name: "Gathering", icon: Flag, action: async () => {
-            if (!roomId) return;
-            await sendMessage(roomId, { type: 'system', text: 'A gathering has been started by the owner!' });
-            toast({ title: "Gathering Started!", description: "Special room effects are now active." });
-            setIsControlsPanelOpen(false);
-        }},
-        { name: "Broadcast", icon: Megaphone, action: async () => {
-            if (!roomId) return;
-            await sendMessage(roomId, { type: 'system', text: 'Broadcast: Welcome to the room everyone! Enjoy your stay.' });
-            toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
-            setIsControlsPanelOpen(false);
-        }},
-        { name: "Play Track", icon: Play, action: async () => {
-            if (room?.currentTrack) {
-                await togglePlay();
-            } else {
-                toast({ title: "No Track", description: "Please upload a track first.", variant: "destructive" });
-            }
-            setIsControlsPanelOpen(false);
-        }},
-        { name: "Pause Track", icon: Pause, action: async () => {
-            if (room?.currentTrack) {
-                await togglePlay();
-            }
-             setIsControlsPanelOpen(false);
-        }},
+        { name: "Gathering", icon: Flag, action: () => { toast({ title: "Gathering Started!", description: "Special room effects are now active." }); setIsControlsPanelOpen(false); } },
+        { name: "Broadcast", icon: Megaphone, action: () => { toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." }); setIsControlsPanelOpen(false); } },
+        { name: "Play Track", icon: Play, action: () => { togglePlay(); setIsControlsPanelOpen(false); } },
+        { name: "Pause Track", icon: Pause, action: () => { togglePlay(); setIsControlsPanelOpen(false); } },
         { name: "Upload", icon: Upload, action: () => fileInputRef.current?.click() },
-        { name: "Invite", icon: UserPlus, action: () => {
-             navigator.clipboard.writeText(window.location.href);
-             toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." });
-             setIsControlsPanelOpen(false);
-        }},
-        { name: "Effect", icon: Wand2, action: () => {
-            setAreEffectsEnabled(prev => {
-                const newState = !prev;
-                toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` });
-                return newState;
-            });
-            setIsControlsPanelOpen(false);
-        }},
-        { name: "Clean", icon: Trash2, action: () => {
-            setMessages(prev => prev.filter(m => m.type !== 'text'));
-            toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
-             setIsControlsPanelOpen(false);
-        }},
+        { name: "Invite", icon: UserPlus, action: () => { navigator.clipboard.writeText(window.location.href); toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." }); setIsControlsPanelOpen(false); } },
+        { name: "Effect", icon: Wand2, action: () => { setAreEffectsEnabled(prev => { const newState = !prev; toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` }); return newState; }); setIsControlsPanelOpen(false); } },
+        { name: "Clean", icon: Trash2, action: () => { setMessages(prev => prev.filter(m => m.type !== 'text')); toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." }); setIsControlsPanelOpen(false); } },
     ];
-
-
-    const handleSeatClick = async (seat: any) => {
-        if (!userProfile || !roomId) return;
-
-        const seatUser: SeatUser = {
-            id: userProfile.id,
-            name: userProfile.name,
-            avatar: userProfile.avatar,
-            isMuted: true, // Always join muted
-            frame: userProfile.currentFrame
-        };
-
-        // If user is already on a seat, they leave it first
-        const userSeat = seats.find(s => s.user?.id === userProfile.id);
-        if (userSeat) {
-            await leaveSeat(roomId, userSeat.id);
-        }
-
-        // If the clicked seat is not the one they just left, they take the new seat
-        if (userSeat?.id !== seat.id && !seat.user && !seat.isLocked) {
-            await takeSeat(roomId, seat.id, seatUser);
-        }
-    };
-    
-    const handleSeatAction = async (action: 'mute' | 'kick' | 'lock', seatId: number) => {
-        if (!roomId) return;
-
-        const targetSeat = seats.find(seat => seat.id === seatId);
-        if (!targetSeat) return;
-        
-        if (action === 'mute' && targetSeat.user) {
-            const isMuted = !targetSeat.user.isMuted;
-            await updateSeatUser(roomId, seatId, { isMuted });
-            toast({ title: `User ${targetSeat.user.name} ${isMuted ? 'muted' : 'unmuted'}.`});
-        } else if (action === 'kick' && targetSeat.user) {
-            await updateSeatAsOwner(roomId, seatId, { user: null });
-            toast({ title: `User ${targetSeat.user.name} has been kicked from the seat.`});
-        } else if (action === 'lock') {
-            const isLocked = !targetSeat.isLocked;
-            await updateSeatAsOwner(roomId, seatId, { isLocked, user: null }); // Also clear user when locking
-            toast({ title: `Seat ${targetSeat.id} has been ${isLocked ? 'locked' : 'unlocked'}.`});
-        }
-    };
     
     const frameBorderColors: {[key: string]: string} = {
         gold: 'border-yellow-400',
@@ -539,7 +322,7 @@ export default function AudioRoomPage() {
     };
 
 
-    if (loading || !userProfile || !room) {
+    if (!userProfile || !room) {
         return (
             <div className="flex items-center justify-center h-screen bg-[#2E103F] text-white">
                 <Loader2 className="w-10 h-10 animate-spin" />
@@ -549,7 +332,7 @@ export default function AudioRoomPage() {
 
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
-             <audio ref={audioRef} loop />
+             <audio ref={audioRef} loop src="https://placehold.co/1x1.mp3"/>
              {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
              {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
@@ -797,5 +580,3 @@ export default function AudioRoomPage() {
         </div>
     );
 }
-
-    

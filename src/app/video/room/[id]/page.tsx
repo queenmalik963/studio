@@ -20,7 +20,7 @@ import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
 import YouTube from 'react-youtube';
-import { listenToMessages, sendMessage, type Message, listenToRoom, type Room, takeSeat, leaveSeat, updateSeatAsOwner, type SeatUser, updateSeatUser, updatePlaybackState, sendGift, endCurrentGame } from "@/services/roomService";
+import { getMockRoom, getMockMessages, type Message, type SeatUser } from "@/services/roomService";
 import { useAuth } from "@/contexts/AuthContext";
 
 
@@ -44,12 +44,12 @@ function VideoRoomPageComponent() {
     const roomId = params.id as string;
 
     const { toast } = useToast();
-    const { currentUser, userProfile, loading } = useAuth();
+    const { currentUser, userProfile } = useAuth();
 
-    const [room, setRoom] = useState<Room | null>(null);
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [room, setRoom] = useState(getMockRoom(roomId, 'video'));
+    const [messages, setMessages] = useState<Message[]>(getMockMessages());
     const [newMessage, setNewMessage] = useState("");
-    const [seats, setSeats] = useState<any[]>([]);
+    const [seats, setSeats] = useState<any[]>(room.seats);
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
     const [isControlsPanelOpen, setIsControlsPanelOpen] = useState(false);
     const [isGiftPanelOpen, setIsGiftPanelOpen] = useState(false);
@@ -58,6 +58,7 @@ function VideoRoomPageComponent() {
     const [animatedWalkingGift, setAnimatedWalkingGift] = useState<string | null>(null);
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
+    const [isGameActive, setIsGameActive] = useState(false);
     
     const playerRef = useRef<any>(null);
 
@@ -65,241 +66,97 @@ function VideoRoomPageComponent() {
     const inputRef = useRef<HTMLInputElement>(null);
     const seatRefs = useRef(seats.map(() => createRef<HTMLDivElement>()));
     const sendButtonRef = useRef<HTMLButtonElement>(null);
-    const lastMessageCount = useRef(messages.length);
 
     const currentUserIsOwner = room?.ownerId === currentUser?.uid;
     const currentUserSeat = useMemo(() => seats.find(s => s.user?.id === currentUser?.uid), [seats, currentUser]);
-    const isGameActive = !!room?.activeGame;
 
-
-    useEffect(() => {
-        if (!loading && !currentUser) {
-            router.push('/');
-        }
-    }, [loading, currentUser, router]);
-
-    useEffect(() => {
-        if (!roomId) return;
-        const unsubRoom = listenToRoom(roomId, (roomData) => {
-            if (roomData) {
-                setRoom(roomData);
-                setSeats(roomData.seats || []);
-                
-                // Sync video player for all users
-                const player = playerRef.current;
-                if (player && typeof player.playVideo === 'function') {
-                    if (roomData.isPlaying && player.getPlayerState() !== 1) {
-                         player.playVideo();
-                    } else if (!roomData.isPlaying && player.getPlayerState() === 1) {
-                        player.pauseVideo();
-                    }
-                }
-            } else {
-                router.push('/video');
-                toast({ title: "Room not found", description: "This room may have been closed.", variant: "destructive" });
-            }
-        });
-        const unsubMessages = listenToMessages(roomId, (newMessages) => {
-            setMessages(newMessages);
-        });
-
-        return () => {
-            unsubRoom();
-            unsubMessages();
-        };
-    }, [roomId, router, toast]);
-
-
-     const videoRoomControls = [
-        { name: "Gathering", icon: Flag, action: async () => {
-            if (!roomId) return;
-            toast({ title: "Gathering Started in Video Room!", description: "Special room effects are now active." });
-            await sendMessage(roomId, { type: 'system', text: 'A gathering has been started by the owner!' });
-            setIsControlsPanelOpen(false);
-        }},
-        { name: "Broadcast", icon: Megaphone, action: async () => {
-            if (!roomId) return;
-            toast({ title: "Video Room Broadcast Sent!", description: "Your message has been sent to all users." });
-            await sendMessage(roomId, { type: 'system', text: 'Broadcast: Welcome to the video room! Enjoy your stay.' });
-            setIsControlsPanelOpen(false);
-        }},
-        { name: "Music", icon: Music, action: () => {
-             toast({ title: "Music Playing", description: "Background music has started for the video room." });
-             setIsControlsPanelOpen(false);
-        }},
-        { name: "Invite", icon: UserPlus, action: () => {
-             toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." });
-             navigator.clipboard.writeText(window.location.href);
-             setIsControlsPanelOpen(false);
-        }},
-        { name: "Effect", icon: Wand2, action: () => {
-            setAreEffectsEnabled(prev => {
-                const newState = !prev;
-                toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` });
-                return newState;
-            });
-            setIsControlsPanelOpen(false);
-        }},
-        { name: "Clean", icon: Trash2, action: () => {
-            setMessages(prev => prev.filter(m => m.type !== 'text'));
-            toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
-             setIsControlsPanelOpen(false);
-        }},
-        { name: "Mute All", icon: MicOff, ownerOnly: true, action: async () => {
-            if (!roomId) return;
-            const areAllMuted = seats.every(seat => !seat.user || seat.user.isMuted);
-            for (const seat of seats) {
-                if (seat.user) {
-                   await updateSeatUser(roomId, seat.id, { isMuted: !areAllMuted });
-                }
-            }
-            toast({ title: areAllMuted ? "All Unmuted" : "All Muted", description: `All users have been ${areAllMuted ? 'unmuted' : 'muted'}.`});
-            setIsControlsPanelOpen(false);
-        }},
+    const videoRoomControls = [
+        { name: "Gathering", icon: Flag, action: () => { toast({ title: "Gathering Started in Video Room!", description: "Special room effects are now active." }); setIsControlsPanelOpen(false); } },
+        { name: "Broadcast", icon: Megaphone, action: () => { toast({ title: "Video Room Broadcast Sent!", description: "Your message has been sent to all users." }); setIsControlsPanelOpen(false); } },
+        { name: "Music", icon: Music, action: () => { toast({ title: "Music Playing", description: "Background music has started for the video room." }); setIsControlsPanelOpen(false); } },
+        { name: "Invite", icon: UserPlus, action: () => { navigator.clipboard.writeText(window.location.href); toast({ title: "Invite Link Copied!", description: "Share it with your friends to join the room." }); setIsControlsPanelOpen(false); } },
+        { name: "Effect", icon: Wand2, action: () => { setAreEffectsEnabled(prev => { const newState = !prev; toast({ title: `Room Effects ${newState ? 'On' : 'Off'}` }); return newState; }); setIsControlsPanelOpen(false); } },
+        { name: "Clean", icon: Trash2, action: () => { setMessages(prev => prev.filter(m => m.type !== 'text')); toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." }); setIsControlsPanelOpen(false); } },
+        { name: "Mute All", icon: MicOff, ownerOnly: true, action: () => { toast({ title: "All Muted (Mock)", description: "All users have been muted." }); setIsControlsPanelOpen(false); } },
         { name: "Change Video", icon: Youtube, action: () => router.push('/video/add') },
     ];
     
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
-        if (!chatContainer) return;
-
-        const isScrolledToBottom = chatContainer.scrollHeight - chatContainer.clientHeight <= chatContainer.scrollTop + 100;
-        
-        if (messages.length > lastMessageCount.current && isScrolledToBottom) {
+        if (chatContainer) {
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
-
-        lastMessageCount.current = messages.length;
     }, [messages]);
 
     
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (newMessage.trim() && roomId && userProfile) {
-            const messageToSend = newMessage;
-            setNewMessage(""); // Clear input immediately for better UX
-            inputRef.current?.blur();
-            
-            const result = await sendMessage(roomId, {
-                authorId: userProfile.id,
-                authorName: userProfile.name,
-                authorAvatar: userProfile.avatar,
-                text: messageToSend,
-                type: 'text',
-            });
-            
-            if (!result.success) {
-                toast({
-                    variant: "destructive",
-                    title: "Failed to send message",
-                    description: result.error,
-                });
-                setNewMessage(messageToSend); // Restore message on failure
-            }
-        }
+        if (!newMessage.trim()) return;
+        toast({ title: "Message Sent (Mock)", description: "In a live app, this would send your message." });
+        setNewMessage("");
     };
 
     const handleSendGift = async (gift: GiftType, quantity: number, recipientName: string) => {
-        if (!roomId || !userProfile || !room) return;
-
-        let recipients: { id: string, name: string }[] = [];
-        
-        const senderSeatUser: SeatUser = {
-            id: userProfile.id,
-            name: userProfile.name,
-            avatar: userProfile.avatar,
-            isMuted: currentUserSeat?.user?.isMuted ?? true,
-            frame: userProfile.currentFrame
-        };
-
-        if (recipientName === 'All in Room') {
-            recipients = seats.filter(s => s.user).map(s => ({ id: s.user.id, name: s.user.name }));
-        } else if (recipientName === 'All on Mic') {
-            recipients = seats.filter(s => s.user && !s.user.isMuted).map(s => ({ id: s.user.id, name: s.user.name }));
-        } else {
-            const targetSeat = seats.find(s => s.user?.name === recipientName);
-            if (targetSeat?.user) {
-                recipients.push({ id: targetSeat.user.id, name: targetSeat.user.name });
-            }
-        }
-
-        if (recipients.length === 0) {
-             toast({ title: "Recipient not found.", variant: "destructive" });
-             return;
-        }
-
-        for (const recipient of recipients) {
-            const result = await sendGift(roomId, senderSeatUser, recipient.id, recipient.name, gift, quantity);
-            if (!result.success) {
-                toast({
-                    variant: "destructive",
-                    title: "Failed to send gift",
-                    description: `Could not send to ${recipient.name}: ${result.error}`,
-                });
-            }
-        }
+        toast({ title: "Gift Sent! (Mock)", description: `You sent ${quantity}x ${gift.name} to ${recipientName}` });
         
         if (gift.animation === 'walking') {
             setAnimatedWalkingGift(gift.image);
             setTimeout(() => setAnimatedWalkingGift(null), 5000); 
         } else if (gift.animation === 'fullscreen-video' && gift.videoUrl) {
             setAnimatedVideoGift(gift.videoUrl);
-            setTimeout(() => {
-                setAnimatedVideoGift(null);
-            }, 5000);
+            setTimeout(() => { setAnimatedVideoGift(null); }, 5000);
         } else if (gift.animation === 'jump-to-seat') {
-            const startRect = sendButtonRef.current?.getBoundingClientRect();
-            if (!startRect) return;
-
-            const newAnimations: JumpAnimation[] = [];
-            recipients.forEach(recipient => {
-                const targetSeat = seats.find(s => s.user?.id === recipient.id);
-                const seatIndex = seats.findIndex(s => s.id === targetSeat?.id);
-                if (seatIndex === -1) return;
-
-                const endRect = seatRefs.current[seatIndex].current?.getBoundingClientRect();
-                if (endRect) {
-                    for (let i = 0; i < quantity; i++) {
-                         newAnimations.push({
-                            id: Date.now() + Math.random(),
-                            gift,
-                            startX: startRect.x + startRect.width / 2,
-                            startY: startRect.y + startRect.height / 2,
-                            endX: endRect.x + endRect.width / 2,
-                            endY: endRect.y + endRect.height / 2,
-                        });
-                    }
-                }
-            });
-            setJumpAnimations(prev => [...prev, ...newAnimations]);
-
+            handleAnimateJump(gift, quantity, recipientName);
         } else if (gift.animation) {
              handleAnimateGift(gift);
         }
     };
 
-    const handleStartGame = async (gameName: string) => {
-        if (!roomId || !userProfile || !currentUserIsOwner) {
-             toast({
-                title: "Only the room owner can start a game.",
-                variant: "destructive",
-            });
-            return;
-        }
-        setIsGamePanelOpen(false);
+    const handleAnimateJump = (gift: GiftType, quantity: number, recipientName: string) => {
+        const startRect = sendButtonRef.current?.getBoundingClientRect();
+        if (!startRect) return;
 
-        await updatePlaybackState(roomId, { activeGame: gameName, gameHostId: userProfile.id });
-        await sendMessage(roomId, { type: 'system', text: `${userProfile.name} started playing ${gameName}!` });
-        
+        let recipientsToAnimate: { id: string, name: string }[] = [];
+        if (recipientName === 'All in Room' || recipientName === 'All on Mic') {
+            recipientsToAnimate = seats.filter(s => s.user).map(s => s.user);
+        } else {
+            const targetSeat = seats.find(s => s.user?.name === recipientName);
+            if (targetSeat?.user) recipientsToAnimate.push(targetSeat.user);
+        }
+
+        const newAnimations: JumpAnimation[] = [];
+        recipientsToAnimate.forEach(recipient => {
+            const seatIndex = seats.findIndex(s => s.user?.id === recipient.id);
+            if (seatIndex === -1) return;
+
+            const endRect = seatRefs.current[seatIndex].current?.getBoundingClientRect();
+            if (endRect) {
+                for (let i = 0; i < quantity; i++) {
+                     newAnimations.push({
+                        id: Date.now() + Math.random(),
+                        gift,
+                        startX: startRect.x + startRect.width / 2,
+                        startY: startRect.y + startRect.height / 2,
+                        endX: endRect.x + endRect.width / 2,
+                        endY: endRect.y + endRect.height / 2,
+                    });
+                }
+            }
+        });
+        setJumpAnimations(prev => [...prev, ...newAnimations]);
+    }
+
+    const handleStartGame = (gameName: string) => {
+        setIsGamePanelOpen(false);
+        setIsGameActive(true);
         toast({
             title: "Game Started!",
             description: `You have started playing ${gameName}.`,
         });
     };
 
-    const handleEndGame = async () => {
-        if (!roomId || !currentUserIsOwner) return;
-        await endCurrentGame(roomId);
+    const handleEndGame = () => {
+        setIsGameActive(false);
         toast({ title: "Game Ended", description: "The game has been stopped." });
     };
 
@@ -314,51 +171,16 @@ function VideoRoomPageComponent() {
         setJumpAnimations(prev => prev.filter(anim => anim.id !== id));
     };
 
-    const handleTogglePersonalMic = async () => {
-        if (!roomId || !currentUserSeat || !currentUserSeat.user) return;
-        const newMuteState = !currentUserSeat.user.isMuted;
-        await updateSeatUser(roomId, currentUserSeat.id, { isMuted: newMuteState });
+    const handleTogglePersonalMic = () => {
+        toast({ title: "Mic Toggled (Mock)" });
     };
 
-    const handleSeatClick = async (seat: any) => {
-        if (!userProfile || !roomId) return;
-        
-        const seatUser: SeatUser = {
-            id: userProfile.id,
-            name: userProfile.name,
-            avatar: userProfile.avatar,
-            isMuted: true, // Always join muted
-            frame: userProfile.currentFrame
-        };
-
-        const userSeat = seats.find(s => s.user?.id === userProfile.id);
-        if (userSeat) {
-            await leaveSeat(roomId, userSeat.id);
-        }
-
-        if (userSeat?.id !== seat.id && !seat.user && !seat.isLocked) {
-            await takeSeat(roomId, seat.id, seatUser);
-        }
+    const handleSeatClick = (seat: any) => {
+        toast({ title: `Seat ${seat.id} Clicked (Mock)` });
     };
 
-    const handleSeatAction = async (action: 'mute' | 'kick' | 'lock', seatId: number) => {
-        if (!roomId) return;
-
-        const targetSeat = seats.find(seat => seat.id === seatId);
-        if (!targetSeat) return;
-        
-        if (action === 'mute' && targetSeat.user) {
-            const isMuted = !targetSeat.user.isMuted;
-            await updateSeatUser(roomId, seatId, { isMuted });
-            toast({ title: `User ${targetSeat.user.name} ${isMuted ? 'muted' : 'unmuted'}.`});
-        } else if (action === 'kick' && targetSeat.user) {
-            await updateSeatAsOwner(roomId, seatId, { user: null });
-            toast({ title: `User ${targetSeat.user.name} has been kicked from the seat.`});
-        } else if (action === 'lock') {
-            const isLocked = !targetSeat.isLocked;
-            await updateSeatAsOwner(roomId, seatId, { isLocked, user: null });
-            toast({ title: `Seat ${targetSeat.id} has been ${isLocked ? 'locked' : 'unlocked'}.`});
-        }
+    const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
+        toast({ title: `Action '${action}' on seat ${seatId} (Mock)` });
     };
     
     const frameBorderColors: {[key: string]: string} = {
@@ -383,10 +205,17 @@ function VideoRoomPageComponent() {
         }
     };
 
-    const togglePlay = async () => {
-        if (!roomId || !currentUserIsOwner || !room) return;
-        const newIsPlaying = !room.isPlaying;
-        await updatePlaybackState(roomId, { isPlaying: newIsPlaying });
+    const togglePlay = () => {
+        const player = playerRef.current;
+        if (!player) return;
+        const playerState = player.getPlayerState();
+        if (playerState === 1) { // playing
+            player.pauseVideo();
+            toast({ title: "Video Paused" });
+        } else {
+            player.playVideo();
+            toast({ title: "Video Resumed" });
+        }
     };
 
     const youtubeOpts = {
@@ -401,7 +230,7 @@ function VideoRoomPageComponent() {
         },
     };
     
-    if (loading || !room || !userProfile) {
+    if (!room || !userProfile) {
         return (
             <div className="flex items-center justify-center h-screen bg-[#180828] text-white">
                 <Loader2 className="w-10 h-10 animate-spin" />
@@ -454,7 +283,7 @@ function VideoRoomPageComponent() {
                             className="w-16 h-16 rounded-full bg-black/30 text-white/70 hover:bg-black/50 hover:text-white"
                             onClick={togglePlay}
                         >
-                            {room.isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8" />}
+                           <Play className="w-8 h-8" />
                         </Button>
                     )}
                 </div>
