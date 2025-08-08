@@ -1,7 +1,8 @@
 
 "use client";
 
-import { useState, useRef, useEffect, Fragment, createRef, Suspense, memo } from "react";
+import { useState, useRef, useEffect, Fragment, createRef, Suspense } from "react";
+import { useSearchParams } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,10 +20,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
-import { type Message, type Seat, type SeatUser } from "@/services/roomService";
+import { type Message, type Seat, type SeatUser, sendMessage } from "@/services/roomService";
 import { useAuth } from "@/contexts/AuthContext";
-import YouTube from 'react-youtube';
-
 
 export type JumpAnimation = {
     id: number;
@@ -41,6 +40,7 @@ const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
 function VideoRoomPageComponent() {
     const router = useRouter();
     const params = useParams();
+    const searchParams = useSearchParams();
     const roomId = params.id as string;
 
     const { toast } = useToast();
@@ -50,7 +50,7 @@ function VideoRoomPageComponent() {
     const [roomName, setRoomName] = useState("My Video Room");
     const [messages, setMessages] = useState<Message[]>([]);
     const [seats, setSeats] = useState<Seat[]>(Array.from({ length: 8 }, (_, i) => ({ id: i + 1, user: null, isLocked: false })));
-    const [youtubeVideoId, setYoutubeVideoId] = useState<string | null>('5qap5aO4i9A'); // Lofi Girl
+    const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
     const [newMessage, setNewMessage] = useState("");
     const [isGamePanelOpen, setIsGamePanelOpen] = useState(false);
@@ -62,8 +62,9 @@ function VideoRoomPageComponent() {
     const [jumpAnimations, setJumpAnimations] = useState<JumpAnimation[]>([]);
     const [areEffectsEnabled, setAreEffectsEnabled] = useState(true);
     const [isGameActive, setIsGameActive] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(true);
     
-    const playerRef = useRef<any>(null);
+    const playerRef = useRef<HTMLVideoElement>(null);
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -71,6 +72,14 @@ function VideoRoomPageComponent() {
     const sendButtonRef = useRef<HTMLButtonElement>(null);
 
     const currentUserIsOwner = true; // Assume owner for static display
+
+    useEffect(() => {
+        const encodedUrl = searchParams.get('videoUrl');
+        if (encodedUrl) {
+            const decodedUrl = decodeURIComponent(encodedUrl);
+            setVideoUrl(decodedUrl);
+        }
+    }, [searchParams]);
     
     useEffect(() => {
         const chatContainer = chatContainerRef.current;
@@ -198,39 +207,22 @@ function VideoRoomPageComponent() {
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
         toast({ title: `Action '${action}' on seat ${seatId}` });
     };
-    
-    const onPlayerReady = (event: any) => {
-        playerRef.current = event.target;
-        if (event.target && typeof event.target.playVideo === 'function') {
-           event.target.playVideo();
-        }
-    };
 
     const togglePlay = () => {
         const player = playerRef.current;
-        if (!player || typeof player.getPlayerState !== 'function') return;
-        const playerState = player.getPlayerState();
-        if (playerState === 1) { // playing
-            player.pauseVideo();
-            toast({ title: "Video Paused" });
-        } else {
-            player.playVideo();
+        if (!player) return;
+        
+        if (player.paused) {
+            player.play();
+            setIsPlaying(true);
             toast({ title: "Video Resumed" });
+        } else {
+            player.pause();
+            setIsPlaying(false);
+            toast({ title: "Video Paused" });
         }
     };
 
-    const youtubeOpts = {
-        height: '100%',
-        width: '100%',
-        playerVars: {
-          autoplay: 1,
-          controls: 0,
-          rel: 0,
-          showinfo: 0,
-          modestbranding: 1,
-          fs: 0,
-        },
-    };
 
     const videoRoomControls = [
         { name: "Gathering", icon: Flag, action: () => { toast({ title: "Gathering Started in Video Room!", description: "Special room effects are now active." }); setIsControlsPanelOpen(false); } },
@@ -296,27 +288,30 @@ function VideoRoomPageComponent() {
             {/* Video Player Section */}
             <div className="relative w-full bg-black h-[45%] flex-shrink-0">
                  <div className="absolute inset-0 bg-black flex items-center justify-center">
-                    {youtubeVideoId ? (
-                        <YouTube
-                            videoId={youtubeVideoId}
-                            opts={youtubeOpts}
-                            onReady={onPlayerReady}
-                            className="w-full h-full"
-                            iframeClassName="w-full h-full"
+                    {videoUrl ? (
+                        <video
+                            ref={playerRef}
+                            src={videoUrl}
+                            autoPlay
+                            controls={false}
+                            loop
+                            className="w-full h-full object-contain"
                         />
                     ) : (
-                        <p className="text-white/50">No video selected. Go to Add Video to start a room.</p>
+                        <div className="flex flex-col items-center gap-2 text-white/50">
+                            <Loader2 className="w-10 h-10 animate-spin" />
+                            <p>Loading video...</p>
+                        </div>
                     )}
                 </div>
 
                 {/* Video Controls Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                    {currentUserIsOwner && youtubeVideoId && (
+                <div className="absolute inset-0 flex items-center justify-center" onClick={togglePlay}>
+                    {currentUserIsOwner && videoUrl && !isPlaying && (
                         <Button
                             variant="ghost"
                             size="icon"
                             className="w-16 h-16 rounded-full bg-black/30 text-white/70 hover:bg-black/50 hover:text-white"
-                            onClick={togglePlay}
                         >
                            <Play className="w-8 h-8" />
                         </Button>

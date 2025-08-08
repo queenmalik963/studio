@@ -1,12 +1,11 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, History, Loader2 } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 
@@ -29,22 +28,34 @@ export default function AddVideoPage() {
     const router = useRouter();
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleCreateRoom = (type: 'youtube' | 'netflix') => {
-        setIsLoading(true);
-        toast({
-            title: "Room Created!",
-            description: `Your new ${type} room is ready.`,
-        });
-        
-        const newRoomId = `vid-${Date.now()}`;
-        
-        // Simulate network delay for UX
-        setTimeout(() => {
-            router.push(`/video/room/${newRoomId}`);
-            setIsLoading(false);
-        }, 1000);
+    const handleLocalVideoSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            setIsLoading(true);
+            toast({
+                title: "Video Selected!",
+                description: `Creating a room for ${file.name}.`,
+            });
+            
+            const videoUrl = URL.createObjectURL(file);
+            const newRoomId = `vid-${Date.now()}`;
+            
+            // Encode the local blob URL to be passed as a query parameter
+            const encodedUrl = encodeURIComponent(videoUrl);
+            
+            // Simulate network delay for UX
+            setTimeout(() => {
+                router.push(`/video/room/${newRoomId}?videoUrl=${encodedUrl}`);
+                setIsLoading(false);
+            }, 1000);
+        }
     }
+    
+    const handleNetflixClick = () => {
+        fileInputRef.current?.click();
+    };
 
 
     return (
@@ -61,18 +72,26 @@ export default function AddVideoPage() {
                     </Button>
                     <h1 className="text-2xl font-bold font-headline">Add Video</h1>
                 </div>
+                
+                <input
+                    type="file"
+                    accept="video/*"
+                    ref={fileInputRef}
+                    className="hidden"
+                    onChange={handleLocalVideoSelect}
+                />
 
                 <div className="grid grid-cols-2 gap-4">
-                    <Card onClick={() => handleCreateRoom('youtube')} className="aspect-square flex items-center justify-center p-6 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer">
+                    <Card onClick={() => toast({ title: "Coming Soon!", description: "YouTube rooms are not yet available."})} className="aspect-square flex items-center justify-center p-6 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer opacity-50">
                         <div className="flex flex-col items-center gap-4">
                             <YouTubeIcon className="w-20 h-20" />
                             <span className="font-semibold text-lg">YouTube</span>
                         </div>
                     </Card>
-                    <Card onClick={() => handleCreateRoom('netflix')} className="aspect-square flex items-center justify-center p-6 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer">
+                    <Card onClick={handleNetflixClick} className="aspect-square flex items-center justify-center p-6 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer">
                          <div className="flex flex-col items-center gap-4">
                             <NetflixIcon className="w-16 h-16 text-red-600" />
-                             <span className="font-semibold text-lg mt-4">Netflix</span>
+                             <span className="font-semibold text-lg mt-4">From Device</span>
                         </div>
                     </Card>
                 </div>
