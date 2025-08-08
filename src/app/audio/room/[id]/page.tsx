@@ -15,14 +15,16 @@ import { Label } from "@/components/ui/label";
 import { GiftPanel, type Gift as GiftType } from "@/components/room/GiftPanel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
-import { type Message, type Seat, type SeatUser, sendMessage, getRoomById, type Room, getInitialSeats } from "@/services/roomService";
+import { type Message, type Seat, type SeatUser, sendMessage, getRoomById, type Room, getInitialSeats, getMockUsers } from "@/services/roomService";
 import { useAuth } from "@/contexts/AuthContext";
+import { doc, onSnapshot, collection, query, orderBy, updateDoc, setDoc } from "firebase/firestore";
+import { db } from "@/services/firebase";
 
 
 type JumpAnimation = {
@@ -102,16 +104,62 @@ export default function AudioRoomPage() {
     const [currentUserIsOwner, setCurrentUserIsOwner] = useState(false);
 
     useEffect(() => {
-        const roomData = getRoomById(roomId);
-        if (roomData) {
-            setRoom(roomData);
-            setSeats(getInitialSeats(16)); // Static seats with users for now
-            if(userProfile) {
+        if (!roomId || !userProfile) return;
+
+        const roomRef = doc(db, 'rooms', roomId);
+        const unsubscribeRoom = onSnapshot(roomRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const roomData = { id: docSnap.id, ...docSnap.data() } as Room;
+                setRoom(roomData);
+                setCurrentTrackUrl(roomData.currentTrackUrl || null);
+                setIsPlaying(roomData.isPlaying || false);
                 setCurrentUserIsOwner(userProfile.id === roomData.ownerId);
+
+                // Initialize seats if not present
+                const seatsCollectionRef = collection(db, 'rooms', roomId, 'seats');
+                getDocs(seatsCollectionRef).then(seatSnapshot => {
+                    if (seatSnapshot.empty) {
+                        const mockUsers = getMockUsers();
+                        const initialSeats = Array.from({ length: 16 }, (_, i) => ({ id: i + 1, user: null, isLocked: false }));
+                        
+                        const boys = mockUsers.filter(u => ['Qurban', 'Relax DS', 'Enzo DS', 'Malik DS'].includes(u.name));
+                        const girls = mockUsers.filter(u => !boys.some(b => b.id === u.id));
+                        
+                        let seatIndex = 0;
+                        for (const user of boys) { if (seatIndex < 16) { initialSeats[seatIndex].user = user; seatIndex++; } }
+                        seatIndex = 4;
+                        for (const user of girls) { if (seatIndex < 16) { initialSeats[seatIndex].user = user; seatIndex++; } }
+
+                        initialSeats.forEach(async (seat) => {
+                            await setDoc(doc(db, 'rooms', roomId, 'seats', String(seat.id)), seat);
+                        });
+                    }
+                });
+
+            } else {
+                router.push('/audio');
             }
-        } else {
-            router.push('/audio');
-        }
+        });
+
+        const messagesRef = query(collection(db, 'rooms', roomId, 'messages'), orderBy('timestamp', 'asc'));
+        const unsubscribeMessages = onSnapshot(messagesRef, (snapshot) => {
+            const newMessages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Message));
+            setMessages(newMessages);
+        });
+
+        const seatsRef = query(collection(db, 'rooms', roomId, 'seats'), orderBy('id', 'asc'));
+        const unsubscribeSeats = onSnapshot(seatsRef, (snapshot) => {
+            const newSeats = snapshot.docs.map(doc => doc.data() as Seat);
+            setSeats(newSeats);
+        });
+
+
+        return () => {
+            unsubscribeRoom();
+            unsubscribeMessages();
+            unsubscribeSeats();
+        };
+
     }, [roomId, router, userProfile]);
     
     const currentUserSeat = seats.find(s => s.user?.id === userProfile?.id);
@@ -137,37 +185,33 @@ export default function AudioRoomPage() {
     
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim() || !userProfile) return;
+        if (!newMessage.trim() || !userProfile || !roomId) return;
         
-        const message: Message = {
-            id: Date.now().toString(),
+        const message: Omit<Message, 'id' | 'timestamp'> = {
             type: 'text',
             authorId: userProfile.id,
             authorName: userProfile.name,
             authorAvatar: userProfile.avatar,
             text: newMessage,
-            timestamp: new Date(),
         };
-        setMessages(prev => [...prev, message]);
+        sendMessage(roomId, message);
         setNewMessage("");
     };
 
     const handleSendGift = (gift: GiftType, quantity: number, recipientName: string) => {
-        if (!userProfile) return;
+        if (!userProfile || !roomId) return;
         
         toast({ title: "Gift Sent!", description: `You sent ${quantity}x ${gift.name} to ${recipientName}` });
         
-        const giftMessage: Message = {
-            id: Date.now().toString(),
+        const giftMessage: Omit<Message, 'id' | 'timestamp'> = {
             type: 'gift',
             authorId: userProfile.id,
             authorName: userProfile.name,
             authorAvatar: userProfile.avatar,
             text: `sent ${quantity}x ${gift.name} to ${recipientName}`,
-            timestamp: new Date(),
             giftIcon: gift.image
         };
-        setMessages(prev => [...prev, giftMessage]);
+        sendMessage(roomId, giftMessage);
         
         if (gift.animation === 'walking') {
             setAnimatedWalkingGift(gift.image);
@@ -217,7 +261,7 @@ export default function AudioRoomPage() {
     }
     
     const handleStartGame = (gameName: string) => {
-        if (!currentUserIsOwner) {
+        if (!currentUserIsOwner || !roomId) {
             toast({ variant: 'destructive', title: "Only the host can start a game." });
             return;
         }
@@ -245,20 +289,31 @@ export default function AudioRoomPage() {
         setJumpAnimations(prev => prev.filter(anim => anim.id !== id));
     };
     
-    const togglePlay = () => {
-        if (!currentTrackUrl) {
+    const togglePlay = async () => {
+        if (!room) return;
+        if (!room.currentTrackUrl) {
             toast({ variant: 'destructive', title: "No track selected", description: "Owner needs to upload a track first." });
             return;
         }
-        setIsPlaying(prev => !prev);
+        const roomRef = doc(db, 'rooms', roomId);
+        await updateDoc(roomRef, { isPlaying: !room.isPlaying });
     };
     
-    const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (file && currentUserIsOwner) {
-            const trackUrl = URL.createObjectURL(file);
-            setCurrentTrackUrl(trackUrl);
-            setIsPlaying(true);
+        if (file && currentUserIsOwner && roomId) {
+            const trackUrl = URL.createObjectURL(file); // This URL is local to the browser
+            
+            // In a real app, you would upload the file to a storage service (like Firebase Storage)
+            // and get a public URL. For this prototype, we'll just set it locally and update Firestore.
+            setCurrentTrackUrl(trackUrl); // Set local state for immediate playback
+            
+            const roomRef = doc(db, 'rooms', roomId);
+            await updateDoc(roomRef, {
+                currentTrackUrl: trackUrl, // WARNING: This blob URL will only work on the owner's browser.
+                isPlaying: true
+            });
+
             toast({
                 title: "Track Changed!",
                 description: `Now playing: ${file.name}.`,
@@ -317,7 +372,8 @@ export default function AudioRoomPage() {
                 }
                 break;
             case 'clean':
-                setMessages(prev => prev.filter(m => m.type !== 'text'));
+                // In a real app, this would be a more complex operation
+                sendMessage(roomId, {type: 'system', text: 'Chat has been cleared by the owner.'});
                 toast({ title: "Chat Cleared!", description: "The chat history has been cleared by the owner." });
                 break;
             default:
@@ -334,8 +390,7 @@ export default function AudioRoomPage() {
         ...commonControls,
         { name: "Gathering", icon: Flag, action: 'gathering' },
         { name: "Broadcast", icon: Megaphone, action: 'broadcast' },
-        { name: "Play", icon: Play, action: 'playTrack' },
-        { name: "Pause", icon: Pause, action: 'pauseTrack' },
+        { name: isPlaying ? "Pause" : "Play", icon: isPlaying ? Pause : Play, action: 'playTrack' },
         { name: "Upload", icon: Upload, action: 'upload' },
         { name: "Clean", icon: Trash2, action: 'clean' },
     ];
@@ -382,7 +437,7 @@ export default function AudioRoomPage() {
                                     <div 
                                         ref={seatRefs.current[seatIndex]} 
                                         className="flex flex-col items-center gap-1.5 w-[65px] text-center cursor-pointer"
-                                        onClick={() => !isActionableByOwner && seat.user && handleSeatClick(seat.user)}
+                                        onClick={() => seat.user && handleSeatClick(seat.user)}
                                     >
                                         <div className="relative w-[65px] h-[65px] flex items-center justify-center">
                                              {areEffectsEnabled && seat.user && (
@@ -453,7 +508,7 @@ export default function AudioRoomPage() {
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
              <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="audio/*" className="hidden" />
-             <audio ref={audioRef} loop src={currentTrackUrl || undefined} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
+             <audio ref={audioRef} loop src={currentTrackUrl || ''} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
              {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
              {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
@@ -635,7 +690,7 @@ export default function AudioRoomPage() {
             </footer>
 
             <Dialog open={!!selectedUser} onOpenChange={(open) => !open && setSelectedUser(null)}>
-                <DialogContent>
+                 <DialogContent>
                     {selectedUser && (
                         <>
                             <DialogHeader className="items-center">
@@ -718,6 +773,3 @@ export default function AudioRoomPage() {
         </div>
     );
 }
-
-
-

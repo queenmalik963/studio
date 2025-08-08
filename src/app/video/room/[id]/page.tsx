@@ -22,8 +22,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { GiftJumpAnimation } from "@/components/room/GiftJumpAnimation";
 import { WalkingGiftAnimation } from "@/components/room/WalkingGiftAnimation";
 import { SpinTheWheel } from "@/components/room/SpinTheWheel";
-import { type Message, type Seat, type SeatUser, sendMessage, getInitialSeats, getRoomById, type Room } from "@/services/roomService";
+import { type Message, type Seat, type SeatUser, sendMessage, getInitialSeats, getRoomById, type Room, getMockUsers } from "@/services/roomService";
 import { useAuth } from "@/contexts/AuthContext";
+import { doc, onSnapshot, collection, query, orderBy, updateDoc, setDoc, getDocs } from "firebase/firestore";
+import { db } from "@/services/firebase";
 
 export type JumpAnimation = {
     id: number;
@@ -94,22 +96,59 @@ function VideoRoomPageComponent() {
     const [currentUserIsOwner, setCurrentUserIsOwner] = useState(false);
 
     useEffect(() => {
-        const roomData = getRoomById(roomId);
-        if (roomData) {
-            setRoom(roomData);
-            setSeats(getInitialSeats(8));
-             if(userProfile) {
-                setCurrentUserIsOwner(userProfile.id === roomData.ownerId);
-            }
-        } else {
-            router.push('/video');
-        }
+        if (!roomId || !userProfile) return;
 
-        const encodedUrl = searchParams.get('videoUrl');
-        if (encodedUrl) {
-            const decodedUrl = decodeURIComponent(encodedUrl);
-            setVideoUrl(decodedUrl);
-        }
+        // Subscribe to room data
+        const roomRef = doc(db, 'rooms', roomId);
+        const unsubscribeRoom = onSnapshot(roomRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const roomData = { id: docSnap.id, ...docSnap.data() } as Room;
+                setRoom(roomData);
+                setVideoUrl(roomData.currentTrackUrl || searchParams.get('videoUrl') || null);
+                setIsPlaying(roomData.isPlaying || false);
+                setCurrentUserIsOwner(userProfile.id === roomData.ownerId);
+
+                // Initialize seats if not present
+                 const seatsCollectionRef = collection(db, 'rooms', roomId, 'seats');
+                getDocs(seatsCollectionRef).then(seatSnapshot => {
+                    if (seatSnapshot.empty) {
+                        const mockUsers = getMockUsers();
+                        const initialSeats = Array.from({ length: 8 }, (_, i) => ({ id: i + 1, user: null, isLocked: false }));
+                        
+                        mockUsers.slice(0, 8).forEach((user, index) => {
+                            initialSeats[index].user = user;
+                        });
+                        
+                        initialSeats.forEach(async (seat) => {
+                            await setDoc(doc(db, 'rooms', roomId, 'seats', String(seat.id)), seat);
+                        });
+                    }
+                });
+
+            } else {
+                router.push('/video');
+            }
+        });
+
+        // Subscribe to messages
+        const messagesRef = query(collection(db, 'rooms', roomId, 'messages'), orderBy('timestamp', 'asc'));
+        const unsubscribeMessages = onSnapshot(messagesRef, (snapshot) => {
+            const newMessages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Message));
+            setMessages(newMessages);
+        });
+
+        // Subscribe to seats
+        const seatsRef = query(collection(db, 'rooms', roomId, 'seats'), orderBy('id', 'asc'));
+        const unsubscribeSeats = onSnapshot(seatsRef, (snapshot) => {
+            const newSeats = snapshot.docs.map(doc => doc.data() as Seat);
+            setSeats(newSeats);
+        });
+
+        return () => {
+            unsubscribeRoom();
+            unsubscribeMessages();
+            unsubscribeSeats();
+        };
     }, [roomId, router, searchParams, userProfile]);
     
     useEffect(() => {
@@ -123,46 +162,42 @@ function VideoRoomPageComponent() {
 
     useEffect(() => {
         if (playerRef.current) {
-            if (isPlaying && videoUrl) {
+            if (isPlaying) {
                 playerRef.current.play().catch(e => console.error("Video play failed:", e));
             } else {
                 playerRef.current.pause();
             }
         }
-    }, [isPlaying, videoUrl]);
+    }, [isPlaying]);
 
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim() || !userProfile) return;
+        if (!newMessage.trim() || !userProfile || !roomId) return;
         
-        const message: Message = {
-            id: Date.now().toString(),
+        const message: Omit<Message, 'id' | 'timestamp'> = {
             type: 'text',
             authorId: userProfile.id,
             authorName: userProfile.name,
             authorAvatar: userProfile.avatar,
             text: newMessage,
-            timestamp: new Date(),
         };
-        setMessages(prev => [...prev, message]);
+        sendMessage(roomId, message);
         setNewMessage("");
     };
 
     const handleSendGift = async (gift: GiftType, quantity: number, recipientName: string) => {
-        if (!userProfile) return;
+        if (!userProfile || !roomId) return;
 
-        const giftMessage: Message = {
-            id: Date.now().toString(),
+        const giftMessage: Omit<Message, 'id' | 'timestamp'> = {
             type: 'gift',
             authorId: userProfile.id,
             authorName: userProfile.name,
             authorAvatar: userProfile.avatar,
             text: `sent ${quantity}x ${gift.name} to ${recipientName}`,
-            timestamp: new Date(),
             giftIcon: gift.image
         };
-        setMessages(prev => [...prev, giftMessage]);
+        sendMessage(roomId, giftMessage);
         
         if (gift.animation === 'walking') {
             setAnimatedWalkingGift(gift.image);
@@ -212,7 +247,7 @@ function VideoRoomPageComponent() {
     }
 
     const handleStartGame = (gameName: string) => {
-        if (!currentUserIsOwner) {
+        if (!currentUserIsOwner || !roomId) {
             toast({ variant: 'destructive', title: "Only the host can start a game." });
             return;
         }
@@ -245,9 +280,7 @@ function VideoRoomPageComponent() {
     };
     
     const handleSeatClick = (seatUser: SeatUser) => {
-        if (seatUser) {
-            setSelectedUser(seatUser);
-        }
+        setSelectedUser(seatUser);
     };
 
     const handleSeatAction = (action: 'mute' | 'kick' | 'lock', seatId: number) => {
@@ -259,12 +292,16 @@ function VideoRoomPageComponent() {
         setSelectedUser(null);
     };
 
-    const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (file && currentUserIsOwner) {
+        if (file && currentUserIsOwner && roomId) {
+             // In a real app, upload this to a storage service and get a public URL.
             const newVideoUrl = URL.createObjectURL(file);
-            setVideoUrl(newVideoUrl);
-            setIsPlaying(true);
+            const roomRef = doc(db, 'rooms', roomId);
+            await updateDoc(roomRef, {
+                currentTrackUrl: newVideoUrl, // This will only work on the owner's browser
+                isPlaying: true
+            });
             toast({
                 title: "Video Changed!",
                 description: `Now playing: ${file.name}.`,
@@ -297,6 +334,7 @@ function VideoRoomPageComponent() {
                 toast({ title: "Gathering Started!", description: "Special room effects are now active." });
                 break;
             case 'broadcast':
+                sendMessage(roomId, {type: 'system', text: 'Important announcement from the host!'});
                 toast({ title: "Broadcast Sent!", description: "Your message has been sent to all users." });
                 break;
             case 'music':
@@ -311,7 +349,7 @@ function VideoRoomPageComponent() {
                 toast({ title: `Room Effects ${!areEffectsEnabled ? 'On' : 'Off'}` });
                 break;
             case 'clean':
-                setMessages(prev => prev.filter(m => m.type !== 'text'));
+                sendMessage(roomId, {type: 'system', text: 'Chat has been cleared by the owner.'});
                 toast({ title: "Chat Cleared!", description: "Chat history has been cleared." });
                 break;
             case 'muteAll':
@@ -473,7 +511,7 @@ function VideoRoomPageComponent() {
                                         <div 
                                             ref={seatRefs.current[index]}
                                             className="flex flex-col items-center gap-1 w-full text-center cursor-pointer"
-                                            onClick={() => !isActionableByOwner && seat.user && handleSeatClick(seat.user)}
+                                            onClick={() => seat.user && handleSeatClick(seat.user)}
                                         >
                                             <div className="relative w-10 h-10 flex items-center justify-center">
                                                 {seat.user ? (

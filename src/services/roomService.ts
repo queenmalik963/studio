@@ -1,5 +1,7 @@
 
-// This file provides types and mock data for the room UI.
+import { collection, doc, setDoc, getDoc, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp, getDocs } from 'firebase/firestore';
+import { db } from './firebase';
+
 export interface Message {
     id?: string;
     text: string;
@@ -7,7 +9,7 @@ export interface Message {
     authorId?: string;
     authorName?: string;
     authorAvatar?: string;
-    timestamp?: Date;
+    timestamp?: any; // Can be Date or FieldValue
     giftIcon?: string;
     game?: string;
 }
@@ -31,27 +33,93 @@ export interface Room {
     id: string;
     name: string;
     type: 'audio' | 'video';
-    thumbnail: string;
-    thumbnailHint: string;
-    isPlaying: boolean;
-    progress: number;
-    seats: Seat[];
+    seats: number;
     ownerId: string;
     ownerName: string;
     ownerAvatar?: string;
     isLive: boolean;
-    youtubeVideoId?: string;
-    currentTrack?: string | null;
+    currentTrackUrl?: string | null;
+    isPlaying?: boolean;
     playbackTime?: number;
     activeGame?: string | null;
     gameHostId?: string | null;
-    users: SeatUser[]; // Added to simplify homepage card
+    // These fields are for listing and not stored in the main room doc
+    thumbnail?: string;
+    thumbnailHint?: string;
+    users?: SeatUser[]; 
+    progress?: number;
 }
 
 
-// --- Mock Data Generation ---
+// --- REALTIME FIREBASE FUNCTIONS ---
 
-const mockUsers: SeatUser[] = [
+export const createRoom = async (roomData: Pick<Room, 'name' | 'type' | 'seats' | 'ownerId' | 'ownerName' | 'ownerAvatar'>): Promise<{ success: boolean; roomId?: string; error?: string }> => {
+    try {
+        const newRoomRef = doc(collection(db, "rooms"));
+        const newRoom: Omit<Room, 'id'> = {
+            name: roomData.name,
+            type: roomData.type,
+            seats: roomData.seats,
+            ownerId: roomData.ownerId,
+            ownerName: roomData.ownerName,
+            ownerAvatar: roomData.ownerAvatar,
+            isLive: true,
+            currentTrackUrl: null,
+            isPlaying: false,
+            playbackTime: 0,
+            activeGame: null,
+            gameHostId: null,
+        };
+        await setDoc(newRoomRef, newRoom);
+        console.log("Room created with ID: ", newRoomRef.id);
+        return { success: true, roomId: newRoomRef.id };
+    } catch (error: any) {
+        console.error("Error creating room: ", error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const getRoomById = async (roomId: string): Promise<Room | null> => {
+    try {
+        const roomRef = doc(db, 'rooms', roomId);
+        const roomSnap = await getDoc(roomRef);
+        if (roomSnap.exists()) {
+            return { id: roomSnap.id, ...roomSnap.data() } as Room;
+        } else {
+            console.log("No such room document!");
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching room: ", error);
+        return null;
+    }
+};
+
+export const sendMessage = async (roomId: string, message: Omit<Message, 'id' | 'timestamp'>): Promise<{ success: boolean; error?: string }> => {
+    try {
+        const messagesRef = collection(db, 'rooms', roomId, 'messages');
+        await addDoc(messagesRef, {
+            ...message,
+            timestamp: serverTimestamp(),
+        });
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error sending message: ", error);
+        return { success: false, error: error.message };
+    }
+}
+
+// This function will now be handled inside the components with real-time listeners.
+// Leaving this structure for reference and potential future use if needed.
+export const getInitialSeats = async (roomId: string, count: number): Promise<Seat[]> => {
+     // In a real app, you'd fetch seat state from Firestore.
+     // For now, we return empty seats and let the component populate it.
+    return Array.from({ length: count }, (_, i) => ({ id: i + 1, user: null, isLocked: false }));
+};
+
+
+// --- MOCK DATA FOR LISTING PAGES (Can be replaced with real backend calls) ---
+const mockUsersList: SeatUser[] = [
     { id: 'user1', name: 'Qurban', avatar: 'https://i.imgur.com/pULAwYc.jpeg', isMuted: false, frame: 'gold', nameColor: 'text-yellow-300' },
     { id: 'user2', name: 'Relax DS', avatar: 'https://i.imgur.com/UQJVxdD.jpeg', isMuted: true, frame: 'blue', nameColor: 'text-sky-400' },
     { id: 'user3', name: 'Enzo DS', avatar: 'https://i.imgur.com/7F1cQNN.jpeg', isMuted: false, frame: 'red', nameColor: 'text-red-400' },
@@ -66,11 +134,13 @@ const mockUsers: SeatUser[] = [
     { id: 'user12', name: 'Phocki', avatar: 'https://i.imgur.com/pK3YSUK.jpeg', isMuted: false, frame: 'lime', nameColor: 'text-lime-400' },
 ];
 
-const mockAudioRooms: Room[] = [
+
+const mockAudioRooms: (Room & { thumbnail: string, thumbnailHint: string, users: SeatUser[], progress: number })[] = [
     { 
         id: 'audio1', 
         name: 'Lofi Beats to Relax/Study to', 
         type: 'audio', 
+        seats: 16,
         thumbnail: 'https://i.ytimg.com/vi/jfKfPfyJRdk/maxresdefault.jpg',
         thumbnailHint: 'lofi anime girl',
         isPlaying: true, 
@@ -79,13 +149,13 @@ const mockAudioRooms: Room[] = [
         ownerName: 'Rave King', 
         ownerAvatar: 'https://placehold.co/100x100/8b5cf6/ffffff.png?text=RK',
         isLive: true,
-        users: mockUsers.slice(0, 4),
-        seats: [],
+        users: mockUsersList.slice(0, 4),
     },
     { 
         id: 'audio2', 
         name: 'Late Night Ghazals', 
-        type: 'audio', 
+        type: 'audio',
+        seats: 16, 
         thumbnail: 'https://placehold.co/600x400/1e293b/ffffff.png',
         thumbnailHint: 'moonlit night',
         isPlaying: true, 
@@ -93,16 +163,16 @@ const mockAudioRooms: Room[] = [
         ownerId: 'owner2', 
         ownerName: 'Ghazal Maestro', 
         isLive: true,
-        users: mockUsers.slice(4, 8),
-        seats: [],
+        users: mockUsersList.slice(4, 8),
     },
 ];
 
-const mockVideoRooms: Room[] = [
+const mockVideoRooms: (Room & { thumbnail: string, thumbnailHint: string, users: SeatUser[], progress: number })[] = [
      { 
         id: 'video1', 
         name: 'Chill Vibes & Funny Clips', 
         type: 'video', 
+        seats: 8,
         thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', // A classic
         thumbnailHint: 'man singing',
         isPlaying: true, 
@@ -111,13 +181,13 @@ const mockVideoRooms: Room[] = [
         ownerName: 'Rave King',
         ownerAvatar: 'https://placehold.co/100x100/8b5cf6/ffffff.png?text=RK',
         isLive: true,
-        users: mockUsers,
-        seats: [],
+        users: mockUsersList,
     },
      { 
         id: 'video2', 
         name: 'Movie Night: Interstellar', 
         type: 'video', 
+        seats: 8,
         thumbnail: 'https://i.ytimg.com/vi/zSWdZVtXT7E/maxresdefault.jpg',
         thumbnailHint: 'space galaxy',
         isPlaying: false, 
@@ -125,8 +195,7 @@ const mockVideoRooms: Room[] = [
         ownerId: 'owner4', 
         ownerName: 'Cinema Club', 
         isLive: true,
-        users: mockUsers.slice(0, 5),
-        seats: [],
+        users: mockUsersList.slice(0, 5),
     },
 ];
 
@@ -134,56 +203,4 @@ const mockVideoRooms: Room[] = [
 export const getMockAudioRooms = () => mockAudioRooms;
 export const getMockVideoRooms = () => mockVideoRooms;
 
-export const getRoomById = (roomId: string): Room | undefined => {
-    return [...mockAudioRooms, ...mockVideoRooms].find(room => room.id === roomId);
-}
-
-export const getInitialSeats = (count: number): Seat[] => {
-    const seats = Array.from({ length: count }, (_, i) => ({ id: i + 1, user: null, isLocked: false }));
-    
-    // Distribute users: Boys in the first row (assuming 4 seats per row), Girls after.
-    const boys = mockUsers.filter(u => ['Qurban', 'Relax DS', 'Enzo DS', 'Malik DS'].includes(u.name));
-    const girls = mockUsers.filter(u => !boys.some(b => b.id === u.id));
-
-    let seatIndex = 0;
-
-    // Place boys, up to the seat count
-    for (const user of boys) {
-        if (seatIndex < count) {
-            seats[seatIndex].user = user;
-            seatIndex++;
-        }
-    }
-    
-    // To ensure girls are on the next row, we can skip seats if needed.
-    // This logic is simple and might need adjustment for different row sizes.
-    // For now, it will just fill seats sequentially.
-    let girlStartIndex = 4; // Start girls on the 5th seat for Audio room (next row)
-    if (count === 8) { // For video room, start on the 5th seat
-        girlStartIndex = 4;
-    }
-    
-    seatIndex = girlStartIndex;
-
-    // Place girls, up to the seat count
-    for (const user of girls) {
-        if (seatIndex < count) {
-            seats[seatIndex].user = user;
-            seatIndex++;
-        }
-    }
-
-    return seats;
-};
-
-
-export const createRoom = async (roomData: Partial<Room>): Promise<{ success: boolean; roomId?: string; error?: string }> => {
-    console.log('Static: Creating room with data:', roomData);
-    const newRoomId = `room-${Date.now()}`;
-    return { success: true, roomId: newRoomId };
-};
-
-export const sendMessage = async (roomId: string, message: Message): Promise<{ success: boolean; error?: string }> => {
-    console.log(`Static: Sending message to room ${roomId}:`, message.text);
-    return { success: true };
-}
+export const getMockUsers = () => mockUsersList;
