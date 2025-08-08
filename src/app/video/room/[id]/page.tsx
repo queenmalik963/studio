@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef, useEffect, Fragment, createRef, Suspense } from "react";
+import { useState, useRef, useEffect, Fragment, createRef, Suspense, memo } from "react";
 import { useSearchParams } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,23 @@ const videoRoomControls = [
     { name: "Mute All", icon: MicOff, ownerOnly: true, action: 'muteAll' },
     { name: "Change Video", icon: Youtube, action: 'changeVideo' },
 ];
+
+const RoomControlButton = memo(({ control, onClick }: { control: { name: string; icon: React.ElementType, action: string }; onClick: (action: string) => void}) => {
+    return (
+        <div className="flex flex-col items-center gap-2 text-center">
+            <Button
+                size="icon"
+                variant="ghost"
+                className="w-14 h-14 bg-black/30 rounded-2xl"
+                onClick={() => onClick(control.action)}
+            >
+                <control.icon className="w-7 h-7 text-white/80" />
+            </Button>
+            <Label className="text-xs">{control.name}</Label>
+        </div>
+    );
+});
+RoomControlButton.displayName = 'RoomControlButton';
 
 function VideoRoomPageComponent() {
     const router = useRouter();
@@ -104,7 +121,7 @@ function VideoRoomPageComponent() {
 
     useEffect(() => {
         if (playerRef.current) {
-            if (isPlaying) {
+            if (isPlaying && videoUrl) {
                 playerRef.current.play().catch(e => console.error("Video play failed:", e));
             } else {
                 playerRef.current.pause();
@@ -279,7 +296,11 @@ function VideoRoomPageComponent() {
                 toast({ title: "All Muted", description: "All users have been muted." });
                 break;
             case 'changeVideo':
-                fileInputRef.current?.click();
+                if (currentUserIsOwner) {
+                    fileInputRef.current?.click();
+                } else {
+                    toast({ variant: 'destructive', title: "Only owner can change video." });
+                }
                 break;
             default:
                 break;
@@ -465,7 +486,8 @@ function VideoRoomPageComponent() {
                                                         {seat.isLocked ? <Lock className="w-4 h-4 text-white/50"/> : <span className="text-sm font-bold text-white/50">{seat.id}</span>}
                                                     </div>
                                                 )}
-                                             {seat.user && <p className="text-[10px] truncate w-full">{seat.user.name}</p>}
+                                            </div>
+                                             {seat.user && <p className={cn("text-[10px] truncate w-full", seat.user.nameColor)}>{seat.user.name}</p>}
                                         </div>
                                     </PopoverTrigger>
                                      <PopoverContent className="w-40 p-1 bg-black/80 backdrop-blur-md border-white/20 text-white">
@@ -642,17 +664,7 @@ function VideoRoomPageComponent() {
                            {videoRoomControls.map((control) => {
                                 if (control.ownerOnly && !currentUserIsOwner) return null;
                                 return (
-                                    <div key={control.name} className="flex flex-col items-center gap-2 text-center">
-                                        <Button
-                                            size="icon"
-                                            variant="ghost"
-                                            className="w-14 h-14 bg-black/30 rounded-2xl"
-                                            onClick={() => handleControlAction(control.action)}
-                                        >
-                                            <control.icon className="w-7 h-7 text-white/80" />
-                                        </Button>
-                                        <Label className="text-xs">{control.name}</Label>
-                                    </div>
+                                   <RoomControlButton key={control.name} control={control} onClick={handleControlAction} />
                                 )
                            })}
                         </div>

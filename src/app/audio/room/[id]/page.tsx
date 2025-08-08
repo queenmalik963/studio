@@ -112,7 +112,7 @@ export default function AudioRoomPage() {
 
     useEffect(() => {
         if (audioRef.current) {
-            if (isPlaying) {
+            if (isPlaying && currentTrackUrl) {
                 audioRef.current.play().catch(e => console.error("Audio play failed:", e));
             } else {
                 audioRef.current.pause();
@@ -249,7 +249,11 @@ export default function AudioRoomPage() {
     };
     
     const handleUploadClick = () => {
-        fileInputRef.current?.click();
+        if (currentUserIsOwner) {
+            fileInputRef.current?.click();
+        } else {
+            toast({ variant: "destructive", title: "Only the owner can upload music." });
+        }
     }
 
     const handleTogglePersonalMic = () => {
@@ -339,7 +343,7 @@ export default function AudioRoomPage() {
                                                             <Mic className="w-3 h-3 text-green-400" />
                                                         }
                                                     </div>
-                                                    <p className="absolute -bottom-5 text-xs truncate w-full">{seat.user.name}</p>
+                                                    <p className={cn("absolute -bottom-5 text-xs truncate w-full", seat.user.nameColor)}>{seat.user.name}</p>
                                                 </>
                                             ) : (
                                                 <div className="w-[55px] h-[55px] rounded-full bg-black/20 flex items-center justify-center border-2 border-dashed border-white/20">
