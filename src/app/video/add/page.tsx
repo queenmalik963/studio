@@ -53,7 +53,7 @@ export default function AddVideoPage() {
         }
     }
     
-    const handleNetflixClick = () => {
+    const handleDeviceClick = () => {
         fileInputRef.current?.click();
     };
 
@@ -88,18 +88,13 @@ export default function AddVideoPage() {
                             <span className="font-semibold text-lg">YouTube</span>
                         </div>
                     </Card>
-                    <Card onClick={handleNetflixClick} className="aspect-square flex items-center justify-center p-6 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer">
+                    <Card onClick={handleDeviceClick} className="aspect-square flex items-center justify-center p-6 text-center bg-card/50 hover:bg-card/80 transition-colors cursor-pointer">
                          <div className="flex flex-col items-center gap-4">
                             <NetflixIcon className="w-16 h-16 text-red-600" />
                              <span className="font-semibold text-lg mt-4">From Device</span>
                         </div>
                     </Card>
                 </div>
-                
-                <Button variant="outline" size="lg" className="w-full justify-center gap-2" onClick={() => toast({ title: "Coming Soon!", description: "This feature is not yet available."})}>
-                    <History />
-                    Recently Watched
-                </Button>
             </div>
         </AppLayout>
     );

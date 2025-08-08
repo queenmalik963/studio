@@ -174,9 +174,9 @@ function VideoRoomPageComponent() {
     const handleStartGame = (gameName: string) => {
         setIsGamePanelOpen(false);
         setIsGameActive(true);
-        toast({
-            title: "Game Started!",
-            description: `You have started playing ${gameName}.`,
+        sendMessage(roomId, {
+            type: 'system',
+            text: `The host has started a game of ${gameName}!`
         });
     };
 
