@@ -1,7 +1,6 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from 'next/image';
@@ -15,7 +14,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MusicSuggestions } from "@/components/video/MusicSuggestions";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface TrendingRoom {
@@ -32,7 +30,7 @@ interface TrendingRoom {
 const mockTrendingVideos: TrendingRoom[] = [
     {
         id: 'vid-1',
-        href: '#',
+        href: '/video/room/vid-1',
         image: 'https://i.imgur.com/Oz4ud1o.gif',
         hint: 'animated space battle',
         title: 'Epic Space Battle Live!',
@@ -42,7 +40,7 @@ const mockTrendingVideos: TrendingRoom[] = [
     },
     {
         id: 'vid-2',
-        href: '#',
+        href: '/video/room/vid-2',
         image: 'https://i.ytimg.com/vi/jfKfPfyJRdk/maxresdefault.jpg',
         hint: 'lofi music stream',
         title: 'Lofi Hip Hop Radio 24/7',
@@ -55,7 +53,7 @@ const mockTrendingVideos: TrendingRoom[] = [
 const mockTrendingAudio: TrendingRoom[] = [
      {
         id: 'aud-1',
-        href: '#',
+        href: '/audio/room/aud-1',
         image: 'https://i.imgur.com/sCbrK9U.png',
         hint: 'podcast microphone',
         title: 'Late Night Tech Talk',
@@ -65,7 +63,7 @@ const mockTrendingAudio: TrendingRoom[] = [
     },
     {
         id: 'aud-2',
-        href: '#',
+        href: '/audio/room/aud-2',
         image: 'https://placehold.co/600x400/1e293b/ffffff.png',
         hint: 'standup comedy stage',
         title: 'Comedy Hour Live',
@@ -190,20 +188,9 @@ const CAFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 
 export default function HomePage() {
-  const router = useRouter();
-  const { currentUser, userProfile, loading } = useAuth();
-  const [trendingVideos] = useState<TrendingRoom[]>(mockTrendingVideos);
-  const [trendingAudio] = useState<TrendingRoom[]>(mockTrendingAudio);
+  const { userProfile } = useAuth();
 
-  useEffect(() => {
-    // In a static app, we don't need to push back to login if there's no user
-    // because auth is mocked.
-    if (!loading && !currentUser) {
-      // router.push('/');
-    }
-  }, [currentUser, loading, router]);
-
-  if (loading || !userProfile) {
+  if (!userProfile) {
       return (
           <div className="flex h-screen w-full items-center justify-center bg-background">
               <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -272,9 +259,9 @@ export default function HomePage() {
                     <PlaySquare className="w-6 h-6 text-primary" />
                     <h2 className="text-2xl font-bold font-headline">Trending Videos</h2>
                 </div>
-                {trendingVideos.length > 0 ? (
+                {mockTrendingVideos.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {trendingVideos.map((item) => (
+                    {mockTrendingVideos.map((item) => (
                       <TrendingCard 
                           key={item.id}
                           {...item}
@@ -291,9 +278,9 @@ export default function HomePage() {
                     <Mic className="w-6 h-6 text-primary" />
                     <h2 className="text-2xl font-bold font-headline">Trending Audio</h2>
                 </div>
-                {trendingAudio.length > 0 ? (
+                {mockTrendingAudio.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {trendingAudio.map((item) => (
+                    {mockTrendingAudio.map((item) => (
                       <TrendingCard 
                           key={item.id}
                           {...item}

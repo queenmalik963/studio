@@ -56,7 +56,7 @@ export const getMockMessages = (): Message[] => {
 };
 
 export const getMockRoom = (roomId: string, type: 'audio' | 'video' = 'audio'): Room => {
-    const seatCount = type === 'video' ? 8 : (parseInt(localStorage.getItem('ravewave-room-seats') || '16', 10));
+    const seatCount = type === 'video' ? 8 : 16;
 
     const mockRoom: Room = {
         id: roomId,
@@ -86,3 +86,16 @@ export const getMockRoom = (roomId: string, type: 'audio' | 'video' = 'audio'): 
 
     return mockRoom;
 };
+
+// Mock function to create a room
+export const createRoom = async (roomData: Partial<Room>): Promise<{ success: boolean; roomId?: string; error?: string }> => {
+    console.log('Mock: Creating room with data:', roomData);
+    const newRoomId = `mock-${Date.now()}`;
+    return { success: true, roomId: newRoomId };
+};
+
+// Mock function to send a message
+export const sendMessage = async (roomId: string, message: Message): Promise<{ success: boolean; error?: string }> => {
+    console.log(`Mock: Sending message to room ${roomId}:`, message);
+    return { success: true };
+}

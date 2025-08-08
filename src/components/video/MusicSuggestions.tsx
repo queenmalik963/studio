@@ -12,12 +12,11 @@ export function MusicSuggestions() {
                     <Music2 className="text-primary" />
                     Up Next For You
                 </CardTitle>
-                <CardDescription>AI suggestions based on your watch history.</CardDescription>
+                <CardDescription>AI features have been removed for stability.</CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="text-center text-muted-foreground py-10">
-                    <p>AI Features Coming Soon!</p>
-                    <p className="text-xs">Music suggestions will appear here once configured.</p>
+                    <p>Suggestions are disabled.</p>
                 </div>
             </CardContent>
         </Card>

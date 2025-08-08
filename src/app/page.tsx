@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Music, Loader2 } from "lucide-react";
+import { Music } from "lucide-react";
 
 const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -52,11 +52,11 @@ export default function LoginPage() {
                     <form onSubmit={handleSignIn} className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="email">Email or Phone</Label>
-                            <Input id="email" type="email" placeholder="you@example.com" required />
+                            <Input id="email" type="email" placeholder="you@example.com" required defaultValue="king@ravewave.com" />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="password">Password</Label>
-                            <Input id="password" type="password" required />
+                            <Input id="password" type="password" required defaultValue="password" />
                         </div>
                         <Button type="submit" className="w-full font-bold">
                            Sign In

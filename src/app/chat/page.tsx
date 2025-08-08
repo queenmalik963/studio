@@ -9,49 +9,10 @@ import { Search, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { formatDistanceToNow } from 'date-fns';
-
-interface ConversationSummary {
-    id: string;
-    partnerId: string;
-    partnerName: string;
-    partnerAvatar: string;
-    lastMessage: string;
-    lastMessageTimestamp: Date;
-    unreadCount: number;
-}
-
-const mockConversations: ConversationSummary[] = [
-    {
-        id: "chat-1",
-        partnerId: "user-2",
-        partnerName: "Ayesha",
-        partnerAvatar: "https://placehold.co/100x100/f87171/ffffff.png?text=A",
-        lastMessage: "Haha, that's hilarious! See you there.",
-        lastMessageTimestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-        unreadCount: 2,
-    },
-    {
-        id: "chat-2",
-        partnerId: "user-3",
-        partnerName: "DJ Spark",
-        partnerAvatar: "https://placehold.co/100x100/fbbf24/ffffff.png?text=S",
-        lastMessage: "Yeah, I can play that track next. No problem.",
-        lastMessageTimestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-        unreadCount: 0,
-    },
-    {
-        id: "chat-3",
-        partnerId: "user-4",
-        partnerName: "Zara",
-        partnerAvatar: "https://placehold.co/100x100/34d399/ffffff.png?text=Z",
-        lastMessage: "Are you going to the event tonight?",
-        lastMessageTimestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-        unreadCount: 0,
-    }
-];
+import { getMockConversations, type ConversationSummary } from "@/services/chatService";
 
 export default function ChatListPage() {
-    const [conversations] = useState<ConversationSummary[]>(mockConversations);
+    const [conversations] = useState<ConversationSummary[]>(getMockConversations());
 
     return (
         <AppLayout>

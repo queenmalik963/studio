@@ -69,3 +69,23 @@ export const getMockPartner = (conversationId: string): ConversationPartner => {
         avatar: 'https://placehold.co/100x100/f87171/ffffff.png?text=A'
     };
 };
+
+// Mock send message function
+export const sendMessage = async (conversationId: string, senderId: string, text: string) => {
+    console.log(`Mock: Sending message "${text}" to ${conversationId}`);
+    return { success: true };
+};
+
+// Mock listen to messages function
+export const listenToMessages = (conversationId: string, callback: (messages: ChatMessage[]) => void) => {
+    console.log(`Mock: Listening to messages for ${conversationId}`);
+    const mockMessages = getMockMessages(conversationId);
+    callback(mockMessages);
+    return () => console.log(`Mock: Unsubscribed from ${conversationId}`); // Return an unsubscribe function
+};
+
+// Mock get conversation partner
+export const getConversationPartner = async (conversationId: string, currentUserId: string): Promise<ConversationPartner | null> => {
+    console.log(`Mock: getting partner for ${conversationId}`);
+    return getMockPartner(conversationId);
+}

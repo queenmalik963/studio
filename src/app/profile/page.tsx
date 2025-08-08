@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AppLayout } from "@/components/shared/AppLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -21,30 +21,17 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { followUser, unfollowUser, updateUserProfile } from "@/services/userService";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 
 
 export default function ProfilePage() {
-    const router = useRouter();
     const { toast } = useToast();
-    const { currentUser, userProfile, loading } = useAuth();
+    const { userProfile } = useAuth();
     
-    // Initialize tempName directly, it will update when userProfile becomes available
-    const [tempName, setTempName] = useState(userProfile?.name ?? "");
+    const [tempName, setTempName] = useState(userProfile.name);
 
-    useEffect(() => {
-        if (!loading && !currentUser) {
-            router.push('/');
-        }
-        if (!loading && userProfile && tempName !== userProfile.name) {
-            setTempName(userProfile.name);
-        }
-    }, [userProfile, loading, currentUser, router, tempName]);
-
-    if (loading || !userProfile) {
+    if (!userProfile) {
         return (
             <div className="flex h-screen w-full items-center justify-center bg-background">
                 <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -53,53 +40,26 @@ export default function ProfilePage() {
     }
     
     const handleFollow = async () => {
-        if (!currentUser || !userProfile || currentUser.uid === userProfile.id) return;
-        const result = await followUser(currentUser.uid, userProfile.id);
-        if (result.success) {
-            toast({ title: "Followed!", description: `You are now following ${userProfile.name}.` });
-        } else {
-            toast({ title: "Error", description: result.error, variant: "destructive" });
-        }
+        toast({ title: "Action Mocked", description: `You followed ${userProfile.name}.` });
     };
 
     const handleUnfollow = async () => {
-        if (!currentUser || !userProfile || currentUser.uid === userProfile.id) return;
-        const result = await unfollowUser(currentUser.uid, userProfile.id);
-        if (result.success) {
-            toast({ title: "Unfollowed", description: `You are no longer following ${userProfile.name}.` });
-        } else {
-            toast({ title: "Error", description: result.error, variant: "destructive" });
-        }
+        toast({ title: "Action Mocked", description: `You unfollowed ${userProfile.name}.` });
     };
 
     const handleNameChange = async () => {
-        if (userProfile && tempName !== userProfile.name) {
-            const result = await updateUserProfile(userProfile.id, { name: tempName });
-            if (result.success) {
-                toast({ title: "Name updated successfully!" });
-            } else {
-                 toast({ title: "Error", description: result.error, variant: "destructive" });
-            }
+        if (tempName !== userProfile.name) {
+            toast({ title: "Name updated (Mock)!", description: `Name changed to ${tempName}` });
         }
     }
 
-    const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0] && userProfile) {
-            const newAvatarFile = e.target.files[0];
-            // In a real app, you would upload this to Firebase Storage and get a URL
-            // For now, we'll just simulate with a local URL.
-            const newAvatarUrl = URL.createObjectURL(newAvatarFile);
-
-            const result = await updateUserProfile(userProfile.id, { avatar: newAvatarUrl });
-            if(result.success) {
-                toast({ title: "Avatar updated!" });
-            } else {
-                toast({ title: "Error updating avatar", description: result.error, variant: "destructive" });
-            }
+    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            toast({ title: "Avatar updated (Mock)!" });
         }
     }
 
-    const isOwnProfile = currentUser?.uid === userProfile.id;
+    const isOwnProfile = true; // In static version, we always view our own profile
 
     return (
         <AppLayout>
@@ -142,7 +102,7 @@ export default function ProfilePage() {
                                 </DialogContent>
                             </Dialog>
                             
-                             <Dialog onOpenChange={(open) => !open && userProfile && setTempName(userProfile.name)}>
+                             <Dialog onOpenChange={(open) => !open && setTempName(userProfile.name)}>
                                 <DialogTrigger asChild disabled={!isOwnProfile}>
                                     <div className={cn("flex items-center gap-2 mt-4", isOwnProfile && "cursor-pointer")}>
                                         {userProfile.vipTier && <Crown className="w-5 h-5 text-yellow-400" />}

@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Paperclip, Send, ArrowLeft, Mic, MoreVertical, Film, Gift, Video, UserX, Trash2, BellOff, MessageCircle, Loader2 } from "lucide-react";
+import { Paperclip, Send, ArrowLeft, Mic, MoreVertical, UserX, Trash2, BellOff, MessageCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter, useParams } from "next/navigation";
 import {
@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast";
-import { listenToMessages, sendMessage, type ChatMessage, getConversationPartner, type ConversationPartner } from "@/services/chatService";
+import { getMockMessages, getMockPartner, type ChatMessage, type ConversationPartner } from "@/services/chatService";
 import { useAuth } from "@/contexts/AuthContext";
 
 
@@ -32,68 +32,38 @@ export default function ChatRoomPage() {
     const { toast } = useToast();
     const conversationId = params.id as string;
     
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const { currentUser } = useAuth();
+    const [messages, setMessages] = useState<ChatMessage[]>(getMockMessages(conversationId));
+    const [partner, setPartner] = useState<ConversationPartner>(getMockPartner(conversationId));
     const [newMessage, setNewMessage] = useState("");
-    const { currentUser, loading } = useAuth();
-    const [partner, setPartner] = useState<ConversationPartner | null>(null);
-    const [partnerLoading, setPartnerLoading] = useState(true);
-
+    
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     
     useEffect(() => {
-        if (!loading && !currentUser) {
-            router.push('/');
-        }
-    }, [loading, currentUser, router]);
-
-    useEffect(() => {
-        if (!currentUser || !conversationId) return;
-
-        const fetchPartner = async () => {
-            setPartnerLoading(true);
-            const partnerData = await getConversationPartner(conversationId, currentUser.uid);
-            setPartner(partnerData);
-            setPartnerLoading(false);
-        };
-
-        fetchPartner();
-
-        const unsubscribeMessages = listenToMessages(conversationId, setMessages);
-        return () => unsubscribeMessages();
-
-    }, [currentUser, conversationId]);
-
-    useEffect(() => {
         const chatContainer = chatContainerRef.current;
-        if (!chatContainer) return;
-
-        // Scroll to bottom whenever messages change
-        setTimeout(() => {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }, 100);
+        if (chatContainer) {
+            setTimeout(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 100);
+        }
     }, [messages]);
 
-    const handleSendMessage = async (e: React.FormEvent) => {
+    const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
-        if (newMessage.trim() && currentUser) {
-            const messageToSend = newMessage;
-            setNewMessage(""); 
-            inputRef.current?.blur();
-            
-            await sendMessage(conversationId, currentUser.uid, messageToSend);
-        }
+        if (!newMessage.trim()) return;
+        toast({ title: "Message Sent (Mock)", description: "In a live app, this would send your message." });
+        setNewMessage("");
     };
     
     const handleClearChat = () => {
-        // This is a complex operation (deleting subcollections) and is not implemented for this demo.
         toast({
             title: "Action Not Available",
-            description: "Clearing chat history is not available in this demo.",
+            description: "Clearing chat history is a mock action.",
         });
     }
 
-    if (loading || partnerLoading || !partner || !currentUser) {
+    if (!partner || !currentUser) {
         return (
             <div className="flex flex-col h-screen bg-gradient-to-br from-background via-primary/10 to-background text-foreground">
                 <header className="p-4 border-b flex items-center justify-between gap-4 bg-card">
@@ -187,7 +157,7 @@ export default function ChatRoomPage() {
                                 </div>
                             )}
                             <p className={cn("text-xs mt-1 text-right", msg.senderId === currentUser.uid ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
-                                {new Date(msg.timestamp?.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                             </p>
                         </div>
                     </div>
@@ -202,7 +172,7 @@ export default function ChatRoomPage() {
 
             <footer className="p-4 border-t bg-background/50">
                 <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-                     <Button variant="ghost" size="icon" type="button" disabled>
+                     <Button variant="ghost" size="icon" type="button" onClick={() => toast({ title: "Coming Soon!", description: "File attachments are not yet available." })}>
                         <Paperclip />
                         <span className="sr-only">Attach file</span>
                     </Button>
@@ -220,7 +190,7 @@ export default function ChatRoomPage() {
                             <span className="sr-only">Send message</span>
                         </Button>
                     ) : (
-                         <Button type="button" size="icon" disabled>
+                         <Button type="button" size="icon" onClick={() => toast({ title: "Coming Soon!", description: "Voice messages are not yet available." })}>
                             <Mic />
                             <span className="sr-only">Record voice message</span>
                         </Button>

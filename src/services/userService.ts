@@ -1,7 +1,6 @@
 
 // This file is now fully static. It does not perform any real operations.
-// It's kept for structural consistency but could be removed if components
-// no longer import from it.
+// It's kept for structural consistency.
 
 export interface UserProfile {
     id: string;
