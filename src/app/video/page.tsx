@@ -8,24 +8,16 @@ import { Input } from "@/components/ui/input";
 import { Plus, Search, Settings, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getMockVideoRooms, Room } from "@/services/roomService";
 
-
-interface Room {
-    id: string;
-    name: string;
-    thumbnail: string;
-    thumbnailHint: string;
-    isPlaying: boolean;
-    progress: number;
-    users: any[];
-    seats: any[];
-}
-
-const mockVideoRooms: Room[] = [];
 
 export default function VideoPage() {
-    const [rooms] = useState<Room[]>(mockVideoRooms);
+    const [rooms, setRooms] = useState<Room[]>([]);
+
+    useEffect(() => {
+        setRooms(getMockVideoRooms());
+    }, []);
 
   return (
     <div className="bg-gradient-to-b from-slate-900 via-purple-900 to-slate-900 min-h-screen">
@@ -79,13 +71,14 @@ export default function VideoPage() {
                                       <p className="text-white font-semibold truncate">{room.name}</p>
                                       <div className="flex items-center gap-2 mt-2">
                                           <div className="flex -space-x-2">
-                                              {room.users.map((user: any, i: number) => (
+                                              {room.users.slice(0,3).map((user, i) => (
                                                   <Avatar key={i} className="w-7 h-7 border-2 border-background/50">
                                                       <AvatarImage src={user.avatar} alt={user.name} data-ai-hint="person portrait" />
                                                       <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                                                   </Avatar>
                                               ))}
                                           </div>
+                                           {room.users.length > 3 && <span className="text-xs text-muted-foreground">+{room.users.length - 3}</span>}
                                       </div>
                                        <div className="w-full bg-white/10 h-1 mt-2 rounded-full">
                                           <div className="bg-white/70 h-1 rounded-full" style={{width: `${room.progress}%`}}></div>

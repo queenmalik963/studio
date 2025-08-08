@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/select";
 import { MusicSuggestions } from "@/components/video/MusicSuggestions";
 import { useAuth } from "@/contexts/AuthContext";
+import { getMockAudioRooms, getMockVideoRooms, Room } from "@/services/roomService";
+import { useEffect, useState } from "react";
 
 interface TrendingRoom {
   id: string;
@@ -23,16 +25,11 @@ interface TrendingRoom {
   hint: string;
   title: string;
   creator: string;
-  viewers: string;
+  users: any[];
   icon: React.ElementType;
 }
 
-// Data is now empty. It should be populated dynamically in a real app.
-const mockTrendingVideos: TrendingRoom[] = [];
-const mockTrendingAudio: TrendingRoom[] = [];
-
-
-const TrendingCard = ({ href, image, hint, title, creator, viewers, icon: Icon }: TrendingRoom) => (
+const TrendingCard = ({ href, image, hint, title, creator, users, icon: Icon }: TrendingRoom) => (
     <Link href={href} className="block">
         <Card className="overflow-hidden group border-transparent hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10 h-full">
             <CardContent className="p-0">
@@ -48,7 +45,7 @@ const TrendingCard = ({ href, image, hint, title, creator, viewers, icon: Icon }
                     />
                     <div className="absolute top-2 right-2 bg-background/70 backdrop-blur-sm px-2 py-1 rounded-full text-xs flex items-center gap-1">
                         <Icon className="w-3 h-3 text-primary" />
-                        <span>{viewers}</span>
+                        <span>{users.length}</span>
                     </div>
                 </div>
                 <div className="p-4">
@@ -147,6 +144,13 @@ const CAFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function HomePage() {
   const { userProfile } = useAuth();
+  const [trendingVideos, setTrendingVideos] = useState<Room[]>([]);
+  const [trendingAudio, setTrendingAudio] = useState<Room[]>([]);
+
+  useEffect(() => {
+    setTrendingVideos(getMockVideoRooms());
+    setTrendingAudio(getMockAudioRooms());
+  }, []);
 
   if (!userProfile) {
       return (
@@ -217,12 +221,18 @@ export default function HomePage() {
                     <PlaySquare className="w-6 h-6 text-primary" />
                     <h2 className="text-2xl font-bold font-headline">Trending Videos</h2>
                 </div>
-                {mockTrendingVideos.length > 0 ? (
+                {trendingVideos.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {mockTrendingVideos.map((item) => (
+                    {trendingVideos.map((item) => (
                       <TrendingCard 
                           key={item.id}
-                          {...item}
+                          href={`/video/room/${item.id}`}
+                          image={item.thumbnail}
+                          hint={item.thumbnailHint}
+                          title={item.name}
+                          creator={item.ownerName}
+                          users={item.users}
+                          icon={PlaySquare}
                       />
                     ))}
                   </div>
@@ -236,12 +246,18 @@ export default function HomePage() {
                     <Mic className="w-6 h-6 text-primary" />
                     <h2 className="text-2xl font-bold font-headline">Trending Audio</h2>
                 </div>
-                {mockTrendingAudio.length > 0 ? (
+                {trendingAudio.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {mockTrendingAudio.map((item) => (
-                      <TrendingCard 
+                    {trendingAudio.map((item) => (
+                       <TrendingCard 
                           key={item.id}
-                          {...item}
+                          href={`/audio/room/${item.id}`}
+                          image={item.thumbnail}
+                          hint={item.thumbnailHint}
+                          title={item.name}
+                          creator={item.ownerName}
+                          users={item.users}
+                          icon={Mic}
                       />
                     ))}
                   </div>

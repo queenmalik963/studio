@@ -76,7 +76,7 @@ export default function ProfilePage() {
                                 <DialogTrigger asChild disabled={!isOwnProfile}>
                                     <div className={cn("relative group", isOwnProfile && "cursor-pointer")}>
                                         <Avatar className={cn("w-24 h-24 border-4", userProfile.currentFrame ? 'border-transparent p-1' : 'border-white')}>
-                                            <div className={cn("absolute rounded-full", userProfile.currentFrame && "animate-spin-colors" , 'inset-[-4px]')}></div>
+                                            {userProfile.currentFrame && <div className={cn("absolute rounded-full animate-spin-colors" , 'inset-[-4px]')}></div>}
                                             <AvatarImage src={userProfile.avatar} alt={userProfile.name} data-ai-hint="person alphabet" />
                                             <AvatarFallback>{userProfile.name.charAt(0)}</AvatarFallback>
                                         </Avatar>

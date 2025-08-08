@@ -7,12 +7,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Search, MessageCircle } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formatDistanceToNow } from 'date-fns';
-import { type ConversationSummary } from "@/services/chatService";
+import { type ConversationSummary, getMockConversations } from "@/services/chatService";
 
 export default function ChatListPage() {
-    const [conversations] = useState<ConversationSummary[]>([]);
+    const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+
+    useEffect(() => {
+        setConversations(getMockConversations());
+    }, []);
 
     return (
         <AppLayout>
@@ -33,7 +37,7 @@ export default function ChatListPage() {
                                  <Card className="bg-card/50 hover:bg-card/80 transition-colors border-transparent hover:border-primary/20">
                                      <CardContent className="p-3 flex items-center gap-4">
                                          <Avatar className="h-12 w-12 border-2 border-primary/50">
-                                            <AvatarImage src={chat.partnerAvatar} alt={chat.partnerName} />
+                                            <AvatarImage src={chat.partnerAvatar} alt={chat.partnerName} data-ai-hint="person face" />
                                             <AvatarFallback>{chat.partnerName.charAt(0)}</AvatarFallback>
                                         </Avatar>
                                         <div className="flex-1 overflow-hidden">
