@@ -93,6 +93,10 @@ export default {
           '0%, 100%': { transform: 'rotate(0deg)' },
           '100%': { transform: 'rotate(360deg)' },
         },
+        'walk-across': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100vw)' },
+        },
         'glow-gold': {
           '0%, 100%': { filter: 'drop-shadow(0 0 5px rgba(253, 224, 71, 0.6))' },
           '50%': { filter: 'drop-shadow(0 0 10px rgba(253, 224, 71, 1))' },
@@ -166,6 +170,7 @@ export default {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'spin-colors': 'spin-colors 3s linear infinite',
+        'walk-across': 'walk-across 5s linear infinite',
         'glow-gold': 'glow-gold 2s ease-in-out infinite',
         'glow-purple': 'glow-purple 2s ease-in-out infinite',
         'glow-blue': 'glow-blue 2s ease-in-out infinite',
