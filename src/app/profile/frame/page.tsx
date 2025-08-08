@@ -47,7 +47,7 @@ type FrameTier = typeof frameTiers[0] | typeof animatedFrameTiers[0];
 export default function FrameStorePage() {
     const router = useRouter();
     const { toast } = useToast();
-    const { currentUser, userProfile, loading } = useAuth();
+    const { currentUser, userProfile, loading, updateUserProfileState } = useAuth();
     const [isBuying, setIsBuying] = useState<string | null>(null);
 
     useEffect(() => {
@@ -63,7 +63,7 @@ export default function FrameStorePage() {
         }
 
         if (userProfile.coins < frame.price) {
-            toast({ title: "Not enough coins", description: "Please recharge your wallet.", variant: "destructive" });
+            toast({ title: "Not enough coins", description: `You need ${frame.price.toLocaleString()} coins, but you only have ${userProfile.coins.toLocaleString()}. Please recharge.`, variant: "destructive" });
             return;
         }
 
@@ -71,7 +71,8 @@ export default function FrameStorePage() {
         const result = await buyFrame(currentUser.uid, frame.id, frame.price);
         setIsBuying(null);
 
-        if (result.success) {
+        if (result.success && result.updatedProfile) {
+            updateUserProfileState(result.updatedProfile);
             toast({
                 title: "Purchase Successful!",
                 description: `You have bought the ${frame.name} frame.`,
@@ -92,7 +93,8 @@ export default function FrameStorePage() {
         const result = await equipFrame(currentUser.uid, frame.id);
         setIsBuying(null);
 
-        if (result.success) {
+        if (result.success && result.updatedProfile) {
+            updateUserProfileState(result.updatedProfile);
             toast({
                 title: "Frame Equipped!",
                 description: `You have equipped the ${frame.name} frame.`,

@@ -130,7 +130,7 @@ export default function AudioRoomPage() {
             if (isPlaying && currentTrackUrl) {
                 audioRef.current.play().catch(e => console.error("Audio play failed:", e));
             } else {
-                audio_ref.current.pause();
+                audioRef.current?.pause();
             }
         }
     }, [isPlaying, currentTrackUrl]);
@@ -246,7 +246,7 @@ export default function AudioRoomPage() {
     };
     
     const togglePlay = () => {
-        if (!currentTrackUrl) {
+        if (!currentTrackUrl && !room?.currentTrack) {
             toast({ variant: 'destructive', title: "No track selected", description: "Owner needs to upload a track first." });
             return;
         }
@@ -418,7 +418,7 @@ export default function AudioRoomPage() {
     return (
         <div className="flex flex-col h-screen bg-[#2E103F] text-white font-sans overflow-hidden">
              <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="audio/*" className="hidden" />
-             {currentTrackUrl && <audio ref={audioRef} loop src={currentTrackUrl} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />}
+             <audio ref={audioRef} loop src={currentTrackUrl || room.currentTrack || ''} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
              {animatedWalkingGift && <WalkingGiftAnimation giftImage={animatedWalkingGift} />}
              {animatedGift && !animatedVideoGift && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
@@ -659,3 +659,4 @@ export default function AudioRoomPage() {
         </div>
     );
 }
+

@@ -29,12 +29,11 @@ export function SpinTheWheel({ participants, onGameEnd, isOwner, roomId }: SpinT
         spread: 90,
         origin: { y: 0.6 },
       });
-      sendMessage(roomId, {
-        type: 'system',
-        text: `🎉 Congratulations to ${winner.name} for winning Spin the Wheel! 🎉`
-      });
+      // This was being called on every render if a winner was set.
+      // It should only be called once when the winner is determined.
+      // The logic is moved to the handleSpin function to ensure it's called once.
     }
-  }, [winner, roomId]);
+  }, [winner]);
   
 
   const handleSpin = () => {
@@ -45,14 +44,19 @@ export function SpinTheWheel({ participants, onGameEnd, isOwner, roomId }: SpinT
     
     const randomSpins = Math.floor(Math.random() * 5) + 5; // 5 to 10 full spins
     const winnerIndex = Math.floor(Math.random() * participants.length);
+    const determinedWinner = participants[winnerIndex];
     const stopAngle = (winnerIndex * segmentAngle) + (segmentAngle / 2);
     const finalRotation = (randomSpins * 360) + stopAngle;
 
     setRotation(finalRotation);
 
     setTimeout(() => {
-      setWinner(participants[winnerIndex]);
+      setWinner(determinedWinner);
       setSpinning(false);
+      sendMessage(roomId, {
+        type: 'system',
+        text: `🎉 Congratulations to ${determinedWinner.name} for winning Spin the Wheel! 🎉`
+      });
     }, 6000); // Corresponds to the transition duration
   };
 

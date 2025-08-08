@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -62,7 +63,7 @@ type VipTier = typeof vipTiers[0];
 export default function VipStorePage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { currentUser, userProfile, loading } = useAuth();
+  const { currentUser, userProfile, loading, updateUserProfileState } = useAuth();
   const [isBuying, setIsBuying] = useState<string | null>(null);
 
   useEffect(() => {
@@ -77,11 +78,17 @@ export default function VipStorePage() {
         return;
     }
     
+    if (userProfile.coins < tier.price) {
+        toast({ title: "Not enough coins", description: `You need ${tier.price.toLocaleString()} coins, but you only have ${userProfile.coins.toLocaleString()}. Please recharge.`, variant: "destructive" });
+        return;
+    }
+
     setIsBuying(tier.id);
     const result = await buyVipTier(currentUser.uid, tier.id, tier.price);
     setIsBuying(null);
 
-    if (result.success) {
+    if (result.success && result.updatedProfile) {
+        updateUserProfileState(result.updatedProfile);
         toast({
             title: "Purchase Successful!",
             description: `Congratulations! You are now a ${tier.name}.`,
@@ -104,6 +111,8 @@ export default function VipStorePage() {
       </AppLayout>
     );
   }
+  
+  const isVip = !!userProfile.vipTier;
 
   return (
     <AppLayout>
@@ -130,53 +139,59 @@ export default function VipStorePage() {
             className="w-full"
             >
             <CarouselContent>
-                {vipTiers.map((tier, index) => (
-                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                    <div className="p-1 h-full">
-                    <Card className={cn("flex flex-col h-full text-white bg-gradient-to-br relative overflow-visible", tier.color)}>
-                        {tier.tagImage && (
-                            <div className="absolute -top-4 right-[-16px] w-20 h-20 z-10 animate-pulse-luxury">
-                                <Image
-                                    src={tier.tagImage}
-                                    alt={`${tier.name} Tag`}
-                                    layout="fill"
-                                    className="object-contain"
-                                    unoptimized
-                                />
+                {vipTiers.map((tier, index) => {
+                    const isCurrentTier = userProfile.vipTier === tier.id;
+                    return (
+                        <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                            <div className="p-1 h-full">
+                            <Card className={cn("flex flex-col h-full text-white bg-gradient-to-br relative overflow-visible", tier.color)}>
+                                {tier.tagImage && (
+                                    <div className="absolute -top-4 right-[-16px] w-20 h-20 z-10 animate-pulse-luxury">
+                                        <Image
+                                            src={tier.tagImage}
+                                            alt={`${tier.name} Tag`}
+                                            layout="fill"
+                                            className="object-contain"
+                                            unoptimized
+                                        />
+                                    </div>
+                                )}
+                                <CardHeader className="items-center text-center">
+                                <div className={cn("relative mb-4", tier.name === 'Shogun' ? 'w-24 h-24' : 'w-20 h-20')}>
+                                <div className={cn("absolute rounded-full", tier.frameClass, tier.name === 'Shogun' ? 'inset-[-8px]' : 'inset-[-4px]')}></div>
+                                    <Image 
+                                        unoptimized
+                                        src={tier.specialFrameUrl}
+                                        alt={`${tier.name} Frame`}
+                                        layout="fill"
+                                        className={cn("absolute pointer-events-none object-contain", tier.frameClass, tier.name === 'Shogun' ? '-inset-2' : '-inset-1')}
+                                    />
+                                </div>
+                                <CardTitle className="flex items-center gap-2 text-2xl">
+                                    <Crown /> {tier.name} VIP
+                                </CardTitle>
+                                <CardDescription className="text-white/80 text-lg font-bold">{tier.price.toLocaleString()} Coins/m</CardDescription>
+                                </CardHeader>
+                                <CardContent className="flex-grow flex flex-col justify-between p-4">
+                                <ul className="space-y-2 list-disc list-inside text-white/90">
+                                    {tier.features.map((feature: string) => <li key={feature}>{feature}</li>)}
+                                </ul>
+                                <Button 
+                                    className="w-full mt-6 bg-white/20 hover:bg-white/30 backdrop-blur-lg border border-white/30"
+                                    onClick={() => handlePurchase(tier)}
+                                    disabled={isBuying === tier.id || isCurrentTier}
+                                >
+                                    {isBuying === tier.id ? <Loader2 className="animate-spin" /> :
+                                    isCurrentTier ? <><CheckCircle className="mr-2" /> Current Plan</> :
+                                    isVip ? "Upgrade Plan" : "Purchase"
+                                    }
+                                </Button>
+                                </CardContent>
+                            </Card>
                             </div>
-                        )}
-                        <CardHeader className="items-center text-center">
-                        <div className={cn("relative mb-4", tier.name === 'Shogun' ? 'w-24 h-24' : 'w-20 h-20')}>
-                           <div className={cn("absolute rounded-full", tier.frameClass, tier.name === 'Shogun' ? 'inset-[-8px]' : 'inset-[-4px]')}></div>
-                            <Image 
-                                unoptimized
-                                src={tier.specialFrameUrl}
-                                alt={`${tier.name} Frame`}
-                                layout="fill"
-                                className={cn("absolute pointer-events-none object-contain", tier.frameClass, tier.name === 'Shogun' ? '-inset-2' : '-inset-1')}
-                            />
-                        </div>
-                        <CardTitle className="flex items-center gap-2 text-2xl">
-                            <Crown /> {tier.name} VIP
-                        </CardTitle>
-                        <CardDescription className="text-white/80 text-lg font-bold">{tier.price.toLocaleString()} Coins/m</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-grow flex flex-col justify-between p-4">
-                        <ul className="space-y-2 list-disc list-inside text-white/90">
-                            {tier.features.map((feature: string) => <li key={feature}>{feature}</li>)}
-                        </ul>
-                        <Button 
-                            className="w-full mt-6 bg-white/20 hover:bg-white/30 backdrop-blur-lg border border-white/30"
-                            onClick={() => handlePurchase(tier)}
-                            disabled={isBuying === tier.id}
-                        >
-                             {isBuying === tier.id ? <Loader2 className="animate-spin" /> : "Purchase"}
-                        </Button>
-                        </CardContent>
-                    </Card>
-                    </div>
-                </CarouselItem>
-                ))}
+                        </CarouselItem>
+                    )
+                })}
             </CarouselContent>
             </Carousel>
         ) : (

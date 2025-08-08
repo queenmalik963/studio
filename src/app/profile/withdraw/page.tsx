@@ -47,7 +47,7 @@ const CryptoIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export default function WithdrawPage() {
     const router = useRouter();
     const { toast } = useToast();
-    const { currentUser, userProfile, loading } = useAuth();
+    const { currentUser, userProfile, loading, updateUserProfileState } = useAuth();
     const [exchangeAmount, setExchangeAmount] = useState<number | string>("");
     const [withdrawAmount, setWithdrawAmount] = useState<number | string>("");
     const [isExchanging, setIsExchanging] = useState(false);
@@ -99,7 +99,8 @@ export default function WithdrawPage() {
         const result = await exchangeDiamondsForCoins(currentUser.uid, amount);
         setIsExchanging(false);
 
-        if (result.success) {
+        if (result.success && result.updatedProfile) {
+            updateUserProfileState(result.updatedProfile);
             toast({
                 title: "Exchange Successful!",
                 description: `${amount.toLocaleString()} diamonds have been converted to ${(amount * 2).toLocaleString()} coins.`,

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -9,9 +10,6 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { updateUserProfile } from "@/services/userService";
 
@@ -64,7 +62,7 @@ type RechargePack = typeof rechargePacks[0];
 export default function RechargePage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { currentUser, userProfile, loading } = useAuth();
+  const { currentUser, userProfile, loading, updateUserProfileState } = useAuth();
   const [selectedPack, setSelectedPack] = useState<RechargePack | null>(null);
 
   useEffect(() => {
@@ -73,20 +71,23 @@ export default function RechargePage() {
     }
   }, [loading, currentUser, router]);
 
-  const handleRechargeSelect = (pack: RechargePack) => {
+  const handleRechargeSelect = async (pack: RechargePack) => {
     setSelectedPack(pack);
-    toast({
-        title: "Pack Selected!",
-        description: `Contact on WhatsApp to buy ${pack.coins.toLocaleString()} coins for ${pack.price}.`,
-    })
-  }
+    if (!userProfile || !currentUser) return;
 
-  const whatsappPhoneNumber = "971564423341";
-  const rechargeMessage = selectedPack
-    ? `I'd like to recharge my account with the pack: ${selectedPack.coins.toLocaleString()} Coins for ${selectedPack.price}. My User ID is ${userProfile?.id}.`
-    : `I'd like to recharge my account. My User ID is ${userProfile?.id}.`;
-  
-  const whatsappLink = `https://wa.me/${whatsappPhoneNumber}?text=${encodeURIComponent(rechargeMessage)}`;
+    // Simulate purchase
+    const newCoins = userProfile.coins + pack.coins;
+    const result = await updateUserProfile(currentUser.uid, { coins: newCoins });
+    if (result.success && result.updatedProfile) {
+        updateUserProfileState(result.updatedProfile);
+        toast({
+            title: "Purchase Successful!",
+            description: `You bought ${pack.coins.toLocaleString()} coins. Your new balance is ${newCoins.toLocaleString()}.`,
+        });
+    } else {
+        toast({ title: "Purchase Failed", variant: "destructive" });
+    }
+  }
 
   if (loading || !userProfile) {
     return (
@@ -97,6 +98,13 @@ export default function RechargePage() {
       </AppLayout>
     )
   }
+  
+  const whatsappPhoneNumber = "971564423341";
+  const rechargeMessage = selectedPack
+    ? `I'd like to recharge my account with the pack: ${selectedPack.coins.toLocaleString()} Coins for ${selectedPack.price}. My User ID is ${userProfile?.id}.`
+    : `I'd like to recharge my account. My User ID is ${userProfile?.id}.`;
+  
+  const whatsappLink = `https://wa.me/${whatsappPhoneNumber}?text=${encodeURIComponent(rechargeMessage)}`;
 
   return (
     <AppLayout>
@@ -136,11 +144,11 @@ export default function RechargePage() {
 
         <Card>
             <CardHeader>
-                <CardTitle>Payment Method</CardTitle>
-                <CardDescription>Click the button below to contact us for recharge. Please select a pack first.</CardDescription>
+                <CardTitle>Official Agent</CardTitle>
+                <CardDescription>Click a pack above to add coins instantly. You can also contact our agent on WhatsApp for manual recharge.</CardDescription>
             </CardHeader>
             <CardContent>
-                <Button asChild disabled={!selectedPack} className="h-16 w-full text-lg justify-center gap-3 bg-green-500/10 border-green-500/30 hover:bg-green-500/20 text-foreground">
+                 <Button asChild className="h-16 w-full text-lg justify-center gap-3 bg-green-500/10 border-green-500/30 hover:bg-green-500/20 text-foreground">
                     <Link href={whatsappLink} target="_blank" rel="noopener noreferrer">
                         <WhatsAppIcon className="w-8 h-8 text-green-500" /> Contact on WhatsApp
                     </Link>

@@ -23,15 +23,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { updateUserProfile } from "@/services/userService";
 
 
 export default function ProfilePage() {
     const { toast } = useToast();
-    const { userProfile } = useAuth();
+    const { userProfile, loading, updateUserProfileState } = useAuth();
     
-    const [tempName, setTempName] = useState(userProfile.name);
+    const [tempName, setTempName] = useState(userProfile?.name || '');
 
-    if (!userProfile) {
+    // Sync tempName if userProfile changes
+    useEffect(() => {
+        if (userProfile) {
+            setTempName(userProfile.name);
+        }
+    }, [userProfile]);
+
+    if (loading || !userProfile) {
         return (
             <div className="flex h-screen w-full items-center justify-center bg-background">
                 <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -49,13 +57,31 @@ export default function ProfilePage() {
 
     const handleNameChange = async () => {
         if (tempName !== userProfile.name) {
-            toast({ title: "Name updated (Mock)!", description: `Name changed to ${tempName}` });
+            const result = await updateUserProfile(userProfile.id, { name: tempName });
+             if (result.success && result.updatedProfile) {
+                updateUserProfileState(result.updatedProfile);
+                toast({ title: "Name updated!", description: `Your name has been changed to ${tempName}` });
+            } else {
+                toast({ title: "Error", description: "Could not update name.", variant: "destructive" });
+            }
         }
     }
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            toast({ title: "Avatar updated (Mock)!" });
+             const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const newAvatarUrl = reader.result as string;
+                const result = await updateUserProfile(userProfile.id, { avatar: newAvatarUrl });
+                if (result.success && result.updatedProfile) {
+                    updateUserProfileState(result.updatedProfile);
+                    toast({ title: "Avatar updated!" });
+                } else {
+                    toast({ title: "Error", description: "Could not update avatar.", variant: "destructive" });
+                }
+            };
+            reader.readAsDataURL(file);
         }
     }
 
